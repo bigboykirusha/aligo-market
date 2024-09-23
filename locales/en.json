@@ -1,0 +1,162 @@
+{
+   "modal": {
+      "title": "Selecting a city or region",
+      "inputPlaceholder": "Enter city name",
+      "noData": "No data",
+      "saveButton": "Save"
+   },
+   "nav": {
+      "business": "For Business",
+      "login": "Login"
+   },
+   "cities": {
+      "Москва": "Moscow",
+      "Санкт-Петербург": "Saint Petersburg",
+      "Екатеринбург": "Yekaterinburg",
+      "Нижний Новгород": "Nizhny Novgorod",
+      "Пермь": "Perm",
+      "Тбилиси": "Tbilisi",
+      "Батуми": "Batumi",
+      "Новосибирск": "Novosibirsk",
+      "Уфа": "Ufa",
+      "Краснодар": "Krasnodar",
+      "Ростов-на-Дону": "Rostov-on-Don",
+      "Омск": "Omsk",
+      "Барнаул": "Barnaul",
+      "Владивосток": "Vladivostok",
+      "Тюмень": "Tyumen",
+      "Рязань": "Ryazan"
+   },
+   "header": {
+      "slogan": "Making Georgia more mobile",
+      "allCategories": "All categories",
+      "searchPlaceholder": "I am looking for...",
+      "postAd": "Post an ad"
+   },
+   "menu": {
+      "auto": "Автомобили",
+      "realty": "Недвижимость",
+      "job": "Работа",
+      "service": "Услуги",
+      "product": "Товары",
+      "clothing": "Одежда",
+      "repair": "Ремонт",
+      "cleaning": "Уборка",
+      "delivery": "Доставка",
+      "electronics": "Электроника",
+      "furniture": "Мебель",
+      "full-time": "Полная занятость",
+      "part-time": "Частичная занятость",
+      "internship": "Стажировка",
+      "used": "Б/У",
+      "new": "Новый",
+      "apartments": "Квартиры",
+      "sell": "Продать",
+      "rent": "Аренда",
+      "rooms": "Комнаты",
+      "houses": "Дома, Дачи",
+      "land": "Земельные участки",
+      "commercial": "Коммерческая недвижимость"
+   },
+   "categories": {
+      "auto": "Automobiles",
+      "realty": "Realty",
+      "job": "Jobs",
+      "service": "Services",
+      "product": "Goods",
+      "autoUsed": "Used cars",
+      "autoNew": "New cars",
+      "realtyFlats": "Flats",
+      "realtyHouses": "Houses",
+      "realtyGarages": "Garages",
+      "jobVacancies": "Vacancies",
+      "jobResumes": "Resumes",
+      "serviceMaster": "Handyman",
+      "serviceManicure": "Manicure",
+      "serviceCleaning": "Cleaning",
+      "productKidsClothes": "Kids' clothes",
+      "productElectronics": "Electronics",
+      "productFood": "Food"
+   },
+   "footer": {
+      "menu": {
+         "auto": "Cars",
+         "parts": "Car Parts",
+         "realty": "Realty",
+         "job": "Job",
+         "service": "Services",
+         "product": "Products"
+      },
+      "links": {
+         "rules": "Aligo Rules",
+         "privacy": "Privacy Policy",
+         "agreement": "Agreement"
+      },
+      "copyright": "Aligo corporate co ltd. 2024."
+   },
+   "info": {
+      "title": "SEO for Real Estate Rental Abroad",
+      "paragraphs": [
+         "Thus, the implementation of planned tasks entails the process of introducing and modernizing both self-sufficient and externally dependent conceptual solutions. Gentlemen, the semantic analysis of external counteractions leaves us no choice but to define experiments that are striking in their scale and grandeur. Each of us understands the obvious thing: the constant informational and propaganda support of our activities entails the process of introducing and modernizing the clustering of efforts. As has been repeatedly mentioned, nanotechnologies, which seek to displace traditional production, are limited exclusively by the way of thinking.",
+         "There is something to think about: replicated from foreign sources, modern research is described in as much detail as possible. In our desire to improve the user experience, we miss the fact that entrepreneurs on the internet still remain the domain of liberals who crave to be described in as much detail as possible. But the constant informational and propaganda support of our activities leaves us no choice but to define favorable prospects. Each of us understands the obvious thing: the existing theory is an interesting experiment to test innovative methods of process management.",
+         "Suddenly, shareholders of the largest companies are only a method of political participation and are described in as much detail as possible. In their desire to improve the quality of life, they forget that the semantic analysis of external counteractions contributes to the preparation and implementation of innovative methods of process management.",
+         "For the modern world, the beginning of daily work on forming a position leaves no chance for the system of mass participation. However, it should not be forgotten that the existing organizational structure requires an analysis of priority requirements. Gentlemen, the basic vector of development speaks about the possibilities of priority requirements. Banally, but undeniably, conclusions, as well as actively developing third world countries, will be made public. Likewise, a deep level of immersion contributes to the preparation and implementation of progressive development directions. Considering key behavior scenarios, prospective planning allows us to evaluate the significance of profound reflections."
+      ]
+   },
+   "card": {
+      "write": "Write",
+      "call": "Call",
+      "hoursAgo": "hours ago"
+   },
+   "loginModal": {
+      "title": "Login",
+      "smsLogin": "Login via SMS",
+      "emailLogin": "Login with email",
+      "phoneNumberPlaceholder": "Enter phone number",
+      "loginPlaceholder": "Phone or email",
+      "passwordPlaceholder": "Password",
+      "forgotPassword": "Forgot password?",
+      "registrationButton": "Register",
+      "submitButton": "Submit"
+   },
+   "registrationModal": {
+      "title": "Registration",
+      "login": "Login",
+      "loginPlaceholder": "Enter login",
+      "email": "Email",
+      "emailPlaceholder": "Enter email",
+      "password": "Password",
+      "passwordPlaceholder": "Enter password",
+      "submitButton": "Register",
+      "agreement": "By clicking the button, I agree to the",
+      "terms": "terms of Aligo",
+      "dataPolicy": "and the privacy policy"
+   },
+   "business": {
+      "sectionTitle": "Soon we will explain how our service will help your business earn more!",
+      "homeLink": "Home"
+   },
+   "error": {
+      "ups": "Oops!",
+      "error404": "Error 404",
+      "pageNotFound": "Page not found",
+      "homeLink": "Home"
+   },
+   "titles": {
+      "title1": "This might be interesting",
+      "title2": "Recently viewed",
+      "title3": "Similar listings",
+      "title4": "Fresh listings"
+   },
+   "bannerRent": {
+      "headerText": "Property Rental Abroad",
+      "headerTextMoscow": "Car rental in Moscow",
+      "altText": "Property Rental",
+      "titleText": "Property Rental",
+      "buttonText": "View Offers"
+   },
+   "dubai_banner": {
+      "headerText": "Premium cars from the Emirates",
+      "buttonText": "Learn more >"
+   }
+}
