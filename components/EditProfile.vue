@@ -18,7 +18,7 @@
 
                <!-- Поле Username -->
                <div class="simple-input">
-                  <label class="simple-input__label">ФИО</label>
+                  <label class="simple-input__label">Имя</label>
                   <div class="simple-input__wrapper">
                      <div class="simple-input__block">
                         <input v-if="editMode.username" id="username" v-model="profile.username" type="text"

@@ -11,13 +11,14 @@
                   <img src="../assets/icons/ID.svg" alt="header image" />
                </div>
                <div class="modal__header-bar"></div>
-               <div v-show="isPhoneSaved === isEmailSaved" class="modal__header-switcher">
+               <div v-show="(isPhoneSaved === isEmailSaved) && !showCodeInput" class="modal__header-switcher">
                   <button :class="{ 'active': activeTab === 0 }" @click="switchTab(0)" @keydown.enter.prevent>
                      {{ $t('loginModal.smsLogin') }}
                   </button>
                   <button :class="{ 'active': activeTab === 1 }" @click="switchTab(1)" @keydown.enter.prevent>
                      {{ $t('loginModal.emailLogin') }}
                   </button>
+                  <div class="switcher" :style="{ transform: `translateX(${activeTab * 100}%)` }"></div>
                </div>
             </div>
 
@@ -31,16 +32,17 @@
                         <p class="input-wrapper__title">Введите номер телефона</p>
                         <p class="input-wrapper__description">Мы отправим вам проверочный код в СМС для входа в аккаунт
                         </p>
-                        <input type="tel" v-model="phoneNumber" class="phone-input" v-mask="'+7 (###) ### - ## - ##'"
-                           ref="phoneInput">
+                        <input type="tel" v-model="phoneNumber" class="phone-input" v-mask="'+7 (###) ###-##-##'"
+                           ref="phoneInput" placeholder="+7 (___) ___ - __ - __">
                      </div>
                      <div class="input-wrapper" v-else>
+                        <p class="input-wrapper__title">Введите код</p>
                         <p class="input-wrapper__description">
-                           Мы отправили код для подтверждения на номер {{ formattedPhoneNumber }}<br />
-                           <span @click.prevent="switchTab(0)"
-                              class="input-wrapper__description input-wrapper__description--link">Изменить номер</span>
+                           Мы отправили вам код для подтверждения на номер {{ formattedPhoneNumber }}<br />
+                        <div @click.prevent="switchTab(0)" class="input-wrapper__description--link">Изменить номер</div>
                         </p>
-                        <input type="text" v-model="code" placeholder="Код">
+                        <VueOtpInput input-classes="otp-input" inputType="numeric" :num-inputs="6" v-model:value="code"
+                           :should-auto-focus="true" :should-focus-order="true" @on-complete="submitForm" />
                         <p class="timer-message" v-if="timeLeft > 0">
                            Получить новый можно через {{ formattedTime }}
                         </p>
@@ -54,15 +56,17 @@
                      <div class="input-wrapper" v-if="!showCodeInput">
                         <p class="input-wrapper__title">Введите адрес почты</p>
                         <p class="input-wrapper__description">Мы отправим вам проверочный код для входа в аккаунт</p>
-                        <input type="email" v-model="email" @input="validateEmail" class="phone-input" ref="emailInput">
+                        <input type="email" v-model="email" @input="validateEmail" class="phone-input" ref="emailInput"
+                           placeholder="example@gmail.com">
                      </div>
                      <div class="input-wrapper" v-else>
+                        <p class="input-wrapper__title">Введите код</p>
                         <p class="input-wrapper__description">
                            Мы отправили код для подтверждения на почту {{ email }} <br />
-                           <span @click.prevent="switchTab(1)"
-                              class="input-wrapper__description input-wrapper__description--link">Изменить почту</span>
+                        <div @click.prevent="switchTab(1)" class="input-wrapper__description--link">Изменить почту</div>
                         </p>
-                        <input type="text" v-model="code" placeholder="Код">
+                        <VueOtpInput input-classes="otp-input" inputType="numeric" :num-inputs="6" v-model:value="code"
+                           :should-auto-focus="true" :should-focus-order="true" @on-complete="submitForm" />
                         <p class="timer-message" v-if="timeLeft > 0">
                            Получить новый можно через {{ formattedTime }}
                         </p>
@@ -73,7 +77,7 @@
                      <div class="modal__header-bar"></div>
                   </div>
                </div>
-               <div class="modal__footer">
+               <div v-if="!showCodeInput" class="modal__footer">
                   <button v-show="activeTab === 0 && showCodeInput && (isPhoneSaved || isEmailSaved)"
                      @click.prevent="switchTab(1)" class="modal__button modal__button--revers">
                      Войти через почту
@@ -82,23 +86,23 @@
                      class="modal__button modal__button--revers">
                      Войти по SMS
                   </button>
-                  <button v-if="(isPhoneSaved || isEmailSaved) && !showCodeInput" :disabled="isSubmitDisabled"
-                     class="modal__button" :class="{ '--disabled': isSubmitDisabled }" @click.prevent="requestCode">
+                  <button v-if="(isPhoneSaved || isEmailSaved) && !showCodeInput" :disabled="isContactInfoInvalid"
+                     class="modal__button" :class="{ '--disabled': isContactInfoInvalid }" @click.prevent="requestCode">
                      Вход
                   </button>
-                  <button v-show="!isPhoneSaved && !isEmailSaved" :disabled="isSubmitDisabled" class="modal__button"
-                     :class="{ '--disabled': isSubmitDisabled }">
+                  <button v-show="!isPhoneSaved && !isEmailSaved && !showCodeInput" :disabled="isContactInfoRegInvalid"
+                     class="modal__button" :class="{ '--disabled': isContactInfoRegInvalid }">
                      {{ showCodeInput ? 'Зарегистрироваться' : 'Отправить' }}
                   </button>
-                  <div v-if="!isPhoneSaved && !isEmailSaved && showCodeInput" class="checkbox-wrapper">
+                  <div v-if="!isPhoneSaved && !isEmailSaved && !showCodeInput" class="checkbox-wrapper">
                      <label>
                         <input type="checkbox" v-model="checkbox1" />
                         <span>Согласен с <span class="checkbox-wrapper--blue">правилами Aligo</span></span>
                      </label>
                      <label>
                         <input type="checkbox" v-model="checkbox2" />
-                        <span>Принимаю политику обработки <span class="checkbox-wrapper--blue">персональных
-                              данных</span></span>
+                        <span>Принимаю <span class="checkbox-wrapper--blue">политику обработки
+                              персональныхданных</span></span>
                      </label>
                   </div>
                </div>
@@ -114,6 +118,7 @@ import { useUserStore } from '../store/user';
 import closeIcon from '../assets/icons/close.svg';
 import { loginUserByPhone, confirmPhoneCode } from '../services/apiClient';
 import { setCookie, getCookie } from '../services/auth';
+import VueOtpInput from 'vue3-otp-input';
 
 const emit = defineEmits(['close-loginModal']);
 const userStore = useUserStore();
@@ -191,19 +196,32 @@ const handleEnter = (event) => {
    }
 };
 
-const isSubmitDisabled = computed(() => {
+const isContactInfoInvalid = computed(() => {
    const isPhoneTab = activeTab.value === 0;
-   if (!showCodeInput.value && !isPhoneSaved.value && !isEmailSaved.value) {
-      return isPhoneTab ? !validatePhoneNumber(phoneNumber.value) : !validateEmail(email.value);
+
+   return isPhoneTab
+      ? !validatePhoneNumber(phoneNumber.value)
+      : !validateEmail(email.value);
+});
+
+const isContactInfoRegInvalid = computed(() => {
+   const isPhoneTab = activeTab.value === 0;
+
+   return isPhoneTab
+      ? !validatePhoneNumber(phoneNumber.value) || !checkbox1.value || !checkbox2.value
+      : !validateEmail(email.value) || !checkbox1.value || !checkbox2.value;
+});
+
+const isCodeInvalid = computed(() => {
+   if (showCodeInput.value) {
+      return code.value.length < 6;
    }
-   if (showCodeInput.value && !isPhoneSaved.value && !isEmailSaved.value) {
-      return !checkbox1.value || !checkbox2.value || code.value.length < 2;
-   }
+
    return false;
 });
 
 const submitForm = async () => {
-   if (isSubmitDisabled.value || isLoading.value) return;
+   if (isCodeInvalid.value || isLoading.value) return;
 
    isLoading.value = true;
 
@@ -319,12 +337,6 @@ const requestCode = async () => {
    }
 };
 
-watch(code, (newCode) => {
-   if (newCode.trim().length === 6 && (isPhoneSaved.value || isEmailSaved.value)) {
-      submitForm();
-   }
-});
-
 onMounted(() => {
    const savedUserData = JSON.parse(getCookie('userData'));
    if (savedUserData) {
@@ -375,9 +387,8 @@ onMounted(() => {
       align-items: center;
       justify-content: center;
       transition: background-color 0.1s ease-in-out;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
+      width: 16px;
+      height: 16px;
       top: 8px;
       right: 8px;
       z-index: 15;
@@ -385,13 +396,9 @@ onMounted(() => {
       border: none;
       cursor: pointer;
 
-      &:hover {
-         background-color: #D6EFFF;
-      }
-
       img {
-         width: 14px;
-         height: 14px;
+         width: 16px;
+         height: 16px;
       }
    }
 
@@ -428,7 +435,20 @@ onMounted(() => {
       }
 
       &-switcher {
+         .switcher {
+            position: absolute;
+            bottom: 2;
+            left: 2;
+            width: calc(50% - 4px);
+            border-radius: 4px;
+            height: 27px;
+            background-color: #3366FF;
+            transition: transform 0.3s ease;
+            z-index: 0;
+         }
+
          display: flex;
+         position: relative;
          justify-content: space-between;
          width: calc(100% - 84px);
          border: 1px solid #d6d6d6;
@@ -438,22 +458,20 @@ onMounted(() => {
 
          button {
             padding: 4px 6px;
+            z-index: 111;
             background-color: transparent;
             width: 50%;
             border: none;
             cursor: pointer;
             font-size: 14px;
             outline: none;
-            transition: background-color 0.3s ease;
 
             @media screen and (max-width: 480px) {
                font-size: 12px;
             }
 
             &.active {
-               background-color: #3366ff;
                color: #fff;
-               border-radius: 4px;
             }
          }
       }
@@ -462,6 +480,7 @@ onMounted(() => {
    &__form {
       width: 100%;
       padding: 24px 0;
+      padding-bottom: 0;
       display: flex;
       position: relative;
       flex-direction: column;
@@ -473,7 +492,7 @@ onMounted(() => {
             display: flex;
             flex-direction: column;
             margin-bottom: 24px;
-            padding: 0 42px;
+            padding: 0 40px;
             font-size: 12px;
 
             label {
@@ -491,19 +510,24 @@ onMounted(() => {
 
             &__description {
                font-size: 14px;
+               line-height: 18px;
                color: #323232;
-               margin-bottom: 24px;
+               margin-bottom: 32px;
                margin-top: 0;
 
                &--link {
                   color: #3366ff;
+                  margin-top: 8px;
+                  font-size: 14px;
+                  line-height: 18px;
                }
             }
 
             input {
                border: 1px solid #d6d6d6;
                border-radius: 4px;
-               height: 38px;
+               height: 34px;
+               line-height: 18px;
                width: 100%;
                font-size: 14px;
                padding: 0 12px;
@@ -532,8 +556,9 @@ onMounted(() => {
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 24px;
+      gap: 16px;
       padding: 0 42px;
+      padding-bottom: 24px;
    }
 }
 
@@ -571,7 +596,7 @@ onMounted(() => {
    height: 38px;
    margin-top: 24px;
    border: none;
-   border-radius: 4px;
+   border-radius: 6px;
    font-size: 14px;
    cursor: pointer;
    background-color: #3366ff;
@@ -584,7 +609,8 @@ onMounted(() => {
    }
 
    &.--disabled {
-      background-color: #d6d6d6;
+      background-color: #EEEEEE;
+      color: #A8A8A8;
    }
 }
 
@@ -598,15 +624,26 @@ onMounted(() => {
       align-items: center;
       font-size: 14px;
       line-height: 1;
+
+      input[type="checkbox"] {
+         margin-right: 6px;
+         margin-top: 2px;
+         border-radius: 4px;
+         height: 14px;
+         width: 14px;
+         min-width: 14px;
+         margin-bottom: auto;
+      }
    }
 
-   &--blue {
-      color: #3366FF;
-   }
+   span {
+      font-size: 14px;
+      line-height: 18px;
+      color: #323232;
 
-   input[type="checkbox"] {
-      margin-right: 6px;
-      margin-bottom: auto;
+      .checkbox-wrapper--blue {
+         color: #3366FF;
+      }
    }
 }
 

@@ -16,7 +16,8 @@
             <div class="card__container">
                <nuxt-link :to="`/car/${id}`" class="card__title">{{ displayTitle }}</nuxt-link>
                <div class="card__block">
-                  <span class="card__price">{{ price !== 'Цена не указана' ? price : 'Цена не указана' }}</span>
+                  <span class="card__price">{{ formatNumberWithSpaces(price) !== 'Цена не указана' ?
+                     formatNumberWithSpaces(price) : 'Цена не указана' }}</span>
                   <span v-if="price !== 'Цена не указана'" class="card__currency">₽</span>
                </div>
                <div class="card__description">{{ description || 'Описание не указано' }}</div>
@@ -85,6 +86,7 @@
 <script setup>
 import { ref, computed, watchEffect, onMounted, onBeforeUnmount } from 'vue';
 import { useSelectedAdsStore } from '../store/selectedAds.js';
+import { formatNumberWithSpaces } from '../services/amountUtils.js';
 import { useSelectedDraftsStore } from '../store/selectedDrafts.js';
 import { getImageUrl } from '../services/imageUtils'
 import { useCreateStore } from '~/store/create.js';
@@ -666,11 +668,7 @@ onBeforeUnmount(() => {
       height: 34px;
 
       &__icon {
-         height: 14px;
-
-         &:last-child {
-            height: 14px;
-         }
+         height: 16px;
       }
 
       &__text {

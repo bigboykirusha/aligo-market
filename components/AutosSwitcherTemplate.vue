@@ -2,9 +2,10 @@
    <div class="switcher">
       <div class="switcher__label">{{ label }}</div>
       <div class="switcher__items">
-         <div v-for="(option, index) in options" :key="option.id"
-            :class="['switcher__item', { 'switcher__item--active': selectedIndex === (index + 1) }]"
-            @click="selectOption(index)">
+         <div v-for="(option, index) in options" :key="option.id" :class="['switcher__item', {
+            'switcher__item--active': selectedIndex === (index + 1),
+            'switcher__item--disabled': props.dis
+         }]" @click="selectOption(index)" :disabled="props.dis">
             {{ option.title }}
             <div v-if="shouldShowDivider(index)" class="switcher__divider"></div>
          </div>
@@ -29,10 +30,15 @@ const props = defineProps({
    activeIndex: {
       type: Number,
       default: null
+   },
+   dis: {
+      type: Boolean,
+      default: false
    }
 });
 
 const selectedIndex = ref(props.activeIndex);
+console.log(props.activeIndex);
 
 watch(() => props.activeIndex, (newIndex) => {
    selectedIndex.value = newIndex;
@@ -40,6 +46,9 @@ watch(() => props.activeIndex, (newIndex) => {
 });
 
 const selectOption = (index) => {
+   if (props.dis) {
+      return;
+   }
    const actualIndex = index + 1;
    if (selectedIndex.value !== actualIndex) {
       selectedIndex.value = actualIndex;
@@ -107,6 +116,12 @@ const indicatorStyle = computed(() => {
 
       &--active {
          color: white;
+      }
+
+      &--disabled {
+         color: #a5a5a5;
+         cursor: not-allowed;
+         pointer-events: none; 
       }
    }
 

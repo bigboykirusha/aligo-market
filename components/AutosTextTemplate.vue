@@ -70,7 +70,7 @@ const errorMessage = computed(() => {
       case 'vin':
          return !/^[A-HJ-NPR-Z0-9]{17}$/.test(optionValue.value) ? 'Введите корректный VIN (17 символов, буквы и цифры)' : '';
       case 'licensePlate':
-         return !/^[АВЕКМНОРСТУХ]{1}\d{3}[АВЕКМНОРСТУХ]{2}\d{2,3}$/.test(optionValue.value) ? 'Введите корректный госномер (например, А123ВС77)' : '';
+         return !/^[A-Z]{1}\d{3}[A-Z]{2}\d{2,3}$/.test(optionValue.value) ? 'Введите корректный госномер (например, A123BC77)' : '';
       default:
          return '';
    }
@@ -127,12 +127,13 @@ const validate = (value) => {
       case 'vin':
          return /^[A-HJ-NPR-Z0-9]{17}$/.test(value);
       case 'licensePlate':
-         return /^[АВЕКМНОРСТУХ]{1}\d{3}[АВЕКМНОРСТУХ]{2}\d{2,3}$/.test(value);
+         return /^[A-Z]{1}\d{3}[A-Z]{2}\d{2,3}$/.test(value);
       default:
          return true;
    }
 };
 </script>
+
 
 <style scoped lang="scss">
 .simple-input {

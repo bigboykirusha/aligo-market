@@ -2,7 +2,6 @@ import { defineStore } from 'pinia';
 import { createCarAd, updateCarAd, getCarById } from '../services/apiClient';
 import { fetchLocation } from '../services/apiLocation.js'
 import { useUserStore } from './user';
-import { useCityStore } from './city';
 
 export const useCreateStore = defineStore('create', {
    state: () => ({
@@ -648,6 +647,7 @@ export const useCreateStore = defineStore('create', {
          if (this.username !== null) formData.append('username', this.username);
 
          try {
+            console.log(formData);
             const createdAd = await createCarAd(formData);
             console.log(createdAd);
             return createdAd;
@@ -664,6 +664,7 @@ export const useCreateStore = defineStore('create', {
          // Характеристики
          this.photos.forEach((photo, index) => {
             formData.append(`photos[${index}]`, photo);
+            console.log(formData.get(`photos[${index}]`))
          });
 
          if (this.color_id !== null) formData.append('color_id', this.color_id);

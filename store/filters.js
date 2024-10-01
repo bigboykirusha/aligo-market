@@ -4,6 +4,7 @@ import { getCarsFiltered } from '../services/apiClient';
 export const useFiltersStore = defineStore('filters', {
    state: () => ({
       selectedMark: [],
+      selectedCondition: null,
       selectedModel: [],
       priceRange: { min: null, max: null },
       mileageRange: { min: null, max: null },
@@ -54,11 +55,15 @@ export const useFiltersStore = defineStore('filters', {
       setSelectedColor(color) {
          this.selectedColor = color;
       },
+      setSelectedCondition(condition) {
+         this.selectedCondition = condition;
+      },
       setOrderBy(order) {
          this.orderBy = order;
       },
-      async fetchFilteredCars({ page = 1, count = 20}) {
+      async fetchFilteredCars({ page = 1, count = 20 }) {
          const filters = {
+            condition_id: this.selectedCondition,
             brand_id: this.selectedMark,
             model_id: this.selectedModel,
             amount_from: this.priceRange.min,

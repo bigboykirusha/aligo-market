@@ -1,31 +1,38 @@
 <template>
    <div :class="['messages-container', { 'profile-page': isProfilePage }]">
-      <div v-for="message in lastMessages" :key="message.id"
+      <SkeletonMessage v-if="loading" v-for="index in 3" :key="index" />
+      <div v-else v-for="message in lastMessages" :key="message.id"
          :class="['message-item', { 'unread-message': !message.read_at, 'profile-page': isProfilePage }]"
          @click="openChat(message)">
          <input v-if="isProfilePage" @click.stop type="checkbox" class="message-checkbox" :value="message.id"
             :checked="isMessageSelected(message)" @change="toggleMessage(message)" />
          <div class="image-container">
-            <img v-if="!isProfilePage" :src="message.avatarUrl || avatar" alt="Avatar" class="avatar" />
-            <img :src="message.adImageUrl" alt="Ad Image" class="ad-image" />
+            <img v-if="!isProfilePage" :src="getImageUrl(relevantUser(message).photo?.path, avatar)" alt="Avatar"
+               class="avatar" />
+            <img :src="getImageUrl(message.ads_photo[0]?.path)" alt="Ad Image" class="ad-image" />
          </div>
 
          <div class="message-info">
             <div class="message-info__container">
-               <img v-show="isProfilePage" :src="message.avatarUrl || avatar" alt="Avatar"
+               <img v-show="isProfilePage" :src="getImageUrl(relevantUser(message).photo?.path, avatar)" alt="Avatar"
                   :class="['avatar', { 'profile-page': isProfilePage }]" />
                <div class="message-info__block">
-                  <div class="user-info">{{ getUserInfo(message.user) }}</div>
-                  <div class="ad-details">{{ message.adDetails }}
-                     <div class="chat-header__ad-amount">{{ message.adAmount }}<span
-                           class="chat-header__ad-amount-currency">₽</span></div>
+                  <div class="user-info">
+                     {{ relevantUserInfo(message) }}
+                  </div>
+                  <div class="ad-details">
+                     {{ message.ads_info }}
+                     <div class="chat-header__ad-amount">
+                        {{ formatNumberWithSpaces(message.ads_amount) }} <span class="chat-header__ad-amount-currency">₽</span>
+                     </div>
                   </div>
                </div>
-               <div v-if="isProfilePage" class="ad-date">{{ formatDate(message.created_at) }}</div>
+               <div v-if="isProfilePage" class="ad-date">
+                  {{ formatDate(message.created_at) }}
+               </div>
             </div>
             <div class="message-text">
-               {{ locale !== 'ru' && message.message_translate ? message.message_translate :
-                  message.message }}
+               {{ messageContent(message) }}
             </div>
          </div>
       </div>
@@ -35,8 +42,10 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { getImageUrl } from '../services/imageUtils'
-import { fetchLastMessages, getUser, getCarById } from '~/services/apiClient';
+import { getImageUrl } from '../services/imageUtils';
+import { fetchLastMessages } from '~/services/apiClient';
+import { formatNumberWithSpaces } from '../services/amountUtils.js';
+import { relevantUser, relevantUserInfo} from '../services/userUtils.js'
 import { useUserStore } from '~/store/user';
 import { useSelectedMessagesStore } from '~/store/selectedMessages';
 import avatar from '../assets/icons/avatar-revers.svg';
@@ -45,84 +54,46 @@ const userStore = useUserStore();
 const selectedMessagesStore = useSelectedMessagesStore();
 const emit = defineEmits(['open-chat']);
 const lastMessages = ref([]);
+const loading = ref(true);
 const { locale } = useI18n();
 
 const props = defineProps({
    isProfilePage: {
       type: Boolean,
-      default: false
-   }
+      default: false,
+   },
 });
 
 const formatDate = (dateString) => {
    const months = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'нояб', 'дек'];
    const date = new Date(dateString);
-   return `${date.getDate()} ${months[date.getMonth()]} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+   return `${date.getDate()} ${months[date.getMonth()]} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes()
+      .toString()
+      .padStart(2, '0')}`;
 };
 
-const getUserAvatar = async (userId) => {
-   const cachedUser = localStorage.getItem(`user-${userId}`);
-   if (cachedUser) return JSON.parse(cachedUser);
-
-   try {
-      const userData = await getUser(userId);
-      const avatarUrl = getImageUrl(userData.photo?.path, avatar);
-      const userInfo = { avatarUrl, user: userData };
-      localStorage.setItem(`user-${userId}`, JSON.stringify(userInfo));
-      return userInfo;
-   } catch (error) {
-      console.error('Ошибка при получении данных пользователя:', error);
-      return { avatarUrl: '', user: null };
-   }
-};
-
-const getAdImageUrl = async (adId) => {
-   const cachedAd = localStorage.getItem(`ad-${adId}`);
-   if (cachedAd) return JSON.parse(cachedAd);
-
-   try {
-      const adData = await getCarById(adId);
-      const adImageUrl = getImageUrl(adData.photos[0]?.path);
-      const adAmount = adData.ads_parameter.amount;
-      const adDetails = `${adData.auto_technical_specifications[0].brand.title} ${adData.auto_technical_specifications[0].model.title} ${adData.auto_technical_specifications[0].year_release.title}`;
-      const adInfo = { adImageUrl, adDetails, adAmount };
-      localStorage.setItem(`ad-${adId}`, JSON.stringify(adInfo));
-      return adInfo;
-   } catch (error) {
-      console.error('Ошибка при получении данных объявления:', error);
-      return { adImageUrl: '', adDetails: '' };
-   }
+const messageContent = (message) => {
+   return locale.value !== 'ru' && message.message_translate ? message.message_translate : message.message;
 };
 
 const loadLastMessages = async () => {
+   loading.value = true;
    try {
       const { data } = await fetchLastMessages(locale.value);
-      lastMessages.value = await Promise.all(data.map(async (message) => {
-         const userId = message.from_user_id === userStore.userId ? message.for_user_id : message.from_user_id;
-         const { avatarUrl, user } = await getUserAvatar(userId);
-         const { adImageUrl, adDetails, adAmount } = await getAdImageUrl(message.ads_id);
-         return { ...message, avatarUrl, adImageUrl, adDetails, adAmount, user };
-      }));
+      lastMessages.value = data;
    } catch (error) {
       console.error('Ошибка при загрузке последних сообщений:', error);
+   } finally {
+      loading.value = false;
    }
 };
 
 const openChat = (message) => {
-   emit('open-chat', {
-      ...message,
-      avatarUrl: message.avatarUrl,
-      adImageUrl: message.adImageUrl,
-      userInfo: getUserInfo(message.user),
-      adDetails: message.adDetails,
-      adAmount: message.adAmount
-   });
+   emit('open-chat', message );
 };
 
-const getUserInfo = (user) => user ? user.username || user.login || user.phone || 'Имя не указано' : 'Имя не указано';
-
 const isMessageSelected = (message) => {
-   return selectedMessagesStore.selectedMessages.some(selected => selected.id === message.id);
+   return selectedMessagesStore.selectedMessages.some((selected) => selected.id === message.id);
 };
 
 const toggleMessage = (message) => {
@@ -130,24 +101,21 @@ const toggleMessage = (message) => {
       id: message.id,
       ads_id: message.ads_id,
       main_category_id: message.main_category_id,
-      user_id: message.for_user_id,
+      user_id: message.for_user.id,
    };
    selectedMessagesStore.toggleMessage(messageData);
 };
 
-onMounted(() => {
-   loadLastMessages();
-});
+onMounted(loadLastMessages);
 </script>
 
 <style lang="scss" scoped>
 .messages-container {
    display: flex;
    flex-direction: column;
-   padding-top: 70px;
    height: 100%;
    width: 100%;
-   overflow-y: auto;
+   padding-top: 70px;
 
    &.profile-page {
       gap: 16px;

@@ -28,7 +28,7 @@
       "Рязань": "Рязань"
    },
    "header": {
-      "slogan": "Делаем Россию мобильнее",
+      "slogan": "Доска объявлений",
       "allCategories": "Все категории",
       "searchPlaceholder": "Я ищу...",
       "postAd": "Разместить объявление"
@@ -111,7 +111,7 @@
    "loginModal": {
       "title": "Вход",
       "smsLogin": "Вход по СМС",
-      "emailLogin": "Вход через логин",
+      "emailLogin": "Вход через почту",
       "phoneNumberPlaceholder": "Мы отправим вам код в СМС для входа в аккаунт",
       "loginPlaceholder": "Телефон или почта",
       "passwordPlaceholder": "Пароль",

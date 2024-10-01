@@ -8,15 +8,20 @@
             <div class="user-info__name">{{ userData.username }}</div>
             <div class="user-info__rating">
                <div class="user-info__rating-text">
-                  {{ userData.grade }}
-                  <NuxtRating :rating-value="Number(userData.grade)" :rating-count="5" :rating-size="10"
-                     :rating-spacing="6" :active-color="'#3366FF'" :inactive-color="'#FFFFFF'" :border-color="'#3366FF'"
-                     :border-width="2" :rounded-corners="true" :read-only="true" />
-               </div>
-               <div class="user-info__reviews">
-                  {{ userData.count_reviews_about_myself }} {{
-                     pluralizeReview(Number(userData.count_reviews_about_myself))
-                  }}
+                  <template v-if="userData.count_reviews_about_myself > 0">
+                     {{ userData.grade }}
+                     <NuxtRating :rating-value="Number(userData.grade)" :rating-count="5" :rating-size="10"
+                        :rating-spacing="6" :active-color="'#3366FF'" :inactive-color="'#FFFFFF'" :border-color="'#3366FF'"
+                        :border-width="2" :rounded-corners="true" :read-only="true" />
+                     <div class="user-info__reviews">
+                        {{ userData.count_reviews_about_myself }} {{
+                           pluralizeReview(Number(userData.count_reviews_about_myself))
+                        }}
+                     </div>
+                  </template>
+                  <template v-else>
+                     У пользователя нет отзывов
+                  </template>
                </div>
             </div>
             <div class="user-info__completed-ads">Завершено 5 объявлений</div>
@@ -24,18 +29,19 @@
          </div>
       </div>
       <div class="user-info__actions">
-         <button class="user-info__actions-button--write" @click="writeMessage">
-            Написать
-         </button>
          <button v-if="!phoneNumber" class="user-info__actions-button--show-phone" @click="showPhoneNumber">
             {{ showPhoneText }}
          </button>
          <a v-else :href="'tel:' + rawPhoneNumber" class="user-info__actions-button--show-phone">
             {{ phoneNumber }}
          </a>
+         <button class="user-info__actions-button--write" @click="writeMessage">
+            Написать
+         </button>
       </div>
    </div>
 </template>
+
 
 <script setup>
 import { ref, onMounted } from 'vue';
@@ -247,21 +253,21 @@ onMounted(() => {
       }
 
       .user-info__actions-button--write {
-         background-color: #3366FF;
+         background-color: #5F2EEA;
          color: white;
 
          &:hover {
-            background-color: #0056b3;
+            background-color: #5716DF;
          }
       }
 
       .user-info__actions-button--show-phone {
-         background-color: #D6EFFF;
-         color: #3366FF;
+         background-color: #3366FF;
+         color: #FFF;
          border: none;
 
          &:hover {
-            background-color: #c5d9f5;
+            background-color: #144DF8;
          }
       }
    }

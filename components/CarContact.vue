@@ -13,7 +13,7 @@
          </div>
          <header class="car-details__header">
             <h1 class="car-details__title">{{ brand }} {{ model }}, {{ year }}</h1>
-            <div class="car-details__price">{{ amount }} ₽</div>
+            <div class="car-details__price">{{ formatNumberWithSpaces(amount) }} ₽</div>
          </header>
          <WishlistButton v-if="!(id_user_owner_ads === userStore.userId)" mobile @toggle-login-modal="toggleLoginModal"
             :id="props.id" :is_in_favorites="props.is_in_favorites" />
@@ -52,8 +52,9 @@
                   </div>
                   <a href="#" class="user-info__reviews">Частное лицо</a>
                </div>
-               <nuxt-link :to="`/user/${props.id_user_owner_ads}`" >
-                  <img class="user-info__avatar" v-if="userPhotoUrl" :src="getImageUrl(userPhotoUrl)" alt="User Avatar" />
+               <nuxt-link :to="`/user/${props.id_user_owner_ads}`">
+                  <img class="user-info__avatar" v-if="userPhotoUrl" :src="getImageUrl(userPhotoUrl)"
+                     alt="User Avatar" />
                   <span v-else>{{ formattedUsername.charAt(0) }}</span>
                </nuxt-link>
             </div>
@@ -82,6 +83,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { seeContact, getUser } from '~/services/apiClient';
+import { formatNumberWithSpaces } from '../services/amountUtils.js';
 import { useUserStore } from '~/store/user';
 import { getImageUrl } from '../services/imageUtils'
 import { useChatStore } from '~/store/chatStore';
@@ -313,7 +315,7 @@ onBeforeUnmount(() => {
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #003BCE;
+      background-color: #5F2EEA;
       color: white;
       padding: 18px;
       font-size: 20px;
@@ -329,7 +331,7 @@ onBeforeUnmount(() => {
       }
 
       &:hover {
-         background-color: #0033B6;
+         background-color: #5716DF;
       }
 
       &-text {

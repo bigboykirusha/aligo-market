@@ -2,8 +2,8 @@
    <div class="range-input">
       <div class="range-input__label">{{ label }}</div>
       <div class="range-input__fields">
-         <input type="number" v-model="minValue" placeholder="от" class="range-input__field" @input="handleMinInput" />
-         <input type="number" v-model="maxValue" placeholder="до" class="range-input__field" @input="handleMaxInput" />
+         <input type="number" v-model="minValue" placeholder="от" class="range-input__field" @input="handleMinInput" :disabled="props.dis"/>
+         <input type="number" v-model="maxValue" placeholder="до" class="range-input__field" @input="handleMaxInput" :disabled="props.dis"/>
          <span v-if="label === 'Цена'" class="range-input__currency">₽</span>
       </div>
    </div>
@@ -12,7 +12,6 @@
 <script setup>
 import { ref, watch } from 'vue';
 
-// Определение свойств компонента
 const props = defineProps({
    label: {
       type: String,
@@ -25,6 +24,10 @@ const props = defineProps({
    initialMaxValue: {
       type: Number,
       default: null
+   },
+   dis: {
+      type: Boolean,
+      default: false
    }
 });
 

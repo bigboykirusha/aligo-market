@@ -92,7 +92,7 @@ const userMenuRef = ref(null);
 
 const isProfileComplete = computed(() => userStore.photo && userStore.username && userStore.phoneNumber.value && userStore.address && userStore.login);
 
-const userName = computed(() => userStore.login);
+const userName = computed(() => userStore.username || userStore.login);
 const initial = computed(() => userName.value ? userName.value.charAt(0).toUpperCase() : '');
 const phoneNumber = computed(() => userStore.phoneNumber || '');
 const formattedPhoneNumber = computed(() => {

@@ -1,7 +1,7 @@
 <template>
-   <div ref="menuRef"  :class="['menu-2', { 'menu-2--with-margin': isWithMargin }]">
+   <div ref="menuRef" :class="['menu-2', { 'menu-2--with-margin': isWithMargin }]">
       <div class="menu-2__container">
-         <div class="menu-2__bar"></div>
+         <!-- Другие элементы меню остаются такими же -->
          <div class="menu-2__block">
             <ul class="menu-2__list">
                <li v-for="(item, index) in menuItems" :key="index" :data-target="item.target"
@@ -25,8 +25,8 @@
                   </div>
                   <div class="menu-2__detailed-list-wrapper">
                      <ul class="menu-2__detailed-list">
-                        <li v-for="(item, itemIndex) in group.items" :key="itemIndex"
-                           class="menu-2__detailed-list-item">
+                        <li v-for="(item, itemIndex) in group.items" :key="itemIndex" class="menu-2__detailed-list-item"
+                           @click="handleClick(item.title)">
                            <nuxt-link :to="item.link" class="menu-2__detailed-list-title" @click="$emit('close')">
                               {{ t(`menu.${item.title}`) }}
                            </nuxt-link>
@@ -57,6 +57,7 @@ import houseIcon from '../assets/icons/house.svg';
 import peoplesIcon from '../assets/images/svg/peoples.svg';
 import servicesIcon from '../assets/icons/servises.svg';
 import goodsIcon from '../assets/images/svg/goods.svg';
+import { useFiltersStore } from '~/store/filters.js';
 
 const { t } = useI18n();
 const isWithMargin = ref(true);
@@ -64,6 +65,8 @@ const lastScrollTop = ref(0);
 const adsCount = ref(0);
 const activeTarget = ref(null);
 const menuRef = ref(null);
+const filtersStore = useFiltersStore();
+
 
 const emit = defineEmits(['close']);
 
@@ -170,6 +173,24 @@ const handleClickOutside = (event) => {
       emit('close');
       console.log('click outside');
    }
+};
+
+const handleClick = (title) => {
+   if (title === 'used') {
+      handleUsedClick();
+   } else if (title === 'new') {
+      handleNewClick();
+   }
+};
+
+const handleUsedClick = () => {
+   console.log('Выбран б/у автомобиль');
+   filtersStore.setSelectedCondition(2);
+};
+
+const handleNewClick = () => {
+   console.log('Выбран новый автомобиль');
+   filtersStore.setSelectedCondition(1);
 };
 
 onMounted(() => {

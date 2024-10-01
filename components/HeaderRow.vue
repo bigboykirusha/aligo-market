@@ -16,7 +16,7 @@
             <div class="header-row__search-bar">
                <div class="header-row__search">
                   <img src="../assets/icons/a-logo.svg" class="search-icon" alt="Search Icon">
-                  <input type="text" v-model="searchQuery" :placeholder="$t('header.searchPlaceholder')"
+                  <input type="text" v-model="searchQuery" :placeholder="searchPlaceholder"
                      class="header-row__search-input" ref="searchInput" />
                   <img v-if="searchQuery" src="../assets/icons/close-blue.svg" class="clear-icon" alt="Clear Icon"
                      @click="clearSearch" />
@@ -66,6 +66,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useUserStore } from '~/store/user';
+import { useCityStore } from '../store/city.js'
 import { useRouter } from 'vue-router';
 
 const showDropdown = ref(false)
@@ -73,10 +74,16 @@ const isWithMargin = ref(true)
 const modalLoginOpen = ref(false);
 const lastScrollTop = ref(0)
 const userStore = useUserStore();
+const cityStore = useCityStore();
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const searchQuery = ref("");
 const searchInput = ref(null);
 const router = useRouter();
+
+const searchPlaceholder = computed(() => {
+   const cityName = cityStore.selectedCity.name || 'вашем городе';
+   return `Поиск в г. ${cityName}`;
+});
 
 const iconClass = computed(() =>
    showDropdown.value ? 'header-row__icon header-row__icon--cross' : 'header-row__icon header-row__icon--categories'
@@ -143,7 +150,7 @@ onUnmounted(() => {
    &--with-margin {
       margin-top: 44px;
       box-shadow: none;
-      padding: 16px;
+      padding: 12px 16px 22px;
    }
 
    &--expanded {
@@ -188,8 +195,9 @@ onUnmounted(() => {
    }
 
    &__small-text {
-      font-size: 8px;
-      letter-spacing: 2.3px;
+      font-size: 10px;
+      letter-spacing: 3px;
+      word-spacing: 4px;
       color: #003bce;
       text-transform: uppercase;
       white-space: nowrap;
@@ -333,16 +341,15 @@ onUnmounted(() => {
       transition: height 0.3s ease, width 0.3s ease;
 
       .search-icon {
+         display: none;
          width: 14px;
          height: 19px;
          display: none;
          margin-left: 8px;
 
          @media screen and (max-width: 480px) {
-            display: block;
+            display: none;
          }
-
-         ;
       }
 
       @media screen and (max-width: 991px) {

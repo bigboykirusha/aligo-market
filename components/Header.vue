@@ -4,6 +4,9 @@
       <div :class="containerClasses">
         <nav class="header__nav" aria-label="Primary">
           <ul class="header__nav-list" v-show="!isMyselfRoute || isDesktop">
+            <nuxt-link to="/" class="header__nav-item header__nav-item--mobile">
+              <img class="header__nav--logo" src="../assets/images/logo-white.svg" alt="">
+            </nuxt-link>
             <li class="header__nav-item">
               <LanguageSwitcher />
             </li>
@@ -138,7 +141,7 @@ const handleScroll = () => {
 };
 
 const isLoggedIn = computed(() => userStore.isLoggedIn);
-const userName = computed(() => userStore.login);
+const userName = computed(() => userStore.username || userStore.login);
 const phoneNumber = computed(() => userStore.phoneNumber);
 const userAvatar = computed(() => getImageUrl(userStore.photo?.path, avatarPhoto));
 const initial = computed(() => userName.value ? userName.value.charAt(0).toUpperCase() : '');
@@ -245,19 +248,32 @@ const countMessage = computed(() => userStore.count_new_messages);
       list-style: none;
       gap: 40px;
 
-      @media screen and (max-width: 1000px) {
-        gap: 28px;
+      @media screen and (max-width: 1024px) {
+        gap: 16px;
       }
 
-      @media screen and (max-width: 768px) {
-        gap: 20px;
+      @media screen and (max-width: 480px) {
+        gap: 16px;
       }
+    }
+
+    &--logo {
+      height: 20px;
     }
 
     &-item {
       display: flex;
       align-items: center;
       position: relative;
+
+      &--mobile {
+        display: none;
+        outline: none;
+
+        @media (max-width: 480px) {
+          display: flex;
+        }
+      }
     }
   }
 
@@ -274,7 +290,12 @@ const countMessage = computed(() => userStore.count_new_messages);
     transition: $transition-1;
 
     .header__icon {
-      margin-right: 7px;
+      height: 12px;
+      margin-right: 8px;
+
+      @media (max-width: 768px) {
+        margin-right: 0px;
+      }
     }
 
     &--add {

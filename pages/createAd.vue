@@ -16,15 +16,14 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { useCreateStore } from '../store/create.js';
 import { useUserStore } from '../store/user.js';
 import { useRoute } from 'vue-router';
-import { publishFromArchive } from '../services/apiClient.js'
+import { publishFromArchive } from '../services/apiClient.js';
 
 const route = useRoute();
-
 const createStore = useCreateStore();
 const userStore = useUserStore();
 const savedRoute = ref(null);
@@ -38,7 +37,7 @@ createStore.initializeUserData();
 const isAnyFieldFilled = computed(() => createStore.isAnyFieldFilled);
 const isSelectionComplete = computed(() => {
    return selectedItem.value.main === 'auto' &&
-      (selectedItem.value.sub === 'Новые' || selectedItem.value.sub === 'C пробегом');
+      ['Новые', 'C пробегом'].includes(selectedItem.value.sub);
 });
 
 watch(isSelectionComplete, (newVal, oldVal) => {
@@ -49,7 +48,7 @@ watch(isSelectionComplete, (newVal, oldVal) => {
 
 onBeforeRouteLeave((to, from, next) => {
    if (isSelectionComplete.value && isAnyFieldFilled.value) {
-      isPopupVisible.value = true;
+      isPopupVisible.value = true; 
       savedRoute.value = to;
       nextFunction.value = next;
    } else {
@@ -57,56 +56,51 @@ onBeforeRouteLeave((to, from, next) => {
    }
 });
 
-const handleSendAd = async () => {
-   isAdSended.value = true;
-   createStore.setIsDraft(0);
-
-   if (createStore.id) {
-      if (createStore.is_in_archive) {
-         await createStore.updateCarAd();
-         await publishFromArchive(createStore.id);
-      } else if (createStore.is_published) {
-         await createStore.updateCarAd();
-         await publishFromArchive(createStore.id);
-      } else {
-         await createStore.updateCarAd();
-      }
-   } else {
-      await createStore.sendCarAd();
+const beforeUnloadHandler = (event) => {
+   if (isSelectionComplete.value && isAnyFieldFilled.value) {
+      event.preventDefault();
+      event.returnValue = ''; 
    }
-   createStore.resetParams();
-   await userStore.fetchUserCounts();
+};
+
+onMounted(() => {
+   window.addEventListener('beforeunload', beforeUnloadHandler);
+});
+
+onBeforeUnmount(() => {
+   window.removeEventListener('beforeunload', beforeUnloadHandler);
+});
+
+const handleSendAd = async () => {
+   await handleAdAction(0);
+   isAdSended.value = true;
 };
 
 const saveAd = async () => {
-   createStore.setIsDraft(1);
-   if (createStore.id) {
-      if (createStore.is_in_archive) {
-         await publishFromArchive(createStore.id);
-         createStore.setIsDraft(1);
-         await createStore.updateCarAd();
-      } else if (!createStore.is_published) {
-         await publishFromArchive(createStore.id);
-         createStore.setIsDraft(1);
-         await createStore.updateCarAd();
-      } else {
-         await createStore.updateCarAd();
-      }
-   } else {
-      await createStore.sendCarAd();
-   }
-   createStore.resetParams();
-   await userStore.fetchUserCounts();
+   await handleAdAction(1);
    closePopup();
    nextFunction.value();
 };
 
+const handleAdAction = async (draftStatus) => {
+   createStore.setIsDraft(draftStatus);
+   if (createStore.id) {
+      if (createStore.is_in_archive || !createStore.is_published) {
+         await publishFromArchive(createStore.id);
+      }
+      await createStore.updateCarAd();
+   } else {
+      await createStore.sendCarAd();
+   }
+   createStore.resetParams();
+   await userStore.fetchUserCounts();
+};
 
-const closePopup = async () => {
+const closePopup = () => {
    isPopupVisible.value = false;
 };
 
-const discardAd = async () => {
+const discardAd = () => {
    createStore.resetParams();
    closePopup();
    nextFunction.value();
@@ -119,21 +113,18 @@ const handleSelectionChanged = (item) => {
 
 const updateConditionId = (item) => {
    if (item.main === 'auto') {
-      if (item.sub === 'Новые') {
-         createStore.setConditionId(1);
-      } else if (item.sub === 'C пробегом') {
-         createStore.setConditionId(2);
-      } else {
-         createStore.setConditionId(null);
-      }
+      const conditionMap = {
+         'Новые': 1,
+         'C пробегом': 2,
+      };
+      createStore.setConditionId(conditionMap[item.sub] || null);
    }
    createStore.updateStateId();
 };
 
 onMounted(() => {
-   const main = route.query.main || null;
-   const sub = route.query.sub || null;
-   selectedItem.value = { main, sub };
+   const { main, sub } = route.query;
+   selectedItem.value = { main: main || null, sub: sub || null };
 });
 </script>
 
@@ -144,6 +135,7 @@ onMounted(() => {
    max-width: 1312px;
    width: 100%;
    padding: 0 16px;
+   padding-bottom: 16px;
    margin: 0 auto;
 }
 </style>

@@ -26,7 +26,8 @@
     "vue": "latest",
     "vue-carousel": "^0.18.0",
     "vue-the-mask": "^0.11.1",
-    "vue3-carousel-nuxt": "^1.1.2"
+    "vue3-carousel-nuxt": "^1.1.2",
+    "vue3-otp-input": "^0.5.21"
   },
   "devDependencies": {
     "@nuxt/fonts": "^0.7.1",

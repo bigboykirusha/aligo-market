@@ -22,8 +22,13 @@
       <div v-if="showFilters || !isMobile" class="filters__block">
          <div class="filters__title">Поиск автомобиля</div>
          <SwitcherSkeleton v-if="loading" />
-         <AutosSwitcherTemplate v-else :options="switcherStateOptions" label="Состояние"
-            @updateSelected="handleStateUpdate" :activeIndexe="filtersStore.selectedState" />
+         <AutosSwitcherTemplate v-else :options="switcherConditionOptions" label="Новизна"
+            @updateSelected="handleConditionUpdate" :activeIndex="filtersStore.selectedCondition" />
+
+         <SwitcherSkeleton v-if="loading" />
+         <AutosSwitcherTemplate v-else-if="filtersStore.selectedCondition !== 1" :options="switcherStateOptions"
+            label="Состояние" @updateSelected="handleStateUpdate" :activeIndex="filtersStore.selectedState"
+            :dis="filtersStore.selectedCondition === 1" />
 
          <SelectSkeleton v-if="loading" />
          <AutosSelectTemplate v-else :options="dropdownMarksOptions" label="Марка" @updateSort="handleMarksUpdate"
@@ -52,7 +57,8 @@
             @updateSelected="handleEngineTypeUpdate" :activeIndexes="filtersStore.selectedEngineTypes" />
 
          <FromToSkeleton v-if="loading" />
-         <AutosFromToTemplate v-else label="Пробег, км" @updateRange="handleMileageRangeUpdate"
+         <AutosFromToTemplate v-else-if="filtersStore.selectedCondition !== 1" label="Пробег, км"
+            @updateRange="handleMileageRangeUpdate" :dis="filtersStore.selectedCondition === 1"
             :initialMinValue="filtersStore.mileageRange.min" :initialMaxValue="filtersStore.mileageRange.max" />
 
          <FromToSkeleton v-if="loading" />
@@ -82,7 +88,8 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useFiltersStore } from '../store/filters';
-import { getCarBrands, getCarModels, getCarTransmission, getCarBodyType, getCarEngineType, getCarDrive, getCarState, getColors } from '../services/apiClient';
+import { useRoute } from 'vue-router';
+import { getCarBrands, getCarModels, getCarTransmission, getCarBodyType, getCarEngineType, getCarDrive, getCarState, getColors, getCarCondition } from '../services/apiClient';
 
 const fetchCars = () => {
    emit('updateSort');
@@ -90,6 +97,7 @@ const fetchCars = () => {
 
 const loading = ref(true);
 const filtersStore = useFiltersStore();
+const route = useRoute();
 const showFilters = ref(false);
 const dropdownMarksOptions = ref([]);
 const dropdownModelsOptions = ref([]);
@@ -98,12 +106,19 @@ const checkboxBodyTypeOptions = ref([]);
 const checkboxEngineTypeOptions = ref([]);
 const checkboxDriveOptions = ref([]);
 const switcherStateOptions = ref([]);
+const switcherConditionOptions = ref([]);
 const colorOptions = ref([]);
 const selectedMark = ref([]);
 const selectedModel = ref([]);
 const isModelsDropdownDisabled = computed(() => !(filtersStore.selectedMark.length > 0 && filtersStore.selectedMark.length === 1));
 const emit = defineEmits(['updateSort']);
 const isMobile = ref(false);
+
+if (route.path.includes('autos/new')) {
+   filtersStore.setSelectedCondition(1);
+} else if (route.path.includes('autos/mileage')) {
+   filtersStore.setSelectedCondition(2);
+}
 
 const fetchOptions = async () => {
    try {
@@ -115,6 +130,7 @@ const fetchOptions = async () => {
          fetchDriveOptions(),
          fetchColorOptions(),
          fetchStateOptions(),
+         fetchConditionOptions(),
       ]);
       loading.value = false;
    } catch (error) {
@@ -129,6 +145,7 @@ const toggleFiltersVisibility = () => {
 const isAnyFilterSelected = computed(() => {
    return filtersStore.selectedState || filtersStore.selectedMark.length > 0 ||
       filtersStore.selectedModel.length > 0 ||
+      filtersStore.selectedCondition !== null ||
       filtersStore.selectedBodyTypes.length > 0 ||
       filtersStore.selectedEngineTypes.length > 0 ||
       filtersStore.selectedTransmission.length > 0 ||
@@ -165,6 +182,20 @@ const fetchColorOptions = async () => {
       }
    } catch (error) {
       console.error('Ошибка при получении цветов автомобилей:', error);
+   }
+};
+
+const fetchConditionOptions = async () => {
+   try {
+      const cachedConditionOptions = JSON.parse(localStorage.getItem('ConditionOptions'));
+      if (cachedConditionOptions) {
+         switcherConditionOptions.value = cachedConditionOptions;
+      } else {
+         switcherConditionOptions.value = await getCarCondition();
+         localStorage.setItem('ConditionOptions', JSON.stringify(switcherConditionOptions.value));
+      }
+   } catch (error) {
+      console.error('Ошибка при получении условий автомобилей:', error);
    }
 };
 
@@ -284,6 +315,12 @@ const handleEngineTypeUpdate = (selectedOptions) => filtersStore.setSelectedEngi
 const handleDriveUpdate = (selectedOptions) => filtersStore.setSelectedDrives(selectedOptions);
 const handleStateUpdate = (selectedOptions) => filtersStore.setSelectedState(selectedOptions);
 const handleColorUpdate = (selectedOptions) => filtersStore.setSelectedColor(selectedOptions);
+const handleConditionUpdate = (selectedOptions) => {
+   filtersStore.setSelectedCondition(selectedOptions);
+   filtersStore.setMileageRange({ min: null, max: null });
+   filtersStore.setSelectedState(null);
+};
+
 
 watch(isModelsDropdownDisabled, (newVal) => {
    if (newVal) {

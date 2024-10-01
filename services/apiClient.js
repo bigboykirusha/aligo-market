@@ -354,6 +354,16 @@ export const getCarState = async () => {
    }
 };
 
+export const getCarCondition = async () => {
+   try {
+      const response = await apiClient.get('/auto_condition');
+      return response.data.data;
+   } catch (error) {
+      console.error('Ошибка при получении брендов автомобилей:', error);
+      throw error;
+   }
+};
+
 export const getCarDrive = async () => {
    try {
       const response = await apiClient.get('/auto_drive');
@@ -635,7 +645,11 @@ export const updateUserInfo = async (params) => {
 
 export const updateCarAd = async (auto_id, params) => {
    try {
-      const response = await apiClient.post(`/autos/${auto_id}`, params);
+      const response = await apiClient.post(`/autos/${auto_id}`, params, {
+         headers: {
+            'Content-Type': 'multipart/form-data',
+         }
+      });
       return response.data.data;
    } catch (error) {
       console.error('Ошибка при обновлении информации об автомобиле', error);

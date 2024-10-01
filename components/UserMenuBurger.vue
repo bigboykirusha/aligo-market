@@ -104,7 +104,7 @@
                         v-show="countFavorites" class="user-menu__count">{{ countFavorites }}</div></nuxt-link>
                </li>
                <li class="user-menu__item" @click="toggleMenu">
-                  <nuxt-link to="/myself/favorites"><img src="../assets/icons/reviews.svg" />Отзывы</nuxt-link>
+                  <nuxt-link to="/myself/reviews"><img src="../assets/icons/reviews.svg" />Отзывы</nuxt-link>
                </li>
                <li class="user-menu__item" @click="toggleMenu">
                   <nuxt-link to="/myself/notifications">
@@ -164,7 +164,7 @@ const userStore = useUserStore();
 const cityStore = useCityStore();
 const route = useRoute();
 
-const userName = computed(() => userStore.username);
+const userName = computed(() => userStore.username || userStore.login);
 const initial = computed(() => userName.value ? userName.value.charAt(0).toUpperCase() : '');
 const avatarUrl = ref(getImageUrl(userStore.photo?.path));
 const phoneNumber = computed(() => userStore.phoneNumber);

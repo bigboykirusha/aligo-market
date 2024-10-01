@@ -31,13 +31,16 @@
                      <img src="../assets/icons/arrow-back.svg" alt="Toggle" />
                   </button>
                   <div class="chat-header__info chat-header__info--active">
-                     <img :src="chatStore.currentChat.adImageUrl" alt="Ad Image" class="chat-header__ad-image" />
-                     <img :src="chatStore.currentChat.avatarUrl || avatar" alt="Avatar" class="chat-header__avatar" />
+                     <img :src="getImageUrl(chatStore.currentChat.ads_photo[0]?.path)" alt="Ad Image"
+                        class="chat-header__ad-image" />
+                     <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.path, avatar)" alt="Avatar"
+                        class="chat-header__avatar" />
                      <div class="chat-header__details">
-                        <span class="chat-header__username">{{ chatStore.currentChat.userInfo }}</span>
+                        <span class="chat-header__username">{{ relevantUserInfo(chatStore.currentChat) }}</span>
                         <nuxt-link :to="`/car/${chatStore.currentChat.ads_id}`" class="chat-header__ad-title">
-                           {{ chatStore.currentChat.adDetails }} <div class="chat-header__ad-amount">{{
-                              chatStore.currentChat.adAmount }}<span class="chat-header__ad-amount-currency">₽</span>
+                           {{ chatStore.currentChat.ads_info }} <div class="chat-header__ad-amount">{{
+                              formatNumberWithSpaces(chatStore.currentChat.ads_amount) }}<span
+                                 class="chat-header__ad-amount-currency">₽</span>
                            </div>
                         </nuxt-link>
                      </div>
@@ -96,8 +99,8 @@
                               <div
                                  :class="['chat-wrapper__message-item', { 'chat-wrapper__message-item--self': item.isSelf }]">
                                  <template v-if="!item.isSelf">
-                                    <img :src="chatStore.currentChat.avatarUrl || avatar" alt="Avatar"
-                                       class="chat-wrapper__message-avatar">
+                                    <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.path, avatar)"
+                                       alt="Avatar" class="chat-wrapper__message-avatar">
                                     <div class="chat-wrapper__message-bubble">
                                        <MessagePhotos :photos="item.photos" />
                                        <div class="chat-wrapper__message-content">{{ item.message }}</div>
@@ -181,26 +184,28 @@
    <ReviewPopup :isVisible="showReviewPopup" :adsId="chatStore.currentChat?.ads_id"
       :mainCategoryId="chatStore.currentChat?.main_category_id" @close="showReviewPopup = false" />
    <Complaint :isVisible="showComplaintPopup" :adsId="chatStore.currentChat?.ads_id"
-      :mainCategoryId="chatStore.currentChat?.main_category_id" @close="showComplaintPopup = false" :user_id="chatStore.currentChat?.for_user_id === userStore.userId
-         ? chatStore.currentChat?.from_user_id
-         : chatStore.currentChat?.for_user_id" />
-   <BlockPopup :isVisible="showBlockPopup" :adsId="chatStore.currentChat?.ads_id" :user_id="chatStore.currentChat?.for_user_id === userStore.userId
-      ? chatStore.currentChat?.from_user_id
-      : chatStore.currentChat?.for_user_id" :mainCategoryId="chatStore.currentChat?.main_category_id"
+      :mainCategoryId="chatStore.currentChat?.main_category_id" @close="showComplaintPopup = false" :user_id="chatStore.currentChat?.for_user.id === userStore.userId
+         ? chatStore.currentChat?.from_user.id
+         : chatStore.currentChat?.for_user.id" />
+   <BlockPopup :isVisible="showBlockPopup" :adsId="chatStore.currentChat?.ads_id" :user_id="chatStore.currentChat?.for_user.id === userStore.userId
+      ? chatStore.currentChat?.from_user.id
+      : chatStore.currentChat?.for_user.id" :mainCategoryId="chatStore.currentChat?.main_category_id"
       @close="showBlockPopup = false" />
-   <DeletePopup :isVisible="showDeletePopup" :adsId="chatStore.currentChat?.ads_id" :user_id="chatStore.currentChat?.for_user_id === userStore.userId
-      ? chatStore.currentChat?.from_user_id
-      : chatStore.currentChat?.for_user_id" :mainCategoryId="chatStore.currentChat?.main_category_id"
+   <DeletePopup :isVisible="showDeletePopup" :adsId="chatStore.currentChat?.ads_id" :user_id="chatStore.currentChat?.for_user.id === userStore.userId
+      ? chatStore.currentChat?.from_user.id
+      : chatStore.currentChat?.for_user.id" :mainCategoryId="chatStore.currentChat?.main_category_id"
       @close="showDeletePopup = false" />
    <TranslatePopup :isVisible="showTranslatePopup" :adsId="chatStore.currentChat?.ads_id"
       @close="showTranslatePopup = false" @language-selected="setTranslateLanguage" />
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useChatStore } from '~/store/chatStore';
-import { getImageUrl } from '../services/imageUtils'
+import { getImageUrl } from '../services/imageUtils';
 import { useSelectedMessagesStore } from '~/store/selectedMessages';
+import { formatNumberWithSpaces } from '../services/amountUtils.js';
+import { relevantUser, relevantUserInfo } from '../services/userUtils.js'
 import { fetchMessages, sendMessage, fetchLastMessages } from '~/services/apiClient';
 import { useUserStore } from '~/store/user';
 import { useRouter } from 'vue-router';
@@ -209,6 +214,11 @@ const userStore = useUserStore();
 const chatStore = useChatStore();
 const selectedMessagesStore = useSelectedMessagesStore();
 const messages = computed(() => chatStore.messages);
+const toUserId = computed(() => {
+   return chatStore.currentChat.for_user.id === userStore.userId
+      ? chatStore.currentChat.from_user.id
+      : chatStore.currentChat.for_user.id;
+});
 const newMessage = ref('');
 const total = ref(0);
 const lastMessages = ref([]);
@@ -233,7 +243,7 @@ import reviewsIcon from '../assets/icons/reviews.svg';
 import blockIcon from '../assets/icons/block.svg';
 import alertIcon from '../assets/icons/alert.svg';
 import deleteIcon from '../assets/icons/delete.svg';
-import avatar from '../assets/icons/avatar-revers.svg';
+import avatar from '../assets/icons/avatar-revers.svg'
 
 function handleFileChange(event) {
    file.value = Array.from(event.target.files);
@@ -313,7 +323,7 @@ const handleSelectAllChange = () => {
          id: message.id,
          ads_id: message.ads_id,
          main_category_id: message.main_category_id,
-         user_id: message.for_user_id,
+         user_id: message.for_user.id,
       }));
       selectedMessagesStore.selectAll(allMessages);
    }
@@ -359,13 +369,17 @@ const goToAd = () => {
    router.push(`/car/${chatStore.currentChat.ads_id}`);
 };
 
+const goToProfile = () => {
+   router.push(`/user/${toUserId.value}`);
+};
+
 const leaveReview = () => {
    openReviewPopup();
 };
 
 const items = [
    { icon: ruIcon, text: 'Перевести на ...', action: openTranslatePopup },
-   { icon: personIcon, text: 'Перейти в профиль', action: null },
+   { icon: personIcon, text: 'Перейти в профиль', action: goToProfile },
    { icon: adIcon, text: 'Перейти в объявление', action: goToAd },
    { icon: reviewsIcon, text: 'Оставить отзыв', action: leaveReview },
    { icon: blockIcon, text: 'Заблокировать', action: openBlockPopup },
@@ -402,9 +416,9 @@ const loadMessages = async () => {
          const data = await fetchMessages(
             chatStore.currentChat.ads_id,
             chatStore.currentChat.main_category_id,
-            chatStore.currentChat.for_user_id === userStore.userId
-               ? chatStore.currentChat.from_user_id
-               : chatStore.currentChat.for_user_id,
+            chatStore.currentChat.for_user.id === userStore.userId
+               ? chatStore.currentChat.from_user.id
+               : chatStore.currentChat.for_user.id,
             translateParam
          );
 
@@ -418,21 +432,26 @@ const loadMessages = async () => {
          return data;
       } catch (error) {
          console.error('Error loading messages:', error);
-         throw error;
       } finally {
          loading.value = false;
       }
    }
 };
 
-
 async function handleSendMessage() {
    if (newMessage.value.trim() === '' && file.value.length === 0) return;
 
    try {
-      const response = await sendMessage(newMessage.value, chatStore.currentChat.ads_id, chatStore.currentChat.main_category_id, chatStore.currentChat.for_user_id === userStore.userId
-         ? chatStore.currentChat.from_user_id
-         : chatStore.currentChat.for_user_id, file.value);
+      const response = await sendMessage(
+         newMessage.value,
+         chatStore.currentChat.ads_id,
+         chatStore.currentChat.main_category_id,
+         chatStore.currentChat.for_user.id === userStore.userId
+            ? chatStore.currentChat.from_user.id
+            : chatStore.currentChat.for_user.id,
+         file.value
+      );
+
       newMessage.value = '';
       file.value = [];
       const sentMessage = {
@@ -443,7 +462,6 @@ async function handleSendMessage() {
       return sentMessage;
    } catch (error) {
       console.error('Ошибка при отправке сообщения:', error);
-      throw error;
    }
 }
 
@@ -643,7 +661,7 @@ onBeforeUnmount(() => {
          }
 
          img {
-            height: 14px;
+            height: 16px;
          }
       }
 
@@ -713,7 +731,7 @@ onBeforeUnmount(() => {
 
          img {
             height: auto;
-            width: 14px;
+            width: 16px;
          }
       }
    }

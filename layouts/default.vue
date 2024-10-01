@@ -7,7 +7,7 @@
       <CookiePopup />
       <Footer v-if="showFooter" />
       <FooterAlternative v-else />
-      <Chat v-show="userStore.isLoggedIn && !route.path.startsWith('/myself') && !route.path.startsWith('/autos')"/>
+      <Chat v-show="userStore.isLoggedIn && !route.path.startsWith('/myself') && !route.path.startsWith('/autos') && !route.path.startsWith('/createAd')"/>
    </div>
 </template>
 

@@ -20,11 +20,15 @@ export const fetchCity = async (lat, lon) => {
    try {
       const cityResponse = await fetch(`https://geocode-maps.yandex.ru/1.x/?geocode=${lon},${lat}&apikey=${yandexApiKey}&format=json&lang=ru_RU`);
       const cityData = await cityResponse.json();
-      const cityName = cityData.response.GeoObjectCollection.featureMember[0].GeoObject.metaDataProperty.GeocoderMetaData.AddressDetails.Country.AdministrativeArea.Locality.LocalityName;
-      return cityName || 'Неизвестный город';
+
+      const featureMember = cityData?.response?.GeoObjectCollection?.featureMember[0]?.GeoObject?.metaDataProperty?.GeocoderMetaData?.AddressDetails?.Country?.AdministrativeArea;
+
+      const cityName = featureMember?.Locality?.LocalityName || featureMember?.SubAdministrativeArea?.Locality?.LocalityName || 'Неизвестный город';
+
+      return cityName;
    } catch (error) {
       console.error('Ошибка получения города:', error);
-      throw error;
+      return 'Ошибка получения города';
    }
 };
 

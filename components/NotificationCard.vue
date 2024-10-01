@@ -27,14 +27,13 @@
 
          <!-- Статус объявления -->
          <p v-if="notification.data.ads">
-            <strong>Статус:</strong> {{ getAdStatus(notification.data.ads.is_draft, notification.data.ads.is_in_archive)
-            }}
+            <strong>Статус:</strong> {{ getAdStatus(notification.data.ads.is_draft, notification.data.ads.is_in_archive) }}
          </p>
       </div>
       <div class="notification-card__footer">
          <span class="notification-card__date">{{ formatDate(notification.created_at) }}</span>
          <div class="notification-card__buttons">
-            <button @click="markAsRead" class="notification-card__button">
+            <button v-if="!notification.read_at" @click="markAsRead" class="notification-card__button">
                <img src="../assets/icons/done.svg" alt="done" />
             </button>
             <button @click="deleteNotification" class="notification-card__button">

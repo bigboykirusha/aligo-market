@@ -1,36 +1,40 @@
 <template>
-   <div class="chat-wrapper" :class="{ 'chat-wrapper--collapsed': chatStore.isCollapsed }">
+   <div v-if="total > 0" class="chat-wrapper" :class="{ 'chat-wrapper--collapsed': chatStore.isCollapsed }">
+      <!-- Заголовок чата -->
       <div class="chat-header">
+         <!-- Информация о текущем чате -->
          <div v-if="chatStore.currentChat" class="chat-header__info chat-header__info--active">
-            <nuxt-link :to="`/user/${chatStore.currentChat.for_user_id === userStore.userId
-               ? chatStore.currentChat.from_user_id
-               : chatStore.currentChat.for_user_id}`" class="user-info__avatar">
-               <img :src="chatStore.currentChat.avatarUrl || avatar" alt="Avatar" class="chat-header__avatar">
+            <nuxt-link :to="`/user/${relevantUser(chatStore.currentChat).id}`" class="user-info__avatar">
+               <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.path, avatar)" alt="Avatar"
+                  class="chat-header__avatar" />
             </nuxt-link>
-            <img :src="chatStore.currentChat.adImageUrl" alt="Ad Image" class="chat-header__ad-image">
+
+            <img :src="getImageUrl(chatStore.currentChat.ads_photo[0]?.path)" alt="Ad Image"
+               class="chat-header__ad-image" />
             <div class="chat-header__details">
-               <nuxt-link :to="`/user/${chatStore.currentChat.for_user_id === userStore.userId
-                  ? chatStore.currentChat.from_user_id
-                  : chatStore.currentChat.for_user_id}`" class="chat-header__username">{{
-                     chatStore.currentChat.userInfo }}</nuxt-link>
+               <nuxt-link :to="`/user/${relevantUser(chatStore.currentChat).id}`" class="chat-header__username">
+                  {{ relevantUserInfo(chatStore.currentChat) }}
+               </nuxt-link>
                <nuxt-link :to="`/car/${chatStore.currentChat.ads_id}`" class="chat-header__ad-title">
-                  {{ chatStore.currentChat.adDetails }}
+                  {{ chatStore.currentChat.ads_info }}
                </nuxt-link>
             </div>
          </div>
+
+         <!-- Информация о чате по умолчанию -->
          <div v-else class="chat-header__info">
             <div class="chat-header__avatars">
                <div v-for="(avatar, index) in displayedUsers" :key="index" class="chat-header__ava"
                   :style="{ zIndex: 1 + index }">
                   <img :src="avatar" alt="User Avatar" class="avatar-round" />
                </div>
-               <div v-if="remainingCount > 0" class="chat-header__more">
-                  +{{ remainingCount }}
-               </div>
+               <div v-if="remainingCount > 0" class="chat-header__more">+{{ remainingCount }}</div>
             </div>
             <span class="chat-header__title">Сообщения</span>
             <span class="chat-header__count">{{ total }}</span>
          </div>
+
+         <!-- Кнопки в заголовке -->
          <button v-if="chatStore.currentChat && !chatStore.isCollapsed" class="chat-header__close-button"
             @click="closeChat">
             <img src="../assets/icons/arrow-back.svg" alt="Toggle" />
@@ -46,16 +50,21 @@
             <img src="../assets/icons/close.svg" alt="Close" />
          </button>
       </div>
+
+      <!-- Содержимое чата -->
       <div v-if="chatStore.currentChat && !chatStore.isCollapsed" class="chat-wrapper__chat-box">
+         <!-- Всплывающее окно для имени пользователя -->
          <UsernamePopup v-if="!userStore.username" :isVisible="true" @close="closePopup" />
+
+         <!-- Блок, если сообщений нет -->
          <div v-else-if="!hasMessages" class="chat-wrapper__no-messages">
             <div class="no-messages-container">
-               <img src="../assets/icons/mail-smile.svg" alt="No messages" class="no-messages-image">
-               <p class="no-messages-text">
-                  Задайте пользователю свой вопрос
-               </p>
+               <img src="../assets/icons/mail-smile.svg" alt="No messages" class="no-messages-image" />
+               <p class="no-messages-text">Задайте пользователю свой вопрос</p>
             </div>
          </div>
+
+         <!-- Сообщения чата -->
          <div v-else>
             <div v-if="loading" class="chat-box">
                <div v-for="n in 6" :key="n"
@@ -80,7 +89,9 @@
                   </template>
                </div>
             </div>
-            <div class="chat-wrapper__wrapper" v-else>
+
+            <!-- Отображение сообщений -->
+            <div v-else class="chat-wrapper__wrapper">
                <div v-for="(item, index) in groupedMessages" :key="index"
                   :class="{ 'chat-wrapper__date-divider': item.type === 'date' }">
                   <template v-if="item.type === 'date'">
@@ -89,8 +100,8 @@
                   <template v-else>
                      <div :class="['chat-wrapper__message-item', { 'chat-wrapper__message-item--self': item.isSelf }]">
                         <template v-if="!item.isSelf">
-                           <img :src="chatStore.currentChat.avatarUrl || avatar" alt="Avatar"
-                              class="chat-wrapper__message-avatar">
+                           <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.path, avatar)" alt="Avatar"
+                              class="chat-wrapper__message-avatar" />
                            <div class="chat-wrapper__message-bubble">
                               <MessagePhotos :photos="item.photos" />
                               <div class="chat-wrapper__message-content">{{ item.message }}</div>
@@ -109,7 +120,7 @@
                               <div class="chat-wrapper__message-content">{{ item.message }}</div>
                            </div>
                            <img :src="getImageUrl(userStore.photo?.path, avatar)" alt="Avatar"
-                              class="chat-wrapper__message-avatar chat-wrapper__message-avatar--self">
+                              class="chat-wrapper__message-avatar chat-wrapper__message-avatar--self" />
                         </template>
                      </div>
                   </template>
@@ -117,6 +128,8 @@
             </div>
          </div>
       </div>
+
+      <!-- Предварительный просмотр файлов -->
       <div v-if="file.length > 0">
          <div class="file-preview__title">Прикрепленные файлы:</div>
          <div class="file-preview">
@@ -130,12 +143,15 @@
                   </div>
                </template>
                <button @click="removeFile(index)" class="file-preview__remove">
-                  <img src="../assets/icons/close-white.svg" alt="" />
+                  <img src="../assets/icons/close-white.svg" alt="Remove" />
                </button>
             </div>
          </div>
       </div>
-      <div v-if="chatStore.currentChat && !chatStore.isCollapsed && userStore.username" class="chat-wrapper__message-input-container">
+
+      <!-- Поле ввода сообщения -->
+      <div v-if="chatStore.currentChat && !chatStore.isCollapsed && userStore.username"
+         class="chat-wrapper__message-input-container">
          <div class="chat-wrapper__message-icons-left">
             <input type="file" @change="handleFileChange" multiple class="chat-wrapper__file-input" />
             <button class="chat-wrapper__message-icon-left" @click="triggerFileInput">
@@ -151,8 +167,10 @@
             <img src="../assets/icons/send.svg" alt="Send" />
          </button>
       </div>
+
+      <!-- Последние сообщения -->
       <div v-show="!chatStore.isCollapsed && !chatStore.currentChat" class="chat-wrapper__last-messages-container">
-         <LastMessages @open-chat="setCurrentChat" />
+         <LastMessages @open-chat="chatStore.setCurrentChat" />
       </div>
    </div>
 </template>
@@ -161,6 +179,7 @@
 import { ref, onMounted, watch, computed } from 'vue';
 import { useChatStore } from '~/store/chatStore';
 import { useUserStore } from '~/store/user';
+import { relevantUser, relevantUserInfo} from '../services/userUtils.js'
 import { getImageUrl } from '../services/imageUtils';
 import { fetchMessages, sendMessage, fetchLastMessages } from '~/services/apiClient';
 import avatar from '../assets/icons/avatar-revers.svg';
@@ -174,36 +193,32 @@ const total = ref(0);
 const loading = ref(true);
 const isPopupVisible = ref(false);
 
-const showPopup = () => {
-   isPopupVisible.value = true;
-};
-
-const closePopup = () => {
-   isPopupVisible.value = false;
-};
+const toUserId = computed(() => {
+   return chatStore.currentChat.for_user.id === userStore.userId
+      ? chatStore.currentChat.from_user.id
+      : chatStore.currentChat.for_user.id;
+});
 
 const displayedUsers = computed(() => {
-   const uniqueUsers = [...new Set(chatStore.usersWithAvatars
+   const uniqueAvatars = [...new Set(chatStore.usersWithAvatars
       .filter(user => user.avatarUrl !== avatar)
       .map(user => user.avatarUrl))];
-   return uniqueUsers.slice(0, 2);
+   return uniqueAvatars.slice(0, 2);
 });
 
 const remainingCount = computed(() => {
-   const uniqueUsers = [...new Set(chatStore.usersWithAvatars
-      .map(user => user.avatarUrl))];
-   return uniqueUsers.length > 2 ? uniqueUsers.length - 2 : 0;
+   const uniqueUsers = [...new Set(chatStore.usersWithAvatars)];
+   return Math.max(uniqueUsers.length - 2, 0);
 });
 
 const messages = computed(() => chatStore.messages);
-
 const hasMessages = computed(() => messages.value.length > 0);
 
 const groupedMessages = computed(() => {
    const grouped = [];
    let lastDate = null;
 
-   messages.value.forEach((message) => {
+   messages.value.forEach(message => {
       const messageDate = new Date(message.created_at).toLocaleDateString('ru-RU', {
          day: 'numeric',
          month: 'long',
@@ -221,11 +236,15 @@ const groupedMessages = computed(() => {
    return grouped;
 });
 
-function removeChat() {
-   const chatElement = document.querySelector('.chat-wrapper');
-   if (chatElement) {
-      chatElement.remove();
-   }
+const showPopup = () => isPopupVisible.value = true;
+const closePopup = () => isPopupVisible.value = false;
+
+function toggleChat() {
+   chatStore.toggleChat();
+}
+
+function closeChat() {
+   chatStore.setCurrentChat(null);
 }
 
 function formatTime(dateString) {
@@ -234,22 +253,17 @@ function formatTime(dateString) {
    return `${hours}.${minutes}`;
 }
 
-function isOdd(n) {
-   return n % 2 === 1;
-}
-
 async function loadMessages() {
    if (!chatStore.currentChat) return;
 
    loading.value = true;
    try {
-      const data = await fetchMessages(chatStore.currentChat.ads_id, chatStore.currentChat.main_category_id, chatStore.currentChat.for_user_id === userStore.userId
-         ? chatStore.currentChat.from_user_id
-         : chatStore.currentChat.for_user_id);
+      const targetUserId = toUserId.value;
+      const data = await fetchMessages(chatStore.currentChat.ads_id, chatStore.currentChat.main_category_id, targetUserId);
 
       const formattedMessages = data.map(message => ({
          ...message,
-         isSelf: message.from_user_id === userStore.userId
+         isSelf: message.from_user_id === userStore.userId,
       }));
 
       chatStore.setMessages(formattedMessages);
@@ -261,7 +275,7 @@ async function loadMessages() {
 }
 
 async function handleSendMessage() {
-   if (newMessage.value.trim() === '' && file.value.length === 0) return;
+   if (!newMessage.value.trim() && !file.value.length) return;
 
    if (!userStore.username) {
       showPopup();
@@ -269,42 +283,21 @@ async function handleSendMessage() {
    }
 
    try {
-      const response = await sendMessage(newMessage.value, chatStore.currentChat.ads_id, chatStore.currentChat.main_category_id, chatStore.currentChat.for_user_id === userStore.userId
-         ? chatStore.currentChat.from_user_id
-         : chatStore.currentChat.for_user_id, file.value);
-
-      const sentMessage = {
-         ...response.data,
-         isSelf: true
-      };
-      chatStore.messages.push(sentMessage);
-
-      newMessage.value = '';
-      file.value = [];
+      const response = await sendMessage(newMessage.value, chatStore.currentChat.ads_id, chatStore.currentChat.main_category_id, toUserId.value, file.value);
+      chatStore.messages.push({ ...response.data, isSelf: true });
+      resetMessageInput();
    } catch (error) {
       console.error('Ошибка при отправке сообщения:', error);
    }
 }
 
-const isImage = (file) => {
-   return file.type.startsWith('image/');
-};
-
-const getFilePreview = (file) => {
-   return URL.createObjectURL(file);
-};
-
-function closeChat() {
-   chatStore.setCurrentChat(null);
+function resetMessageInput() {
+   newMessage.value = '';
+   file.value = [];
 }
 
-function setCurrentChat(chat) {
-   chatStore.setCurrentChat(chat);
-}
-
-function toggleChat() {
-   chatStore.toggleChat();
-}
+const isImage = (file) => file.type.startsWith('image/');
+const getFilePreview = (file) => URL.createObjectURL(file);
 
 function handleFileChange(event) {
    file.value = Array.from(event.target.files);
@@ -315,42 +308,22 @@ function removeFile(index) {
 }
 
 function triggerFileInput() {
-   document.querySelector('.chat-wrapper__file-input').click();
+   document.querySelector('.chat-wrapper__file-input')?.click();
 }
 
-const getUserAvatar = async (userId) => {
-   const cachedUser = localStorage.getItem(`user-${userId}`);
-   if (cachedUser) return JSON.parse(cachedUser).avatarUrl;
-
-   try {
-      const userData = await getUser(userId);
-      const avatarUrl = userData.photo?.path ? getImageUrl(userData.photo.path, avatar) : avatar;
-      const userInfo = { avatarUrl };
-      localStorage.setItem(`user-${userId}`, JSON.stringify(userInfo));
-      return avatarUrl;
-   } catch (error) {
-      console.error('Ошибка при получении аватара пользователя:', error);
-      return avatar;
-   }
-};
+function isOdd(n) {
+   return n % 2 === 1;
+}
 
 onMounted(async () => {
    try {
       const { totalCount, data } = await fetchLastMessages();
-
       total.value = totalCount;
 
       const usersWithAvatars = await Promise.all(data.map(async (message) => {
-         const userId = message.for_user_id === userStore.userId
-            ? message.from_user_id
-            : message.for_user_id;
-
-         const avatarUrl = await getUserAvatar(userId);
-
-         return {
-            userId,
-            avatarUrl
-         };
+         const userId = relevantUser(message);
+         const avatarUrl = getImageUrl(relevantUser(message).photo?.path, avatar);
+         return { userId, avatarUrl };
       }));
 
       chatStore.setUsersWithAvatars(usersWithAvatars);
@@ -548,7 +521,7 @@ watch(() => chatStore.currentChat, loadMessages, { immediate: true });
       color: #323232;
       border-radius: 12px;
       gap: 8px;
-      padding: 16px;
+      padding: 12px 16px;
       position: relative;
       display: flex;
       flex-direction: column;
@@ -849,6 +822,7 @@ watch(() => chatStore.currentChat, loadMessages, { immediate: true });
 
 .chat-wrapper__message-item--skeleton {
    display: flex;
+   margin-bottom: 24px;
    align-items: flex-start;
 }
 

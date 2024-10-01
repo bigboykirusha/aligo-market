@@ -21,8 +21,11 @@
                   d="M11.2857 16.4286H2.71429C2.25963 16.4286 1.82359 16.248 1.5021 15.9265C1.18061 15.605 1 15.1689 1 14.7143V2.71429C1 2.25963 1.18061 1.82359 1.5021 1.5021C1.82359 1.18061 2.25963 1 2.71429 1H8.71429L13 5.28571V14.7143C13 15.1689 12.8194 15.605 12.4979 15.9265C12.1764 16.248 11.7404 16.4286 11.2857 16.4286Z"
                   stroke="#D6D6D6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
-            <p class="my-ads__placeholder-text">{{ placeholderText.text }}</p>
-            <p class="my-ads__placeholder-description">{{ placeholderText.description }}</p>
+            <p class="my-ads__placeholder-text">Объявлений пока нет</p>
+            <p class="my-ads__placeholder-description">
+               У вас пока нет объявлений в этой категории. Вы можете создать новое объявление, нажав на кнопку
+               <nuxt-link to="/createAd" class="clickable" style="color: #3366FF; cursor: pointer;">«Разместить объявление»</nuxt-link>.
+            </p>
          </div>
       </div>
    </div>
@@ -40,33 +43,6 @@ const switcherItems = ['Все', 'Черновики', 'Архив'];
 const selectedItem = ref(switcherItems[0]);
 const adsMain = ref([]);
 const loading = ref(true);
-
-const placeholderText = ref({
-   text: 'Объявлений пока нет',
-   description: 'У вас пока нет объявлений в этой категории. Вы можете создать новое объявление, нажав на кнопку «Разместить объявление».',
-});
-
-const updatePlaceholderText = () => {
-   switch (selectedItem.value) {
-      case 'Черновики':
-         placeholderText.value = {
-            text: 'Черновиков пока нет',
-            description: 'Вы пока не создали черновики. Нажмите на кнопку «Разместить объявление», чтобы добавить черновик.',
-         };
-         break;
-      case 'Архив':
-         placeholderText.value = {
-            text: 'Архив пуст',
-            description: 'В архиве пока нет объявлений. Вы можете добавить объявления, чтобы они появились здесь.',
-         };
-         break;
-      default:
-         placeholderText.value = {
-            text: 'Объявлений пока нет',
-            description: 'У вас пока нет объявлений в этой категории. Вы можете создать новое объявление, нажав на кнопку «Разместить объявление».',
-         };
-   }
-};
 
 const fetchAds = async (is_published) => {
    try {
@@ -105,7 +81,6 @@ const updateSelectedItem = () => {
       'drafts': 'Черновики',
       'archive': 'Архив'
    }[title] || switcherItems[0];
-   nextTick(updatePlaceholderText);
    fetchAds();
 };
 
@@ -115,7 +90,6 @@ watch(() => route.params.title, updateSelectedItem);
 const handleSwitch = (item) => {
    selectedItem.value = item;
    nextTick(() => {
-      updatePlaceholderText();
       setTimeout(() => {
          router.push(`/myself/${item === 'Все' ? 'ads' : item === 'Черновики' ? 'drafts' : 'archive'}`);
       }, 300);

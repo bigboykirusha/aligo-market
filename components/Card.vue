@@ -40,7 +40,7 @@
             </div>
          </nuxt-link>
          <div class="card__block">
-            <span class="card__price">{{ price }}</span>
+            <span class="card__price">{{ formatNumberWithSpaces(price) }}</span>
             <span class="card__currency">₽</span>
          </div>
          <div v-if="horizontal" class="card__description">{{ description }}</div>
@@ -107,6 +107,7 @@ import { ref, computed } from 'vue';
 import favActive from '../assets/icons/fav-white.svg';
 import fav from '../assets/icons/fav.svg';
 import { useUserStore } from '~/store/user';
+import { formatNumberWithSpaces } from '../services/amountUtils.js';
 import { getImageUrl } from '../services/imageUtils'
 import { useFavoritesStore } from '~/store/favorites';
 import { seeContact, getUser } from '~/services/apiClient';

@@ -186,7 +186,7 @@ const fetchUserData = async (userId) => {
    try {
       const userData = await getUser(userId);
       avatarUrl.value = getImageUrl(userData.photo?.path, avatar);
-      userName.value = userData.username || 'Имя не указано';
+      userName.value = userData.username || userData.login || userData.email || 'Артемий';
    } catch (error) {
       console.error('Ошибка при получении данных пользователя:', error);
    }
@@ -367,7 +367,7 @@ onUnmounted(() => {
       transition: all 0.2s ease;
 
       img {
-         height: 14px;
+         height: 16px;
       }
 
       &:hover {

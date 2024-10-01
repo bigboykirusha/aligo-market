@@ -38,7 +38,7 @@ const props = defineProps({
    },
    placeholder: {
       type: String,
-      default: 'Нажмите' // Значение по умолчанию, если пропс не передан
+      default: 'Нажмите' 
    }
 });
 
@@ -88,7 +88,6 @@ watch(selectedOptions, (newOptions) => {
 
 <style scoped lang="scss">
 .dropdown-2 {
-   /* Стили остаются без изменений */
    position: relative;
    width: 100%;
    max-width: 262px;

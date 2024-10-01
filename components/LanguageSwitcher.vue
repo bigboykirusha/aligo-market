@@ -114,6 +114,10 @@ onUnmounted(() => {
          width: 12px;
          height: 12px;
       }
+
+      @media screen and (max-width: 480px) {
+         display: none;
+      }
    }
 
    &__list-wrapper {
@@ -178,7 +182,6 @@ onUnmounted(() => {
    &__name {
       font-weight: 400;
       font-size: 12px;
-      line-height: 1.25em;
       color: $white;
    }
 }
