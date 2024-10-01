@@ -290,7 +290,6 @@ const countMessage = computed(() => userStore.count_new_messages);
     transition: $transition-1;
 
     .header__icon {
-      height: 12px;
       margin-right: 8px;
 
       @media (max-width: 768px) {
@@ -412,6 +411,8 @@ const countMessage = computed(() => userStore.count_new_messages);
   }
 
   &__text {
+    margin-left: 8px;
+
     &--add {
       @media screen and (max-width: 768px) {
         display: none;
