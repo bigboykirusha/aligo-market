@@ -971,13 +971,13 @@ export const useCreateStore = defineStore('create', {
          this.is_serviced_dealer = 0;
          this.is_under_warranty = 0;
 
-         this.power_steering = 0;
-         this.salon = 0;
-         this.electric_window = 0;
-         this.audio_system = 0;
-         this.wheels = 0;
-         this.climate = 0;
-         this.headlight = 0;
+         this.power_steering = null;
+         this.salon = null;
+         this.electric_window = null;
+         this.audio_system = null;
+         this.wheels = null;
+         this.climate = null;
+         this.headlight = null;
 
          this.is_front_seats = 0;
          this.is_rear_seats = 0;

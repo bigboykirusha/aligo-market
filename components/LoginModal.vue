@@ -412,7 +412,7 @@ const isEmailSaved = computed(() => {
             border-radius: 4px;
             height: 27px;
             background-color: #3366FF;
-            transition: transform 0.3s ease;
+            transition: transform 0.2s ease;
             z-index: 0;
          }
 
