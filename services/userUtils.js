@@ -1,10 +1,11 @@
-import { useUserStore } from '../store/user.js';
+import { getCookie } from './auth';
 
-const userStore = useUserStore();
+const userData = JSON.parse(getCookie('userData'));
+const userId = userData ? userData.user_id : null;
 
 export const relevantUser = (message) => {
    const { for_user, from_user } = message;
-   return for_user.id !== userStore.userId ? for_user : from_user;
+   return for_user.id !== userId ? for_user : from_user;
 };
 
 export const relevantUserInfo = (message) => {

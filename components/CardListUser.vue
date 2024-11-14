@@ -2,7 +2,7 @@
    <div class="cards">
       <h2 class="cards__title">{{ title }}</h2>
 
-      <div class="cards__switcher">
+      <div v-if="showSwitcher" class="cards__switcher">
          <div v-for="(item, index) in switcherItems" :key="index" class="cards__item"
             :class="{ 'cards__item--active': selectedItem === item }" @click="handleSwitch(item)">
             {{ item }}
@@ -24,7 +24,7 @@
       </div>
       <div v-if="ads && ads.length === 0 && !loading" class="cards__placeholder">
          <img src="../assets/icons/ad-sad.svg" alt="Заглушка" />
-         <div class="cards__placeholder--text">Объявлений пока нет. </div>
+         <div class="cards__placeholder--text">Объявлений пока нет.</div>
          <div class="cards__placeholder--description">Здесь будут отображаться все публикации пользователя.</div>
       </div>
    </div>
@@ -49,18 +49,33 @@ const ads = ref([]);
 const loading = ref(true);
 const switcherItems = ['Активные', 'Закрытые'];
 const selectedItem = ref(switcherItems[0]);
+const showSwitcher = ref(true); 
 
-const fetchAds = async (type) => {
+const fetchAds = async (status) => {
    try {
       loading.value = true;
-      const status = type === 'Активные' ? 'published' : 'closed';
       const data = await getUserOtherAds(props.userId, status);
-      console.log('Полученные объявления:', data);
-      ads.value = data;
+      return data;
    } catch (error) {
       console.error('Ошибка при получении объявлений: ', error);
+      return [];
    } finally {
       loading.value = false;
+   }
+};
+
+const fetchAllAds = async () => {
+   try {
+      const publishedAds = await fetchAds('published');
+      const closedAds = await fetchAds('closed');
+
+      if (publishedAds.length === 0 || closedAds.length === 0) {
+         showSwitcher.value = false;
+      }
+
+      ads.value = publishedAds.concat(closedAds);
+   } catch (error) {
+      console.error('Ошибка при получении всех объявлений: ', error);
    }
 };
 
@@ -75,11 +90,13 @@ const indicatorStyle = computed(() => {
 
 const handleSwitch = (item) => {
    selectedItem.value = item;
-   fetchAds(item);
+   fetchAds(item === 'Активные' ? 'published' : 'closed').then((data) => {
+      ads.value = data;
+   });
 };
 
 onMounted(() => {
-   fetchAds(selectedItem.value);
+   fetchAllAds();
 });
 </script>
 

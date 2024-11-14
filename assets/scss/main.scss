@@ -1,37 +1,38 @@
 * {
-   margin: 0;
-   padding: 0;
-   box-sizing: border-box;
- }
- 
- html {
-   color: $black-2;
- }
- 
- body {
-   min-width: 320px;
-   font-family: 'Noto Sans', sans-serif;
- }
- 
- * {
-   &::-webkit-scrollbar {
-     width: 8px;
-   }
- 
-   &::-webkit-scrollbar-track {
-     background: transparent;
-   }
- 
-   &::-webkit-scrollbar-thumb {
-     background: #EBEBEB;
-     border-radius: 4px;
-     cursor: pointer;
- 
-     &:hover {
-       background: #D6EFFF;
-     }
-   }
- }
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  color: $black-2;
+}
+
+body {
+  min-width: 320px;
+  font-family: 'Noto Sans', sans-serif;
+}
+
+* {
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #F0F0F0;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #D6D6D6; 
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover,
+    &:active {
+      background: #3366FF; 
+    }
+  }
+}
 
 .swiper-pagination {
   opacity: 0;
@@ -64,6 +65,11 @@
 
 .otp-input:focus {
   border: 1px solid #3366FF;
+}
+
+.otp-input.error {
+  border: 1px solid red;
+  background-color:#FFD0D0;
 }
 
 .otp-input.is-complete {

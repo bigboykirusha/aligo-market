@@ -5,9 +5,15 @@ import { useChatStore } from '../store/chatStore.js';
 import { useUserStore } from '~/store/user';
 
 export default defineNuxtPlugin(nuxtApp => {
-   let token = '';
    const userStore = useUserStore();
-   const chatStore = useChatStore();
+
+   // Проверяем, залогинен ли пользователь
+   if (!userStore.isLoggedIn) {
+      console.warn('Пользователь не залогинен. Инициализация Echo отменена.');
+      return; // Если пользователь не залогинен, выходим из плагина
+   }
+
+   let token = '';
    const forWhomUserId = userStore.userId;
    const channelName = `store_message.${forWhomUserId}`;
 
@@ -26,10 +32,9 @@ export default defineNuxtPlugin(nuxtApp => {
 
    if (!token) {
       console.error('Токен не найден');
-      return;
+      return; 
    }
 
-   // Настройка Pusher и Echo
    window.Pusher = Pusher;
    console.log('Инициализация Echo...');
    window.Echo = new Echo({
@@ -40,7 +45,7 @@ export default defineNuxtPlugin(nuxtApp => {
       wsPort: 6001,
       wssPort: 6001,
       encrypted: true,
-      forceTLS: true, 
+      forceTLS: true,
       disableStats: false,
       enabledTransports: ['ws', 'wss'],
       authEndpoint: 'https://dev.aligo.pro/api/broadcasting/auth',

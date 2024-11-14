@@ -1,18 +1,8 @@
 <template>
    <div class="car-details">
       <div class="car-details__content">
-         <div class="car-details__back">
-            <nuxt-link to="/" class="car-details__back-link">
-               <img src="../assets/icons/back.svg" alt="">
-            </nuxt-link>
-            <WishlistButton v-if="!(id_user_owner_ads === userStore.userId)" @toggle-login-modal="toggleLoginModal"
-               :id="props.id" :is_in_favorites="props.is_in_favorites" />
-         </div>
-         <div class="slider-mobile">
-            <CarSlider :images="props.photos" />
-         </div>
          <header class="car-details__header">
-            <h1 class="car-details__title">{{ brand }} {{ model }}, {{ year }}</h1>
+            <div class="car-details__title">{{ brand }} {{ model }}, {{ year }}</div>
             <div class="car-details__price">{{ formatNumberWithSpaces(amount) }} ₽</div>
          </header>
          <WishlistButton v-if="!(id_user_owner_ads === userStore.userId)" mobile @toggle-login-modal="toggleLoginModal"
@@ -146,18 +136,18 @@ function pluralizeReview(count) {
    const lastTwoDigits = count % 100;
 
    if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
-      return 'отзывов';
+      return ' отзывов';
    }
 
    if (lastDigit === 1) {
-      return 'отзыв';
+      return ' отзыв';
    }
 
    if (lastDigit >= 2 && lastDigit <= 4) {
-      return 'отзыва';
+      return ' отзыва';
    }
 
-   return 'отзывов';
+   return ' отзывов';
 };
 
 const makeCall = () => {
@@ -178,13 +168,22 @@ const toggleLoginModal = () => {
 
 const prepareChatData = async () => {
    const chatData = {
-      userInfo: formattedUsername.value,
-      adDetails: `${props.brand} ${props.model}, ${props.year}`,
-      adImageUrl: getImageUrl(props.photos[0]?.path || ''),
-      avatarUrl: getImageUrl(userPhotoUrl.value || ''),
+      ads_info: `${props.brand} ${props.model}, ${props.year}`,
+      ads_photo: [{
+         path: props.photos[0]?.path,
+      }],
+      for_user: {
+         id: props.id_user_owner_ads,
+         photo: {
+            path: userPhotoUrl.value,
+         },
+         username: formattedUsername.value,
+      },
+      from_user: {
+         id: null,
+      },
       ads_id: props.id,
       main_category_id: 1,
-      for_user_id: props.id_user_owner_ads,
    };
 
    currentChatStore.setCurrentChat(chatData);
@@ -228,7 +227,7 @@ onBeforeUnmount(() => {
    max-width: 416px;
    width: 100%;
 
-   @media screen and (max-width: 1100px) {
+   @media screen and (max-width: 1280px) {
       display: flex;
       max-width: 100%;
       column-gap: 52px;
@@ -262,8 +261,9 @@ onBeforeUnmount(() => {
    }
 
    &__content {
-      @media screen and (max-width: 1100px) {
+      @media screen and (max-width: 1280px) {
          width: 50%;
+         margin-top: 32px;
       }
 
       @media screen and (max-width: 768px) {
@@ -272,7 +272,7 @@ onBeforeUnmount(() => {
    }
 
    &__header {
-      margin-bottom: 16px;
+      margin-bottom: 24px;
    }
 
    &__contact-buttons {
@@ -308,8 +308,6 @@ onBeforeUnmount(() => {
       }
    }
 
-
-
    &__write-button {
       width: 100%;
       display: flex;
@@ -341,40 +339,25 @@ onBeforeUnmount(() => {
 
    &__title {
       font-size: 32px;
-      color: #3366FF;
-      margin: 0 0 24px;
-      line-height: 1;
+      color: #003BCE;
+      margin-bottom: 16px;
+      line-height: 36px;
+      font-weight: 700;
 
-      @media (max-width: 1200px) {
-         font-size: 28px;
-      }
-
-      @media (max-width: 992px) {
-         font-size: 24px;
-      }
    }
 
    &__price {
       font-size: 24px;
       font-weight: 700;
-      line-height: 1;
+      line-height: 30px;
       color: #323232;
-
-      @media (max-width: 1200px) {
-         font-size: 22px;
-      }
-
-      @media (max-width: 992px) {
-         font-size: 20px;
-      }
-
    }
 
    &__contact {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      margin-bottom: 42px;
+      margin-bottom: 24px;
       padding-right: 42px;
       border-radius: 6px;
       gap: 24px;
@@ -383,12 +366,10 @@ onBeforeUnmount(() => {
          flex-direction: row;
          align-items: center;
          padding: 0;
-         column-gap: 30px;
       }
 
-      @media screen and (max-width: 600px) {
+      @media screen and (max-width: 768px) {
          flex-direction: column;
-         row-gap: 16px;
       }
 
       &-button {
@@ -425,11 +406,11 @@ onBeforeUnmount(() => {
    &__location {
       font-size: 14px;
 
-      @media screen and (max-width: 1100px) {
+      @media screen and (max-width: 1280px) {
          width: 50%;
          height: 100%;
          min-height: 231px;
-         margin-top: 90px;
+         margin-top: 32px;
       }
 
       @media screen and (max-width: 768px) {
@@ -441,7 +422,6 @@ onBeforeUnmount(() => {
 
       p {
          font-size: 14px;
-         margin-bottom: 0.6em;
 
          b {
             display: block;
@@ -467,10 +447,10 @@ onBeforeUnmount(() => {
       }
 
       &.--visible {
-         height: 300px;
+         height: 306px;
 
-         @media screen and (max-width: 1100px) {
-            height: 254px;
+         @media screen and (max-width: 1280px) {
+            height: 154px;
          }
       }
    }

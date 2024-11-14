@@ -14,20 +14,30 @@
             <strong>Сообщение:</strong> {{ notification.data.new_message.message }}
          </p>
 
-         <!-- Уведомление о новом отзыве -->
-         <div v-if="notification.data.review">
-            <p><strong>Отзыв:</strong> {{ notification.data.review.comment }}</p>
-            <p><strong>Оценка:</strong> {{ notification.data.review.grade }} из 5</p>
-         </div>
-
          <!-- Категория объявления -->
          <p v-if="notification.data.ads">
             <strong>Категория:</strong> {{ getCategoryName(notification.data.ads.main_category_id) }}
          </p>
 
-         <!-- Статус объявления -->
          <p v-if="notification.data.ads">
-            <strong>Статус:</strong> {{ getAdStatus(notification.data.ads.is_draft, notification.data.ads.is_in_archive) }}
+            <span v-if="notification.data.ads.is_published">
+               Ваше объявление опубликовано, вы можете <a :href="getAdUrl(notification.data.ads.id)"
+                  class="link">перейти к
+                  объявлению</a>
+            </span>
+            <span v-else-if="notification.data.ads.is_in_archive">
+               Ваше объявление перемещено в архив, вы можете <a :href="getAdUrl(notification.data.ads.id)"
+                  class="link">перейти в
+                  архив</a>
+            </span>
+            <span v-else-if="notification.data.ads.is_draft">
+               Ваше объявление в черновиках, вы можете <a :href="getAdUrl(notification.data.ads.id)"
+                  class="link">редактировать объявление</a>
+            </span>
+         </p>
+
+         <p v-if="notification.data.new_message">
+            Вы можете <a href="#" class="link">перейти в чат</a>.
          </p>
       </div>
       <div class="notification-card__footer">
@@ -65,10 +75,8 @@ const getCategoryName = (categoryId) => {
    return categories[categoryId] || 'Неизвестная категория';
 };
 
-const getAdStatus = (isDraft, isInArchive) => {
-   if (isDraft) return 'Черновик';
-   if (isInArchive) return 'В архиве';
-   return 'Опубликовано';
+const getAdUrl = (adId) => {
+   return `/car/${adId}`;
 };
 
 const formatDate = (dateString) => {
@@ -137,6 +145,15 @@ const deleteNotification = () => {
          strong {
             font-weight: 700;
             color: #323232;
+         }
+
+         .link {
+            color: #3366FF;
+            cursor: pointer;
+
+            &:hover {
+               color: #003399;
+            }
          }
       }
 

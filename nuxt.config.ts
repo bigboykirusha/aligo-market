@@ -25,7 +25,8 @@ export default defineNuxtConfig({
     'nuxt-swiper',
     '@pinia/nuxt',
     'vue3-carousel-nuxt',
-    "nuxt-rating"
+    "nuxt-rating",
+    '@nuxt/image'
   ],
   plugins: [
     { src: '~/plugins/vue-the-mask', mode: 'client' },
@@ -33,6 +34,7 @@ export default defineNuxtConfig({
     { src: '~/plugins/user-init', mode: 'client' },
     { src: '~/plugins/fetchFavorites', mode: 'client' },
     { src: '~/plugins/echo.js', mode: 'client' },
+
   ],
   css: ['~/assets/scss/main.scss', '~/assets/scss/_reset.scss'],
   vite: {
@@ -52,7 +54,8 @@ export default defineNuxtConfig({
     ],
     defaultLocale: 'ru',
     lazy: true,
-    langDir: 'locales/'
+    langDir: 'locales/',
+    strategy: 'no_prefix',
   },
   devServer: {
     port: 4000

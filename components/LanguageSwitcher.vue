@@ -95,7 +95,13 @@ onUnmounted(() => {
       cursor: pointer;
       transition: $transition-1;
 
-      @media screen and (max-width: 600px) {
+      .language-switcher__flag {
+         @media (max-width: 480px) {
+            display: none;
+         }
+      }
+
+      @media (max-width: 600px) {
          padding: 10px 0;
       }
 
@@ -110,13 +116,9 @@ onUnmounted(() => {
       border-radius: 50%;
       object-fit: cover;
 
-      @media screen and (max-width: 600px) {
+      @media (max-width: 600px) {
          width: 12px;
          height: 12px;
-      }
-
-      @media screen and (max-width: 480px) {
-         display: none;
       }
    }
 
@@ -134,10 +136,9 @@ onUnmounted(() => {
       border-radius: 0 0 4px 4px;
       overflow: hidden;
 
-      @media screen and (max-width: 600px) {
+      @media (max-width: 600px) {
          top: -5px;
-         left: -16px;
-         border-radius: 0 0 6px 0;
+         max-width: 150px;
       }
 
       &--active {
@@ -175,6 +176,11 @@ onUnmounted(() => {
             height: 12px;
             background: url('../assets/icons/check-icon.svg') center center / contain no-repeat;
             margin-left: auto;
+
+            @media (max-width: 480px) {
+               width: 12px;
+               height: 12px;
+            }
          }
       }
    }

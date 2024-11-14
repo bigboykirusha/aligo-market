@@ -10,7 +10,7 @@
     <Pagination v-if="totalItems > 0" :totalItems="totalItems" :pageSize="pageSize" :currentPage="currentPage"
       @changePage="changePage" />
 
-    <CardList v-if="adsHistory.length" :title="title1" :ads="adsHistory.slice(0, 5)" />
+    <CardList v-if="isLoggedIn && adsHistory.length" :title="title1" :ads="adsHistory.slice(0, 5)" />
 
     <BannerTemplate :content="bannerContent" />
 
@@ -34,7 +34,7 @@ const { t } = useI18n();
 const cityStore = useCityStore();
 const userStore = useUserStore();
 
-const isLoggedIn = userStore.isLoggedIn;
+const isLoggedIn = ref(userStore.isLoggedIn);
 
 const title1 = t('titles.title1');
 const title2 = t('titles.title2');
@@ -84,6 +84,8 @@ const fetchAds = async () => {
 };
 
 const fetchAdsHistory = async () => {
+  if (!isLoggedIn.value) return;
+
   try {
     const newAdsHistory = await getAdsHistory(cityStore.selectedCity.name);
     adsHistory.value = newAdsHistory.map(item => item.ads_show);
@@ -118,9 +120,11 @@ watch(
 
 onMounted(() => {
   fetchAds();
-  fetchAdsHistory();
+  if (isLoggedIn.value) {
+    fetchAdsHistory();
+  }
   fetchMainAds();
-  fetchAdsSimilar(cityStore.selectedCity.name)
+  fetchAdsSimilar(cityStore.selectedCity.name);
 });
 </script>
 

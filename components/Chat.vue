@@ -152,6 +152,7 @@
       <!-- Поле ввода сообщения -->
       <div v-if="chatStore.currentChat && !chatStore.isCollapsed && userStore.username"
          class="chat-wrapper__message-input-container">
+         <img src="../assets/icons/chat-shadow.png" alt="Chat Shadow" class="chat-wrapper__chat-shadow" />
          <div class="chat-wrapper__message-icons-left">
             <input type="file" @change="handleFileChange" multiple class="chat-wrapper__file-input" />
             <button class="chat-wrapper__message-icon-left" @click="triggerFileInput">
@@ -179,7 +180,7 @@
 import { ref, onMounted, watch, computed } from 'vue';
 import { useChatStore } from '~/store/chatStore';
 import { useUserStore } from '~/store/user';
-import { relevantUser, relevantUserInfo} from '../services/userUtils.js'
+import { relevantUser, relevantUserInfo } from '../services/userUtils.js'
 import { getImageUrl } from '../services/imageUtils';
 import { fetchMessages, sendMessage, fetchLastMessages } from '~/services/apiClient';
 import avatar from '../assets/icons/avatar-revers.svg';
@@ -194,9 +195,7 @@ const loading = ref(true);
 const isPopupVisible = ref(false);
 
 const toUserId = computed(() => {
-   return chatStore.currentChat.for_user.id === userStore.userId
-      ? chatStore.currentChat.from_user.id
-      : chatStore.currentChat.for_user.id;
+   return relevantUser(chatStore.currentChat).id;
 });
 
 const displayedUsers = computed(() => {

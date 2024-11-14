@@ -1,8 +1,17 @@
 <template>
    <div>
-      <div class="slider">
-         <CarSlider :images="car.photos" />
+      <CarSlider :images="car.photos" :adsId="car.id" :userId="car.id_user_owner_ads" />
+      <div class="car-contact-wrapper">
+         <CarContact :id_user_owner_ads="car.id_user_owner_ads"
+            :brand="car.auto_technical_specifications[0].brand.title"
+            :model="car.auto_technical_specifications[0].model.title"
+            :year="car.auto_technical_specifications[0].year_release.title" :amount="car.ads_parameter.amount"
+            :username="car.ads_parameter?.username || car.ads_parameter?.login || 'Имя не указано'"
+            :place="car.ads_parameter.place_inspection || 'Не указано'" :id="car.id"
+            :is_in_favorites="car.is_in_favorites" :latitude="car.ads_parameter.latitude"
+            :longitude="car.ads_parameter.longitude" :photos="car.photos" />
       </div>
+
       <section class="block-section block-section--description">
          <div class="block-section__container">
             <h2 class="block-section__title">Описание</h2>
@@ -174,19 +183,12 @@ const equipment = computed(() => {
 });
 </script>
 
-<style lang="scss">
-.slider {
-   width: 100%;
-   max-height: 420px;
-   height: auto;
-   border-radius: 6px;
+<style lang="scss" scoped>
+.car-contact-wrapper {
+   display: none;
 
-   @media screen and (max-width: 1100px) {
-      max-width: 100%;
-   }
-
-   @media screen and (max-width: 768px) {
-      display: none;
+   @media (max-width: 1280px) {
+      display: block;
    }
 }
 

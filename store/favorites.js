@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { addFavorites, getFavorites } from '../services/apiClient';
+import { useUserStore } from '../store/user'; // Импортируем store для проверки авторизации
 
 export const useFavoritesStore = defineStore('favorites', {
    state: () => ({
@@ -8,6 +9,11 @@ export const useFavoritesStore = defineStore('favorites', {
    }),
    actions: {
       async fetchFavorites() {
+         const userStore = useUserStore();
+         if (!userStore.isLoggedIn) {
+            console.warn('Пользователь не авторизован. Запрос избранных не выполнен.');
+            return; 
+         }
          try {
             const response = await getFavorites();
             this.items = response.map(item => item.ads_show.id);
@@ -17,6 +23,11 @@ export const useFavoritesStore = defineStore('favorites', {
          }
       },
       async toggleFavorite(itemId) {
+         const userStore = useUserStore();
+         if (!userStore.isLoggedIn) {
+            console.warn('Пользователь не авторизован. Запрос на изменение избранного не выполнен.');
+            return; 
+         }
          try {
             const isFavorite = this.items.includes(itemId);
             if (isFavorite) {

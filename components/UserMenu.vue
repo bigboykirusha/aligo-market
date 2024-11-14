@@ -2,87 +2,74 @@
    <div class="user-menu" ref="userMenuRef">
       <div class="user-menu__header">
          <client-only>
-            <template v-if="userName">
-               <div class="user-menu__block">
-                  <img :src="avatarUrl" alt="login icon" class="user-menu__icon">
-                  <input type="file" id="avatarUpload" ref="avatarUpload" @change="handleAvatarChange"
-                     style="display: none" />
-                  <img src="../assets/icons/change-ava.svg" alt="login icon" class="user-menu__icon-change"
-                     @click="triggerFileInput">
-                  <a class="user-menu__user-name">{{ capitalizedUserName }}</a>
-                  <div v-if="rating === null" class="user-menu__rating-text--empty">
-                     О вас нет отзывов
-                  </div>
-                  <a v-else class="user-menu__profile-button">
-                     <div class="user-menu__rating">
-                        <div class="user-menu__rating-text">{{ rating }}</div>
-                        <NuxtRating :rating-value="Number(rating)" :rating-count="5" :rating-size="10"
-                           :rating-spacing="6" :active-color="'#3366FF'" :inactive-color="'#FFFFFF'"
-                           :border-color="'#3366FF'" :border-width="2" :rounded-corners="true" :read-only="true" />
-                     </div> {{ countReviews }} {{ pluralizeReview(Number(countReviews)) }}
-                  </a>
-                  <nuxt-link to="/myself/editProfile" class="user-menu__profile-button">Управление профилем</nuxt-link>
+            <div class="user-menu__block">
+               <img :src="avatarUrl" alt="login icon" class="user-menu__icon">
+               <input type="file" id="avatarUpload" ref="avatarUpload" @change="handleAvatarChange"
+                  style="display: none" />
+               <img src="../assets/icons/change-ava.svg" alt="change avatar" class="user-menu__icon-change"
+                  @click="triggerFileInput">
+
+               <a class="user-menu__user-name">{{ displayName }}</a>
+
+               <div v-if="!rating" class="user-menu__rating-text--empty">О вас нет отзывов</div>
+               <div v-else class="user-menu__rating">
+                  <div class="user-menu__rating-text">{{ rating }}</div>
+                  <NuxtRating :rating-value="Number(rating)" :rating-count="5" :rating-size="10" :rating-spacing="6"
+                     :active-color="'#3366FF'" :inactive-color="'#FFFFFF'" :border-color="'#3366FF'" :border-width="2"
+                     :rounded-corners="true" :read-only="true" />
+                  {{ countReviews }} {{ pluralizeReview(countReviews) }}
                </div>
-            </template>
-            <template v-else>
-               <div class="user-menu__block">
-                  <img :src="avatarUrl" alt="login icon" class="user-menu__icon">
-                  <input type="file" id="avatarUpload" ref="avatarUpload" @change="handleAvatarChange"
-                     style="display: none" />
-                  <img src="../assets/icons/change-ava.svg" alt="login icon" class="user-menu__icon-change"
-                     @click="triggerFileInput">
-                  <a class="user-menu__user-name">{{ formattedPhoneNumber }}</a>
-                  <div v-if="rating === null" class="user-menu__rating-text--empty">
-                     О вас нет отзывов
-                  </div>
-                  <a v-else class="user-menu__profile-button">
-                     <div class="user-menu__rating">
-                        <div class="user-menu__rating-text">{{ rating }}</div>
-                        <NuxtRating :rating-value="Number(rating)" :rating-count="5" :rating-size="10"
-                           :rating-spacing="6" :active-color="'#3366FF'" :inactive-color="'#FFFFFF'"
-                           :border-color="'#3366FF'" :border-width="2" :rounded-corners="true" :read-only="true" />
-                     </div> {{ countReviews }} {{ pluralizeReview(Number(countReviews)) }}
-                  </a>
-                  <nuxt-link to="/myself/editProfile" class="user-menu__profile-button">Управление профилем</nuxt-link>
-               </div>
-            </template>
+
+               <nuxt-link to="/myself/editProfile" class="user-menu__profile-button">
+                  Управление профилем
+               </nuxt-link>
+            </div>
          </client-only>
       </div>
+
+      <!-- Список меню -->
       <ul class="user-menu__list">
-         <li class="user-menu__item"
-            :class="{ 'user-menu__item--active': activeItem === 'ads' || 'drafts' || 'archive' }"
+         <li class="user-menu__item" :class="{ 'user-menu__item--active': isActive('ads') }"
             @click="selectMenuItem('ads')">
-            <nuxt-link to="/myself/ads"><img src="../assets/icons/ad.svg" />Мои
-               объявления <div v-show="countAds" class="user-menu__count">{{ countAds }}</div></nuxt-link>
-         </li>
-         <li class="user-menu__item" :class="{ 'user-menu__item--active': activeItem === 'favorites' }"
-            @click="selectMenuItem('favorites')">
-            <nuxt-link to="/myself/favorites"><img src="../assets/icons/fav.svg" />Избранное <div
-                  v-show="countFavorites" class="user-menu__count">{{ countFavorites }}</div>
+            <nuxt-link to="/myself/ads">
+               <img src="../assets/icons/ad.svg" /> Мои объявления
+               <div v-show="countAds" class="user-menu__count">{{ countAds }}</div>
             </nuxt-link>
          </li>
-         <li class="user-menu__item" :class="{ 'user-menu__item--active': activeItem === 'notifications' }"
+         <li class="user-menu__item" :class="{ 'user-menu__item--active': isActive('favorites') }"
+            @click="selectMenuItem('favorites')">
+            <nuxt-link to="/myself/favorites">
+               <img src="../assets/icons/fav.svg" /> Избранное
+               <div v-show="countFavorites" class="user-menu__count">{{ countFavorites }}</div>
+            </nuxt-link>
+         </li>
+         <li class="user-menu__item" :class="{ 'user-menu__item--active': isActive('notifications') }"
             @click="selectMenuItem('notifications')">
-            <nuxt-link to="/myself/notifications"><img src="../assets/icons/support.svg" />Оповещения
+            <nuxt-link to="/myself/notifications">
+               <img src="../assets/icons/support.svg" /> Оповещения
                <div v-show="countUnreadNotify" class="user-menu__count">{{ countUnreadNotify }}</div>
             </nuxt-link>
          </li>
-         <li class="user-menu__item" :class="{ 'user-menu__item--active': activeItem === 'messages' }"
+         <li class="user-menu__item" :class="{ 'user-menu__item--active': isActive('messages') }"
             @click="selectMenuItem('messages')">
-            <nuxt-link to="/myself/messages"><img src="../assets/icons/mail-menu.svg" />Сообщения <div
-                  v-show="countMessage" class="user-menu__count">{{ countMessage }}</div></nuxt-link>
+            <nuxt-link to="/myself/messages">
+               <img src="../assets/icons/mail-menu.svg" /> Сообщения
+               <div v-show="countMessage" class="user-menu__count">{{ countMessage }}</div>
+            </nuxt-link>
          </li>
-         <li class="user-menu__item" :class="{ 'user-menu__item--active': activeItem === 'support' }"
+         <li class="user-menu__item" :class="{ 'user-menu__item--active': isActive('support') }"
             @click="selectMenuItem('support')">
-            <nuxt-link to="/myself/favorites"><img src="../assets/icons/send.svg" />Поддержка</nuxt-link>
+            <nuxt-link to="/myself/support">
+               <img src="../assets/icons/send.svg" /> Поддержка
+            </nuxt-link>
          </li>
-         <li class="user-menu__item" :class="{ 'user-menu__item--active': activeItem === 'reviews' }"
+         <li class="user-menu__item" :class="{ 'user-menu__item--active': isActive('reviews') }"
             @click="selectMenuItem('reviews')">
-            <nuxt-link to="/myself/reviews"><img src="../assets/icons/reviews.svg" />Отзывы</nuxt-link>
+            <nuxt-link to="/myself/reviews">
+               <img src="../assets/icons/reviews.svg" /> Отзывы
+            </nuxt-link>
          </li>
-         <li class="user-menu__item user-menu__item--logout" @click="logout">
-            Выйти
-         </li>
+         <li class="user-menu__item user-menu__item--logout" @click="logout">Выйти</li>
       </ul>
    </div>
 </template>
@@ -92,33 +79,52 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '~/store/user';
 import { getUserCount } from '~/services/apiClient.js';
-import { getImageUrl } from '../services/imageUtils'
-import avatarPhoto from '../assets/icons/avatar-revers.svg'
+import { getImageUrl } from '../services/imageUtils';
+import avatarPhoto from '../assets/icons/avatar-revers.svg';
 
 const userStore = useUserStore();
 const route = useRoute();
-
-const userName = computed(() => userStore.username);
-const capitalizedUserName = computed(() => {
-   return userName.value ? userName.value.charAt(0).toUpperCase() + userName.value.slice(1) : '';
-});
-
-const phoneNumber = computed(() => userStore.phoneNumber);
 const avatarUrl = ref(getImageUrl(userStore.photo?.path, avatarPhoto));
-const rating = computed(() => userStore.grade);
 const userMenuRef = ref(null);
 
+const displayName = computed(() => userStore.username || formattedPhoneNumber.value);
+
+const formattedPhoneNumber = computed(() => userStore.phoneNumber || userStore.email);
+
+const rating = computed(() => userStore.grade);
 const countFavorites = computed(() => userStore.countFavorites);
 const countAds = computed(() => userStore.countAds);
 const countUnreadNotify = computed(() => userStore.countUnreadNotify);
 const countReviews = computed(() => userStore.countReviews);
 const countMessage = computed(() => userStore.count_new_messages);
 
-const emit = defineEmits(['close-userMenu', 'itemSelected']);
+const activeItem = ref(route.params.title || 'ads');
 
-const logout = () => {
-   userStore.clearUserdata();
-   emit('close-userMenu');
+watch(() => route.params.title, (newTitle) => {
+   activeItem.value = newTitle;
+});
+
+const selectMenuItem = (item) => {
+   activeItem.value = item;
+};
+
+const isActive = (item) => activeItem.value === item;
+
+const handleAvatarChange = async (event) => {
+   const file = event.target.files[0];
+   if (file) {
+      try {
+         await userStore.updateProfile({ photo: file });
+         avatarUrl.value = URL.createObjectURL(file);
+      } catch (error) {
+         console.error('Ошибка при загрузке аватара: ', error);
+      }
+   }
+};
+
+const triggerFileInput = () => {
+   const fileInput = userMenuRef.value?.querySelector('#avatarUpload');
+   fileInput?.click();
 };
 
 const fetchUserCounts = async () => {
@@ -131,6 +137,14 @@ const fetchUserCounts = async () => {
    } catch (error) {
       console.error('Ошибка при получении данных пользователя: ', error);
    }
+};
+
+onMounted(() => {
+   fetchUserCounts();
+});
+
+const logout = () => {
+   userStore.clearUserdata();
 };
 
 function pluralizeReview(count) {
@@ -150,53 +164,7 @@ function pluralizeReview(count) {
    }
 
    return 'отзывов';
-};
-
-const formattedPhoneNumber = computed(() => {
-   if (phoneNumber.value) {
-      return phoneNumber.value;
-   } else {
-      return userStore.email;
-   }
-});
-
-const activeItem = ref(route.params.title || 'ads');
-
-const selectMenuItem = (item) => {
-   activeItem.value = item;
-   emit('itemSelected', item);
-};
-
-watch(() => route.params.title, (newTitle) => {
-   activeItem.value = newTitle;
-});
-
-onMounted(() => {
-   fetchUserCounts();
-});
-
-const handleAvatarChange = async (event) => {
-   const file = event.target.files[0];
-   if (file) {
-      try {
-         const formData = new FormData();
-         formData.append('photo', file);
-
-         await userStore.updateProfile({ photo: file });
-
-         avatarUrl.value = URL.createObjectURL(file);
-      } catch (error) {
-         console.error('Ошибка при загрузке аватара: ', error);
-      }
-   }
-};
-
-const triggerFileInput = () => {
-   const fileInput = userMenuRef.value?.querySelector('#avatarUpload');
-   if (fileInput) {
-      fileInput.click();
-   }
-};
+}
 </script>
 
 <style scoped lang="scss">
@@ -251,6 +219,8 @@ const triggerFileInput = () => {
       display: flex;
       align-items: center;
       gap: 8px;
+      font-size: 14px;
+      color: #3366FF;
    }
 
    .user-menu__rating-text {

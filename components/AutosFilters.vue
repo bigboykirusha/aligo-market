@@ -3,8 +3,8 @@
       <div v-if="isMobile" class="filters__toggle">
          <div v-if="!showFilters" class="filters__toggle-item">
             <SelectSkeleton v-if="loading" />
-            <SelectOptionsTemplate v-else :options="switcherStateOptions" @updateSort="handleStateUpdate"
-               :initialSelectedOptions="filtersStore.selectedState" placeholder="Состояние" />
+            <SelectOptionsTemplate v-else :options="switcherConditionOptions" @updateSort="handleConditionUpdate"
+               :initialSelectedOptions="filtersStore.selectedCondition" placeholder="Новизна" />
          </div>
          <div v-if="!showFilters" class="filters__toggle-item">
             <SelectSkeleton v-if="loading" />
@@ -145,7 +145,6 @@ const toggleFiltersVisibility = () => {
 const isAnyFilterSelected = computed(() => {
    return filtersStore.selectedState || filtersStore.selectedMark.length > 0 ||
       filtersStore.selectedModel.length > 0 ||
-      filtersStore.selectedCondition !== null ||
       filtersStore.selectedBodyTypes.length > 0 ||
       filtersStore.selectedEngineTypes.length > 0 ||
       filtersStore.selectedTransmission.length > 0 ||

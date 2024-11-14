@@ -6,7 +6,8 @@
          <span class="card__title">{{ category.title }}</span>
       </nuxt-link>
       <ul class="card__list">
-         <li v-for="(subcategory, index) in category.subcategories" :key="index" class="card__list-item">
+         <li @click="handleClick(subcategory.title)" v-for="(subcategory, index) in category.subcategories" :key="index"
+            class="card__list-item">
             <nuxt-link :to="subcategory.href" class="card__list-item-link">{{ subcategory.title }}</nuxt-link>
          </li>
       </ul>
@@ -14,12 +15,33 @@
 </template>
 
 <script setup>
+import { useFiltersStore } from '../store/filters.js'
+const filtersStore = useFiltersStore();
+
 const props = defineProps({
    category: {
       type: Object,
       required: true
    }
 });
+
+const handleClick = (title) => {
+   if (title === 'Авто с пробегом') {
+      handleUsedClick();
+   } else if (title === 'Новое авто') {
+      handleNewClick();
+   }
+};
+
+const handleUsedClick = () => {
+   console.log('Выбран б/у автомобиль');
+   filtersStore.setSelectedCondition(2);
+};
+
+const handleNewClick = () => {
+   console.log('Выбран новый автомобиль');
+   filtersStore.setSelectedCondition(1);
+};
 </script>
 
 <style scoped lang="scss">

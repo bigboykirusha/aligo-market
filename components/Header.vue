@@ -5,76 +5,56 @@
         <nav class="header__nav" aria-label="Primary">
           <ul class="header__nav-list" v-show="!isMyselfRoute || isDesktop">
             <nuxt-link to="/" class="header__nav-item header__nav-item--mobile">
-              <img class="header__nav--logo" src="../assets/images/logo-white.svg" alt="">
+              <img class="header__nav--logo" src="../assets/images/logo-white.svg" alt="Logo">
             </nuxt-link>
             <li class="header__nav-item">
               <LanguageSwitcher />
             </li>
             <li class="header__nav-item">
               <button class="header__nav-link" @click="toggleModal">
-                <img :src="defaultLocationIcon" alt="location icon" class="header__icon">
+                <img :src="defaultLocationIcon" alt="Location icon" class="header__icon">
                 <span class="header__text header__text--hidden">{{ translatedCityName }}</span>
               </button>
               <LocationPopup @open-modal="toggleModal" />
             </li>
             <li class="header__nav-item">
-              <nuxt-link to="business" class="header__nav-link">
-                <img src="../assets/icons/business.svg" alt="business icon" class="header__icon">
+              <nuxt-link to="/business" class="header__nav-link">
+                <img src="../assets/icons/business.svg" alt="Business icon" class="header__icon">
                 <span class="header__text header__text--hidden">{{ $t('nav.business') }}</span>
               </nuxt-link>
             </li>
           </ul>
         </nav>
         <div v-show="isMyselfRoute && !isDesktop" class="header__images">
-          <img src="../assets/icons/menu.svg" alt="Image 2" @click="toggleSideMenu" />
-          <img src="../assets/icons/white-logo.svg" alt="Image 1" />
+          <img src="../assets/icons/menu.svg" alt="Menu" @click="toggleSideMenu" />
+          <img src="../assets/icons/white-logo.svg" alt="Logo">
         </div>
-        <nuxt-link to="/createAd" v-show="route.path.startsWith('/myself')" class="header__actions">
-          <button class="header__nav-link header__nav-link--add header__nav">
-            <img src="../assets/icons/add.svg" alt="custom icon" class="header__icon">
+        <nuxt-link to="/createAd" v-show="isMyselfRoute" class="header__actions">
+          <button class="header__nav-link header__nav-link--add">
+            <img src="../assets/icons/add.svg" alt="Add icon" class="header__icon">
             <span class="header__text header__text--add">Разместить объявление</span>
           </button>
         </nuxt-link>
-        <div v-show="!route.path.startsWith('/myself')" class="header__actions">
-          <div v-show="isLoggedIn" class="header__user-info">
-            <div class="header__user-block">
-              <nuxt-link to="/myself/favorites"
-                :class="['header__icon-wrapper', { 'header__icon-wrapper--active': countFavorites }]">
-                <img src="../assets/icons/favorites.svg" alt="favorites icon" class="header__icon">
-                <span v-show="countFavorites > 0" class="header__icon-count">{{ countFavorites }}</span>
-              </nuxt-link>
-              <nuxt-link to="/myself/notifications"
-                :class="{ 'header__icon-wrapper': true, 'header__icon-wrapper--active': countUnreadNotify }">
-                <img src="../assets/icons/mail.svg" alt="message icon" class="header__icon">
-                <span v-show="countUnreadNotify > 0" class="header__icon-count">{{ countUnreadNotify }}</span>
-              </nuxt-link>
-              <nuxt-link to="/myself/messages"
-                :class="{ 'header__icon-wrapper': true, 'header__icon-wrapper--active': countMessage }">
-                <img src="../assets/icons/message.svg" alt="user__icon" class="header__icon">
-                <span v-show="countMessage > 0" class="header__icon-count">{{ countMessage }}</span>
-              </nuxt-link>
+        <div v-show="!isMyselfRoute" class="header__actions">
+          <template v-if="isLoggedIn">
+            <div class="header__user-info">
+              <div class="header__user-block">
+                <IconLink v-for="icon in userIcons" :key="icon.to" :to="icon.to" :icon-src="icon.src"
+                  :icon-count="icon.count" />
+              </div>
+              <client-only>
+                <div class="header__menu" @click.stop="toggleUserMenu">
+                  <img v-if="userStore.photo?.path || !userName" :src="userAvatar" alt="Avatar"
+                    class="header__user-avatar">
+                  <span v-else class="header__user-circle">{{ initial }}</span>
+                  <span class="header__user-name">{{ displayName }}</span>
+                  <UserMenuPopup v-if="isUserMenuOpen && isDesktop" @close-userMenu="toggleUserMenu" />
+                </div>
+              </client-only>
             </div>
-            <client-only>
-              <div class="header__menu" v-if="userStore.photo?.path" @click.stop="toggleUserMenu">
-                <img :src="userAvatar" alt="user avatar" class="header__user-avatar" />
-                <span v-if="capitalizedUserName" class="header__user-name">{{ capitalizedUserName }}</span>
-                <span v-else class="header__user-name">{{ formattedPhoneNumber }}</span>
-                <UserMenuPopup v-if="isUserMenuOpen" @close-userMenu="toggleUserMenu" />
-              </div>
-              <div class="header__menu" v-else-if="userName" @click.stop="toggleUserMenu">
-                <span class="header__user-circle">{{ initial }}</span>
-                <span class="header__user-name">{{ capitalizedUserName }}</span>
-                <UserMenuPopup v-if="isUserMenuOpen" @close-userMenu="toggleUserMenu" />
-              </div>
-              <div class="header__menu" v-else @click.stop="toggleUserMenu">
-                <img :src="userAvatar" alt="user avatar" class="header__user-avatar" />
-                <span v-if="isClient" class="header__user-name">{{ formattedPhoneNumber }}</span>
-                <UserMenuPopup v-if="isUserMenuOpen" @close-userMenu="toggleUserMenu" />
-              </div>
-            </client-only>
-          </div>
-          <button v-show="!isLoggedIn" class="header__nav-link" @click="toggleLoginModal">
-            <img src="../assets/icons/user.svg" alt="logi__icon" class="header__icon header__icon--large">
+          </template>
+          <button v-else class="header__nav-link" @click="toggleLoginModal">
+            <img src="../assets/icons/user.svg" alt="Login icon" class="header__icon header__icon--large">
             <span class="header__text">{{ $t('nav.login') }}</span>
           </button>
         </div>
@@ -83,21 +63,26 @@
     <component :is="currentPageComponent" />
     <LocationModal v-if="modalOpen" @close-modal="toggleModal" />
     <LoginModal v-if="modalLoginOpen" @close-loginModal="toggleLoginModal" />
-    <UserMenuBurger v-if="isSideMenuOpen" @close-burgerMenu="toggleSideMenu" />
+    <UserMenuBurger v-if="isSideMenuOpen" :isRight="true" @close-burgerMenu="toggleSideMenu" />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { getImageUrl } from '../services/imageUtils'
+import { getImageUrl } from '../services/imageUtils';
+import { useCityStore } from '~/store/city';
+import { useUserStore } from '~/store/user';
+
 import HeaderRow from './HeaderRow.vue';
 import HeaderRowNew from './HeaderRowNew.vue';
 import HeaderRowMyself from './HeaderRowMyself.vue';
-import { useCityStore } from '~/store/city';
-import { useUserStore } from '~/store/user';
+
 import defaultLocationIcon from '../assets/icons/location.svg';
-import avatarPhoto from '../assets/icons/user.svg'
+import avatarPhoto from '../assets/icons/user.svg';
+import favoritesIcon from '../assets/icons/favorites.svg';
+import mailIcon from '../assets/icons/mail.svg';
+import messageIcon from '../assets/icons/message.svg';
 
 const modalOpen = ref(false);
 const modalLoginOpen = ref(false);
@@ -108,17 +93,10 @@ const cityStore = useCityStore();
 const userStore = useUserStore();
 const isClient = ref(false);
 const isDesktop = ref(false);
-
 const isSideMenuOpen = ref(false);
 
 const toggleSideMenu = () => {
   isSideMenuOpen.value = !isSideMenuOpen.value;
-};
-
-const updateIsDesktop = () => {
-  if (typeof window !== 'undefined') {
-    isDesktop.value = window.innerWidth >= 768;
-  }
 };
 
 const toggleModal = () => {
@@ -126,11 +104,22 @@ const toggleModal = () => {
 };
 
 const toggleUserMenu = () => {
-  isUserMenuOpen.value = !isUserMenuOpen.value;
+  if (isDesktop.value) {
+    isUserMenuOpen.value = !isUserMenuOpen.value;
+  } else {
+    toggleSideMenu();
+  }
 };
+
 
 const toggleLoginModal = () => {
   modalLoginOpen.value = !modalLoginOpen.value;
+};
+
+const updateIsDesktop = () => {
+  if (typeof window !== 'undefined') {
+    isDesktop.value = window.innerWidth >= 768;
+  }
 };
 
 const translatedCityName = computed(() => cityStore.selectedCity.name);
@@ -142,42 +131,34 @@ const handleScroll = () => {
 
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const userName = computed(() => userStore.username || userStore.login);
-const phoneNumber = computed(() => userStore.phoneNumber);
 const userAvatar = computed(() => getImageUrl(userStore.photo?.path, avatarPhoto));
 const initial = computed(() => userName.value ? userName.value.charAt(0).toUpperCase() : '');
-const capitalizedUserName = computed(() => userName.value ? userName.value.charAt(0).toUpperCase() + userName.value.slice(1) : '');
+const displayName = computed(() => userName.value ? capitalizedUserName.value : formattedPhoneNumber.value);
 
-const formattedPhoneNumber = computed(() => {
-  if (phoneNumber.value) {
-    return phoneNumber.value;
-  } else {
-    return userStore.email;
-  }
-});
+const capitalizedUserName = computed(() => userName.value.charAt(0).toUpperCase() + userName.value.slice(1));
+const formattedPhoneNumber = computed(() => userStore.phoneNumber || userStore.email);
+
+const userIcons = computed(() => [
+  { to: '/myself/favorites', src: favoritesIcon, count: userStore.countFavorites },
+  { to: '/myself/notifications', src: mailIcon, count: userStore.countUnreadNotify },
+  { to: '/myself/messages', src: messageIcon, count: userStore.count_new_messages },
+]);
 
 const currentPageComponent = computed(() => {
-  if (route.path.startsWith('/createAd')) {
-    return HeaderRowNew;
-  } else if (route.path.startsWith('/myself')) {
-    return HeaderRowMyself;
-  } else {
-    return HeaderRow;
-  }
+  if (route.path.startsWith('/createAd')) return HeaderRowNew;
+  if (route.path.startsWith('/myself')) return HeaderRowMyself;
+  return HeaderRow;
 });
 
-const containerClasses = computed(() => {
-  return {
-    'header__container': true,
-    'header__container--small': isMyselfRoute.value && !isDesktop.value
-  };
-});
+const containerClasses = computed(() => ({
+  'header__container': true,
+  'header__container--small': isMyselfRoute.value && !isDesktop.value,
+}));
 
 const isMyselfRoute = computed(() => route.path.startsWith('/myself'));
 
 onMounted(() => {
-  if (userStore.isLoggedIn) {
-    userStore.fetchUserCounts();
-  }
+  if (userStore.isLoggedIn) userStore.fetchUserCounts();
   isClient.value = true;
   updateIsDesktop();
   window.addEventListener('resize', updateIsDesktop);
@@ -188,10 +169,6 @@ onUnmounted(() => {
   window.removeEventListener('resize', updateIsDesktop);
   window.removeEventListener('scroll', handleScroll);
 });
-
-const countFavorites = computed(() => userStore.countFavorites);
-const countUnreadNotify = computed(() => userStore.countUnreadNotify);
-const countMessage = computed(() => userStore.count_new_messages);
 </script>
 
 <style scoped lang="scss">
@@ -290,7 +267,6 @@ const countMessage = computed(() => userStore.count_new_messages);
     transition: $transition-1;
 
     .header__icon {
-      margin-right: 8px;
 
       @media (max-width: 768px) {
         margin-right: 0px;
@@ -331,8 +307,6 @@ const countMessage = computed(() => userStore.count_new_messages);
   }
 
   &__icon {
-    height: 12px;
-
     &--large {
       width: 24px;
       height: 24px;

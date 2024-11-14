@@ -6,7 +6,9 @@
       </button>
       <form class="modal__form" @submit.prevent="saveCity">
         <div class="modal__header">
-          <h2 class="modal__title">{{ $t('modal.title') }}</h2>
+          <h2 class="modal__title">
+            {{ selectedRegion ? `${selectedRegion.sorp} ${selectedRegion.title}` : $t('modal.title') }}
+          </h2>
         </div>
         <div class="modal__body">
           <div class="input-wrapper">
@@ -22,7 +24,7 @@
           <div v-if="!selectedRegion && searchQuery === ''" class="list-wrapper">
             <ul class="list">
               <li v-for="region in regions" :key="region.id" class="list__item" @click="fetchCitiesForRegion(region)">
-                {{ region.title }}
+                {{ region.sorp }} {{ region.title }}
               </li>
             </ul>
           </div>
@@ -31,7 +33,7 @@
             <ul class="list">
               <li v-for="city in filteredCities" :key="city.id" class="list__item" @click="selectCity(city)"
                 :title="`${city.title}, РФ`">
-                {{ city.title }}
+                {{ transformSorp(city.sorp) }} {{ `${city.title}` }}
               </li>
               <li v-if="filteredCities.length === 0" class="list__empty">
                 {{ $t('modal.noData') }}
@@ -52,7 +54,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
-import { debounce } from 'lodash-es';  
+import { debounce } from 'lodash-es';
 import { getRegions, getCitiesByRegion, searchCitiesByName } from '~/services/apiClient';
 import { useCityStore } from '~/store/city';
 import closeIcon from '../assets/icons/close.svg';
@@ -70,6 +72,115 @@ const selectedCity = ref({ name: '' });
 onMounted(() => {
   fetchRegions();
 });
+
+const transformSorp = (sorp) => {
+  return sorp
+    .replace(/г\b/g, 'г.') // Город
+    .replace(/\bп\b/g, 'поселок') // Поселок
+    .replace(/\bс\b/g, 'село') // Село
+    .replace(/с\/с\b/g, 'сельсовет') // Сельсовет
+    .replace(/р-н\b/g, 'район') // Район
+    .replace(/д\b/g, 'деревня') // Деревня
+    .replace(/ст\b/g, 'станица') // Станция
+    .replace(/кп\b/g, 'коттеджный поселок') // Курортный поселок
+    .replace(/мкр\b/g, 'микрорайон') // Микрорайон
+    .replace(/\bм\b/g, 'мыс') // Мыс
+    .replace(/пр-кт\b/g, 'проспект') // Проспект
+    .replace(/ш\b/g, 'шоссе') // Шоссе
+    .replace(/пер\b/g, 'переулок') // Переулок
+    .replace(/б-р\b/g, 'бульвар') // Бульвар
+    .replace(/тер\b/g, 'территория') // Территория
+    .replace(/рп\b/g, 'рабочий поселок') // Рабочий поселок
+    .replace(/нп\b/g, 'населенный пункт') // Населенный пункт
+    .replace(/х\b/g, 'хутор') // Хутор
+    .replace(/пгт\b/g, 'поселок городского типа') // Поселок городского типа
+    .replace(/аал\b/g, 'аал') // Аал
+    .replace(/арбан\b/g, 'арбан') // Арбан
+    .replace(/ау\b/g, 'аул') // Аул
+    .replace(/в-ки\b/g, 'выселки') // Выселки
+    .replace(/г-к\b/g, 'городок') // Городок
+    .replace(/з-ка\b/g, 'заимка') // Заимка
+    .replace(/п-к\b/g, 'починок') // Починок
+    .replace(/киш\b/g, 'кишлак') // Кишлак
+    .replace(/м-ко\b/g, 'местечко') // Местечко
+    .replace(/с\b/g, 'село') // Село
+    .replace(/сл\b/g, 'слобода') // Слобода
+    .replace(/ст\b/g, 'станция') // Станция
+    .replace(/ст-ца\b/g, 'станица') // Станница
+    .replace(/у\b/g, 'улус') // Улус
+    .replace(/х\b/g, 'хутор') // Хутор
+    .replace(/рзд\b/g, 'разъезд') // Разъезд
+    .replace(/зим\b/g, 'зимовье') // Зимовье
+    .replace(/б-г\b/g, 'берег') // Берег
+    .replace(/вал\b/g, 'вал') // Вал
+    .replace(/ж\/р\b/g, 'жилой район') // Жилой район
+    .replace(/зона\b/g, 'зона') // Зона
+    .replace(/кв-л\b/g, 'квартал') // Квартал
+    .replace(/мкр\b/g, 'микрорайон') // Микрорайон
+    .replace(/ост-в\b/g, 'остров') // Остров
+    .replace(/парк\b/g, 'парк') // Парк
+    .replace(/платф\b/g, 'платформа') // Платформа
+    .replace(/п\/р\b/g, 'промышленный район') // Промышленный район
+    .replace(/сад\b/g, 'сад') // Сад
+    .replace(/сквер\b/g, 'сквер') // Сквер
+    .replace(/тер\b/g, 'территория') // Территория
+    .replace(/ус\b/g, 'усадьба') // Усадьба
+    .replace(/тер\.ф\.х\b/g, 'территория фермерского хозяйства') // Территория ФХ
+    .replace(/ю\b/g, 'юрты') // Юрты
+    .replace(/ал\b/g, 'аллея') // Аллея
+    .replace(/б-р\b/g, 'бульвар') // Бульвар
+    .replace(/взв\b/g, 'взвоз') // Взвоз
+    .replace(/взд\b/g, 'въезд') // Въезд
+    .replace(/дор\b/g, 'дорога') // Дорога
+    .replace(/ззд\b/g, 'заезд') // Заезд
+    .replace(/км\b/g, 'километр') // Километр
+    .replace(/к-цо\b/g, 'кольцо') // Кольцо
+    .replace(/коса\b/g, 'коса') // Коса
+    .replace(/лн\b/g, 'линия') // Линия
+    .replace(/мгстр\b/g, 'магистраль') // Магистраль
+    .replace(/наб\b/g, 'набережная') // Набережная
+    .replace(/пер-д\b/g, 'переезд') // Переезд
+    .replace(/пер\b/g, 'переулок') // Переулок
+    .replace(/пл-ка\b/g, 'площадка') // Площадка
+    .replace(/пл\b/g, 'площадь') // Площадь
+    .replace(/пр-д\b/g, 'проезд') // Проезд
+    .replace(/пр-к\b/g, 'просек') // Просек
+    .replace(/пр-ка\b/g, 'просека') // Просека
+    .replace(/пр-лок\b/g, 'проселок') // Проселок
+    .replace(/пр-кт\b/g, 'проспект') // Проспект
+    .replace(/проул\b/g, 'проулок') // Проулок
+    .replace(/рзд\b/g, 'разъезд') // Разъезд
+    .replace(/ряд\b/g, 'ряд') // Ряд
+    .replace(/с-р\b/g, 'сквер') // Сквер
+    .replace(/с-к\b/g, 'спуск') // Спуск
+    .replace(/сзд\b/g, 'съезд') // Съезд
+    .replace(/тракт\b/g, 'тракт') // Тракт
+    .replace(/туп\b/g, 'тупик') // Тупик
+    .replace(/ул\b/g, 'улица') // Улица
+    .replace(/ш\b/g, 'шоссе') // Шоссе
+    .replace(/влд\b/g, 'владение') // Владение
+    .replace(/г-ж\b/g, 'гараж') // Гараж
+    .replace(/д\b/g, 'дом') // Дом
+    .replace(/двлд\b/g, 'домовладение') // Домовладение
+    .replace(/зд\b/g, 'здание') // Здание
+    .replace(/з\/у\b/g, 'земельный участок') // Земельный участок
+    .replace(/кв\b/g, 'квартира') // Квартира
+    .replace(/ком\b/g, 'комната') // Комната
+    .replace(/подв\b/g, 'подвал') // Подвал
+    .replace(/кот\b/g, 'котельная') // Котельная
+    .replace(/п-б\b/g, 'погреб') // Погреб
+    .replace(/к\b/g, 'корпус') // Корпус
+    .replace(/ОНС\b/g, 'объект незавершенного строительства') // ОНС
+    .replace(/офис\b/g, 'офис') // Офис
+    .replace(/пав\b/g, 'павильон') // Павильон
+    .replace(/помещ\b/g, 'помещение') // Помещение
+    .replace(/раб\.уч\b/g, 'рабочий участок') // Рабочий участок
+    .replace(/скл\b/g, 'склад') // Склад
+    .replace(/coop\b/g, 'сооружение') // Сооружение
+    .replace(/стр\b/g, 'строение') // Строение
+    .replace(/торг\.зал\b/g, 'торговый зал') // Торговый зал
+    .replace(/цех\b/g, 'цех'); // Цех
+};
 
 const fetchRegions = async () => {
   try {
@@ -109,10 +220,10 @@ const searchCities = async (query) => {
 
 const debouncedSearch = debounce((newQuery) => {
   searchCities(newQuery);
-}, 300); 
+}, 300);
 
 watch(searchQuery, (newQuery) => {
-  debouncedSearch(newQuery); 
+  debouncedSearch(newQuery);
 });
 
 const filteredCities = computed(() => {
@@ -133,9 +244,7 @@ const clearRegionSelection = () => {
 };
 
 const saveCity = () => {
-  const trimmedCityName = selectedCity.value.name.replace(/\s?(с\/п|с|г|п)(?=\s|$)/g, '').trim();
-  cityStore.setSelectedCity(trimmedCityName);
-  console.log('Выбранный город:', trimmedCityName);
+  cityStore.setSelectedCity(selectedCity.value.name);
   closeModal();
 };
 
@@ -165,7 +274,7 @@ const closeModal = () => {
     background: #fff;
     border-radius: 8px;
     width: 100%;
-    max-width: 550px;
+    max-width: 600px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     position: relative;
@@ -299,35 +408,6 @@ const closeModal = () => {
   }
 }
 
-.country-dropdown {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 38px;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 0 0 4px 4px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  z-index: 20;
-
-  &__item {
-    display: flex;
-    align-items: center;
-    padding: 12px 10px;
-    cursor: pointer;
-
-    img {
-      width: 16px;
-      height: 16px;
-      margin-right: 8px;
-    }
-
-    &:hover {
-      background-color: #f5f5f5;
-    }
-  }
-}
-
 .list-wrapper {
   height: 100%;
   max-height: 165px;
@@ -354,41 +434,57 @@ const closeModal = () => {
 
 .list {
   list-style: none;
-  columns: 2;
-  padding: 0;
   margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
 
-  @media screen and (max-width: 600px) {
-    columns: 1;
-  }
-
-  &__item {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    font-size: 14px;
-    line-height: 18px;
-    cursor: pointer;
-    margin-bottom: 18px;
-
-    &:hover {
-      color: #007bff;
-    }
-  }
-
-  &__empty {
-    font-size: 14px;
-    color: #787878;
+  @media (min-width: 768px) {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
+.list__item {
+  padding: 10px;
+  font-size: 14px;
+  line-height: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #d6efff;
+  }
+}
+
+.list__empty {
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+  line-height: 16px;
+}
+
 @keyframes slide-up {
-  from {
-    transform: translateY(100%);
+  0% {
+    opacity: 0;
+    transform: translateY(100px);
   }
 
-  to {
+  100% {
+    opacity: 1;
     transform: translateY(0);
+  }
+}
+
+.region-title {
+  margin: 16px 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+@media screen and (max-width: 576px) {
+  .modal {
+    padding: 16px;
   }
 }
 </style>

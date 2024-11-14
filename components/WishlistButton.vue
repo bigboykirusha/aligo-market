@@ -8,9 +8,9 @@
       <button v-else class="car-details__wishlist-button" @click="emitToggleLoginModal">
          <img :src="fav" alt="Избранное" class="icon-heart" />
       </button>
-      <span v-if="isLoggedIn && !isScrolled" @click="toggleWishList" class="car-details__wishlist-text">Добавить в
+      <span v-if="isLoggedIn && !isScrolled" @click="toggleWishList" class="car-details__wishlist-text">В
          избранное</span>
-      <span v-else-if="!isScrolled" @click="emitToggleLoginModal" class="car-details__wishlist-text">Добавить в
+      <span v-else-if="!isScrolled" @click="emitToggleLoginModal" class="car-details__wishlist-text">В
          избранное</span>
    </div>
 </template>
@@ -77,7 +77,6 @@ onUnmounted(() => {
    display: flex;
    align-items: center;
    gap: 8px;
-   margin-bottom: 42px;
 
    @media screen and (max-width: 768px) {
       margin-bottom: 0;
@@ -101,8 +100,8 @@ onUnmounted(() => {
    }
 
    &-button {
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
       background-color: white;
       border: none;
       border-radius: 50%;
@@ -124,8 +123,8 @@ onUnmounted(() => {
 
       .icon-heart {
          margin-top: 1px;
-         width: 14px;
-         height: 14px;
+         width: 12px;
+         height: 12px;
       }
    }
 }

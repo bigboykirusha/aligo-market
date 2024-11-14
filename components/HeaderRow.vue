@@ -5,7 +5,7 @@
    }">
       <div class="header-row__container">
          <nuxt-link to="/" class="header-row__logo-section" @click="() => showDropdown = false">
-            <img src="../assets/images/logo.svg" alt="Logo" class="header-row__logo" />
+            <img :src="logoMain" alt="Logo" class="header-row__logo" />
             <span v-show="!showDropdown && isWithMargin" class="header-row__small-text">{{ $t('header.slogan') }}</span>
          </nuxt-link>
          <div class="header-row__controls">
@@ -34,28 +34,32 @@
                   </svg>
                </button>
             </div>
-            <nuxt-link to="/createAd" v-show="isLoggedIn" class="header-row__btn header-row__btn--post-ad">
-               <span>{{ $t('header.postAd') }}</span>
-               <svg class="header-row__post-ad-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
-                  xmlns="http://www.w3.org/2000/svg">
-                  <path d="M7.00024 10H13.0002" stroke="white" stroke-width="2" stroke-linecap="round"
-                     stroke-linejoin="round" />
-                  <path d="M10 7V13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  <path d="M10 1C17.2 1 19 2.8 19 10C19 17.2 17.2 19 10 19C2.8 19 1 17.2 1 10C1 2.8 2.8 1 10 1Z"
-                     stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-               </svg>
-            </nuxt-link>
-            <button v-show="!isLoggedIn" class="header-row__btn header-row__btn--post-ad" @click="toggleLoginModal">
-               <span>{{ $t('header.postAd') }}</span>
-               <svg class="header-row__post-ad-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
-                  xmlns="http://www.w3.org/2000/svg">
-                  <path d="M7.00024 10H13.0002" stroke="white" stroke-width="2" stroke-linecap="round"
-                     stroke-linejoin="round" />
-                  <path d="M10 7V13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  <path d="M10 1C17.2 1 19 2.8 19 10C19 17.2 17.2 19 10 19C2.8 19 1 17.2 1 10C1 2.8 2.8 1 10 1Z"
-                     stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-               </svg>
-            </button>
+            <client-only>
+               <nuxt-link to="/createAd" v-show="isLoggedIn" class="header-row__btn header-row__btn--post-ad">
+                  <span>{{ $t('header.postAd') }}</span>
+                  <svg class="header-row__post-ad-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
+                     xmlns="http://www.w3.org/2000/svg">
+                     <path d="M7.00024 10H13.0002" stroke="white" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                     <path d="M10 7V13" stroke="white" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                     <path d="M10 1C17.2 1 19 2.8 19 10C19 17.2 17.2 19 10 19C2.8 19 1 17.2 1 10C1 2.8 2.8 1 10 1Z"
+                        stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+               </nuxt-link>
+               <button v-show="!isLoggedIn" class="header-row__btn header-row__btn--post-ad" @click="toggleLoginModal">
+                  <span>{{ $t('header.postAd') }}</span>
+                  <svg class="header-row__post-ad-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
+                     xmlns="http://www.w3.org/2000/svg">
+                     <path d="M7.00024 10H13.0002" stroke="white" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                     <path d="M10 7V13" stroke="white" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                     <path d="M10 1C17.2 1 19 2.8 19 10C19 17.2 17.2 19 10 19C2.8 19 1 17.2 1 10C1 2.8 2.8 1 10 1Z"
+                        stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+               </button>
+            </client-only>
          </div>
       </div>
       <DropdownMenu v-show="showDropdown" @close="closeCategories" />
@@ -68,6 +72,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useUserStore } from '~/store/user';
 import { useCityStore } from '../store/city.js'
 import { useRouter } from 'vue-router';
+import logoMain from '../assets/images/logo.svg';
 
 const showDropdown = ref(false)
 const isWithMargin = ref(true)
@@ -145,12 +150,13 @@ onUnmounted(() => {
    padding: 16px;
    background-color: #fff;
    width: 100%;
+   margin: 0 auto;
    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
 
    &--with-margin {
       margin-top: 44px;
       box-shadow: none;
-      padding: 12px 16px 22px;
+      padding: 16px;
    }
 
    &--expanded {

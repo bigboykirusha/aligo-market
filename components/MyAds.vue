@@ -2,7 +2,7 @@
    <div class="my-ads">
       <h1 class="my-ads__title">Мои объявления</h1>
       <div class="my-ads__switcher">
-         <div v-for="(item, index) in switcherItems" :key="index" class="my-ads__item"
+         <div v-for="(item, index) in SWITCHER_ITEMS" :key="index" class="my-ads__item"
             :class="{ 'my-ads__item--active': selectedItem === item }" @click="handleSwitch(item)">
             {{ item }}
          </div>
@@ -24,7 +24,8 @@
             <p class="my-ads__placeholder-text">Объявлений пока нет</p>
             <p class="my-ads__placeholder-description">
                У вас пока нет объявлений в этой категории. Вы можете создать новое объявление, нажав на кнопку
-               <nuxt-link to="/createAd" class="clickable" style="color: #3366FF; cursor: pointer;">«Разместить объявление»</nuxt-link>.
+               <nuxt-link to="/createAd" class="clickable" style="color: #3366FF; cursor: pointer;">«Разместить
+                  объявление»</nuxt-link>.
             </p>
          </div>
       </div>
@@ -36,38 +37,43 @@ import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getMyAds, getDrafts, getArchives } from '../services/apiClient';
 
+const SWITCHER_ITEMS = ['Все', 'Черновики', 'Архив'];
+const ITEM_MAP = {
+   'ads': SWITCHER_ITEMS[0],
+   'drafts': SWITCHER_ITEMS[1],
+   'archive': SWITCHER_ITEMS[2],
+};
+
 const route = useRoute();
 const router = useRouter();
-
-const switcherItems = ['Все', 'Черновики', 'Архив'];
-const selectedItem = ref(switcherItems[0]);
+const selectedItem = ref(SWITCHER_ITEMS[0]);
 const adsMain = ref([]);
 const loading = ref(true);
 
 const fetchAds = async (is_published) => {
    try {
       loading.value = true;
-      if (selectedItem.value === 'Все') {
-         adsMain.value = await getMyAds(is_published);
-      } else if (selectedItem.value === 'Черновики') {
-         adsMain.value = (await getDrafts()).map(item => item.ads_show || {});
-      } else if (selectedItem.value === 'Архив') {
-         adsMain.value = (await getArchives()).map(item => ({
-            ...item.ads_show || {},
-            main_id: item.id,
-         }));
+      let ads = [];
+      switch (selectedItem.value) {
+         case 'Все':
+            ads = await getMyAds(is_published);
+            break;
+         case 'Черновики':
+            ads = (await getDrafts()).map(item => item.ads_show || {});
+            break;
+         case 'Архив':
+            ads = (await getArchives()).map(item => ({ ...item.ads_show || {}, main_id: item.id }));
+            break;
       }
+      adsMain.value = ads;
    } catch (error) {
       console.error('Ошибка при получении данных: ', error);
-      adsMain.value = [];
    } finally {
       loading.value = false;
    }
 };
 
-const updateAds = () => {
-   fetchAds();
-};
+const updateAds = () => fetchAds();
 
 const handleSortChange = (orderBy) => {
    const isPublished = orderBy ? parseInt(orderBy) : undefined;
@@ -76,11 +82,7 @@ const handleSortChange = (orderBy) => {
 
 const updateSelectedItem = () => {
    const title = route.params.title;
-   selectedItem.value = {
-      'ads': 'Все',
-      'drafts': 'Черновики',
-      'archive': 'Архив'
-   }[title] || switcherItems[0];
+   selectedItem.value = ITEM_MAP[title] || SWITCHER_ITEMS[0];
    fetchAds();
 };
 
@@ -97,10 +99,10 @@ const handleSwitch = (item) => {
 };
 
 const indicatorStyle = computed(() => {
-   const index = switcherItems.indexOf(selectedItem.value);
-   const percentage = (index / switcherItems.length) * 100;
+   const index = SWITCHER_ITEMS.indexOf(selectedItem.value);
+   const percentage = (index / SWITCHER_ITEMS.length) * 100;
    return {
-      width: `${100 / switcherItems.length}%`,
+      width: `${100 / SWITCHER_ITEMS.length}%`,
       left: `${percentage}%`,
    };
 });

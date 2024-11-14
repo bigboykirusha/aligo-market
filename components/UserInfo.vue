@@ -11,8 +11,8 @@
                   <template v-if="userData.count_reviews_about_myself > 0">
                      {{ userData.grade }}
                      <NuxtRating :rating-value="Number(userData.grade)" :rating-count="5" :rating-size="10"
-                        :rating-spacing="6" :active-color="'#3366FF'" :inactive-color="'#FFFFFF'" :border-color="'#3366FF'"
-                        :border-width="2" :rounded-corners="true" :read-only="true" />
+                        :rating-spacing="6" :active-color="'#3366FF'" :inactive-color="'#FFFFFF'"
+                        :border-color="'#3366FF'" :border-width="2" :rounded-corners="true" :read-only="true" />
                      <div class="user-info__reviews">
                         {{ userData.count_reviews_about_myself }} {{
                            pluralizeReview(Number(userData.count_reviews_about_myself))
@@ -32,23 +32,30 @@
          <button v-if="!phoneNumber" class="user-info__actions-button--show-phone" @click="showPhoneNumber">
             {{ showPhoneText }}
          </button>
-         <a v-else :href="'tel:' + rawPhoneNumber" class="user-info__actions-button--show-phone">
+         <a v-else :href="'tel:' + rawPhoneNumber" class="user-info__actions-button--show-phone" @click="handleCall">
             {{ phoneNumber }}
          </a>
-         <button class="user-info__actions-button--write" @click="writeMessage">
+         <button class="user-info__actions-button--write" @click="handleWriteMessage">
             Написать
          </button>
       </div>
    </div>
+   <LoginModal v-if="modalLoginOpen" @close-loginModal="toggleLoginModal" />
 </template>
-
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { getUserOtherInfo, getUserPhoneEmail } from '~/services/apiClient.js';
 import { getImageUrl } from '~/services/imageUtils';
 import avatar from '../assets/icons/avatar-revers.svg';
-import { useChatStore } from '~/store/chatStore'; 
+import { useChatStore } from '~/store/chatStore';
+import { useUserStore } from '~/store/user';
+
+const modalLoginOpen = ref(false);
+
+const toggleLoginModal = () => {
+   modalLoginOpen.value = !modalLoginOpen.value;
+};
 
 const props = defineProps({
    userId: {
@@ -63,6 +70,8 @@ const registeredDate = ref('');
 const phoneNumber = ref('');
 const rawPhoneNumber = ref('');
 const showPhoneText = ref('Показать номер');
+
+const userStore = useUserStore();
 
 const fetchUserData = async () => {
    try {
@@ -108,14 +117,34 @@ const formatPhoneNumber = (phone) => {
    return phone;
 };
 
-const chatStore = useChatStore(); 
+const chatStore = useChatStore();
 
 const writeMessage = () => {
-   chatStore.openChat(); 
+   if (!userStore.isLoggedIn) {
+      toggleLoginModal();
+      return;
+   }
+   chatStore.openChat();
+};
+
+const handleWriteMessage = () => {
+   writeMessage();
+};
+
+const handleCall = () => {
+   if (!userStore.isLoggedIn) {
+      toggleLoginModal();
+      return;
+   }
 };
 
 const showPhoneNumber = async () => {
    try {
+      if (!userStore.isLoggedIn) {
+         toggleLoginModal();
+         return;
+      }
+
       if (!phoneNumber.value) {
          const { phone } = await getUserPhoneEmail(props.userId);
          rawPhoneNumber.value = phone;

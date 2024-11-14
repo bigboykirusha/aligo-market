@@ -65,7 +65,7 @@
                Сохранить и выйти
             </button>
          </nuxt-link>
-         <div v-if="activeTab === 3">
+         <div class="create-ad-form__continue" v-if="activeTab === 3">
             <button class="create-ad-form__button create-ad-form__button--continue" @click="publishAndExit"
                :disabled="!isPublishEnabled">
                Разместить объявление
@@ -191,7 +191,7 @@ if (typeof window !== 'undefined') {
 
          @media screen and (max-width: 360px) {
             font-size: 13px;
-         } 
+         }
       }
 
       &--active,
@@ -240,9 +240,12 @@ if (typeof window !== 'undefined') {
       border-radius: 6px;
       background-color: #ffffff;
       padding: 40px;
+      max-height: calc(100vh - 420px);
+      overflow-y: auto;
 
       @media screen and (max-width: 768px) {
          padding: 40px 16px;
+         max-height: 100%;
       }
    }
 
@@ -260,7 +263,6 @@ if (typeof window !== 'undefined') {
    }
 
    &__info {
-      padding-top: 8px;
       font-size: 12px;
       width: 310px;
    }
@@ -317,6 +319,16 @@ if (typeof window !== 'undefined') {
    &:hover {
       text-decoration: underline;
       cursor: pointer;
+   }
+}
+
+.create-ad-form__continue {
+   display: flex;
+   align-items: flex-start;
+   gap: 8px;
+
+   @media screen and (max-width: 768px) {
+      flex-direction: column;
    }
 }
 </style>

@@ -1,145 +1,62 @@
 <template>
    <div>
-      <div class="side-menu-overlay" @click="closeMenu"></div>
+      <div class="side-menu-overlay" @click="toggleMenu"></div>
       <LocationModal v-if="modalOpen" @close-modal="toggleModal" />
-      <div class="side-menu" ref="userMenuRef">
+      <div :class="['side-menu', { 'side-menu--right': isRight }]" ref="userMenuRef">
          <div class="user-menu">
             <div class="user-menu__header">
                <client-only>
-                  <template v-if="userName">
-                     <div class="user-menu__block">
-                        <ul class="user-menu__nav-list">
-                           <li class="user-menu__nav-item">
-                              <LanguageSwitcher />
-                           </li>
-                           <li class="user-menu__nav-item">
-                              <button class="user-menu__nav-link" @click="toggleModal">
-                                 <img :src="defaultLocationIcon" alt="location icon">
-                                 <span class="user-menu__text user-menu__text--hidden">{{ translatedCityName }}</span>
-                              </button>
-                              <LocationPopup @open-modal="toggleModal" />
-                           </li>
-                           <li class="user-menu__nav-item">
-                              <button class="side-menu__close-button" @click="toggleMenu">
-                                 <img src="../assets/icons/close-white.svg" alt="Close" />
-                              </button>
-                           </li>
-                        </ul>
-                        <img :src="avatarUrl || avatarRevers" alt="login icon" class="user-menu__icon">
-                        <input type="file" id="avatarUpload" ref="avatarUpload" @change="handleAvatarChange"
-                           style="display: none" />
-                        <img src="../assets/icons/change-ava.svg" alt="login icon" class="user-menu__icon-change"
-                           @click="triggerFileInput">
-                        <a class="user-menu__user-name">{{ capitalizedUserName }}</a>
-                        <div v-if="rating === null" class="user-menu__rating-text">
-                           О вас нет отзывов
+                  <div class="user-menu__block">
+                     <ul class="user-menu__nav-list">
+                        <li class="user-menu__nav-item">
+                           <LanguageSwitcher />
+                        </li>
+                        <li class="user-menu__nav-item">
+                           <button class="user-menu__nav-link" @click="toggleModal">
+                              <img :src="defaultLocationIcon" alt="location icon" />
+                              <span class="user-menu__text user-menu__text--hidden">{{ translatedCityName }}</span>
+                           </button>
+                           <LocationPopup @open-modal="toggleModal" />
+                        </li>
+                        <li class="user-menu__nav-item">
+                           <button class="side-menu__close-button" @click="toggleMenu">
+                              <img src="../assets/icons/close-white.svg" alt="Close" />
+                           </button>
+                        </li>
+                     </ul>
+
+                     <img :src="avatarUrl || avatarRevers" alt="login icon" class="user-menu__icon" />
+                     <input type="file" id="avatarUpload" ref="avatarUpload" @change="handleAvatarChange"
+                        class="hidden-input" />
+                     <img src="../assets/icons/change-ava.svg" alt="change avatar icon" class="user-menu__icon-change"
+                        @click="triggerFileInput" />
+
+                     <a v-if="userName" class="user-menu__user-name">{{ capitalizedUserName }}</a>
+                     <a v-else class="user-menu__user-name">{{ formattedPhoneNumber }}</a>
+
+                     <div v-if="rating === null" class="user-menu__rating-text">О вас нет отзывов</div>
+                     <a v-else class="user-menu__profile-button">
+                        <div class="user-menu__rating">
+                           <div class="user-menu__rating-text">{{ rating }}</div>
+                           <NuxtRating :rating-value="Number(rating)" :rating-count="5" :rating-size="10"
+                              :rating-spacing="6" :active-color="'#FFFFFF'" :inactive-color="'#3366FF'"
+                              :border-color="'#FFFFFF'" :border-width="2" :rounded-corners="true" :read-only="true" />
                         </div>
-                        <a v-else class="user-menu__profile-button">
-                           <div class="user-menu__rating">
-                              <div class="user-menu__rating-text">{{ rating }}</div>
-                              <NuxtRating :rating-value="Number(rating)" :rating-count="5" :rating-size="10"
-                                 :rating-spacing="6" :active-color="'#FFFFFF'" :inactive-color="'#3366FF'"
-                                 :border-color="'#FFFFFF'" :border-width="2" :rounded-corners="true"
-                                 :read-only="true" />
-                           </div>{{ countReviews }} отзыва
-                        </a>
-                        <nuxt-link @click="toggleMenu" to="/myself/editProfile"
-                           class="user-menu__profile-button">Управление
-                           профилем</nuxt-link>
-                     </div>
-                  </template>
-                  <template v-else>
-                     <div class="user-menu__block">
-                        <ul class="user-menu__nav-list">
-                           <li class="user-menu__nav-item">
-                              <LanguageSwitcher />
-                           </li>
-                           <li class="user-menu__nav-item">
-                              <button class="user-menu__nav-link" @click="toggleModal">
-                                 <img :src="defaultLocationIcon" alt="location icon">
-                                 <span class="user-menu__text user-menu__text--hidden">{{ translatedCityName }}</span>
-                              </button>
-                              <LocationPopup @open-modal="toggleModal" />
-                           </li>
-                           <li class="user-menu__nav-item">
-                              <button class="side-menu__close-button" @click="toggleMenu">
-                                 <img src="../assets/icons/close-white.svg" alt="Close" />
-                              </button>
-                           </li>
-                        </ul>
-                        <img :src="avatarUrl || avatarRevers" alt="login icon" class="user-menu__icon">
-                        <input type="file" id="avatarUpload" ref="avatarUpload" @change="handleAvatarChange"
-                           style="display: none" />
-                        <img src="../assets/icons/change-ava.svg" alt="login icon" class="user-menu__icon-change"
-                           @click="triggerFileInput">
-                        <a class="user-menu__user-name">{{ formattedPhoneNumber }}</a>
-                        <a class="user-menu__profile-button">{{ countReviews }} {{ pluralizeReview(Number(countReviews)) }}</a>
-                        <nuxt-link @click="toggleMenu" to="/myself/editProfile"
-                           class="user-menu__profile-button">Управление
-                           профилем</nuxt-link>
-                     </div>
-                  </template>
+                     </a>
+
+                     <nuxt-link @click="toggleMenu" to="/myself/editProfile" class="user-menu__profile-button">
+                        Управление профилем
+                     </nuxt-link>
+                  </div>
                </client-only>
             </div>
+
             <ul class="user-menu__list">
-               <li class="user-menu__item user-menu__item--search">
-                  <nuxt-link @click="toggleMenu" to="/"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                           d="M8 15C11.866 15 15 11.866 15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15Z"
-                           stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M4.85742 9.35718C4.85742 6.8719 6.87214 4.85718 9.35742 4.85718" stroke="white"
-                           stroke-width="1" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M19 19.0002L13 13.0002" stroke="white" stroke-width="1" stroke-linecap="round"
-                           stroke-linejoin="round" />
-                     </svg>
-                     Поиск объявлений </nuxt-link>
-               </li>
-               <li class="user-menu__item" @click="toggleMenu">
-                  <nuxt-link to="/myself/ads"><img src="../assets/icons/ad.svg" />Мои
-                     объявления <div v-show="countAds" class="user-menu__count">{{ countAds }}</div></nuxt-link>
-               </li>
-               <li class="user-menu__item" @click="toggleMenu">
-                  <nuxt-link to="/myself/favorites"><img src="../assets/icons/fav.svg" />Избранное <div
-                        v-show="countFavorites" class="user-menu__count">{{ countFavorites }}</div></nuxt-link>
-               </li>
-               <li class="user-menu__item" @click="toggleMenu">
-                  <nuxt-link to="/myself/reviews"><img src="../assets/icons/reviews.svg" />Отзывы</nuxt-link>
-               </li>
-               <li class="user-menu__item" @click="toggleMenu">
-                  <nuxt-link to="/myself/notifications">
-                     <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                           d="M15.2222 1H2.77778C1.79594 1 1 1.76751 1 2.71429V11.2857C1 12.2325 1.79594 13 2.77778 13H15.2222C16.2041 13 17 12.2325 17 11.2857V2.71429C17 1.76751 16.2041 1 15.2222 1Z"
-                           stroke="white" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M1 2.71436L9 7.85721L17 2.71436" stroke="white" stroke-linecap="round"
-                           stroke-linejoin="round" />
-                     </svg>
-                     Оповещения <div v-show="countUnreadNotify" class="user-menu__count">{{ countUnreadNotify }}</div>
+               <li v-for="(item, index) in menuItems" :key="index" class="user-menu__item" @click="toggleMenu">
+                  <nuxt-link :to="item.link">
+                     <img :src="item.icon" />{{ item.text }}
+                     <div v-if="item.count" class="user-menu__count">{{ item.count }}</div>
                   </nuxt-link>
-               </li>
-               <li class="user-menu__item" @click="toggleMenu">
-                  <nuxt-link to="/myself/messages"><img src="../assets/icons/mail-menu.svg" />Сообщения <div
-                        v-show="countMessage" class="user-menu__count">{{ countMessage }}</div></nuxt-link>
-               </li>
-               <li class="user-menu__item" @click="toggleMenu">
-                  <nuxt-link to="/myself/favorites"><img src="../assets/icons/send.svg" />Поддержка</nuxt-link>
-               </li>
-               <li class="user-menu__item" @click="toggleMenu">
-                  <nuxt-link @click="toggleModal" to="/myself/business"><svg width="15" height="14" viewBox="0 0 15 14"
-                        fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                           d="M12.5556 3.55298H2.44444C1.6467 3.55298 1 4.18661 1 4.96823V11.3369C1 12.1185 1.6467 12.7521 2.44444 12.7521H12.5556C13.3533 12.7521 14 12.1185 14 11.3369V4.96823C14 4.18661 13.3533 3.55298 12.5556 3.55298Z"
-                           stroke="white" stroke-linecap="round" stroke-linejoin="round" />
-                        <path
-                           d="M4.61133 3.55291V2.13766C4.61133 1.76231 4.76351 1.40234 5.0344 1.13693C5.30528 0.871518 5.67268 0.722412 6.05577 0.722412H8.94466C9.32775 0.722412 9.69515 0.871518 9.96604 1.13693C10.2369 1.40234 10.3891 1.76231 10.3891 2.13766V3.55291"
-                           stroke="white" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M7.5 7.09106V7.09877" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
-                        <path
-                           d="M1 7.79858C3.01614 8.79399 5.24235 9.3125 7.5 9.3125C9.75765 9.3125 11.9839 8.79399 14 7.79858"
-                           stroke="white" stroke-linecap="round" stroke-linejoin="round" />
-                     </svg>
-                     Для бизнеса</nuxt-link>
                </li>
                <li class="user-menu__item user-menu__item--logout" @click="logout">
                   Выйти
@@ -152,20 +69,32 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
-import { getImageUrl } from '../services/imageUtils'
+import { getImageUrl } from '../services/imageUtils';
 import { useUserStore } from '~/store/user';
 import { useCityStore } from '~/store/city';
 import { getUserCount } from '~/services/apiClient.js';
 import defaultLocationIcon from '../assets/icons/location.svg';
-import avatarRevers from '../assets/icons/avatar-revers.svg'
+import avatarRevers from '../assets/icons/avatar-revers.svg';
+
+import searchIcon from '../assets/icons/search-blue.svg';
+import adIcon from '../assets/icons/ad.svg';
+import favIcon from '../assets/icons/fav.svg';
+import reviewsIcon from '../assets/icons/reviews.svg';
+import notifIcon from '../assets/icons/notif-blue.svg';
+import mailMenuIcon from '../assets/icons/mail-menu.svg';
+import busIcon from '../assets/icons/briefcase.svg';
 
 const userStore = useUserStore();
 const cityStore = useCityStore();
-const route = useRoute();
+
+const props = defineProps({
+   isRight: {
+      type: Boolean,
+      default: false,
+   }
+});
 
 const userName = computed(() => userStore.username || userStore.login);
-const initial = computed(() => userName.value ? userName.value.charAt(0).toUpperCase() : '');
 const avatarUrl = ref(getImageUrl(userStore.photo?.path));
 const phoneNumber = computed(() => userStore.phoneNumber);
 const modalOpen = ref(false);
@@ -174,58 +103,20 @@ const translatedCityName = computed(() => cityStore.selectedCity.name);
 const countFavorites = computed(() => userStore.countFavorites);
 const countAds = computed(() => userStore.countAds);
 const countUnreadNotify = computed(() => userStore.countUnreadNotify);
-const countReviews = computed(() => userStore.countReviews);
 const countMessage = computed(() => userStore.count_new_messages);
-
-const formattedPhoneNumber = computed(() => {
-   if (phoneNumber.value) {
-      return phoneNumber.value;
-   } else {
-      return userStore.email;
-   }
-});
-
-const capitalizedUserName = computed(() => userName.value ? userName.value.charAt(0).toUpperCase() + userName.value.slice(1) : '');
-const activeItem = ref('ads');
-const userMenuRef = ref(null);
 const rating = computed(() => userStore.grade);
 
-const emit = defineEmits(['close-burgerMenu', 'itemSelected']);
+const formattedPhoneNumber = computed(() => phoneNumber.value || userStore.email);
+const capitalizedUserName = computed(() => userName.value ? userName.value.charAt(0).toUpperCase() + userName.value.slice(1) : '');
 
-const toggleMenu = () => {
-   emit('close-burgerMenu');
-};
+const userMenuRef = ref(null);
+const emit = defineEmits(['close-burgerMenu']);
 
-function pluralizeReview(count) {
-   const lastDigit = count % 10;
-   const lastTwoDigits = count % 100;
-
-   if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
-      return 'отзывов';
-   }
-
-   if (lastDigit === 1) {
-      return 'отзыв';
-   }
-
-   if (lastDigit >= 2 && lastDigit <= 4) {
-      return 'отзыва';
-   }
-
-   return 'отзывов';
-};
-
-const closeMenu = () => {
-   emit('close-burgerMenu');
-};
-
-const toggleModal = () => {
-   modalOpen.value = !modalOpen.value;
-};
-
+const toggleMenu = () => emit('close-burgerMenu');
+const toggleModal = () => (modalOpen.value = !modalOpen.value);
 const logout = () => {
    userStore.clearUserdata();
-   closeMenu();
+   toggleMenu();
 };
 
 const fetchUserCounts = async () => {
@@ -237,12 +128,7 @@ const fetchUserCounts = async () => {
    }
 };
 
-watch(() => route.params.title, (newTitle) => {
-   activeItem.value = newTitle || 'ads';
-});
-
 onMounted(() => {
-   activeItem.value = route.params.title || 'ads';
    fetchUserCounts();
 });
 
@@ -252,9 +138,7 @@ const handleAvatarChange = async (event) => {
       try {
          const formData = new FormData();
          formData.append('photo', file);
-
          await userStore.updateProfile({ photo: file });
-
          avatarUrl.value = URL.createObjectURL(file);
       } catch (error) {
          console.error('Ошибка при загрузке аватара: ', error);
@@ -268,9 +152,23 @@ const triggerFileInput = () => {
       fileInput.click();
    }
 };
+
+const menuItems = [
+   { text: 'Поиск объявлений', link: '/', icon: searchIcon },
+   { text: 'Мои объявления', link: '/myself/ads', icon: adIcon, count: countAds },
+   { text: 'Избранное', link: '/myself/favorites', icon: favIcon, count: countFavorites },
+   { text: 'Отзывы', link: '/myself/reviews', icon: reviewsIcon },
+   { text: 'Оповещения', link: '/myself/notifications', icon: notifIcon, count: countUnreadNotify },
+   { text: 'Сообщения', link: '/myself/messages', icon: mailMenuIcon, count: countMessage },
+   { text: 'Для бизнеса', link: '/myself/business', icon: busIcon },
+];
 </script>
 
 <style scoped lang="scss">
+.hidden-input {
+   display: none;
+}
+
 .side-menu-overlay {
    position: fixed;
    top: 0;
@@ -294,6 +192,29 @@ const triggerFileInput = () => {
    align-items: center;
    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
    animation: slide-left 0.3s ease-out forwards;
+
+   &--right {
+      left: auto;
+      z-index: 10;
+      right: 0;
+      height: calc(100% - 70px);
+      animation: slide-right 0.3s ease-out forwards;
+
+      .user-menu__nav-list {
+         justify-content: flex-end;
+         flex-direction: row-reverse;
+         width: 100%;
+         height: 56px;
+         margin: 0;
+      }
+
+      .user-menu__nav-item {
+         &:last-child {
+            margin-right: auto;
+            margin-left: 0;
+         }
+      }
+   }
 }
 
 .side-menu__close-button {
@@ -458,6 +379,11 @@ const triggerFileInput = () => {
          padding-bottom: 24px
       }
 
+      img {
+         width: 14px;
+         max-height: 14px;
+      }
+
       a {
          display: flex;
          justify-content: flex-start;
@@ -515,6 +441,16 @@ const triggerFileInput = () => {
 @keyframes slide-left {
    from {
       transform: translateX(-100%);
+   }
+
+   to {
+      transform: translateX(0);
+   }
+}
+
+@keyframes slide-right {
+   from {
+      transform: translateX(100%);
    }
 
    to {

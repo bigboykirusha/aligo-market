@@ -25,7 +25,7 @@
          </div>
       </div>
       <div class="card__more">
-         <div class="card__wishlist">
+         <div v-if="!props.isAdmin" class="card__wishlist">
             <button class="card__wishlist-button" :class="{ active: isWishlisted }" @click.prevent="toggleWishList">
                <img :src="isWishlisted ? favActive : fav" alt="Избранное" class="icon-heart" />
             </button>
@@ -35,8 +35,12 @@
                <div class="card__username">{{ formattedUsername }}</div>
                <div class="card__state">Частное лицо</div>
             </div>
-
-            <div class="card__buttons">
+            <div v-if="props.isAdmin" class="card__buttons">
+               <button class="button">
+                  <img src="../assets/icons/options.svg" />
+               </button>
+            </div>
+            <div v-else class="card__buttons">
                <button v-if="isLoggedIn" class="button" @click="productCardAction('Написать')">
                   <a :href="`mailto:${messageEmail}`" class="button__text">
                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -44,6 +48,7 @@
                            d="M15 7.61112C15.0027 8.63769 14.7628 9.65036 14.3 10.5667C13.7512 11.6647 12.9076 12.5882 11.8636 13.2339C10.8195 13.8795 9.6164 14.2217 8.38888 14.2222C7.36231 14.2249 6.34964 13.9851 5.43333 13.5222L1 15L2.47778 10.5667C2.01494 9.65036 1.7751 8.63769 1.77778 7.61112C1.77825 6.3836 2.12047 5.18046 2.76611 4.13644C3.41175 3.09243 4.3353 2.24879 5.43333 1.70002C6.34964 1.23719 7.36231 0.997346 8.38888 1.00002H8.77777C10.3989 1.08946 11.9301 1.77372 13.0782 2.9218C14.2263 4.06987 14.9105 5.60108 15 7.22223V7.61112Z"
                            stroke="#3366FF" stroke-linecap="round" stroke-linejoin="round" />
                      </svg>
+
                   </a>
                </button>
                <button v-else class="button" @click="toggleLoginModal">
@@ -52,6 +57,7 @@
                         d="M15 7.61112C15.0027 8.63769 14.7628 9.65036 14.3 10.5667C13.7512 11.6647 12.9076 12.5882 11.8636 13.2339C10.8195 13.8795 9.6164 14.2217 8.38888 14.2222C7.36231 14.2249 6.34964 13.9851 5.43333 13.5222L1 15L2.47778 10.5667C2.01494 9.65036 1.7751 8.63769 1.77778 7.61112C1.77825 6.3836 2.12047 5.18046 2.76611 4.13644C3.41175 3.09243 4.3353 2.24879 5.43333 1.70002C6.34964 1.23719 7.36231 0.997346 8.38888 1.00002H8.77777C10.3989 1.08946 11.9301 1.77372 13.0782 2.9218C14.2263 4.06987 14.9105 5.60108 15 7.22223V7.61112Z"
                         stroke="#3366FF" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
+
                </button>
 
                <button v-if="isLoggedIn" class="button" @click="handleCallClick">
@@ -109,6 +115,7 @@ const props = defineProps({
    },
    images: Array,
    created_at: String,
+   isAdmin: Boolean,
 });
 
 const userStore = useUserStore();
@@ -196,18 +203,10 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
    flex-direction: row;
    height: 120px;
    background: #ffffff;
-   box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.14);
-
+   box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.2);
    border-radius: 6px;
    overflow: hidden;
    transition: transform 0.3s, box-shadow 0.3s;
-
-   &:hover {
-      .card__buttons {
-         transform: none;
-         opacity: 1;
-      }
-   }
 
    &__placeholder {
       width: 100%;
@@ -313,7 +312,7 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
    &__username {
       font-weight: bold;
       font-size: 16px;
-      width: 150px;
+      width: 250px;
       text-wrap: wrap;
       color: #000;
       margin-right: auto;
@@ -380,10 +379,6 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
       background-color: #d6efff;
       cursor: pointer;
       transition: background-color 0.3s;
-
-      svg {
-         stroke-width: 2px;
-      }
 
       &:hover {
          background-color: #9ed2f1;

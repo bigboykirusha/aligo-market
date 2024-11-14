@@ -158,6 +158,8 @@ onMounted(fetchNotifications);
       height: auto;
       max-height: calc(100vh - 350px);
       overflow-y: auto;
+      padding: 2px 0;
+      padding-right: 16px;
 
       @media screen and (max-width: 480px) {
          max-height: calc(100vh - 320px);

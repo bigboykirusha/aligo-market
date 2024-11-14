@@ -27,6 +27,7 @@ const props = defineProps({
    max-width: 1280px;
    width: 100%;
    height: 260px;
+   margin: 0 auto;
    border-radius: 6px;
    background-size: contain;
    background-repeat: no-repeat;

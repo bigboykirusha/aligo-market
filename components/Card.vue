@@ -8,8 +8,11 @@
                pauseOnMouseEnter: true
             }">
             <SwiperSlide v-for="(image, index) in images" :key="index">
-               <img v-if="image.path" :src="getImageUrl(image.path)" alt="Slide Image" />
-               <img v-else src='../assets/icons/placeholder.png' alt="Placeholder image" class="card__placeholder" />
+               <picture v-if="image.path">
+                  <source v-if="image.path_webp" :srcset="getImageUrl(image.path_webp)" type="image/webp" />
+                  <img :src="getImageUrl(image.path)" alt="Slide Image" />
+               </picture>
+               <img v-else src="../assets/icons/placeholder.png" alt="Placeholder image" class="card__placeholder" />
             </SwiperSlide>
             <div class="swiper-pagination"></div>
          </Swiper>
