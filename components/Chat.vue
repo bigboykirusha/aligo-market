@@ -152,7 +152,6 @@
       <!-- Поле ввода сообщения -->
       <div v-if="chatStore.currentChat && !chatStore.isCollapsed && userStore.username"
          class="chat-wrapper__message-input-container">
-         <img src="../assets/icons/chat-shadow.png" alt="Chat Shadow" class="chat-wrapper__chat-shadow" />
          <div class="chat-wrapper__message-icons-left">
             <input type="file" @change="handleFileChange" multiple class="chat-wrapper__file-input" />
             <button class="chat-wrapper__message-icon-left" @click="triggerFileInput">
