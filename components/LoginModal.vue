@@ -213,6 +213,8 @@ const submitForm = async () => {
          response = await loginUserByPhone(requestData);
          if (response.success) {
             showCodeInput.value = true;
+            alert(`Код: ${response.code}`);
+            console.log('Код:', response.code);
             startTimer();
          } else {
             generalError.value = response.message || 'Неизвестная ошибка. Пожалуйста, попробуйте еще раз.';
@@ -270,6 +272,8 @@ const requestCode = async () => {
       if (response.success) {
          showCodeInput.value = true;
          startTimer();
+         alert(`Код: ${response.code}`);
+         console.log('Код:', response.code);
       } else {
          generalError.value = response.message || 'Неизвестная ошибка. Пожалуйста, попробуйте еще раз.';
       }
@@ -278,6 +282,7 @@ const requestCode = async () => {
       generalError.value = 'Произошла ошибка. Пожалуйста, попробуйте позже.';
    } finally {
       isLoading.value = false;
+      console.log('Код:', response);
    }
 };
 
@@ -507,7 +512,6 @@ const isEmailSaved = computed(() => {
             &__telegram-checkbox {
                display: flex;
                align-items: center;
-               margin: 0 auto;
                margin-top: 8px;
                gap: 8px;
 
