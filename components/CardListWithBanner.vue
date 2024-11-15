@@ -17,43 +17,44 @@
       <div v-if="adsMain.length < 10"
          :class="['cards__main', { 'cards__main--four': !showTitle, 'cards__main--list': activeIndex === 1 }]">
          <CardSkeleton v-if="loading" v-for="index in 10" :key="index" />
-         <Card v-for="ad in filteredAds" :key="ad.id" :id="ad.id"
-            :description="ad.ads_parameter.ads_description" :price="ad.ads_parameter.amount"
-            :place="ad.ads_parameter.place_inspection || 'Адрес не указан'" :callNumber="ad.ads_parameter.phone"
-            :messageEmail="ad.ads_parameter.email" :horizontal="activeIndex === 1"
+         <Card v-for="ad in filteredAds" :key="ad.id" :id="ad.id" :description="ad.ads_parameter.ads_description"
+            :price="ad.ads_parameter.amount" :place="ad.ads_parameter.place_inspection || 'Адрес не указан'"
+            :callNumber="ad.ads_parameter.phone" :messageEmail="ad.ads_parameter.email" :horizontal="activeIndex === 1"
             :brand="ad.auto_technical_specifications[0].brand.title"
             :model="ad.auto_technical_specifications[0].model.title"
             :year="ad.auto_technical_specifications[0].year_release.title" :username="ad.ads_parameter.username"
-            :is_in_favorites="ad.is_in_favorites" :images="ad.photos" :created_at="ad.created_at" :id_user_owner_ads="ad.id_user_owner_ads"/>
+            :is_in_favorites="ad.is_in_favorites" :images="ad.photos" :created_at="ad.created_at"
+            :id_user_owner_ads="ad.id_user_owner_ads" />
          <slot v-if="adsMain.length > 3" name="banner" />
       </div>
       <div v-else :class="['cards__main', { 'cards__main--four': !showTitle, 'cards__main--list': activeIndex === 1 }]"
          v-auto-animate>
          <CardSkeleton v-if="loading" v-for="index in 10" :key="index" />
-         <Card v-for="ad in firstHalf" :id="ad.id" :key="ad.id"
-            :description="ad.ads_parameter.ads_description" :price="ad.ads_parameter.amount"
-            :place="ad.ads_parameter.place_inspection || 'Адрес не указан'" :callNumber="ad.ads_parameter.phone"
-            :messageEmail="ad.ads_parameter.email" :horizontal="activeIndex === 1"
+         <Card v-for="ad in firstHalf" :id="ad.id" :key="ad.id" :description="ad.ads_parameter.ads_description"
+            :price="ad.ads_parameter.amount" :place="ad.ads_parameter.place_inspection || 'Адрес не указан'"
+            :callNumber="ad.ads_parameter.phone" :messageEmail="ad.ads_parameter.email" :horizontal="activeIndex === 1"
             :brand="ad.auto_technical_specifications[0].brand.title"
             :model="ad.auto_technical_specifications[0].model.title"
             :year="ad.auto_technical_specifications[0].year_release.title" :username="ad.ads_parameter.username"
-            :is_in_favorites="ad.is_in_favorites" :images="ad.photos" :created_at="ad.created_at" :id_user_owner_ads="ad.id_user_owner_ads"/>
+            :is_in_favorites="ad.is_in_favorites" :images="ad.photos" :created_at="ad.created_at"
+            :id_user_owner_ads="ad.id_user_owner_ads" />
          <slot name="banner" />
          <CardSkeleton v-if="loading" v-for="index in 10" :key="index" />
-         <Card v-for="ad in secondHalf" :id="ad.id" :key="ad.id"
-            :description="ad.ads_parameter.ads_description" :price="ad.ads_parameter.amount"
-            :place="ad.ads_parameter.place_inspection || 'Адрес не указан'" :callNumber="ad.ads_parameter.phone"
-            :messageEmail="ad.ads_parameter.email" :horizontal="activeIndex === 1"
+         <Card v-for="ad in secondHalf" :id="ad.id" :key="ad.id" :description="ad.ads_parameter.ads_description"
+            :price="ad.ads_parameter.amount" :place="ad.ads_parameter.place_inspection || 'Адрес не указан'"
+            :callNumber="ad.ads_parameter.phone" :messageEmail="ad.ads_parameter.email" :horizontal="activeIndex === 1"
             :brand="ad.auto_technical_specifications[0].brand.title"
             :model="ad.auto_technical_specifications[0].model.title"
             :year="ad.auto_technical_specifications[0].year_release.title" :username="ad.ads_parameter.username"
-            :is_in_favorites="ad.is_in_favorites" :images="ad.photos" :created_at="ad.created_at" :id_user_owner_ads="ad.id_user_owner_ads"/>
+            :is_in_favorites="ad.is_in_favorites" :images="ad.photos" :created_at="ad.created_at"
+            :id_user_owner_ads="ad.id_user_owner_ads" />
       </div>
    </div>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue';
+import { useFiltersStore } from '~/store/filters';
 import list from '../assets/icons/list.svg';
 import listNone from '../assets/icons/list-none.svg';
 import tile from '../assets/icons/tile.svg';
@@ -81,6 +82,8 @@ const props = defineProps({
 const emit = defineEmits(['updateSort']);
 
 const activeIndex = ref(0);
+
+const filtersStore = useFiltersStore();
 
 const loading = ref(true);
 
@@ -125,7 +128,8 @@ const secondHalf = computed(() => {
 });
 
 const handleSortUpdate = (order_by) => {
-   emit('updateSort', order_by);
+   filtersStore.setOrderBy(order_by);
+   emit('updateSort');
 };
 </script>
 

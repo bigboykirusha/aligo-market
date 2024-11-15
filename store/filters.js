@@ -63,7 +63,7 @@ export const useFiltersStore = defineStore('filters', {
       },
       async fetchFilteredCars({ page = 1, count = 20 }) {
          const filters = {
-            condition_id: this.selectedCondition,
+            condition_id: [this.selectedCondition],
             brand_id: this.selectedMark,
             model_id: this.selectedModel,
             amount_from: this.priceRange.min,

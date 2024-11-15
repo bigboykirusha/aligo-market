@@ -107,9 +107,8 @@ const changePage = async (page) => {
    await fetchAdsMain();
 };
 
-const handleSortUpdate = (order_by) => {
+const handleSortUpdate = () => {
    currentPage.value = 1;
-   filtersStore.setOrderBy(order_by);
    fetchAdsMain();
 };
 
