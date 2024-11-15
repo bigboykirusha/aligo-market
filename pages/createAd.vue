@@ -48,7 +48,7 @@ watch(isSelectionComplete, (newVal, oldVal) => {
 
 onBeforeRouteLeave((to, from, next) => {
    if (isSelectionComplete.value && isAnyFieldFilled.value) {
-      isPopupVisible.value = true; 
+      isPopupVisible.value = true;
       savedRoute.value = to;
       nextFunction.value = next;
    } else {
@@ -59,7 +59,7 @@ onBeforeRouteLeave((to, from, next) => {
 const beforeUnloadHandler = (event) => {
    if (isSelectionComplete.value && isAnyFieldFilled.value) {
       event.preventDefault();
-      event.returnValue = ''; 
+      event.returnValue = '';
    }
 };
 
@@ -77,7 +77,10 @@ const handleSendAd = async () => {
 };
 
 const saveAd = async () => {
-   await handleAdAction(1);
+   createStore.setIsDraft(1);
+   await createStore.sendCarAd();
+   createStore.resetParams();
+   await userStore.fetchUserCounts();
    closePopup();
    nextFunction.value();
 };
@@ -85,15 +88,14 @@ const saveAd = async () => {
 const handleAdAction = async (draftStatus) => {
    createStore.setIsDraft(draftStatus);
    if (createStore.id) {
-      if (createStore.is_in_archive || !createStore.is_published) {
+      if (createStore.is_in_archive) {
          await publishFromArchive(createStore.id);
-      }
-      await createStore.updateCarAd();
+      } else { await createStore.updateCarAd() }
+
    } else {
       await createStore.sendCarAd();
    }
-   createStore.resetParams();
-   await userStore.fetchUserCounts();
+   isAdSended.value = true;
 };
 
 const closePopup = () => {
