@@ -90,6 +90,7 @@ const handleAdAction = async (draftStatus) => {
    if (createStore.id) {
       if (createStore.is_in_archive) {
          await publishFromArchive(createStore.id);
+         await createStore.updateCarAd()
       } else { await createStore.updateCarAd() }
 
    } else {
