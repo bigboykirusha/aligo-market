@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 
 const emit = defineEmits(['updateSort']);
 
@@ -35,11 +35,14 @@ const props = defineProps({
       type: String,
       default: '',
    },
+   defaultValue: {
+      type: [String, Number],
+      default: null,
+   },
 });
 
 const selectedOption = ref(null);
 const selectedOptionLabel = ref(props.placeholder || props.options[0].label);
-
 const isActive = ref(false);
 const dropdown = ref(null);
 
@@ -61,7 +64,22 @@ const handleClickOutside = (event) => {
 };
 
 onMounted(() => {
+   if (props.defaultValue !== null) {
+      const defaultOption = props.options.find(option => option.value === props.defaultValue);
+      if (defaultOption) {
+         selectedOption.value = defaultOption.value;
+         selectedOptionLabel.value = defaultOption.label;
+      }
+   }
    document.addEventListener('click', handleClickOutside);
+});
+
+watch(() => props.defaultValue, (newValue) => {
+   const defaultOption = props.options.find(option => option.value === newValue);
+   if (defaultOption) {
+      selectedOption.value = defaultOption.value;
+      selectedOptionLabel.value = defaultOption.label;
+   }
 });
 
 onUnmounted(() => {

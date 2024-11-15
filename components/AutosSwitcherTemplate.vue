@@ -6,7 +6,7 @@
             'switcher__item--active': selectedIndex === (index + 1),
             'switcher__item--disabled': props.dis
          }]" @click="selectOption(index)" :disabled="props.dis">
-            {{ option.title }}
+            {{ capitalizeFirstWord(option.title) }}
             <div v-if="shouldShowDivider(index)" class="switcher__divider"></div>
          </div>
          <div v-if="(selectedIndex) !== null" class="switcher__indicator" :style="indicatorStyle"></div>
@@ -38,12 +38,17 @@ const props = defineProps({
 });
 
 const selectedIndex = ref(props.activeIndex);
-console.log(props.activeIndex);
 
 watch(() => props.activeIndex, (newIndex) => {
    selectedIndex.value = newIndex;
-   console.log(selectedIndex);
 });
+
+const capitalizeFirstWord = (text) => {
+   if (!text) return '';
+   const words = text.split(' ');
+   words[0] = words[0].charAt(0).toUpperCase() + words[0].slice(1).toLowerCase();
+   return words.join(' ');
+};
 
 const selectOption = (index) => {
    if (props.dis) {
@@ -112,7 +117,6 @@ const indicatorStyle = computed(() => {
       position: relative;
       transition: color 0.3s;
       white-space: nowrap;
-      text-transform: capitalize;
 
       &--active {
          color: white;
@@ -121,7 +125,7 @@ const indicatorStyle = computed(() => {
       &--disabled {
          color: #a5a5a5;
          cursor: not-allowed;
-         pointer-events: none; 
+         pointer-events: none;
       }
    }
 

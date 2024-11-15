@@ -4,7 +4,7 @@
          <div v-if="!showFilters" class="filters__toggle-item">
             <SelectSkeleton v-if="loading" />
             <SelectOptionsTemplate v-else :options="switcherConditionOptions" @updateSort="handleConditionUpdate"
-               :initialSelectedOptions="filtersStore.selectedCondition" placeholder="Новизна" />
+               :initialSelectedOption="filtersStore.selectedCondition" placeholder="Все" />
          </div>
          <div v-if="!showFilters" class="filters__toggle-item">
             <SelectSkeleton v-if="loading" />
@@ -22,7 +22,7 @@
       <div v-if="showFilters || !isMobile" class="filters__block">
          <div class="filters__title">Поиск автомобиля</div>
          <SwitcherSkeleton v-if="loading" />
-         <AutosSwitcherTemplate v-else :options="switcherConditionOptions" label="Новизна"
+         <AutosSwitcherTemplate v-else :options="switcherConditionOptions" label="Категория"
             @updateSelected="handleConditionUpdate" :activeIndex="filtersStore.selectedCondition" />
 
          <SwitcherSkeleton v-if="loading" />
@@ -318,6 +318,7 @@ const handleConditionUpdate = (selectedOptions) => {
    filtersStore.setSelectedCondition(selectedOptions);
    filtersStore.setMileageRange({ min: null, max: null });
    filtersStore.setSelectedState(null);
+   fetchCars();
 };
 
 
@@ -408,7 +409,6 @@ onUnmounted(() => {
             &-item {
                &:first-child {
                   width: 100%;
-                  max-width: 114px;
                }
             }
          }
@@ -478,6 +478,7 @@ onUnmounted(() => {
       padding: 16px 16px 24px;
       max-width: 1312px;
       margin: 0 auto;
+      max-width: 100vw;
    }
 
    &__button {

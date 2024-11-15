@@ -1,43 +1,46 @@
 <template>
    <div class="checkbox-list">
-      <div class="checkbox-list__label">{{ label }}</div>
+      <div v-if="label" class="checkbox-list__label">{{ label }}</div>
       <div class="checkbox-list__items">
-         <div v-for="(option, index) in options" :key="option.id" class="checkbox-list__item">
-            <input type="checkbox" :id="`checkbox-${option.id}`" :value="index" v-model="selectedOptions" />
-            <label :for="`checkbox-${option.id}`">{{ option.title }}</label>
+         <div v-for="(option, index) in options" :key="option.title" class="checkbox-list__item">
+            <input type="checkbox" :id="`checkbox-${option.title}`" :checked="selectedIndexes.includes(index)"
+               @change="toggleCheckbox(index)" />
+            <label :for="`checkbox-${option.title}`">{{ option.title }}</label>
          </div>
       </div>
    </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 
 const emit = defineEmits(['updateSelected']);
 const props = defineProps({
    options: {
       type: Array,
-      required: true
+      required: true,
    },
    label: {
       type: String,
-      default: ''
+      default: '',
    },
    activeIndexes: {
       type: Array,
-      default: () => []
-   }
+      default: () => [],
+   },
 });
 
-const selectedOptions = ref([...props.activeIndexes]);
+const selectedIndexes = ref([...props.activeIndexes]);
 
-watch(() => props.activeIndexes, (newIndexes) => {
-   selectedOptions.value = newIndexes;
-}, { deep: true });
+const toggleCheckbox = (index) => {
+   if (selectedIndexes.value.includes(index)) {
+      selectedIndexes.value = selectedIndexes.value.filter(i => i !== index);
+   } else {
+      selectedIndexes.value.push(index);
+   }
 
-watch(selectedOptions, (newOptions) => {
-   emit('updateSelected', newOptions);
-}, { deep: true });
+   emit('updateSelected', selectedIndexes.value);
+};
 </script>
 
 <style scoped lang="scss">

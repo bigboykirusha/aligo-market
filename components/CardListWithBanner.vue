@@ -2,7 +2,7 @@
    <div class="cards">
       <h2 v-if="showTitle" class="cards__title">{{ props.title }}</h2>
       <div v-if="!showTitle" class="cards__block">
-         <AdsDropdown :options="sortOptions" @updateSort="handleSortUpdate" />
+         <AdsDropdown :options="sortOptions" @updateSort="handleSortUpdate" :defaultValue="'desc'" />
          <div class="switcher">
             <div class="switcher__item" :class="{ 'switcher__item--active': activeIndex === 0 }"
                @click="activeIndex = 0">

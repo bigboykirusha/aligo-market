@@ -39,8 +39,8 @@ const props = defineProps({
    },
    placeholder: {
       type: String,
-      default: 'Нажмите' // Плейсхолдер по умолчанию
-   }
+      default: 'Нажмите',
+   },
 });
 
 const emit = defineEmits(['updateSort']);
@@ -53,8 +53,16 @@ const toggleDropdown = () => {
    }
 };
 
+watch(
+   () => props.initialSelectedOption,
+   (newValue) => {
+      selectedOption.value = newValue;
+   },
+   { immediate: true }
+);
+
 const displayedSelectedOptionTitle = computed(() => {
-   const option = props.options.find(o => o.id === selectedOption.value);
+   const option = props.options.find((o) => o.id === selectedOption.value);
    return option ? option.title : '';
 });
 
@@ -71,17 +79,12 @@ const handleClickOutside = (event) => {
 };
 
 onMounted(() => {
+   console.log(props.initialSelectedOption)
    document.addEventListener('click', handleClickOutside);
 });
 
 onUnmounted(() => {
    document.removeEventListener('click', handleClickOutside);
-});
-
-watch(selectedOption, (newOption) => {
-   if (newOption !== props.initialSelectedOption) {
-      emit('updateSort', newOption);
-   }
 });
 </script>
 

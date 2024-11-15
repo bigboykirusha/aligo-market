@@ -177,6 +177,7 @@ onUnmounted(() => {
   transition: $transition-1;
   position: fixed;
   width: 100%;
+  max-width: 100vw;
   top: 0;
   z-index: 9;
   padding: 0 16px;
