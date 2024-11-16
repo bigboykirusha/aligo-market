@@ -2,8 +2,10 @@
    <div class="range-input">
       <div class="range-input__label">{{ label }}</div>
       <div class="range-input__fields">
-         <input type="number" v-model="minValue" placeholder="от" class="range-input__field" @input="handleMinInput" :disabled="props.dis"/>
-         <input type="number" v-model="maxValue" placeholder="до" class="range-input__field" @input="handleMaxInput" :disabled="props.dis"/>
+         <input type="number" v-model="minValue" placeholder="от" class="range-input__field" @input="handleMinInput"
+            :disabled="props.dis" min="0" />
+         <input type="number" v-model="maxValue" placeholder="до" class="range-input__field" @input="handleMaxInput"
+            :disabled="props.dis" min="0" />
          <span v-if="label === 'Цена'" class="range-input__currency">₽</span>
       </div>
    </div>
@@ -31,30 +33,27 @@ const props = defineProps({
    }
 });
 
-// Определение событий, которые компонент будет испускать
 const emit = defineEmits(['updateRange']);
 
-// Локальные состояния для минимального и максимального значений
 const minValue = ref(props.initialMinValue);
 const maxValue = ref(props.initialMaxValue);
 
-// Обработчики ввода для полей минимального и максимального значений
 const handleMinInput = (event) => {
-   const value = event.target.value;
-   minValue.value = value === '' ? null : Number(value);
+   let value = Number(event.target.value);
+   if (value < 0) value = 0; 
+   minValue.value = value === '' ? null : value;
 };
 
 const handleMaxInput = (event) => {
-   const value = event.target.value;
-   maxValue.value = value === '' ? null : Number(value);
+   let value = Number(event.target.value);
+   if (value < 0) value = 0; 
+   maxValue.value = value === '' ? null : value;
 };
 
-// Наблюдение за изменениями значений и эмиссия события с новыми значениями
 watch([minValue, maxValue], ([newMin, newMax]) => {
    emit('updateRange', { min: newMin, max: newMax });
 });
 
-// Наблюдение за изменениями начальных значений и обновление локальных состояний
 watch(() => props.initialMinValue, (newValue) => {
    minValue.value = newValue;
 });
