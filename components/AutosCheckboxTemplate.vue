@@ -2,9 +2,9 @@
    <div class="checkbox-list">
       <div v-if="label" class="checkbox-list__label">{{ label }}</div>
       <div class="checkbox-list__items">
-         <div v-for="(option, index) in options" :key="option.title" class="checkbox-list__item">
-            <input type="checkbox" :id="`checkbox-${option.title}`" :checked="selectedIndexes.includes(index)"
-               @change="toggleCheckbox(index)" />
+         <div v-for="(option, index) in options" :key="option.id" class="checkbox-list__item">
+            <input type="checkbox" :id="`checkbox-${option.title}`" :checked="selectedIds.includes(option.id)"
+               @change="toggleCheckbox(option.id)" />
             <label :for="`checkbox-${option.title}`">{{ option.title }}</label>
          </div>
       </div>
@@ -30,16 +30,16 @@ const props = defineProps({
    },
 });
 
-const selectedIndexes = ref([...props.activeIndexes]);
+const selectedIds = ref([...props.activeIndexes]);
 
-const toggleCheckbox = (index) => {
-   if (selectedIndexes.value.includes(index)) {
-      selectedIndexes.value = selectedIndexes.value.filter(i => i !== index);
+const toggleCheckbox = (id) => {
+   if (selectedIds.value.includes(id)) {
+      selectedIds.value = selectedIds.value.filter(i => i !== id);
    } else {
-      selectedIndexes.value.push(index);
+      selectedIds.value.push(id);
    }
 
-   emit('updateSelected', selectedIndexes.value);
+   emit('updateSelected', selectedIds.value);
 };
 </script>
 

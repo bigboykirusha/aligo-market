@@ -1,15 +1,15 @@
 <template>
    <div class="filters">
-      <div v-if="isMobile" class="filters__toggle">
-         <div v-if="!showFilters" class="filters__toggle-item">
+      <div v-if="isMobile" class="filters__toggle" ref="filtersRef">
+         <div v-show="!isSecondClicked && !showFilters" class="filters__toggle-item" @click="toggleFirst">
             <SelectSkeleton v-if="loading" />
             <SelectOptionsTemplate v-else :options="switcherConditionOptions" @updateSort="handleConditionUpdate"
-               :initialSelectedOption="filtersStore.selectedCondition" placeholder="Все" />
+               :initialSelectedOption="selectedCondition" placeholder="Все" />
          </div>
-         <div v-if="!showFilters" class="filters__toggle-item">
+         <div v-show="!isFirstClicked && !showFilters" class="filters__toggle-item" @click="toggleSecond">
             <SelectSkeleton v-if="loading" />
             <AutosSelectTemplate v-else :options="dropdownMarksOptions" @updateSort="handleMarksUpdate"
-               :initialSelectedOptions="filtersStore.selectedMark" placeholder="Марка" />
+               :initialSelectedOptions="selectedMarkI" placeholder="Марка" :key="marksComponentKey" />
          </div>
          <div v-if="showFilters" class="filters__settings--large">Настройки поиска</div>
          <div @click="resetFilters" v-if="showFilters" class="filters__settings">Очистить</div>
@@ -19,68 +19,73 @@
             <span v-else>Скрыть</span>
          </div>
       </div>
-      <div v-if="showFilters || !isMobile" class="filters__block">
+      <div v-if="!showFilters && isAnyFilterSelected && isMobile" class="filters__selected-tags">
+         <div v-for="(filter, index) in selectedFilters" :key="index" class="filters__tag">
+            {{ capitalizeTitle(filter.title) }}
+            <span @click="removeFilter(filter)">&#10005;</span>
+         </div>
+      </div>
+      <div v-if="showFilters || !isMobile" class="filters__block" :key="filtersComponentKey">
          <div class="filters__title">Поиск автомобиля</div>
          <SwitcherSkeleton v-if="loading" />
          <AutosSwitcherTemplate v-else :options="switcherConditionOptions" label="Категория"
-            @updateSelected="handleConditionUpdate" :activeIndex="filtersStore.selectedCondition" />
+            @updateSelected="handleConditionUpdate" :activeIndex="selectedCondition" />
 
          <SwitcherSkeleton v-if="loading" />
-         <AutosSwitcherTemplate v-else-if="filtersStore.selectedCondition !== 1" :options="switcherStateOptions"
-            label="Состояние" @updateSelected="handleStateUpdate" :activeIndex="filtersStore.selectedState"
-            :dis="filtersStore.selectedCondition === 1" />
+         <AutosSwitcherTemplate v-else-if="selectedCondition !== 1" :options="switcherStateOptions" label="Состояние"
+            @updateSelected="handleStateUpdate" :activeIndex="selectedState" :dis="selectedCondition === 1" />
 
          <SelectSkeleton v-if="loading" />
          <AutosSelectTemplate v-else :options="dropdownMarksOptions" label="Марка" @updateSort="handleMarksUpdate"
-            :initialSelectedOptions="filtersStore.selectedMark" placeholder="Нажмите для выбора" />
+            :initialSelectedOptions="selectedMarkI" placeholder="Нажмите для выбора" />
 
          <SelectSkeleton v-if="loading" />
          <AutosSelectTemplate v-else :options="dropdownModelsOptions" label="Модель"
             :disabled="isModelsDropdownDisabled" @updateSort="handleModelsUpdate"
-            :initialSelectedOptions="filtersStore.selectedModel" placeholder="Нажмите для выбора" />
+            :initialSelectedOptions="selectedModelI" placeholder="Нажмите для выбора" />
 
          <FromToSkeleton v-if="loading" />
          <AutosFromToTemplate v-else label="Цена" @updateRange="handlePriceRangeUpdate"
-            :initialMinValue="filtersStore.priceRange.min" :initialMaxValue="filtersStore.priceRange.max" />
+            :initialMinValue="priceRange.min" :initialMaxValue="priceRange.max" />
 
          <CheckboxSkeleton v-if="loading" />
          <AutosCheckboxTemplate v-else :options="checkboxBodyTypeOptions" label="Тип кузова"
-            @updateSelected="handleBodyTypeUpdate" :activeIndexes="filtersStore.selectedBodyTypes" />
+            @updateSelected="handleBodyTypeUpdate" :activeIndexes="selectedBodyTypes" />
 
          <SelectSkeleton v-if="loading" />
          <AutosSelectTemplate v-else :options="dropdownTransmissionOptions" label="Коробка передач"
-            @updateSort="handleTransmissionUpdate" :initialSelectedOptions="filtersStore.selectedTransmission"
+            @updateSort="handleTransmissionUpdate" :initialSelectedOptions="selectedTransmission"
             placeholder="Нажмите для выбора" />
 
          <CheckboxSkeleton v-if="loading" />
          <AutosCheckboxTemplate v-else :options="checkboxEngineTypeOptions" label="Тип двигателя"
-            @updateSelected="handleEngineTypeUpdate" :activeIndexes="filtersStore.selectedEngineTypes" />
+            @updateSelected="handleEngineTypeUpdate" :activeIndexes="selectedEngineTypes" />
 
          <FromToSkeleton v-if="loading" />
-         <AutosFromToTemplate v-else-if="filtersStore.selectedCondition !== 1" label="Пробег, км"
-            @updateRange="handleMileageRangeUpdate" :dis="filtersStore.selectedCondition === 1"
-            :initialMinValue="filtersStore.mileageRange.min" :initialMaxValue="filtersStore.mileageRange.max" />
+         <AutosFromToTemplate v-else-if="selectedCondition !== 1" label="Пробег, км"
+            @updateRange="handleMileageRangeUpdate" :dis="selectedCondition === 1" :initialMinValue="mileageRange.min"
+            :initialMaxValue="mileageRange.max" />
 
          <FromToSkeleton v-if="loading" />
          <AutosFromToTemplate v-else label="Объём двигателя, л" @updateRange="handleEngineVolumeRangeUpdate"
-            :initialMinValue="filtersStore.engineVolumeRange.min"
-            :initialMaxValue="filtersStore.engineVolumeRange.max" />
+            :initialMinValue="engineVolumeRange.min" :initialMaxValue="engineVolumeRange.max" />
 
          <CheckboxSkeleton v-if="loading" />
          <AutosCheckboxTemplate v-else :options="checkboxDriveOptions" label="Привод"
-            @updateSelected="handleDriveUpdate" :activeIndexes="filtersStore.selectedDrives" />
+            @updateSelected="handleDriveUpdate" :activeIndexes="selectedDrives" />
 
          <FromToSkeleton v-if="loading" />
-         <AutosFromToTemplate v-else label="Мощность, л.с." @updateRange="handlePowerRangeUpdate" />
+         <AutosFromToTemplate v-else label="Мощность, л.с." @updateRange="handlePowerRangeUpdate"
+            :initialMinValue="powerRange.min" :initialMaxValue="powerRange.max" />
 
          <ColorPickerSkeleton v-if="loading" />
          <ColorPickerTemplate v-else :options="colorOptions" label="Цвет" @updateSelected="handleColorUpdate"
-            :activeIndexes="filtersStore.selectedColor" />
+            :activeIndexes="selectedColor" />
       </div>
    </div>
-   <div v-show="isAnyFilterSelected" class="filters__overlay">
+   <div v-show="isAnyFilterSelected && !isButtonClicked" class="filters__overlay">
       <div class="filters__seacrh">
-         <div @click="fetchCars" class="filters__button">Показать результаты</div>
+         <div @click="searchCars" class="filters__button">Показать результаты</div>
       </div>
    </div>
 </template>
@@ -91,7 +96,15 @@ import { useFiltersStore } from '../store/filters';
 import { useRoute } from 'vue-router';
 import { getCarBrands, getCarModels, getCarTransmission, getCarBodyType, getCarEngineType, getCarDrive, getCarState, getColors, getCarCondition } from '../services/apiClient';
 
+const searchCars = () => {
+   fetchCars();
+   showFilters.value = false;
+};
+
+
 const fetchCars = () => {
+   console.log(selectedFilters.value, 'выбранные фильтры')
+   isButtonClicked.value = true;
    emit('updateSort');
 };
 
@@ -113,6 +126,46 @@ const selectedModel = ref([]);
 const isModelsDropdownDisabled = computed(() => !(filtersStore.selectedMark.length > 0 && filtersStore.selectedMark.length === 1));
 const emit = defineEmits(['updateSort']);
 const isMobile = ref(false);
+
+const isButtonClicked = ref(false);
+
+const isFirstClicked = ref(false);
+const isSecondClicked = ref(false);
+const filtersRef = ref(null);
+
+const marksComponentKey = ref(0);
+const filtersComponentKey = ref(0);
+
+const selectedCondition = computed(() => filtersStore.selectedCondition);
+const selectedMarkI = computed(() => filtersStore.selectedMark);
+const selectedModelI = computed(() => filtersStore.selectedModel);
+const priceRange = computed(() => filtersStore.priceRange);
+const selectedBodyTypes = computed(() => filtersStore.selectedBodyTypes);
+const selectedTransmission = computed(() => filtersStore.selectedTransmission);
+const selectedEngineTypes = computed(() => filtersStore.selectedEngineTypes);
+const mileageRange = computed(() => filtersStore.mileageRange);
+const engineVolumeRange = computed(() => filtersStore.engineVolumeRange);
+const selectedDrives = computed(() => filtersStore.selectedDrives);
+const selectedColor = computed(() => filtersStore.selectedColor);
+const selectedState = computed(() => filtersStore.selectedState);
+const powerRange = computed(() => filtersStore.powerRange);
+
+const toggleFirst = () => {
+   isFirstClicked.value = true;
+   isSecondClicked.value = false;
+};
+
+const toggleSecond = () => {
+   isSecondClicked.value = true;
+   isFirstClicked.value = false;
+};
+
+const handleClickOutside = (event) => {
+   if (filtersRef.value && !filtersRef.value.contains(event.target)) {
+      isFirstClicked.value = false;
+      isSecondClicked.value = false;
+   }
+};
 
 if (route.path.includes('autos/new')) {
    filtersStore.setSelectedCondition(1);
@@ -140,6 +193,171 @@ const fetchOptions = async () => {
 
 const toggleFiltersVisibility = () => {
    showFilters.value = !showFilters.value;
+};
+
+const selectedFilters = computed(() => {
+   const filters = [];
+
+   if (loading.value) return filters;
+
+   // Категория (новые/с пробегом)
+   if (filtersStore.selectedCondition !== null && switcherConditionOptions.value.length > 0) {
+      const condition = switcherConditionOptions.value.find(option => option.id === filtersStore.selectedCondition);
+      if (condition) filters.push({ title: condition.title, type: 'condition', value: filtersStore.selectedCondition });
+   }
+
+   // Состояние (битый/не битый)
+   if (filtersStore.selectedState !== null && switcherStateOptions.value.length > 0) {
+      const state = switcherStateOptions.value.find(option => option.id === filtersStore.selectedState);
+      if (state) filters.push({ title: state.title, type: 'state', value: filtersStore.selectedState });
+   }
+
+   // Марка
+   if (Array.isArray(filtersStore.selectedMark) && filtersStore.selectedMark.length > 0) {
+      filtersStore.selectedMark.forEach((id) => {
+         const mark = dropdownMarksOptions.value.find(option => option.id === id);
+         if (mark) filters.push({ title: mark.title, type: 'mark', value: mark.id });
+      });
+   }
+
+   // Модель
+   if (Array.isArray(filtersStore.selectedModel) && filtersStore.selectedModel.length > 0) {
+      filtersStore.selectedModel.forEach((id) => {
+         const model = dropdownModelsOptions.value.find(option => option.id === id);
+         if (model) filters.push({ title: model.title, type: 'model', value: model.id });
+      });
+   }
+
+   // Тип кузова
+   if (Array.isArray(filtersStore.selectedBodyTypes) && filtersStore.selectedBodyTypes.length > 0) {
+      filtersStore.selectedBodyTypes.forEach((id) => {
+         const bodyType = checkboxBodyTypeOptions.value.find(option => option.id === id);
+         if (bodyType) filters.push({ title: bodyType.title, type: 'bodyType', value: bodyType.id });
+      });
+   }
+
+   // Добавление фильтра для типа двигателя
+   if (Array.isArray(filtersStore.selectedEngineTypes) && filtersStore.selectedEngineTypes.length > 0) {
+      filtersStore.selectedEngineTypes.forEach((id) => {
+         const engineType = checkboxEngineTypeOptions.value.find(option => option.id === id);
+         if (engineType) filters.push({ title: engineType.title, type: 'engineType', value: engineType.id });
+      });
+   }
+
+   // Коробка передач
+   if (Array.isArray(filtersStore.selectedTransmission) && filtersStore.selectedTransmission.length > 0) {
+      filtersStore.selectedTransmission.forEach((id) => {
+         const transmission = dropdownTransmissionOptions.value.find(option => option.id === id);
+         if (transmission) filters.push({ title: transmission.title, type: 'transmission', value: transmission.id });
+      });
+   }
+
+   // Цвет
+   if (Array.isArray(filtersStore.selectedColor) && filtersStore.selectedColor.length > 0) {
+      filtersStore.selectedColor.forEach((id) => {
+         const color = colorOptions.value.find(option => option.id === id);
+         if (color) filters.push({ title: color.title, type: 'color', value: color.id });
+      });
+   }
+
+   // Цена
+   if (filtersStore.priceRange?.min !== null || filtersStore.priceRange?.max !== null) {
+      const min = filtersStore.priceRange.min ?? 'от';
+      const max = filtersStore.priceRange.max ?? 'до';
+      filters.push({ title: `Цена: ${min} — ${max} ₽`, type: 'priceRange' });
+   }
+
+   // Пробег
+   if (filtersStore.mileageRange?.min !== null || filtersStore.mileageRange?.max !== null) {
+      const min = filtersStore.mileageRange.min ?? 'от';
+      const max = filtersStore.mileageRange.max ?? 'до';
+      filters.push({ title: `Пробег: ${min} — ${max} км`, type: 'mileageRange' });
+   }
+
+   // Объем двигателя
+   if (filtersStore.engineVolumeRange?.min !== null || filtersStore.engineVolumeRange?.max !== null) {
+      const min = filtersStore.engineVolumeRange.min ?? 'от';
+      const max = filtersStore.engineVolumeRange.max ?? 'до';
+      filters.push({ title: `Объем двигателя: ${min} — ${max} л.`, type: 'engineVolumeRange' });
+   }
+
+   // Мощность
+   if (filtersStore.powerRange?.min !== null || filtersStore.powerRange?.max !== null) {
+      const min = filtersStore.powerRange.min ?? 'от';
+      const max = filtersStore.powerRange.max ?? 'до';
+      filters.push({ title: `Мощность: ${min} — ${max} лш.`, type: 'powerRange' });
+   }
+
+   // Привод
+   if (Array.isArray(filtersStore.selectedDrives) && filtersStore.selectedDrives.length > 0) {
+      filtersStore.selectedDrives.forEach((id) => {
+         const drive = checkboxDriveOptions.value.find(option => option.id === id);
+         if (drive) filters.push({ title: drive.title, type: 'drive', value: drive.id });
+      });
+   }
+
+   return filters;
+});
+
+const capitalizeTitle = (text) => {
+   if (!text) return '';
+   return text.charAt(0).toUpperCase() + text.slice(1);
+};
+
+const removeFilter = (filter) => {
+   switch (filter.type) {
+      case 'mark': { filtersStore.setSelectedMark(filtersStore.selectedMark.filter(id => id !== filter.value)); marksComponentKey.value += 1; }
+         // Удаление марки
+
+         break;
+      case 'model':
+         // Удаление модели
+         filtersStore.setSelectedModel(filtersStore.selectedModel.filter(id => id !== filter.value));
+         break;
+      case 'bodyType':
+         // Удаление типа кузова
+         filtersStore.setSelectedBodyTypes(filtersStore.selectedBodyTypes.filter(id => id !== filter.value));
+         break;
+      case 'transmission':
+         // Удаление коробки передач
+         filtersStore.setSelectedTransmission(filtersStore.selectedTransmission.filter(id => id !== filter.value));
+         break;
+      case 'color':
+         // Удаление цвета
+         filtersStore.setSelectedColor(filtersStore.selectedColor.filter(id => id !== filter.value));
+         break;
+      case 'priceRange':
+         // Сброс диапазона цен
+         filtersStore.setPriceRange({ min: null, max: null });
+         break;
+      case 'mileageRange':
+         // Сброс диапазона пробега
+         filtersStore.setMileageRange({ min: null, max: null });
+         break;
+      case 'engineVolumeRange':
+         // Сброс диапазона объема двигателя
+         filtersStore.setEngineVolumeRange({ min: null, max: null });
+         break;
+      case 'powerRange':
+         // Сброс диапазона мощности
+         filtersStore.setPowerRange({ min: null, max: null });
+         break;
+      case 'drive':
+         // Удаление привода
+         filtersStore.setSelectedDrives(filtersStore.selectedDrives.filter(id => id !== filter.value));
+         break;
+      case 'condition':
+         // Удаление категории (новые/с пробегом)
+         filtersStore.setSelectedCondition(null);
+         break;
+      case 'state':
+         // Удаление состояния (битый/не битый)
+         filtersStore.setSelectedState(null);
+         break;
+      case 'engineType':
+         filtersStore.setSelectedEngineTypes(filtersStore.selectedEngineTypes.filter(id => id !== filter.value)); // Добавлено удаление типа двигателя
+         break;
+   }
 };
 
 const isAnyFilterSelected = computed(() => {
@@ -277,6 +495,7 @@ const fetchStateOptions = async () => {
 };
 
 const handleMarksUpdate = (selectedOptions) => {
+   marksComponentKey.value += 1;
    if (selectedMark.value !== selectedOptions) {
       selectedMark.value = selectedOptions;
       filtersStore.setSelectedMark(selectedOptions);
@@ -302,6 +521,9 @@ const handleModelsUpdate = (selectedOptions) => {
 
 const resetFilters = () => {
    filtersStore.resetFilters();
+   filtersComponentKey.value += 1;
+   marksComponentKey.value += 1;
+   fetchCars();
 };
 
 const handlePriceRangeUpdate = (range) => filtersStore.setPriceRange(range);
@@ -330,8 +552,26 @@ watch(isModelsDropdownDisabled, (newVal) => {
    }
 });
 
+const resetButtonVisibility = () => {
+   isButtonClicked.value = false;
+};
+
+watch(() => filtersStore.selectedState, resetButtonVisibility);
+watch(() => filtersStore.selectedMark, resetButtonVisibility, { deep: true });
+watch(() => filtersStore.selectedModel, resetButtonVisibility, { deep: true });
+watch(() => filtersStore.selectedBodyTypes, resetButtonVisibility, { deep: true });
+watch(() => filtersStore.selectedEngineTypes, resetButtonVisibility, { deep: true });
+watch(() => filtersStore.selectedTransmission, resetButtonVisibility, { deep: true });
+watch(() => filtersStore.selectedDrives, resetButtonVisibility, { deep: true });
+watch(() => filtersStore.selectedColor, resetButtonVisibility, { deep: true });
+watch(() => filtersStore.priceRange, resetButtonVisibility, { deep: true });
+watch(() => filtersStore.mileageRange, resetButtonVisibility, { deep: true });
+watch(() => filtersStore.engineVolumeRange, resetButtonVisibility, { deep: true });
+watch(() => filtersStore.powerRange, resetButtonVisibility, { deep: true });
+
 onMounted(() => {
    fetchOptions();
+   document.addEventListener('click', handleClickOutside);
 
    if (window.innerWidth <= 1250) {
       isMobile.value = true;
@@ -347,8 +587,15 @@ onMounted(() => {
    }
 });
 
+watch(isAnyFilterSelected, () => {
+   if (isAnyFilterSelected.value && !isButtonClicked.value) {
+      isButtonClicked.value = false;
+   }
+});
+
 onUnmounted(() => {
    window.removeEventListener('resize', () => { });
+   document.removeEventListener('click', handleClickOutside);
 });
 </script>
 
@@ -379,11 +626,13 @@ onUnmounted(() => {
          cursor: pointer;
          font-size: 16px;
          background-color: #EEF9FF;
-         box-shadow: 1px 1px 6px 0px #00000024;
+         box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.15);
          color: #3366FF;
          padding: 24px;
 
+
          &-item {
+
             &:nth-child(2) {
                width: 100%;
             }
@@ -393,7 +642,6 @@ onUnmounted(() => {
             &-item {
                &:first-child {
                   width: 100%;
-                  max-width: 140px;
                }
 
                &:nth-child(2) {
@@ -462,23 +710,35 @@ onUnmounted(() => {
       gap: 24px;
       flex-direction: column;
       margin-bottom: 40px;
+
+      @media (max-width: 768px) {
+         padding: 0 16px;
+      }
    }
 
    &__overlay {
       position: fixed;
       width: 100%;
+      max-width: 100vw;
       height: 70px;
       z-index: 15;
       bottom: 0;
       left: 0;
       background-color: #EEF9FF;
+
+      @media (max-width: 768px) {
+         height: 82px;
+      }
    }
 
    &__seacrh {
       padding: 16px 16px 24px;
       max-width: 1312px;
       margin: 0 auto;
-      max-width: 100vw;
+
+      @media (max-width: 768px) {
+         padding: 24px 46px;
+      }
    }
 
    &__button {
@@ -504,5 +764,30 @@ onUnmounted(() => {
          background-color: #2e60f5;
       }
    }
+}
+
+.filters__selected-tags {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 10px;
+}
+
+.filters__tag {
+   background-color: #D6EFFF;
+   border-radius: 6px;
+   font-size: 14px;
+   line-height: 18px;
+   color: #3366FF;
+   padding: 6px 10px;
+   display: flex;
+   align-items: center;
+   cursor: pointer;
+}
+
+.filters__tag span {
+   margin-left: 8px;
+   font-size: 14px;
+   color: #3366FF;
+   cursor: pointer;
 }
 </style>

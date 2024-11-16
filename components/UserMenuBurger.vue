@@ -183,8 +183,8 @@ const menuItems = [
    position: fixed;
    top: 0;
    left: 0;
-   width: 85%;
-   height: 100%;
+   width: 100%;
+   height: 100vh;
    background-color: #ffffff;
    display: flex;
    flex-direction: column;
@@ -197,7 +197,6 @@ const menuItems = [
       left: auto;
       z-index: 10;
       right: 0;
-      height: calc(100% - 70px);
       animation: slide-right 0.3s ease-out forwards;
 
       .user-menu__nav-list {

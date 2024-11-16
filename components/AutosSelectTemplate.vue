@@ -3,7 +3,7 @@
       <div v-if="props.label" class="dropdown-2__label">{{ label }}</div>
       <div class="dropdown-2__input" @click="toggleDropdown" :class="{ 'dropdown-2__input--disabled': disabled }">
          <div class="input-text-2 input-text-2--with-clear input-wrapper --check-fill">
-            <input class="input-text-2__input" type="text" :value="displayedSelectedOptionsTitles"
+            <input class="input-text-2__input" type="text" :value="selectedOptionsTitles.join(', ')"
                :placeholder="placeholder" readonly :disabled="disabled" />
          </div>
       </div>
@@ -38,7 +38,7 @@ const props = defineProps({
    },
    placeholder: {
       type: String,
-      default: 'Нажмите' 
+      default: 'Нажмите'
    }
 });
 
@@ -56,13 +56,6 @@ const selectedOptionsTitles = computed(() => {
    return props.options
       .filter(option => selectedOptions.value.includes(option.id))
       .map(option => option.title);
-});
-
-const maxDisplayLength = 22;
-
-const displayedSelectedOptionsTitles = computed(() => {
-   const text = selectedOptionsTitles.value.join(', ');
-   return text.length > maxDisplayLength ? `${text.slice(0, maxDisplayLength)}...` : text;
 });
 
 const handleClickOutside = (event) => {
@@ -90,7 +83,6 @@ watch(selectedOptions, (newOptions) => {
 .dropdown-2 {
    position: relative;
    width: 100%;
-   max-width: 262px;
    width: 260px;
 
    @media screen and (max-width: 1250px) {
@@ -138,6 +130,7 @@ watch(selectedOptions, (newOptions) => {
          white-space: nowrap;
          overflow: hidden;
          text-overflow: ellipsis;
+         padding-right: 36px;
 
          &:focus {
             outline: none;
@@ -151,6 +144,9 @@ watch(selectedOptions, (newOptions) => {
       display: flex;
       flex-wrap: nowrap;
       align-items: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
    }
 
    .selected-option {
@@ -188,6 +184,12 @@ watch(selectedOptions, (newOptions) => {
       background: white;
       transition: 0.3s;
       cursor: pointer;
+      white-space: nowrap;
+      /* Обрезка текста с многоточием */
+      overflow: hidden;
+      /* Обрезка текста */
+      text-overflow: ellipsis;
+      /* Многоточие */
 
       &:hover {
          background: #D6EFFF;

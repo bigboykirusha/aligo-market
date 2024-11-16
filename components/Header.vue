@@ -63,7 +63,7 @@
     <component :is="currentPageComponent" />
     <LocationModal v-if="modalOpen" @close-modal="toggleModal" />
     <LoginModal v-if="modalLoginOpen" @close-loginModal="toggleLoginModal" />
-    <UserMenuBurger v-if="isSideMenuOpen" :isRight="true" @close-burgerMenu="toggleSideMenu" />
+    <UserMenuBurger v-if="isSideMenuOpen" :isRight="!isMyselfRoute" @close-burgerMenu="toggleSideMenu" />
   </div>
 </template>
 
