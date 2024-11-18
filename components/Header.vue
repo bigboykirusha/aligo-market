@@ -1,48 +1,49 @@
 <template>
-  <div>
-    <header :class="{ 'header--hidden': isHeaderHidden }" class="header">
-      <div :class="containerClasses">
-        <nav class="header__nav" aria-label="Primary">
-          <ul class="header__nav-list" v-show="!isMyselfRoute || isDesktop">
-            <nuxt-link to="/" class="header__nav-item header__nav-item--mobile">
-              <img class="header__nav--logo" src="../assets/images/logo-white.svg" alt="Logo">
-            </nuxt-link>
-            <li class="header__nav-item">
-              <LanguageSwitcher />
-            </li>
-            <li class="header__nav-item">
-              <button class="header__nav-link" @click="toggleModal">
-                <img :src="defaultLocationIcon" alt="Location icon" class="header__icon">
-                <span class="header__text header__text--hidden">{{ translatedCityName }}</span>
-              </button>
-              <LocationPopup @open-modal="toggleModal" />
-            </li>
-            <li class="header__nav-item">
-              <nuxt-link to="/business" class="header__nav-link">
-                <img src="../assets/icons/business.svg" alt="Business icon" class="header__icon">
-                <span class="header__text header__text--hidden">{{ $t('nav.business') }}</span>
+  <client-only>
+    <div>
+      <header :class="{ 'header--hidden': isHeaderHidden }" class="header">
+        <div :class="containerClasses">
+          <nav class="header__nav" aria-label="Primary">
+            <ul class="header__nav-list" v-show="!isMyselfRoute || isDesktop">
+              <nuxt-link to="/" class="header__nav-item header__nav-item--mobile">
+                <img class="header__nav--logo" src="../assets/images/logo-white.svg" alt="Logo">
               </nuxt-link>
-            </li>
-          </ul>
-        </nav>
-        <div v-show="isMyselfRoute && !isDesktop" class="header__images">
-          <img src="../assets/icons/menu.svg" alt="Menu" @click="toggleSideMenu" />
-          <img src="../assets/icons/white-logo.svg" alt="Logo">
-        </div>
-        <nuxt-link to="/createAd" v-show="isMyselfRoute" class="header__actions">
-          <button class="header__nav-link header__nav-link--add">
-            <img src="../assets/icons/add.svg" alt="Add icon" class="header__icon">
-            <span class="header__text header__text--add">Разместить объявление</span>
-          </button>
-        </nuxt-link>
-        <div v-show="!isMyselfRoute" class="header__actions">
-          <template v-if="isLoggedIn">
-            <div class="header__user-info">
-              <div class="header__user-block">
-                <IconLink v-for="icon in userIcons" :key="icon.to" :to="icon.to" :icon-src="icon.src"
-                  :icon-count="icon.count" />
-              </div>
-              <client-only>
+              <li class="header__nav-item">
+                <LanguageSwitcher />
+              </li>
+              <li class="header__nav-item">
+                <button class="header__nav-link" @click="toggleModal">
+                  <img :src="defaultLocationIcon" alt="Location icon" class="header__icon">
+                  <span class="header__text header__text--hidden">{{ translatedCityName }}</span>
+                </button>
+                <LocationPopup @open-modal="toggleModal" />
+              </li>
+              <li class="header__nav-item">
+                <nuxt-link to="/business" class="header__nav-link">
+                  <img src="../assets/icons/business.svg" alt="Business icon" class="header__icon">
+                  <span class="header__text header__text--hidden">{{ $t('nav.business') }}</span>
+                </nuxt-link>
+              </li>
+            </ul>
+          </nav>
+          <div v-show="isMyselfRoute && !isDesktop" class="header__images">
+            <img src="../assets/icons/menu.svg" alt="Menu" @click="toggleSideMenu" />
+            <img src="../assets/icons/white-logo.svg" alt="Logo">
+          </div>
+          <nuxt-link to="/createAd" v-show="isMyselfRoute" class="header__actions">
+            <button class="header__nav-link header__nav-link--add">
+              <img src="../assets/icons/add.svg" alt="Add icon" class="header__icon">
+              <span class="header__text header__text--add">Разместить объявление</span>
+            </button>
+          </nuxt-link>
+          <div v-show="!isMyselfRoute" class="header__actions">
+            <template v-if="isLoggedIn">
+              <div class="header__user-info">
+                <div class="header__user-block">
+                  <IconLink v-for="icon in userIcons" :key="icon.to" :to="icon.to" :icon-src="icon.src"
+                    :icon-count="icon.count" />
+                </div>
+
                 <div class="header__menu" @click.stop="toggleUserMenu">
                   <img v-if="userStore.photo?.path || !userName" :src="userAvatar" alt="Avatar"
                     class="header__user-avatar">
@@ -50,21 +51,21 @@
                   <span class="header__user-name">{{ displayName }}</span>
                   <UserMenuPopup v-if="isUserMenuOpen && isDesktop" @close-userMenu="toggleUserMenu" />
                 </div>
-              </client-only>
-            </div>
-          </template>
-          <button v-else class="header__nav-link" @click="toggleLoginModal">
-            <img src="../assets/icons/user.svg" alt="Login icon" class="header__icon header__icon--large">
-            <span class="header__text">{{ $t('nav.login') }}</span>
-          </button>
+              </div>
+            </template>
+            <button v-else class="header__nav-link" @click="toggleLoginModal">
+              <img src="../assets/icons/user.svg" alt="Login icon" class="header__icon header__icon--large">
+              <span class="header__text">{{ $t('nav.login') }}</span>
+            </button>
+          </div>
         </div>
-      </div>
-    </header>
-    <component :is="currentPageComponent" />
-    <LocationModal v-if="modalOpen" @close-modal="toggleModal" />
-    <LoginModal v-if="modalLoginOpen" @close-loginModal="toggleLoginModal" />
-    <UserMenuBurger v-if="isSideMenuOpen" :isRight="!isMyselfRoute" @close-burgerMenu="toggleSideMenu" />
-  </div>
+      </header>
+      <component :is="currentPageComponent" />
+      <LocationModal v-if="modalOpen" @close-modal="toggleModal" />
+      <LoginModal v-if="modalLoginOpen" @close-loginModal="toggleLoginModal" />
+      <UserMenuBurger v-model="isSideMenuOpen" :isRight="!isMyselfRoute" />
+    </div>
+  </client-only>
 </template>
 
 <script setup>

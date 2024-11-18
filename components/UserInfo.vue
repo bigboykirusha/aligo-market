@@ -195,6 +195,7 @@ onMounted(() => {
    }
 
    &__avatar {
+      margin: auto 0;
       margin-right: auto;
 
       img {
@@ -207,6 +208,12 @@ onMounted(() => {
          @media (max-width: 768px) {
             width: 120px;
             height: 120px;
+         }
+
+         @media (max-width: 420px) {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 0;
          }
       }
    }
