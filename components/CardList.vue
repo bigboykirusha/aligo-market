@@ -50,14 +50,13 @@ watch(() => props.ads, (newAds) => {
       grid-template-columns: repeat(5, 1fr);
       gap: 40px;
 
-      @media screen and (max-width: 1200px) {
+      @media screen and (max-width: 1300px) {
          grid-template-columns: repeat(4, 1fr);
       }
 
-      @media screen and (max-width: 1000px) {
+      @media screen and (max-width: 1040px) {
          grid-template-columns: repeat(3, 1fr);
-         column-gap: 34px;
-         row-gap: 40px;
+         gap: 24px;
       }
 
       @media screen and (max-width: 800px) {

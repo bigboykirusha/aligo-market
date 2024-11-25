@@ -351,7 +351,7 @@ const makeCall = () => {
       font-weight: bold;
       font-size: 14px;
       line-height: 129%;
-      color: black;
+      color: #323232;
    }
 
    &__currency {

@@ -12,7 +12,6 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
 import deleteIcon from '../assets/icons/delete.svg';
 import addIcon from '../assets/icons/adddoc.svg';
 import blockIcon from '../assets/icons/block.svg';

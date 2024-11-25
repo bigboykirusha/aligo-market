@@ -1,5 +1,4 @@
 <template>
-   <SliderHead :title="computedTitle" :adsCount="totalItems" :sliderData="sliderData" />
    <div class="container">
       <AutosFilters @updateSort="handleSortUpdate" />
       <div class="wrap">
@@ -124,13 +123,19 @@ onMounted(() => {
    width: 100%;
    padding: 0 16px;
    margin: 0 auto;
+   margin-top: 142px;
    display: flex;
    gap: 60px;
    justify-content: space-between;
 
-   @media screen and (max-width: 1250px) {
+   @media (max-width: 1250px) {
       flex-direction: column;
       gap: 32px;
+      margin-top: 124px;
+   }
+
+   @media(max-width: 768px) {
+      margin-top: 116px;
    }
 }
 

@@ -1,6 +1,6 @@
 <template>
-   <div class="user-menu" ref="userMenuRef">
-      <div class="user-menu__header">
+   <div class="user-menu" :class="{ 'user-menu--compact': compact }" ref="userMenuRef">
+      <div class="user-menu__header" :class="{ 'user-menu__header--compact': compact }">
          <client-only>
             <template v-if="userStore.photo?.path || capitalizedUserName || formattedPhoneNumber">
                <img v-if="userStore.photo?.path" :src="userAvatar" alt="user avatar" class="user-menu__user-avatar" />
@@ -77,6 +77,13 @@ import { useFavoritesStore } from '~/store/favorites';
 import { getImageUrl } from '../services/imageUtils';
 import avatarPhoto from '../assets/icons/avatar-revers.svg';
 
+const props = defineProps({
+   compact: {
+      type: Boolean,
+      default: false,
+   },
+});
+
 const userStore = useUserStore();
 const favoritesStore = useFavoritesStore();
 const userMenuRef = ref(null);
@@ -143,11 +150,14 @@ const logout = () => {
    border: 1px solid #3366FF;
    border-radius: 0 0 4px 4px;
    top: 0;
-   left: -16px;
    display: flex;
    flex-direction: column;
    align-items: center;
    width: 216px;
+
+   &--compact {
+      border-radius: 6px;
+   }
 
    @media screen and (max-width: 1420px) {
       right: -16px;
@@ -167,15 +177,25 @@ const logout = () => {
       align-items: center;
       gap: 10px;
       padding: 8px 16px;
-      background-color: #fff;
+      background-color: transparent;
       border-bottom: 1px solid #EEEEEE;
       width: 100%;
+
+      &--compact {
+         height: 34px;
+         justify-content: flex-start;
+
+         .user-menu__profile-button {
+            display: none;
+         }
+      }
    }
 
    &__block {
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
+      text-align: left;
    }
 
    &__user-circle {

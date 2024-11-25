@@ -27,7 +27,6 @@
             </ul>
           </nav>
           <div v-show="isMyselfRoute && !isDesktop" class="header__images">
-            <img src="../assets/icons/menu.svg" alt="Menu" @click="toggleSideMenu" />
             <img src="../assets/icons/white-logo.svg" alt="Logo">
           </div>
           <nuxt-link to="/createAd" v-show="isMyselfRoute" class="header__actions">
@@ -36,6 +35,8 @@
               <span class="header__text header__text--add">Разместить объявление</span>
             </button>
           </nuxt-link>
+          <img class="header__user-avatar" v-show="isMyselfRoute && !isDesktop" :src="getImageUrl(userStore.photo?.path, avatarPhoto)" alt="Menu"
+            @click="toggleSideMenu" />
           <div v-show="!isMyselfRoute" class="header__actions">
             <template v-if="isLoggedIn">
               <div class="header__user-info">
@@ -75,6 +76,7 @@ import { getImageUrl } from '../services/imageUtils';
 import { useCityStore } from '~/store/city';
 import { useUserStore } from '~/store/user';
 
+
 import HeaderRow from './HeaderRow.vue';
 import HeaderRowNew from './HeaderRowNew.vue';
 import HeaderRowMyself from './HeaderRowMyself.vue';
@@ -112,7 +114,6 @@ const toggleUserMenu = () => {
   }
 };
 
-
 const toggleLoginModal = () => {
   modalLoginOpen.value = !modalLoginOpen.value;
 };
@@ -128,6 +129,10 @@ const translatedCityName = computed(() => cityStore.selectedCity.name);
 const handleScroll = () => {
   const currentScrollTop = window.scrollY || document.documentElement.scrollTop;
   isHeaderHidden.value = currentScrollTop !== 0;
+
+  if (isUserMenuOpen.value) {
+    isUserMenuOpen.value = false;
+  }
 };
 
 const isLoggedIn = computed(() => userStore.isLoggedIn);
@@ -215,6 +220,11 @@ onUnmounted(() => {
 
     &--small {
       height: 56px;
+      gap: 12px;
+
+      .header__nav {
+        display: none;
+      }
     }
   }
 
@@ -225,13 +235,9 @@ onUnmounted(() => {
     &-list {
       display: flex;
       list-style: none;
-      gap: 40px;
+      gap: 24px;
 
-      @media screen and (max-width: 1024px) {
-        gap: 16px;
-      }
-
-      @media screen and (max-width: 480px) {
+      @media (max-width: 768px) {
         gap: 16px;
       }
     }
@@ -339,7 +345,7 @@ onUnmounted(() => {
   &__user-info {
     display: flex;
     height: 44px;
-    gap: 16px;
+    gap: 24px;
     align-items: center;
     cursor: pointer;
   }
@@ -348,7 +354,7 @@ onUnmounted(() => {
     height: 44px;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 24px;
 
     @media (max-width: 768px) {
       display: none;

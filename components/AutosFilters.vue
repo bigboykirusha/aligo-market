@@ -1,6 +1,7 @@
 <template>
    <div class="filters">
-      <div v-if="isMobile" class="filters__toggle" ref="filtersRef">
+      <div v-if="isMobile" class="filters__toggle" :class="{ 'filters__toggle--with-margin': !isWithMargin }"
+         ref="filtersRef">
          <div v-show="!isSecondClicked && !showFilters" class="filters__toggle-item" @click="toggleFirst">
             <SelectSkeleton v-if="loading" />
             <SelectOptionsTemplate v-else :options="switcherConditionOptions" @updateSort="handleConditionUpdate"
@@ -12,7 +13,10 @@
                :initialSelectedOptions="selectedMarkI" placeholder="Марка" :key="marksComponentKey" />
          </div>
          <div v-if="showFilters" class="filters__settings--large">Настройки поиска</div>
-         <div @click="resetFilters" v-if="showFilters" class="filters__settings">Очистить</div>
+         <div @click="resetFilters" v-if="showFilters" class="filters__settings">
+            <img src="../assets/icons/clear.svg" />
+            <span>Очистить</span>
+         </div>
          <div @click="toggleFiltersVisibility" class="filters__settings">
             <img src="../assets/icons/settings.svg" />
             <span v-if="!showFilters">Настройки поиска</span>
@@ -126,6 +130,7 @@ const selectedModel = ref([]);
 const isModelsDropdownDisabled = computed(() => !(filtersStore.selectedMark.length > 0 && filtersStore.selectedMark.length === 1));
 const emit = defineEmits(['updateSort']);
 const isMobile = ref(false);
+const isWithMargin = ref(true);
 
 const isButtonClicked = ref(false);
 
@@ -166,6 +171,11 @@ const handleClickOutside = (event) => {
       isSecondClicked.value = false;
    }
 };
+
+const handleScroll = () => {
+   isWithMargin.value = window.scrollY === 0;
+};
+
 
 if (route.path.includes('autos/new')) {
    filtersStore.setSelectedCondition(1);
@@ -572,6 +582,7 @@ watch(() => filtersStore.powerRange, resetButtonVisibility, { deep: true });
 onMounted(() => {
    fetchOptions();
    document.addEventListener('click', handleClickOutside);
+   window.addEventListener('scroll', handleScroll);
 
    if (window.innerWidth <= 1250) {
       isMobile.value = true;
@@ -596,6 +607,7 @@ watch(isAnyFilterSelected, () => {
 onUnmounted(() => {
    window.removeEventListener('resize', () => { });
    document.removeEventListener('click', handleClickOutside);
+   window.removeEventListener('scroll', handleScroll);
 });
 </script>
 
@@ -630,6 +642,13 @@ onUnmounted(() => {
          color: #3366FF;
          padding: 24px;
 
+         &--with-margin {
+            position: fixed;
+            left: 0;
+            top: 66px;
+            z-index: 20;
+            padding: 12px 24px;
+         }
 
          &-item {
 
@@ -672,8 +691,9 @@ onUnmounted(() => {
             color: #003BCE;
             font-size: 20px;
             font-weight: 700;
+            margin-right: auto;
 
-            @media screen and (max-width: 600px) {
+            @media (max-width: 600px) {
                font-size: 18px;
             }
          }
@@ -682,7 +702,7 @@ onUnmounted(() => {
             font-size: 14px;
             white-space: nowrap;
 
-            @media screen and (max-width: 600px) {
+            @media (max-width: 600px) {
                display: none;
             }
          }
@@ -711,7 +731,15 @@ onUnmounted(() => {
       flex-direction: column;
       margin-bottom: 40px;
 
+      @media (max-width: 1250px) {
+         padding: 0 120px;
+      }
+
       @media (max-width: 768px) {
+         padding: 0 46px;
+      }
+
+      @media (max-width: 480px) {
          padding: 0 16px;
       }
    }

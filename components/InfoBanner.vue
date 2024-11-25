@@ -30,11 +30,13 @@
    &__title {
       margin: 0;
       margin-bottom: 16px;
+      color: #323232;
    }
 
    &__paragraph {
       display: inline-block;
       width: 100%;
+      color: #323232;
       font-size: 14px;
       line-height: 1.29em;
       margin-bottom: 1.29em;
