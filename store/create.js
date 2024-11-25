@@ -186,8 +186,6 @@ export const useCreateStore = defineStore('create', {
    actions: {
       updateStateId() {
          if (this.condition_id === 1) {
-            this.state_id = 1;
-         } else {
             this.state_id = null;
          }
       },
@@ -818,10 +816,11 @@ export const useCreateStore = defineStore('create', {
             this.handlebar_id = carData.auto_technical_specifications?.[0]?.handlebar?.id || null;
 
             // История эксплуатации и состояние 
-            this.mileage = carData.auto_history_conditions?.[0]?.mileage || null;
-            this.owners = carData.auto_history_conditions?.[0]?.count_owners?.id || null;
-            this.state_id = carData.auto_history_conditions?.[0]?.state?.id || null;
-            this.pts = carData.auto_history_conditions?.[0]?.pts?.id || null;
+            this.mileage = carData.auto_history_conditions[0]?.mileage || null;
+            this.owners = carData.auto_history_conditions[0]?.count_owners?.id || null;
+            console.log(carData.auto_history_conditions[0]?.state.id);
+            this.state_id = carData.auto_history_conditions[0]?.state.id;
+            this.pts = carData.auto_history_conditions[0]?.pts?.id || null;
 
             // TO Data
             const maintenanceData = carData.maintenance_data?.[0];

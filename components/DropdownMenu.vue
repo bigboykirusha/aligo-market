@@ -364,7 +364,7 @@ onUnmounted(() => {
       align-items: center;
       justify-content: flex-start;
 
-      padding-bottom: 20px;
+      padding-bottom: 24px;
 
       @media screen and (max-width: 460px) {
          cursor: pointer;
@@ -408,7 +408,7 @@ onUnmounted(() => {
    }
 
    &__detailed-count-total {
-      background: $text-button;
+      background: #D6EFFF;
       border-radius: 12px;
       padding: 3px 10px;
       font-weight: 400;

@@ -1,5 +1,4 @@
 <template>
-  <client-only>
     <div>
       <header :class="{ 'header--hidden': isHeaderHidden }" class="header">
         <div :class="containerClasses">
@@ -66,7 +65,6 @@
       <LoginModal v-if="modalLoginOpen" @close-loginModal="toggleLoginModal" />
       <UserMenuBurger v-model="isSideMenuOpen" :isRight="!isMyselfRoute" />
     </div>
-  </client-only>
 </template>
 
 <script setup>
