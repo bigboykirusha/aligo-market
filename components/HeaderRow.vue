@@ -13,7 +13,7 @@
             <div class="header-row__search-bar">
                <div class="header-row__search">
                   <input type="text" v-model="searchQuery" :placeholder="searchPlaceholder"
-                     class="header-row__search-input" ref="searchInput" />
+                     class="header-row__search-input" @keydown.enter="handleSearch" ref="searchInput" />
                   <img v-if="searchQuery" src="../assets/icons/close-blue.svg" class="clear-icon" alt="Clear Icon"
                      @click="clearSearch" />
                </div>
@@ -33,7 +33,8 @@
                </button>
             </client-only>
             <button v-if="isLoggedIn && !isWithMargin" class="header-row__avatar" @click.stop="toggleUserMenu">
-               <img :src="getImageUrl(userStore.photo?.path, avatarPhoto)" alt="User Avatar" class="header-row__avatar-image" />
+               <img :src="getImageUrl(userStore.photo?.path, avatarPhoto)" alt="User Avatar"
+                  class="header-row__avatar-image" />
                <div class="header-row__small-text">{{ userStore.username || userStore.phoneNumber || userStore.email
                   }}</div>
                <UserMenuPopup v-if="isUserMenuOpen && isDesktop" :compact="true" @close-userMenu="toggleUserMenu" />
@@ -378,7 +379,7 @@ onUnmounted(() => {
       border-radius: 6px 0 0 6px;
 
       &:focus-within {
-         border-color: #003bce;
+         border-color: #3366FF;
 
          @media (max-width: 480px) {
             border-color: #d6d6d6;
@@ -434,5 +435,8 @@ onUnmounted(() => {
 .clear-icon {
    cursor: pointer;
    transition: opacity 0.3s ease;
+   margin-right: 12px;
+   height: 12px;
+   width: 12px;
 }
 </style>

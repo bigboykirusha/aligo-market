@@ -87,8 +87,10 @@ const filtersStore = useFiltersStore();
 
 const loading = ref(true);
 
-watch(() => props.adsMain, (newAds) => {
-   loading.value = !newAds.length;
+watchEffect(() => {
+   loading.value = !props.adsMain.length;
+   console.log(props.adsMain);
+   console.log(loading.value);
 });
 
 const sortOptions = [

@@ -121,7 +121,6 @@ onMounted(() => {
       display: flex;
       align-items: center;
       gap: 16px;
-      padding-top: 40px;
    }
 
    &__block {
