@@ -2,13 +2,15 @@
    <div class="container">
       <AutosFilters @updateSort="handleSortUpdate" />
       <div class="wrap">
-         <CardListWithBanner v-show="adsMain" :showTitle="false" :adsMain="adsMain" :pageSize="count"
-            @updateSort="handleSortUpdate">
+         <CardListWithBanner v-if="adsMain.length > 0" v-show="adsMain" :showTitle="false" :adsMain="adsMain"
+            :pageSize="count" @updateSort="handleSortUpdate">
             <template #banner>
                <AutosBanner />
             </template>
          </CardListWithBanner>
-         <Pagination :totalItems="totalItems" :pageSize="count" :currentPage="currentPage" @changePage="changePage" />
+         <NoResults v-else />
+         <Pagination v-if="adsMain.length > 0" :totalItems="totalItems" :pageSize="count" :currentPage="currentPage"
+            @changePage="changePage" />
       </div>
    </div>
    <div class="wrap2">

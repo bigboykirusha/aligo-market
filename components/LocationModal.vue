@@ -12,15 +12,14 @@
         </div>
         <div class="modal__body">
           <div class="input-wrapper">
+            <button v-if="selectedRegion" class="back-button" @click="clearRegionSelection">
+              <img :src="backIcon" alt="back arrow" />
+            </button>
             <div class="input-text">
               <img class="input-text__icon" src="../assets/icons/ru.svg" alt="flag" />
               <input v-model="searchQuery" type="text" placeholder="Поиск города" class="input-text__input" />
             </div>
-            <button v-if="selectedRegion" class="back-button" @click="clearRegionSelection">
-              <img :src="backIcon" alt="back arrow" />
-            </button>
           </div>
-
           <div v-if="!selectedRegion && searchQuery === ''" class="list-wrapper">
             <ul class="list">
               <li v-for="region in regions" :key="region.id" class="list__item" @click="fetchCitiesForRegion(region)">
@@ -437,6 +436,8 @@ const closeModal = () => {
   margin: 0;
   padding: 0;
   display: grid;
+  column-gap: 16px;
+  padding-right: 8px;
   grid-template-columns: 1fr;
 
   @media (min-width: 768px) {
@@ -447,9 +448,9 @@ const closeModal = () => {
 .list__item {
   padding: 10px;
   font-size: 14px;
-  line-height: 16px;
   cursor: pointer;
   transition: background-color 0.2s;
+  border-radius: 12px;
 
   &:hover {
     background-color: #d6efff;
