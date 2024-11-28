@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  ssr: true,
+  ssr: false,
   app: {
     head: {
       link: [
@@ -32,8 +32,9 @@ export default defineNuxtConfig({
     '~/plugins/vue-the-mask',
     '~/plugins/v-tooltip',
     '~/plugins/user-init',
-    '~/plugins/fetchFavorites',
-    '~/plugins/echo.js',
+    { src: '~/plugins/fetchFavorites', mode: 'client' },
+    { src: '~/plugins/echo.js', mode: 'client' },
+
   ],
   css: ['~/assets/scss/main.scss', '~/assets/scss/_reset.scss'],
   vite: {
