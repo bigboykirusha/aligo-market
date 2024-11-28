@@ -81,3 +81,10 @@ body {
   -webkit-appearance: none;
   margin: 0;
 }
+
+.no-scroll {
+  @media (max-width: 480px) {
+    overflow: hidden;
+    height: 100vh;
+  }
+}

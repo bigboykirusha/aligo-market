@@ -29,12 +29,11 @@ export default defineNuxtConfig({
     '@nuxt/image'
   ],
   plugins: [
-    { src: '~/plugins/vue-the-mask', mode: 'client' },
-    { src: '~/plugins/v-tooltip', mode: 'client' },
-    { src: '~/plugins/user-init', mode: 'client' },
-    { src: '~/plugins/fetchFavorites', mode: 'client' },
-    { src: '~/plugins/echo.js', mode: 'client' },
-
+    '~/plugins/vue-the-mask',
+    '~/plugins/v-tooltip',
+    '~/plugins/user-init',
+    '~/plugins/fetchFavorites',
+    '~/plugins/echo.js',
   ],
   css: ['~/assets/scss/main.scss', '~/assets/scss/_reset.scss'],
   vite: {

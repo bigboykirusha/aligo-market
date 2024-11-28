@@ -219,16 +219,15 @@ onUnmounted(() => {
    max-width: 1360px;
    margin: 0 auto;
    height: 100vh;
-   max-height: 75vh;
-   animation: slide-up 0.2s ease-out;
+   max-height: 0;
+   transition: max-height 0.3s ease, padding 0.3s ease;
 
-   @media screen and (max-width: 460px) {
+   @media (max-width: 460px) {
       max-height: unset;
    }
 
    &--active {
-      transform: translate(0, 0);
-
+      max-height: 75vh;
    }
 
    &__container {
@@ -236,18 +235,19 @@ onUnmounted(() => {
       padding-top: 66px;
       border-radius: 0 0 4px 4px;
       background: $white;
-      height: 100%;
+      max-height: 75vh;
+      height: 100vh;
       width: 100%;
       border: 1px solid $color-block;
       box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
-      transition: $transition-1;
+      transition: max-height 0.3s ease;
 
-      @media screen and (max-width: 1313px) {
+      @media (max-width: 1313px) {
          padding: 60px 16px;
          padding-top: 66px;
       }
 
-      @media screen and (max-width: 460px) {
+      @media (max-width: 460px) {
          padding-top: 66px;
       }
    }
@@ -257,6 +257,8 @@ onUnmounted(() => {
       display: grid;
       grid-template-columns: 212px 1fr;
       gap: 32px;
+      border-top: #D6D6D6 1px solid;
+      padding-top: 8px;
 
       @media screen and (max-width: 460px) {
          grid-template-columns: 1fr;
@@ -289,7 +291,7 @@ onUnmounted(() => {
       border-radius: 4px;
       font-weight: 400;
       font-size: 14px;
-      line-height: 1.3em;
+      height: 40px;
       color: $main-button;
       transition: all 0.1s ease;
       cursor: pointer;
@@ -322,15 +324,15 @@ onUnmounted(() => {
       height: 100%;
       padding-left: 92px;
 
-      @media screen and (max-width: 1200px) {
+      @media (max-width: 1200px) {
          padding-left: 15px;
       }
 
-      @media screen and (max-width: 600px) {
+      @media (max-width: 600px) {
          padding-left: 0;
       }
 
-      @media screen and (max-width: 460px) {
+      @media (max-width: 460px) {
          position: absolute;
          z-index: -1;
          left: 0;
@@ -351,6 +353,7 @@ onUnmounted(() => {
       display: none;
       flex-direction: column;
       height: 100%;
+      padding-top: 12px;
 
       &--active {
          display: flex;
@@ -363,7 +366,6 @@ onUnmounted(() => {
       pointer-events: auto;
       align-items: center;
       justify-content: flex-start;
-
       padding-bottom: 24px;
 
       @media screen and (max-width: 460px) {
@@ -372,8 +374,8 @@ onUnmounted(() => {
 
       .menu-2__back-icon {
          display: none;
-         width: 16px;
-         height: 14px;
+         width: 14px;
+         height: 12px;
          background-image: url(../assets/icons/arrow-back.svg);
          background-size: contain;
          background-repeat: no-repeat;
@@ -391,7 +393,6 @@ onUnmounted(() => {
    &__detailed-title {
       font-weight: 700;
       font-size: 20px;
-      line-height: 1.2em;
       color: $main-text;
       text-decoration: none;
       transition: $transition-1;
@@ -467,7 +468,7 @@ onUnmounted(() => {
    &__detailed-list-item {
       display: inline-block;
       width: 100%;
-      margin-bottom: 16px;
+      margin-bottom: 24px;
 
       &:last-child {
          margin-bottom: 0;
@@ -478,11 +479,10 @@ onUnmounted(() => {
       display: block;
       font-weight: 700;
       font-size: 14px;
-      line-height: 1.32em;
       color: $main-text;
       text-decoration: none;
       transition: $transition-1;
-      margin-bottom: .5em;
+      margin-bottom: 8px;
 
       &:hover {
          color: $main-button;
@@ -491,11 +491,13 @@ onUnmounted(() => {
 
    &__detailed-sublist {
       list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
    }
 
    &__detailed-sublist-item {
       font-size: 14px;
-      line-height: 1.32em;
 
       &--hidden {
          display: none;

@@ -10,7 +10,7 @@
     <Pagination v-if="totalItems > 0" :totalItems="totalItems" :pageSize="pageSize" :currentPage="currentPage"
       @changePage="changePage" />
 
-    <CardList v-if="isLoggedIn && adsHistory.length" :title="title1" :ads="adsHistory.slice(0, 5)" />
+    <!-- <CardList v-if="isLoggedIn && adsHistory.length" :title="title1" :ads="adsHistory.slice(0, 5)" /> -->
 
     <BannerTemplate :content="bannerContent" />
 

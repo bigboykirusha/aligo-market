@@ -8,7 +8,7 @@
       <button v-else class="car-details__wishlist-button" @click="emitToggleLoginModal">
          <img :src="fav" alt="Избранное" class="icon-heart" />
       </button>
-      <span v-if="isLoggedIn && !isScrolled" @click="toggleWishList" class="car-details__wishlist-text">В
+      <span v-if="isLoggedIn" @click="toggleWishList" class="car-details__wishlist-text">В
          избранное</span>
       <span v-else-if="!isScrolled" @click="emitToggleLoginModal" class="car-details__wishlist-text">В
          избранное</span>
@@ -82,21 +82,13 @@ onUnmounted(() => {
       margin-bottom: 0;
    }
 
-   &-mobile {
-      @media screen and (max-width: 768px) {
-         display: none;
-      }
-   }
+   &-mobile {}
 
    &-text {
       color: #3366ff;
       font-size: 14px;
       cursor: pointer;
       line-height: 1;
-
-      @media screen and (max-width: 480px) {
-         display: none;
-      }
    }
 
    &-button {

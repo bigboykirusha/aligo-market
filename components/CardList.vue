@@ -3,13 +3,15 @@
       <h2 class="cards__title">{{ title }}</h2>
       <div class="cards__main">
          <CardSkeleton v-if="loading" v-for="index in 5" :key="index" />
-         <Card v-else v-for="ad in ads" :key="ad.id" :id="ad.id" :description="ad.ads_parameter?.ads_description"
-            :price="ad.ads_parameter?.amount" :place="ad.ads_parameter?.place_inspection || 'Адрес не указан'"
-            :callNumber="ad.ads_parameter?.phone" :messageEmail="ad.ads_parameter?.email"
-            :brand="ad.auto_technical_specifications?.[0]?.brand?.title"
+         <Card v-else v-for="ad in ads" :key="ad.id" :id="ad.id"
+            :description="ad.ads_parameter?.ads_description" :price="ad.ads_parameter?.amount"
+            :place="ad.ads_parameter?.place_inspection || 'Адрес не указан'" :callNumber="ad.ads_parameter?.phone"
+            :messageEmail="ad.ads_parameter?.email" :brand="ad.auto_technical_specifications?.[0]?.brand?.title"
             :model="ad.auto_technical_specifications?.[0]?.model?.title"
-            :year="ad.auto_technical_specifications?.[0]?.year_release?.title" :username="ad.ads_parameter?.username || ad.ads_parameter?.login || 'Имя не указано'" 
-            :is_in_favorites="ad.is_in_favorites" :images="ad.photos" :created_at="ad.created_at" :id_user_owner_ads="ad.id_user_owner_ads"/>
+            :year="ad.auto_technical_specifications?.[0]?.year_release?.title"
+            :username="ad.ads_parameter?.username || ad.ads_parameter?.login || 'Имя не указано'"
+            :is_in_favorites="ad.is_in_favorites" :images="ad.photos" :created_at="ad.created_at"
+            :id_user_owner_ads="ad.id_user_owner_ads" />
       </div>
    </div>
 </template>

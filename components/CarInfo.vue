@@ -14,10 +14,11 @@
 
       <section class="block-section block-section--description">
          <div class="block-section__container">
-            <h2 class="block-section__title">Описание</h2>
-            <div class="block-section__content block-section__content--single-column">
+            <h2 class="block-section__desc">Описание</h2>
+            <div class="block-section__content block-section__content--single-column block-section__desc">
                <p class="block-section__text">{{ car.ads_parameter.ads_description }}</p>
             </div>
+            <Spec />
          </div>
       </section>
       <div class="delimeter"></div>
@@ -43,12 +44,14 @@
                </ul>
             </div>
          </div>
+         <ComplainButton />
       </section>
+
    </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps({
    car: {
@@ -198,7 +201,7 @@ const equipment = computed(() => {
 
    &__title {
       margin: 0;
-      margin-bottom: 32px;
+      margin-bottom: 16px;
    }
 
    &__content {
@@ -220,8 +223,8 @@ const equipment = computed(() => {
       display: inline-block;
       width: 100%;
       font-size: 14px;
-      line-height: 1.29em;
-      margin-bottom: 1.29em;
+      line-height: 18px;
+      margin-bottom: 16px;
 
       word-wrap: break-word;
       overflow-wrap: break-word;
@@ -237,13 +240,16 @@ const equipment = computed(() => {
 
    &__list {
       list-style: none;
-      display: inline-block;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
       width: 100%;
       columns: 2;
       column-gap: 3em;
       font-size: 14px;
-      padding-left: 1.5em;
-      margin-bottom: 1.29em;
+      padding-left: 24px;
+      border-bottom: 1px solid #D6D6D6;
+      padding-bottom: 40px;
 
       @media screen and (max-width: 600px) {
          columns: 1;
@@ -257,8 +263,7 @@ const equipment = computed(() => {
    &__list-item {
       position: relative;
       font-size: 14px;
-      line-height: 1.29em;
-      margin-bottom: 1.29em;
+      line-height: 18px;
 
       &::before {
          position: absolute;

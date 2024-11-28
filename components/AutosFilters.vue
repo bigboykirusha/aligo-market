@@ -1,7 +1,7 @@
 <template>
    <div class="filters">
-      <div v-if="isMobile" class="filters__toggle" :class="{ 'filters__toggle--with-margin': !isWithMargin }"
-         ref="filtersRef">
+      <div v-if="isMobile" class="filters__toggle"
+         :class="{ 'filters__toggle--with-margin': !isWithMargin && showFilters }" ref="filtersRef">
          <div v-show="!isSecondClicked && !showFilters" class="filters__toggle-item" @click="toggleFirst">
             <SelectSkeleton v-if="loading" />
             <SelectOptionsTemplate v-else :options="switcherConditionOptions" @updateSort="handleConditionUpdate"
@@ -631,23 +631,25 @@ onUnmounted(() => {
 
       .filters__toggle {
          display: flex;
+         position: sticky;
+         top: 66px;
          align-items: center;
          justify-content: space-between;
          gap: 24px;
          width: 100%;
+         z-index: 4;
          cursor: pointer;
          font-size: 16px;
          background-color: #EEF9FF;
          box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.15);
          color: #3366FF;
          padding: 24px;
+         transition: width 0.3s ease, padding 0.3s ease, margin 0.3s ease;
 
          &--with-margin {
-            position: fixed;
-            left: 0;
-            top: 66px;
-            z-index: 20;
             padding: 12px 24px;
+            width: 100vw;
+            margin-left: -16px;
          }
 
          &-item {

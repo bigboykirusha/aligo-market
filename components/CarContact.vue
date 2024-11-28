@@ -360,6 +360,7 @@ onBeforeUnmount(() => {
       margin-bottom: 24px;
       padding-right: 42px;
       border-radius: 6px;
+      margin-top: 16px;
       gap: 24px;
 
       @media screen and (max-width: 768px) {

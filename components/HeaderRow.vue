@@ -33,7 +33,7 @@
                </button>
             </client-only>
             <button v-if="isLoggedIn && !isWithMargin" class="header-row__avatar" @click.stop="toggleUserMenu">
-               <img :src="getImageUrl(userStore.photo.path)" alt="User Avatar" class="header-row__avatar-image" />
+               <img :src="getImageUrl(userStore.photo?.path, avatarPhoto)" alt="User Avatar" class="header-row__avatar-image" />
                <div class="header-row__small-text">{{ userStore.username || userStore.phoneNumber || userStore.email
                   }}</div>
                <UserMenuPopup v-if="isUserMenuOpen && isDesktop" :compact="true" @close-userMenu="toggleUserMenu" />
@@ -44,8 +44,8 @@
             </button>
          </div>
       </div>
-      <DropdownMenu v-if="showDropdown" @close="closeCategories" />
-      <LoginModal v-if="modalLoginOpen" @close-loginModal="toggleLoginModal" />
+      <DropdownMenu v-show="showDropdown" @close="closeCategories" />
+      <LoginModal v-show="modalLoginOpen" @close-loginModal="toggleLoginModal" />
       <UserMenuBurger v-model="isSideMenuOpen" :isRight="false" />
    </div>
 </template>
@@ -65,6 +65,7 @@ const searchQuery = ref("");
 const searchInput = ref(null);
 const isUserMenuOpen = ref(false);
 const isDesktop = ref(false);
+import avatarPhoto from '../assets/icons/avatar-revers.svg'
 
 const userStore = useUserStore();
 const cityStore = useCityStore();
@@ -105,14 +106,25 @@ const iconClass = computed(() =>
 
 const toggleCategories = () => {
    showDropdown.value = !showDropdown.value;
+   toggleBodyScroll(showDropdown.value);
 };
 
 const closeCategories = () => {
    showDropdown.value = false;
+   toggleBodyScroll(false);
+};
+
+const toggleBodyScroll = (shouldBlock) => {
+   if (shouldBlock) {
+      document.body.classList.add('no-scroll');
+   } else {
+      document.body.classList.remove('no-scroll');
+   }
 };
 
 const toggleLoginModal = () => {
    modalLoginOpen.value = !modalLoginOpen.value;
+   toggleBodyScroll(modalLoginOpen.value);
 };
 
 const clearSearch = () => {

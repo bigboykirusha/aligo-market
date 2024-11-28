@@ -155,9 +155,6 @@
          <div class="chat-wrapper__message-icons-left">
             <input type="file" @change="handleFileChange" multiple class="chat-wrapper__file-input" />
             <button class="chat-wrapper__message-icon-left" @click="triggerFileInput">
-               <img src="../assets/icons/plus.svg" alt="Upload Photo" />
-            </button>
-            <button class="chat-wrapper__message-icon-left" @click="triggerFileInput">
                <img src="../assets/icons/photo.svg" alt="Upload Photo" />
             </button>
          </div>
