@@ -3,10 +3,10 @@
       <h2 class="cards__title">{{ title }}</h2>
       <div class="cards__main">
          <CardSkeleton v-if="loading" v-for="index in 5" :key="index" />
-         <Card v-else v-for="ad in ads" :key="ad.id" :id="ad.id"
-            :description="ad.ads_parameter?.ads_description" :price="ad.ads_parameter?.amount"
-            :place="ad.ads_parameter?.place_inspection || 'Адрес не указан'" :callNumber="ad.ads_parameter?.phone"
-            :messageEmail="ad.ads_parameter?.email" :brand="ad.auto_technical_specifications?.[0]?.brand?.title"
+         <Card v-else v-for="ad in uniqueAds" :key="ad.id" :id="ad.id" :description="ad.ads_parameter?.ads_description"
+            :price="ad.ads_parameter?.amount" :place="ad.ads_parameter?.place_inspection || 'Адрес не указан'"
+            :callNumber="ad.ads_parameter?.phone" :messageEmail="ad.ads_parameter?.email"
+            :brand="ad.auto_technical_specifications?.[0]?.brand?.title"
             :model="ad.auto_technical_specifications?.[0]?.model?.title"
             :year="ad.auto_technical_specifications?.[0]?.year_release?.title"
             :username="ad.ads_parameter?.username || ad.ads_parameter?.login || 'Имя не указано'"
@@ -17,6 +17,8 @@
 </template>
 
 <script setup>
+import { computed, ref, watchEffect } from 'vue';
+
 const props = defineProps({
    title: {
       type: String,
@@ -30,10 +32,17 @@ const props = defineProps({
 
 const loading = ref(true);
 
-watch(() => props.ads, (newAds) => {
-   loading.value = !newAds.length;
+const uniqueAds = computed(() => {
+   return props.ads.filter(
+      (ad, index, self) => self.findIndex(item => item.id === ad.id) === index
+   );
+});
+
+watchEffect(() => {
+   loading.value = !props.ads.length;
 });
 </script>
+
 
 <style scoped lang="scss">
 .cards {

@@ -118,7 +118,7 @@ const toggleLoginModal = () => {
 
 const updateIsDesktop = () => {
   if (typeof window !== 'undefined') {
-    isDesktop.value = window.innerWidth >= 768;
+    isDesktop.value = window.innerWidth > 768;
   }
 };
 

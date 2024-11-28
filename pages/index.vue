@@ -10,11 +10,11 @@
     <Pagination v-if="totalItems > 0" :totalItems="totalItems" :pageSize="pageSize" :currentPage="currentPage"
       @changePage="changePage" />
 
-    <!-- <CardList v-if="isLoggedIn && adsHistory.length" :title="title1" :ads="adsHistory.slice(0, 5)" /> -->
+    <CardList v-if="adsSimilar.length" :title="title1" :ads="adsSimilar.slice(0, 5)" />
 
     <BannerTemplate :content="bannerContent" />
 
-    <CardList v-if="adsSimilar.length && isLoggedIn" :title="title2" :ads="adsSimilar.slice(0, 5)" />
+    <CardList v-if="adsHistory.length && isLoggedIn" :title="title2" :ads="adsHistory.slice(0, 5)" />
 
     <InfoBanner />
   </div>
@@ -88,7 +88,9 @@ const fetchAdsHistory = async () => {
 
   try {
     const newAdsHistory = await getAdsHistory(cityStore.selectedCity.name);
-    adsHistory.value = newAdsHistory.map(item => item.ads_show);
+    adsHistory.value = newAdsHistory
+      .filter(item => item.ads_show !== null)
+      .map(item => item.ads_show);
   } catch (error) {
     console.error('Ошибка при получении данных: ', error);
   }

@@ -89,8 +89,6 @@ const loading = ref(true);
 
 watchEffect(() => {
    loading.value = !props.adsMain.length;
-   console.log(props.adsMain);
-   console.log(loading.value);
 });
 
 const sortOptions = [

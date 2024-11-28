@@ -5,7 +5,7 @@
          <div class="menu-2__block">
             <ul class="menu-2__list">
                <li v-for="(item, index) in menuItems" :key="index" :data-target="item.target"
-                  @click="toggleDetailedMenu(item.target)" @mouseenter="showDetailedMenu(item.target)"
+                  @click="handleMenuItemClick(item)" @mouseenter="showDetailedMenu(item.target)"
                   :class="['menu-2__list-item', { 'menu-2__list-item--active': activeTarget === item.target }]">
                   <img :src="item.icon" :alt="t(`menu.${item.text}`)" class="menu-2__list-item-icon" />
                   {{ t(`menu.${item.text}`) }}
@@ -52,6 +52,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getCars } from '../services/apiClient.js'
+import { useRouter } from 'vue-router';
 import carIcon from '../assets/icons/car.svg';
 import houseIcon from '../assets/icons/house.svg';
 import peoplesIcon from '../assets/images/svg/peoples.svg';
@@ -66,12 +67,12 @@ const adsCount = ref(0);
 const activeTarget = ref(null);
 const menuRef = ref(null);
 const filtersStore = useFiltersStore();
-
+const router = useRouter();
 
 const emit = defineEmits(['close']);
 
 const menuItems = ref([
-   { target: 'auto', icon: carIcon, text: 'auto' },
+   { target: 'autos', icon: carIcon, text: 'auto' },
    { target: 'realty', icon: houseIcon, text: 'realty' },
    { target: 'job', icon: peoplesIcon, text: 'job' },
    { target: 'service', icon: servicesIcon, text: 'service' },
@@ -80,7 +81,7 @@ const menuItems = ref([
 
 const detailedGroups = ref([
    {
-      target: 'auto',
+      target: 'autos',
       title: 'auto',
       link: '/autos',
       count: adsCount,
@@ -147,8 +148,14 @@ const showDetailedMenu = (target) => {
    activeTarget.value = target;
 };
 
-const hideDetailedMenu = () => {
-   activeTarget.value = null;
+
+const handleMenuItemClick = (item) => {
+   if (window.innerWidth > 480) {
+      router.push(item.target);
+      emit('close');
+   } else {
+      toggleDetailedMenu(item.target);
+   }
 };
 
 const handleScroll = () => {
@@ -249,6 +256,7 @@ onUnmounted(() => {
 
       @media (max-width: 460px) {
          padding-top: 66px;
+         max-height: 100vh;
       }
    }
 

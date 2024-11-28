@@ -56,7 +56,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useUserStore } from '~/store/user';
 import { useCityStore } from '../store/city.js';
 import { useRouter } from 'vue-router';
-import logoMain from '../assets/images/logo.svg';
+import logoMain from '../assets/icons/logo-text.svg';
 import { getImageUrl } from '~/services/imageUtils.js';
 
 const showDropdown = ref(false);
@@ -273,6 +273,7 @@ onUnmounted(() => {
       align-items: flex-start;
       height: 34px;
       margin-right: 24px;
+      outline: none;
       transition: margin-right 0.2s ease-in-out;
 
       @media (max-width: 480px) {

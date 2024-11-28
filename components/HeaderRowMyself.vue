@@ -114,11 +114,18 @@ onUnmounted(() => {
       font-size: 22px;
       line-height: 32px;
       color: #323232;
+      width: 100%;
    }
 
    &__buttons {
       display: flex;
       gap: 24px;
+      width: 100%;
+
+      @media (max-width: 820px) {
+         gap: 0;
+         justify-content: space-between;
+      }
    }
 
    &__button {

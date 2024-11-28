@@ -15,7 +15,7 @@
          </div>
       </div>
       <div class="ads-wrapper">
-         <CardList v-if="adsSimilar.length" :title="title3" :ads="adsSimilar.slice(0, 5)" />
+         <CardList v-if="adsSimilar.length > 0" :title="title3" :ads="adsSimilar.slice(0, 5)" />
          <BannerTemplate :content="bannerContent" />
          <InfoBanner />
       </div>
