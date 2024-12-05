@@ -34,7 +34,8 @@
                      </p>
                      <p class="input-wrapper__description">Мы отправим вам проверочный код для входа в аккаунт</p>
                      <input v-show="isPhoneTab" type="tel" v-model="phoneNumber" class="phone-input"
-                        @keydown.enter="handleEnter" v-mask="'+7 (###) ###-##-##'" ref="phoneInput" />
+                        @keydown.enter="handleEnter" @keydown.backspace="handleBackspace" v-mask="'+7 (###) ###-##-##'"
+                        ref="phoneInput" />
                      <input v-show="!isPhoneTab" type="email" v-model="email" @input="validateEmail" class="phone-input"
                         @keydown.enter="handleEnter" ref="emailInput" />
                      <label v-show="isPhoneTab" class="input-wrapper__telegram-checkbox">
@@ -62,8 +63,9 @@
 
                <div v-if="!showCodeInput" class="modal__footer">
                   <p class="timer-message" v-if="timeLeft > 0">Войти снова можно через {{ formattedTime }}</p>
-                  <button v-show="isBothSaved && !showCodeInput && !(timeLeft > 0)" :disabled="isContactInfoInvalid" class="modal__button"
-                     :class="{ '--disabled': isContactInfoInvalid }" @click.prevent="requestCode" tabindex="0">
+                  <button v-show="isBothSaved && !showCodeInput && !(timeLeft > 0)" :disabled="isContactInfoInvalid"
+                     class="modal__button" :class="{ '--disabled': isContactInfoInvalid }" @click.prevent="requestCode"
+                     tabindex="0">
                      Вход
                   </button>
                   <button v-show="!isBothSaved && !showCodeInput && !(timeLeft > 0)" :disabled="isContactInfoRegInvalid"
@@ -260,6 +262,16 @@ const closeModal = () => {
    clearInterval(timer);
 };
 
+const handleBackspace = () => {
+
+   let value = phoneNumber.value;
+   const lengthBefore = value.length;
+
+   if (['-', '('].includes(value[lengthBefore - 2])) {
+      phoneNumber.value = value.slice(0, lengthBefore - 1); 
+   }
+};
+
 const requestCode = async () => {
    if (isLoading.value) return;
 
@@ -322,7 +334,6 @@ const handleEnterKeydown = (event) => {
       submitForm();
    }
 };
-
 
 const handleEnter = (event) => {
 

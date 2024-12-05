@@ -3,8 +3,8 @@
       <ul class="bottom-toolbar__list">
          <li class="bottom-toolbar__item" v-for="item in menuItems" :key="item.title"
             :class="{ 'bottom-toolbar__item--active': isActive(item.path, item.icon) }">
-            <NuxtLink v-if="(item.icon !== 'catalog') && (item.icon !== 'profile')" :to="item.path"
-               class="bottom-toolbar__link" @click="closeAllMenus">
+            <div v-if="(item.icon !== 'catalog') && (item.icon !== 'profile')" class="bottom-toolbar__link"
+               @click="handleMenuClick(item)">
                <svg v-if="item.icon === 'post'" class="bottom-toolbar__icon"
                   :class="{ 'icon--active': isActive(item.path, item.icon) }" width="22" height="22" viewBox="0 0 22 22"
                   fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -37,7 +37,7 @@
                <div v-if="item.icon === 'favorites' && countFavorites > 0" class="bottom-toolbar__badge">{{
                   countFavorites }}</div>
                <span class="bottom-toolbar__text">{{ item.title }}</span>
-            </NuxtLink>
+            </div>
             <div v-else-if="item.icon === 'catalog'" @click.stop="toggleDropdown" class="bottom-toolbar__link">
                <svg class="bottom-toolbar__icon" :class="{ 'icon--active': isActive(item.path, item.icon) }" width="22"
                   height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -63,17 +63,20 @@
       </ul>
       <DropdownMenu v-show="showDropdown" @close="closeCategories" />
       <UserMenuBurger v-model="showMenu" />
+      <LoginModal v-if="modalLoginOpen" @close-loginModal="toggleLoginModal" />
    </nav>
 </template>
 
 <script setup>
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/store/user';
 
 const route = useRoute();
+const router = useRouter();
 const userStore = useUserStore();
 const { count_new_messages, countFavorites } = storeToRefs(userStore);
+const loggedIn = ref(userStore.isLoggedIn);
 
 const menuItems = [
    { title: 'Каталог', path: '/autos', icon: 'catalog' },
@@ -95,7 +98,7 @@ const isActive = (path, icon) => {
 
 const showDropdown = ref(false);
 const showMenu = ref(false);
-
+const modalLoginOpen = ref(false);
 
 const toggleDropdown = () => {
    showDropdown.value = !showDropdown.value;
@@ -103,8 +106,12 @@ const toggleDropdown = () => {
 };
 
 const toggleMenu = () => {
-   showMenu.value = !showMenu.value;
-   showDropdown.value = false;
+   if (!loggedIn.value) {
+      modalLoginOpen.value = true;
+   } else {
+      showMenu.value = !showMenu.value;
+      showDropdown.value = false;
+   }
 };
 
 const closeCategories = () => {
@@ -114,6 +121,19 @@ const closeCategories = () => {
 const closeAllMenus = () => {
    showDropdown.value = false;
    showMenu.value = false;
+};
+
+const toggleLoginModal = () => {
+   modalLoginOpen.value = !modalLoginOpen.value;
+};
+
+const handleMenuClick = (item) => {
+   if (!loggedIn.value && item.icon !== 'catalog') {
+      modalLoginOpen.value = true;
+   } else {
+      router.push(item.path);
+      closeAllMenus();
+   }
 };
 </script>
 

@@ -13,7 +13,7 @@
       </div>
    </div>
    <div class="wrap2">
-      <CardList v-show="ads.length > 0" :title="title3" :ads="ads" />
+      <CardList v-show="ads.length > 0" :title="title3" :ads="ads" :isLoading="isLoading"/>
       <InfoBanner />
    </div>
 </template>

@@ -10,12 +10,11 @@
     <Pagination v-if="totalItems > getAdsCount()" :totalItems="totalItems" :pageSize="pageSize"
       :currentPage="currentPage" @changePage="changePage" />
 
-    <CardList v-if="adsSimilar.length" :title="title1" :ads="adsSimilar.slice(0, 5)" :isLoading="isLoadingSimilar" />
+    <CardList :title="title1" :ads="adsSimilar.slice(0, 5)" :isLoading="isLoadingSimilar" />
 
     <BannerTemplate :content="bannerContent" />
 
-    <CardList v-if="(adsHistory.length && isLoggedIn)" :title="title2" :ads="adsHistory.slice(0, 5)"
-      :isLoading="isLoadingHistory" />
+    <CardList v-if="isLoggedIn" :title="title2" :ads="adsHistory.slice(0, 5)" :isLoading="isLoadingHistory" />
   </div>
 </template>
 

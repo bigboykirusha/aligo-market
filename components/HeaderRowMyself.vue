@@ -14,20 +14,12 @@
                   <span>Автомобили</span>
                </nuxt-link>
                <nuxt-link to="/realty" class="header-row__button">
-                  <img :src="houseIcon" alt="Недвижимость" />
-                  <span>Недвижимость</span>
+                  <img :src="discIcon" alt="Недвижимость" />
+                  <span>Автотовары</span>
                </nuxt-link>
                <nuxt-link to="/job" class="header-row__button">
-                  <img :src="peoplesIcon" alt="Работа" />
-                  <span>Работа</span>
-               </nuxt-link>
-               <nuxt-link to="/services" class="header-row__button">
-                  <img :src="servicesIcon" alt="Услуги" />
-                  <span>Услуги</span>
-               </nuxt-link>
-               <nuxt-link to="/goods" class="header-row__button">
-                  <img :src="goodsIcon" alt="Товары" />
-                  <span>Товары</span>
+                  <img :src="motoIcon" alt="Работа" />
+                  <span>Мототехника</span>
                </nuxt-link>
             </div>
          </div>
@@ -37,9 +29,9 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import carIcon from '../assets/icons/car.svg';
-import houseIcon from '../assets/icons/house.svg';
-import peoplesIcon from '../assets/images/svg/peoples.svg';
+import carIcon from '../assets/icons/disc.svg';
+import discIcon from '../assets/icons/moto.svg';
+import motoIcon from '../assets/images/svg/peoples.svg';
 import servicesIcon from '../assets/icons/servises.svg';
 import goodsIcon from '../assets/images/svg/goods.svg';
 

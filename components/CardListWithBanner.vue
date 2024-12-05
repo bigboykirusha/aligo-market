@@ -15,14 +15,12 @@
          </div>
       </div>
 
-      <!-- Склетоны при загрузке -->
       <div v-if="isLoading"
          :class="['cards__main', { 'cards__main--four': !showTitle, 'cards__main--list': activeIndex === 1 }]">
          <CardSkeleton v-for="index in 10" :key="index" />
       </div>
 
       <div v-else>
-         <!-- Проверка на наличие данных -->
          <template v-if="!adsMain.length">
             <NoResults />
          </template>
@@ -159,7 +157,7 @@ const mapCardProps = (ad) => ({
          }
       }
 
-      @media screen and (max-width: 500px) {
+      @media screen and (max-width: 480px) {
          grid-template-columns: 1fr;
 
          &--four {

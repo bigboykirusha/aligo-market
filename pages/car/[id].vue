@@ -18,9 +18,8 @@
          </div>
       </div>
       <div class="ads-wrapper">
-         <CardList v-if="adsSimilar.length > 0" :title="title3" :ads="adsSimilar.slice(0, 5)" />
+         <CardList :title="title3" :ads="adsSimilar.slice(0, 5)" :isLoading="isLoading" />
          <BannerTemplate :content="bannerContent" />
-         <InfoBanner />
       </div>
    </div>
 </template>
@@ -52,17 +51,23 @@ const bannerContent = {
    isMoscow: true,
 };
 
-const toolbarProps = {
+const toolbarProps = computed(() => ({
    id: car.value?.id,
    is_published: car.value?.is_published || undefined,
    is_in_archive: car.value?.is_in_archive || undefined,
-   count_go_ad_page: car.value?.statistic_view.count_go_ad_page || undefined,
-   count_add_to_favorite: car.value?.statistic_view.count_add_to_favorite || undefined,
-   count_who_view_seller_contact: car.value?.statistic_view.count_who_view_seller_contact || undefined,
+   count_go_ad_page: car.value?.statistic_view?.count_go_ad_page || undefined,
+   count_add_to_favorite: car.value?.statistic_view?.count_add_to_favorite || undefined,
+   count_who_view_seller_contact: car.value?.statistic_view?.count_who_view_seller_contact || undefined,
    main_id: car.value?.main_id || undefined,
-};
+}));
 
 const isOwner = computed(() => car.value && car.value.id_user_owner_ads === userStore.userId);
+
+const setLoadingWithDelay = () => {
+   setTimeout(() => {
+      isLoading.value = false;
+   }, 1000); 
+};
 
 const fetchCarDetails = async (id) => {
    try {
@@ -71,15 +76,18 @@ const fetchCarDetails = async (id) => {
    } catch (error) {
       console.error('Ошибка при получении данных автомобиля:', error);
    } finally {
-      isLoading.value = false;
+      setLoadingWithDelay(); 
    }
 };
 
 const fetchAdsSimilar = async (city) => {
    try {
+      isLoading.value = true; 
       adsSimilar.value = await getAdsSimilar(city);
    } catch (error) {
       console.error('Ошибка при получении данных: ', error);
+   } finally {
+      setLoadingWithDelay(); 
    }
 };
 

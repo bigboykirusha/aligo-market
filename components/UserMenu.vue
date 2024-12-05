@@ -12,13 +12,13 @@
                <a class="user-menu__user-name">{{ displayName }}</a>
 
                <div v-if="!rating" class="user-menu__rating-text--empty">О вас нет отзывов</div>
-               <div v-else class="user-menu__rating">
+               <nuxt-link to="/myself/reviews" v-else class="user-menu__rating">
                   <div class="user-menu__rating-text">{{ rating }}</div>
                   <NuxtRating :rating-value="Number(rating)" :rating-count="5" :rating-size="10" :rating-spacing="6"
                      :active-color="'#3366FF'" :inactive-color="'#FFFFFF'" :border-color="'#3366FF'" :border-width="2"
                      :rounded-corners="true" :read-only="true" />
                   {{ countReviews }} {{ pluralizeReview(countReviews) }}
-               </div>
+               </nuxt-link>
 
                <nuxt-link to="/myself/editProfile" class="user-menu__profile-button">
                   Управление профилем

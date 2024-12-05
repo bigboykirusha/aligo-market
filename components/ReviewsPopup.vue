@@ -18,7 +18,7 @@
 
          <!-- Рейтинг и количество отзывов -->
          <div class="reviews-popup__rating">
-            <NuxtRating :rating-value="rating" :rating-count="5" :rating-size="24" :rating-spacing="4"
+            <NuxtRating :rating-value="rating" :rating-count="5" :rating-size="28" :rating-spacing="4"
                :active-color="'#3366FF'" :inactive-color="'#FFFFFF'" :border-color="'#3366FF'" :border-width="2"
                :rounded-corners="true" :read-only="true" />
             <div class="reviews-popup__average-rating">
@@ -50,7 +50,7 @@ const closePopup = () => {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .reviews-popup {
    position: fixed;
    top: 0;
@@ -75,7 +75,7 @@ const closePopup = () => {
 .reviews-popup__content {
    position: relative;
    background: white;
-   padding: 20px;
+   padding: 40px;
    border-radius: 8px;
    max-width: 600px;
    width: 100%;
@@ -83,6 +83,13 @@ const closePopup = () => {
    max-height: 80vh;
    display: flex;
    flex-direction: column;
+
+   @media (max-width: 768px) {
+      max-height: calc(100% - 70px);
+      margin-bottom: auto;
+      border-radius: 0;
+      padding: 24px;
+   }
 }
 
 .reviews-popup__close-button {
@@ -124,7 +131,7 @@ const closePopup = () => {
    width: 100%;
    height: 1px;
    background-color: #d6d6d6;
-   margin-top: 8px;
+   margin-top: 16px;
 }
 
 .reviews-popup__rating {
