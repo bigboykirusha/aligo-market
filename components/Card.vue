@@ -1,12 +1,9 @@
 <template>
-   <div :class="['card', { 'card--horizontal': horizontal }]">
+   <div :class="['card', { 'card--horizontal': horizontal }]" @mouseenter="enableAutoplay"
+      @mouseleave="disableAutoplay">
       <nuxt-link :to="`/car/${id}`" class="card__image">
          <Swiper v-if="images.length" :modules="[SwiperAutoplay, SwiperPagination]" :slides-per-view="1"
-            :pagination="{ clickable: true }" :navigation="false" :loop="true" :autoplay="{
-               delay: getRandomDelay(),
-               disableOnInteraction: false,
-               pauseOnMouseEnter: true
-            }">
+            :pagination="{ clickable: true }" :navigation="false" :loop="true" :autoplay="false">>
             <SwiperSlide v-for="(image, index) in images" :key="index">
                <picture v-if="image.path">
                   <source v-if="image.path_webp" :srcset="getImageUrl(image.path_webp)" type="image/webp" />
@@ -126,6 +123,26 @@ function getRandomDelay() {
    return Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
 };
 
+const autoplayEnabled = ref(false);
+const autoplaySettings = computed(() => ({
+   delay: getRandomDelay(),
+   enabled: autoplayEnabled.value
+}));
+
+const enableAutoplay = () => {
+   autoplayEnabled.value = true;
+   console.log('Автоплей включен');
+};
+
+const disableAutoplay = () => {
+   autoplayEnabled.value = false;
+   console.log('Автоплей выключен');
+};
+
+watch(autoplayEnabled, (newVal) => {
+   console.log('Автоплей изменился:', newVal);
+});
+
 function calculateTimeAgo(dateString) {
    const now = new Date();
    const date = new Date(dateString);
@@ -188,6 +205,7 @@ const isWishlisted = computed(() => favoritesStore.items.includes(props.id))
 const userStore = useUserStore();
 const favoritesStore = useFavoritesStore();
 const isLoggedIn = computed(() => userStore.isLoggedIn);
+const userPhotoUrl = ref('');
 
 const toggleWishList = async () => {
    await favoritesStore.toggleFavorite(props.id);
@@ -207,16 +225,26 @@ const productCardAction = (action) => {
 };
 
 const prepareChatData = async () => {
-   const response = await getUser(props.id_user_owner_ads);
+   const userData = await getUser(props.id_user_owner_ads);
+   userPhotoUrl.value = userData.photo?.path;
 
    const chatData = {
-      userInfo: formattedUsername.value,
-      adDetails: `${props.brand} ${props.model}, ${props.year}`,
-      adImageUrl: getImageUrl(props.images[0]?.path || ''),
-      avatarUrl: getImageUrl(response.photo?.path || ''),
+      ads_info: `${props.brand} ${props.model}, ${props.year}`,
+      ads_photo: [{
+         path: props.images[0]?.path,
+      }],
+      for_user: {
+         id: props.id_user_owner_ads,
+         photo: {
+            path: userPhotoUrl.value,
+         },
+         username: formattedUsername.value,
+      },
       ads_id: props.id,
       main_category_id: 1,
-      for_user_id: props.id_user_owner_ads,
+      from_user: {
+         id: null,
+      },
    };
 
    currentChatStore.setCurrentChat(chatData);

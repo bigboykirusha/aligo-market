@@ -1,8 +1,9 @@
 <template>
    <div v-if="reviews.length" class="review-list">
-      <div class="review-list__title">Отзывы пользователя</div>
+      <!-- Если не передан пропс hideTitle или он false, отображаем заголовок -->
+      <div v-if="!hideTitle" class="review-list__title">Отзывы пользователя</div>
       <div class="review-list__cards">
-         <ReviewCard v-for="review in reviews" :key="review.id" :review="review" :hideOptionsButton="true"/>
+         <ReviewCard v-for="review in reviews" :key="review.id" :review="review" :hideOptionsButton="true" />
       </div>
    </div>
 </template>
@@ -15,6 +16,10 @@ const props = defineProps({
    userId: {
       type: String,
       required: true,
+   },
+   hideTitle: {
+      type: Boolean,
+      default: false,
    },
 });
 

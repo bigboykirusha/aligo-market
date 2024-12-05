@@ -1,16 +1,18 @@
 <template>
    <li class="card">
-      <nuxt-link :to="category.href" class="card__cover">
-         <img :src="category.imgSrc" :alt="category.imgAlt" class="card__cover-img" loading="lazy" />
-         <img :src="category.icon" alt="" class="card__icon">
-         <span class="card__title">{{ category.title }}</span>
+      <nuxt-link :to="category.href" class="card__cover" :style="{ backgroundImage: 'url(' + category.imgSrc + ')' }">
+         <div class="card__content">
+            <div class="card__text">
+               <span class="card__title">{{ category.title }}</span>
+               <ul class="card__list">
+                  <li @click="handleClick(subcategory)" v-for="(subcategory, index) in category.subcategories"
+                     :key="index" class="card__list-item">
+                     <nuxt-link :to="subcategory.href" class="card__list-item-link">{{ subcategory.title }}</nuxt-link>
+                  </li>
+               </ul>
+            </div>
+         </div>
       </nuxt-link>
-      <ul class="card__list">
-         <li @click="handleClick(subcategory.title)" v-for="(subcategory, index) in category.subcategories" :key="index"
-            class="card__list-item">
-            <nuxt-link :to="subcategory.href" class="card__list-item-link">{{ subcategory.title }}</nuxt-link>
-         </li>
-      </ul>
    </li>
 </template>
 
@@ -25,14 +27,16 @@ const props = defineProps({
    }
 });
 
-const handleClick = (title) => {
-   if (title === 'Авто с пробегом') {
+// Обработка клика по подкатегориям
+const handleClick = (subcategory) => {
+   if (subcategory.title === 'Подержанные авто') {
       handleUsedClick();
-   } else if (title === 'Новое авто') {
+   } else if (subcategory.title === 'Новые авто') {
       handleNewClick();
    }
 };
 
+// Функции для обработки выбора
 const handleUsedClick = () => {
    console.log('Выбран б/у автомобиль');
    filtersStore.setSelectedCondition(2);
@@ -48,78 +52,66 @@ const handleNewClick = () => {
 .card {
    display: flex;
    flex-direction: column;
-   gap: 7px;
+   gap: 15px;
+   width: 100%;
 
    &__cover {
-      position: relative;
+      display: flex;
+      justify-content: space-between;
       width: 100%;
-      padding-bottom: 31%;
-      background: #D6EFFF;
+      background-color: #D6EFFF;
       border-radius: 6px;
+      padding: 16px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: 100% 100%;
       overflow: hidden;
-      text-decoration: none;
       transition: opacity 0.3s;
+      text-decoration: none;
+      height: 100px;
 
       &:hover {
          opacity: 0.7;
       }
 
-      @media (max-width: 850px) {
-         display: flex;
-         align-items: center;
-         gap: 6px;
-         padding: 8px 6px 8px 11px;
+      @media (max-width: 991px) {
+         flex-direction: column;
+         height: 170px;
+         background-size: 90%;
+      }
+
+      @media (max-width: 600px) {
+         flex-direction: column;
+         height: 100px;
+         padding: 12px 16px;
+         background-size: 50%;
       }
    }
 
-   &__cover-img {
-      position: absolute;
-      top: 0;
-      right: -20px;
+   &__content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       width: 100%;
-      height: 100%;
-      object-fit: contain;
-
-      @media (max-width: 850px) {
-         display: none;
-      }
+      z-index: 1;
    }
 
-   &__icon {
-      display: none;
-
-      @media (max-width: 850px) {
-         display: block;
-         width: 18px;
-         height: 18px;
-      }
-
-      @media (max-width: 330px) {
-         width: 14px;
-         height: 14px;
-      }
+   &__text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 8px;
+      flex: 1;
    }
 
    &__title {
-      position: absolute;
-      top: 10px;
-      left: 12px;
       font-weight: 700;
       font-size: 16px;
-      color: #007BFF;
+      color: #3366FF;
       text-decoration: none;
-      overflow: hidden;
-      text-overflow: ellipsis;
 
-      @media (max-width: 850px) {
-         position: static;
-         font-weight: 400;
+      @media (max-width: 600px) {
          font-size: 14px;
-         width: 100%;
-      }
-
-      @media (max-width: 330px) {
-         font-size: 13px;
       }
    }
 
@@ -130,25 +122,14 @@ const handleNewClick = () => {
    }
 
    &__list-item {
-      margin-bottom: 1px;
-
-      &:last-child {
-         margin-bottom: 0;
-      }
-
-      @media (max-width: 600px) {
-         &:nth-child(3) {
-            display: none;
-         }
-      }
+      margin-bottom: 4px;
    }
 
    &__list-item-link {
       font-size: 14px;
-      color: #007BFF;
+      color: #3366FF;
       text-decoration: none;
       transition: opacity 0.3s;
-      text-overflow: ellipsis;
 
       &:hover {
          opacity: 0.7;

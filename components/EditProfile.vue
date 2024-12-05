@@ -1,207 +1,176 @@
 <template>
    <div class="edit-profile">
-      <client-only>
-         <div class="edit-profile__title">
-            Управление профилем
-         </div>
-         <div class="edit-profile__subtitle">Личные данные</div>
-         <div class="edit-profile__form-container">
-            <form ref="profileForm" @submit.prevent class="edit-profile__form">
+      <div class="edit-profile__title">
+         Управление профилем
+      </div>
+      <div class="edit-profile__subtitle">Личные данные</div>
+      <div class="edit-profile__form-container">
+         <form ref="profileForm" @submit.prevent class="edit-profile__form">
 
-               <!-- Поле код -->
-               <div class="simple-input">
-                  <label class="simple-input__label">Номер профиля</label>
-                  <div class="simple-input__wrapper">
-                     <div class="simple-input__text">{{ profile.uniqueCode }}</div>
-                  </div>
+            <!-- Поле код -->
+            <div class="simple-input">
+               <label class="simple-input__label">Номер профиля</label>
+               <div class="simple-input__wrapper">
+                  <div class="simple-input__text">{{ profile.uniqueCode }}</div>
                </div>
+            </div>
 
-               <!-- Поле Username -->
-               <div class="simple-input">
-                  <label class="simple-input__label">Имя</label>
-                  <div class="simple-input__wrapper">
-                     <div class="simple-input__block">
-                        <input v-if="editMode.username" id="username" v-model="profile.username" type="text"
-                           class="simple-input__field" placeholder="Введите имя пользователя"
-                           @input="markAsChanged('username')" />
-                        <div v-else class="simple-input__text">{{ profile.username }}</div>
-                        <div v-if="editMode.username" class="edit-input-actions">
-                           <button @click="saveField('username')" class="edit-input-actions__save-button">Сохранить
-                              изменения</button>
-                           <button @click="cancelEdit('username')"
-                              class="edit-input-actions__cancel-button">Отмена</button>
-                        </div>
-                        <div v-if="!profile.username && !editMode.username" class="simple-input__text">
-                           <button type="button" class="edit-button" @click="toggleEditMode('username')">
-                              <img src="../assets/icons/plus.svg" alt="wqdqdw">
-                              Добавить
-                           </button>
-                        </div>
-                     </div>
-                     <button v-if="!editMode.username && profile.username" type="button" class="edit-button"
-                        @click="toggleEditMode('username')">
-                        <img src="../assets/icons/edit.svg" alt="Edit" class="edit-button__icon" /> Изменить
-                     </button>
-                  </div>
-
-               </div>
-
-               <!-- Поле Логин -->
-               <div class="simple-input">
-                  <label class="simple-input__label">Логин</label>
-                  <div class="simple-input__wrapper">
-                     <div class="simple-input__block">
-                        <input v-if="editMode.login" id="login" v-model="profile.login" type="text"
-                           class="simple-input__field" placeholder="Введите логин" @input="markAsChanged('login')" />
-                        <div v-else class="simple-input__text">{{ profile.login }}</div>
-                        <div v-if="editMode.login" class="edit-input-actions">
-                           <button @click="saveField('login')" class="edit-input-actions__save-button">Сохранить
-                              изменения</button>
-                           <button @click="cancelEdit('login')"
-                              class="edit-input-actions__cancel-button">Отмена</button>
-                        </div>
-                        <div v-if="!profile.login && !editMode.login" class="simple-input__text">
-                           <button type="button" class="edit-button" @click="toggleEditMode('login')">
-                              <img src="../assets/icons/plus.svg" alt="wqdqdw">
-                              Добавить
-                           </button>
-                        </div>
-                     </div>
-                     <button v-if="!editMode.login && profile.login" type="button" class="edit-button"
-                        @click="toggleEditMode('login')">
-                        <img src="../assets/icons/edit.svg" alt="Edit" class="edit-button__icon" /> Изменить
-                     </button>
-                  </div>
-               </div>
-
-               <!-- Поле Телефон -->
-               <div class="simple-input simple-input--phone">
-                  <label class="simple-input__label simple-input__label--phone">Телефон</label>
-                  <div v-if="!(!profile.phone && !editMode.phone)" class="simple-input__wrapper simple-input__wrapper--phone">
-                     <div class="simple-input__block simple-input__block--phone">
-                        <input v-mask="'+7 (###) ###-##-##'" v-if="editMode.phone" id="phone" v-model="profile.phone"
-                           type="text" class="simple-input__field" placeholder="Введите телефон" maxlength="18"
-                           @input="markAsChanged('phone')" />
-                        <div v-else class="simple-input__text">{{ profile.phone }} <div
-                              class="simple-input__description">При изменение номера потребуется подтверждение через SMS
-                              - код.</div>
-                        </div>
-
-                        <button v-if="!editMode.phone && profile.phone" type="button"
-                           class="edit-button edit-button--phone" @click="toggleEditMode('phone')">
-                           <img src="../assets/icons/edit.svg" alt="Edit" class="edit-button__icon" /> Изменить
-                        </button>
-                     </div>
-                     <div v-if="editMode.phone" class="edit-input-actions">
-                        <button @click="saveField('phone')" class="edit-input-actions__save-button">Сохранить
+            <!-- Поле Username -->
+            <div class="simple-input">
+               <label class="simple-input__label">Имя</label>
+               <div class="simple-input__wrapper">
+                  <div class="simple-input__block">
+                     <input v-if="editMode.username" id="username" v-model="profile.username" type="text"
+                        class="simple-input__field" placeholder="Введите имя пользователя"
+                        @input="markAsChanged('username')" />
+                     <div v-else class="simple-input__text">{{ profile.username }}</div>
+                     <div v-if="editMode.username" class="edit-input-actions">
+                        <button @click="saveField('username')" class="edit-input-actions__save-button">Сохранить
                            изменения</button>
-                        <button @click="cancelEdit('phone')" class="edit-input-actions__cancel-button">Отмена</button>
+                        <button @click="cancelEdit('username')"
+                           class="edit-input-actions__cancel-button">Отмена</button>
                      </div>
-                     <div v-if="codeInputVisible" class="simple-input__code-block">
-                        <input id="code" v-model="code" type="text" class="simple-input__field"
-                           placeholder="Введите код" maxlength="6" />
-                        <div class="simple-input__description">Введите код, отправленный на новый номер телефона.</div>
-                        <div class="edit-input-actions">
-                           <button @click="submitCode" class="edit-input-actions__save-button">Отправить</button>
-                           <button @click="cancelCode" class="edit-input-actions__cancel-button">Отмена</button>
-                        </div>
-                     </div>
-                  </div>
-                  <div v-if="!profile.phone && !editMode.phone" class="simple-input__text simple-input__text--btn">
-                     <button type="button" class="edit-button" @click="toggleEditMode('phone')">
-                        <img src="../assets/icons/plus.svg" alt="wqdqdw">
-                        Добавить
-                     </button>
-                  </div>
-               </div>
-
-               <!-- Поле Email -->
-               <div class="simple-input simple-input--phone">
-                  <label class="simple-input__label simple-input__label--phone">Почта</label>
-                  <div v-if="!(!profile.email && !editMode.email)"
-                     class="simple-input__wrapper simple-input__wrapper--phone">
-                     <div class="simple-input__block simple-input__block--phone">
-                        <input v-if="editMode.email" id="email" v-model="profile.email" type="email"
-                           class="simple-input__field" placeholder="Введите email" @input="markAsChanged('email')" />
-                        <div v-else class="simple-input__text">{{ profile.email
-                           }} <div class="simple-input__description">При изменение почты потребуется подтверждение через
-                              код.
-                           </div>
-                        </div>
-                        <button v-if="!editMode.email && profile.email" type="button"
-                           class="edit-button edit-button--phone" @click="toggleEditMode('email')">
-                           <img src="../assets/icons/edit.svg" alt="Edit" class="edit-button__icon" /> Изменить
+                     <div v-if="!profile.username && !editMode.username" class="simple-input__text">
+                        <button type="button" class="edit-button" @click="toggleEditMode('username')">
+                           <img src="../assets/icons/plus.svg" alt="wqdqdw">
+                           Добавить
                         </button>
                      </div>
-                     <div v-if="editMode.email" class="edit-input-actions">
-                        <button @click="saveField('email')" class="edit-input-actions__save-button">Сохранить</button>
-                        <button @click="cancelEdit('email')" class="edit-input-actions__cancel-button">Отмена</button>
-                     </div>
-                     <div v-if="emailCodeInputVisible" class="simple-input__code-block">
-                        <input id="emailCode" v-model="emailCode" type="text" class="simple-input__field"
-                           placeholder="Введите код" maxlength="6" />
-                        <div class="simple-input__description">Введите код, отправленный на новый email.</div>
-                        <div class="edit-input-actions">
-                           <button @click="submitEmailCode" class="edit-input-actions__save-button">Отправить</button>
-                           <button @click="cancelEmailCode" class="edit-input-actions__cancel-button">Отмена</button>
-                        </div>
-                     </div>
                   </div>
-                  <div v-if="!profile.email && !editMode.email" class="simple-input__text simple-input__text--btn">
-                     <button type="button" class="edit-button" @click="toggleEditMode('email')">
-                        <img src="../assets/icons/plus.svg" alt="wqdqdw">
-                        Добавить
-                     </button>
-                  </div>
+                  <button v-if="!editMode.username && profile.username" type="button" class="edit-button"
+                     @click="toggleEditMode('username')">
+                     <img src="../assets/icons/edit.svg" alt="Edit" class="edit-button__icon" /> Изменить
+                  </button>
                </div>
+            </div>
 
-               <!-- Поле Адрес -->
-               <div class="simple-input">
-                  <label class="simple-input__label">Адрес</label>
-                  <div class="simple-input__wrapper">
-                     <div class="simple-input__block">
-                        <input v-if="editMode.address" type="text"
-                           class="simple-input__field simple-input__field--address" :placeholder="'Введите адрес'"
-                           v-model="addressInputValue" @input="handleAddressInput"
-                           @keydown.enter.prevent="handleEnterKey" />
-                        <div v-else class="simple-input__text">{{ profile.address }}</div>
-                        <div v-if="!profile.address && !editMode.address" class="simple-input__text">
-                           <button type="button" class="edit-button " @click="toggleEditMode('address')">
-                              <img src="../assets/icons/plus.svg" alt="wqdqdw">
-                              Добавить
-                           </button>
+            <div class="simple-input simple-input--phone">
+               <label class="simple-input__label simple-input__label--phone">Телефон</label>
+               <div v-if="!(!profile.phone && !editMode.phone)"
+                  class="simple-input__wrapper simple-input__wrapper--phone">
+                  <div class="simple-input__block simple-input__block--phone">
+                     <input v-mask="'+7 (###) ###-##-##'" v-if="editMode.phone" id="phone" v-model="profile.phone"
+                        type="text" class="simple-input__field" placeholder="Введите телефон" maxlength="18"
+                        @input="markAsChanged('phone')" />
+                     <div v-else class="simple-input__text">{{ profile.phone }}
+                        <div v-if="!codeInputVisible" class="simple-input__description">
+                           При изменение номера потребуется подтверждение через SMS - код.
                         </div>
-                        <div v-if="editMode.address" class="edit-input-actions">
-                           <button @click="saveField('address')"
-                              class="edit-input-actions__save-button">Сохранить</button>
-                           <button @click="cancelEdit('address')"
-                              class="edit-input-actions__cancel-button">Отмена</button>
+                        <div v-if="codeInputVisible" class="simple-input__description">
+                           Введите код, отправленный на новый номер телефона.
                         </div>
-                        <ul v-if="suggestions.length > 0" class="address-suggestions">
-                           <li v-for="suggestion in suggestions" :key="suggestion.id"
-                              @click="selectAddressSuggestion(suggestion)">
-                              {{ suggestion.fullAddress }}
-                           </li>
-                        </ul>
                      </div>
-                     <button v-if="!editMode.address && profile.address" type="button" class="edit-button"
-                        @click="toggleEditMode('address')">
+
+                     <button v-if="!editMode.phone && profile.phone && !codeInputVisible" type="button"
+                        class="edit-button edit-button--phone" @click="toggleEditMode('phone')">
                         <img src="../assets/icons/edit.svg" alt="Edit" class="edit-button__icon" /> Изменить
                      </button>
                   </div>
-               </div>
-
-               <!-- Поле Дата регистрации -->
-               <div class="simple-input">
-                  <label class="simple-input__label">Дата регистрации</label>
-                  <div class="simple-input__wrapper">
-                     <div class="simple-input__text">{{ formattedDate }}</div>
+                  <div v-if="editMode.phone" class="edit-input-actions">
+                     <button @click="saveField('phone')" class="edit-input-actions__save-button">Сохранить
+                        изменения</button>
+                     <button @click="cancelEdit('phone')" class="edit-input-actions__cancel-button">Отмена</button>
+                  </div>
+                  <div v-if="codeInputVisible" class="simple-input__code-block">
+                     <VueOtpInput input-classes="otp-input" inputType="numeric" :num-inputs="6" v-model:value="code"
+                        :should-auto-focus="true" @on-complete="submitCode" />
+                     <div class="edit-input-actions">
+                        <button @click="submitCode" class="edit-input-actions__save-button">Отправить</button>
+                        <button @click="cancelCode" class="edit-input-actions__cancel-button">Отмена</button>
+                     </div>
                   </div>
                </div>
+               <div v-if="!profile.phone && !editMode.phone" class="simple-input__text simple-input__text--btn">
+                  <button type="button" class="edit-button" @click="toggleEditMode('phone')">
+                     <img src="../assets/icons/plus.svg" alt="wqdqdw">
+                     Добавить
+                  </button>
+               </div>
+            </div>
 
-            </form>
-         </div>
-      </client-only>
+            <!-- Поле Email -->
+            <div class="simple-input simple-input--phone">
+               <label class="simple-input__label simple-input__label--phone">Почта</label>
+               <div v-if="!(!profile.email && !editMode.email)"
+                  class="simple-input__wrapper simple-input__wrapper--phone">
+                  <div class="simple-input__block simple-input__block--phone">
+                     <input v-if="editMode.email" id="email" v-model="profile.email" type="email"
+                        class="simple-input__field" placeholder="Введите email" @input="markAsChanged('email')" />
+                     <div v-else class="simple-input__text">{{ profile.email }}
+                        <div class="simple-input__description">При изменение почты потребуется подтверждение через код.
+                        </div>
+                     </div>
+                     <button v-if="!editMode.email && profile.email" type="button"
+                        class="edit-button edit-button--phone" @click="toggleEditMode('email')">
+                        <img src="../assets/icons/edit.svg" alt="Edit" class="edit-button__icon" /> Изменить
+                     </button>
+                  </div>
+                  <div v-if="editMode.email" class="edit-input-actions">
+                     <button @click="saveField('email')" class="edit-input-actions__save-button">Сохранить</button>
+                     <button @click="cancelEdit('email')" class="edit-input-actions__cancel-button">Отмена</button>
+                  </div>
+                  <div v-if="emailCodeInputVisible" class="simple-input__code-block">
+                     <!-- Используем VueOtpInput для email -->
+                     <VueOtpInput input-classes="otp-input" inputType="numeric" :num-inputs="6"
+                        v-model:value="emailCode" :should-auto-focus="true" @on-complete="submitEmailCode" />
+                     <div class="simple-input__description">Введите код, отправленный на новый email.</div>
+                     <div class="edit-input-actions">
+                        <button @click="submitEmailCode" class="edit-input-actions__save-button">Отправить</button>
+                        <button @click="cancelEmailCode" class="edit-input-actions__cancel-button">Отмена</button>
+                     </div>
+                  </div>
+               </div>
+               <div v-if="!profile.email && !editMode.email" class="simple-input__text simple-input__text--btn">
+                  <button type="button" class="edit-button" @click="toggleEditMode('email')">
+                     <img src="../assets/icons/plus.svg" alt="wqdqdw">
+                     Добавить
+                  </button>
+               </div>
+            </div>
+
+            <!-- Поле Адрес -->
+            <div class="simple-input">
+               <label class="simple-input__label">Адрес</label>
+               <div class="simple-input__wrapper">
+                  <div class="simple-input__block">
+                     <input v-if="editMode.address" type="text" class="simple-input__field simple-input__field--address"
+                        :placeholder="'Введите адрес'" v-model="addressInputValue" @input="handleAddressInput"
+                        @keydown.enter.prevent="handleEnterKey" />
+                     <div v-else class="simple-input__text">{{ profile.address }}</div>
+                     <div v-if="!profile.address && !editMode.address" class="simple-input__text">
+                        <button type="button" class="edit-button " @click="toggleEditMode('address')">
+                           <img src="../assets/icons/plus.svg" alt="wqdqdw">
+                           Добавить
+                        </button>
+                     </div>
+                     <div v-if="editMode.address" class="edit-input-actions">
+                        <button @click="saveField('address')" class="edit-input-actions__save-button">Сохранить</button>
+                        <button @click="cancelEdit('address')" class="edit-input-actions__cancel-button">Отмена</button>
+                     </div>
+                     <ul v-if="suggestions.length > 0" class="address-suggestions">
+                        <li v-for="suggestion in suggestions" :key="suggestion.id"
+                           @click="selectAddressSuggestion(suggestion)">
+                           {{ suggestion.fullAddress }}
+                        </li>
+                     </ul>
+                  </div>
+                  <button v-if="!editMode.address && profile.address" type="button" class="edit-button"
+                     @click="toggleEditMode('address')">
+                     <img src="../assets/icons/edit.svg" alt="Edit" class="edit-button__icon" /> Изменить
+                  </button>
+               </div>
+            </div>
+
+            <!-- Поле Дата регистрации -->
+            <div class="simple-input">
+               <label class="simple-input__label">Дата регистрации</label>
+               <div class="simple-input__wrapper">
+                  <div class="simple-input__text">{{ formattedDate }}</div>
+               </div>
+            </div>
+
+         </form>
+      </div>
    </div>
 </template>
 
@@ -211,12 +180,13 @@ import { useUserStore } from '../store/user';
 import { debounce } from 'lodash-es';
 import { fetchSuggestions } from '~/services/apiLocation';
 import { confirmCode } from '~/services/apiClient';
+import { validateEmail, validatePhoneNumber, validateUsername } from '~/services/validation';
+import VueOtpInput from 'vue3-otp-input';
 
 const userStore = useUserStore();
 const profile = ref({
    createdAt: userStore.createdAt,
    username: userStore.username,
-   login: userStore.login,
    email: userStore.email,
    phone: userStore.phoneNumber,
    uniqueCode: userStore.uniqueCode,
@@ -230,7 +200,6 @@ const changedFields = ref({});
 const editMode = ref({
    address: false,
    username: false,
-   login: false,
    email: false,
    phone: false,
 });
@@ -268,7 +237,7 @@ const cancelEmailCode = () => {
 const submitCode = async () => {
    try {
       const formattedPhone = profile.value.phone.replace(/[^\d+]/g, '');
-      
+
       await confirmCode({ phone: formattedPhone, code: code.value });
       codeInputVisible.value = false;
       code.value = '';
@@ -348,36 +317,66 @@ const toggleEditMode = (field) => {
 
 const saveField = async (field) => {
    if (editMode.value[field]) {
-      if (field === 'phone') {
-         codeInputVisible.value = true;
-         await handleSubmit();
-      } else if (field === 'email') {
-         emailCodeInputVisible.value = true;
-         await handleSubmit();
-      } else {
-         await handleSubmit();
+      let isValid = true;
+      let originalValue = profile.value[field];
+
+      if (field === 'username' && !validateUsername(profile.value.username)) {
+         isValid = false;
+         alert('Имя должно быть латиницей или кириллицей, без использования обоих алфавитов одновременно, с возможностью использования одного пробела или тире.');
+      } else if (field === 'email' && !validateEmail(profile.value.email)) {
+         isValid = false;
+         alert('Пожалуйста, введите корректный email.');
+      } else if (field === 'phone' && (!profile.value.phone || !validatePhoneNumber(profile.value.phone.replace(/[^\d+]/g, '')))) {
+         isValid = false;
+         alert('Пожалуйста, введите корректный номер телефона.');
       }
+
+      if (!isValid) {
+         profile.value[field] = originalValue;
+         return;
+      }
+
+      if (editMode.value[field]) {
+         if (field === 'phone') {
+            codeInputVisible.value = true;
+            await handleSubmit();
+         } else if (field === 'email') {
+            emailCodeInputVisible.value = true;
+            await handleSubmit();
+         } else {
+            await handleSubmit();
+         }
+      }
+      editMode.value[field] = false;
    }
-   editMode.value[field] = false;
 };
 
 const cancelEdit = (field) => {
+   if (field === 'phone') {
+      profile.value[field] = userStore.phoneNumber;
+   } else {
+      profile.value[field] = userStore[field];
+   }
+
    editMode.value[field] = false;
    codeInputVisible.value = false;
    code.value = '';
+   console.log(profile.value[field]);
 };
 
 const handleSubmit = async () => {
    try {
       if (Object.keys(changedFields.value).length > 0) {
-         await userStore.updateProfile(changedFields.value);
+         const response = await userStore.updateProfile(changedFields.value);
          Object.keys(editMode.value).forEach((key) => {
             editMode.value[key] = false;
          });
          changedFields.value = {};
+         return { success: true, data: response.data };
       }
    } catch (error) {
       console.error('Ошибка при обновлении профиля', error);
+      return { error: true, message: error.message || 'Произошла ошибка при обновлении профиля' };
    }
 };
 </script>
@@ -558,7 +557,7 @@ const handleSubmit = async () => {
 
       &__description {
          font-size: 14px;
-         color: #3366FF;
+         color: #777777;
          margin-top: 8px;
       }
 
@@ -608,7 +607,7 @@ const handleSubmit = async () => {
          justify-content: center;
          align-items: center;
          height: 34px;
-         width: 100%;
+         min-width: 180px;
          background-color: #D6EFFF;
          color: #3366FF;
          border: none;

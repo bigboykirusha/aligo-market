@@ -19,9 +19,6 @@
             <img src="../assets/icons/delete.svg" alt="delete" />
             <span>Удалить</span>
          </button>
-         <button class="messages__action-button">
-            <img src="../assets/icons/options.svg" alt="delete" />
-         </button>
       </div>
       <div class="messages__content">
          <div>
@@ -601,9 +598,6 @@ onBeforeUnmount(() => {
       display: flex;
       flex-direction: column;
       gap: 16px;
-      height: auto;
-      max-height: calc(100vh - 350px);
-      overflow-y: auto;
    }
 
    &__title {
@@ -614,10 +608,6 @@ onBeforeUnmount(() => {
       display: flex;
       justify-content: space-between;
       align-items: center;
-
-      @media screen and (max-width: 768px) {
-         margin-top: 8px;
-      }
    }
 
    &__actions {
@@ -740,15 +730,8 @@ onBeforeUnmount(() => {
       text-wrap: wrap;
       max-width: 100%;
       gap: 16px;
-      height: 100%;
-      max-height: calc(100vh - 350px);
       overflow-y: auto;
       padding: 2px 0;
-      padding-right: 16px;
-
-      @media screen and (max-width: 480px) {
-         max-height: calc(100vh - 320px);
-      }
    }
 
    &__placeholder {
@@ -777,8 +760,6 @@ onBeforeUnmount(() => {
 }
 
 .chat-wrapper {
-   max-height: calc(100vh - 350px);
-   height: 100vh;
    display: flex;
    border-radius: 4px 4px 0 0;
    flex-direction: column;
@@ -794,11 +775,11 @@ onBeforeUnmount(() => {
 
       @media (max-width: 768px) {
          position: absolute;
-         z-index: 13;
+         z-index: 20000;
          top: 0;
          left: 0;
          max-height: none;
-         height: 100vh;
+         height: 100%;
          width: 100%;
       }
    }
@@ -1048,7 +1029,7 @@ onBeforeUnmount(() => {
    position: relative;
    z-index: 10002;
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       padding: 16px;
    }
 

@@ -11,6 +11,12 @@
             validationType="url" @update:option="handleVideoUpdate" />
       </div>
       <div class="characteristics__content">
+         <BlockTitle text="Категория" />
+         <SwitcherCreateSkeleton v-if="loading" />
+         <AutosSwitcherCreate v-else :options="conditionIdOptions" label="Категория"
+            @updateSelected="handleConditionIdUpdate" :activeIndex="createStore.condition_id" />
+      </div>
+      <div class="characteristics__content">
          <BlockTitle text="Регистрационные данные" />
          <AutosSelectCreateSkeleton v-if="loading" />
          <AutosSelectCreate v-else label="Страна регистрации*" :initialSelectedOption="createStore.country_id"
@@ -87,7 +93,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useCreateStore } from '../store/create';
-import { getCarsPts, getCarBrands, getCarModels, getCarTransmission, getCarBodyType, getCarEngineType, getCarDrive, getCarState, getColors, getCarCountry, getYear, getCarsOwners, getCarsHandlebar } from '../services/apiClient';
+import { getCarsPts, getCarBrands, getCarModels, getCarTransmission, getCarBodyType, getCarEngineType, getCarDrive, getCarState, getColors, getCarCountry, getYear, getCarsOwners, getCarsHandlebar, getCarCondition } from '../services/apiClient';
 
 const loading = ref(true);
 const createStore = useCreateStore();
@@ -98,6 +104,7 @@ const checkboxBodyTypeOptions = ref([]);
 const checkboxEngineTypeOptions = ref([]);
 const checkboxDriveOptions = ref([]);
 const switcherStateOptions = ref([]);
+const conditionIdOptions = ref([]);
 const colorOptions = ref([]);
 const countryOptions = ref([]);
 const ownersOptions = ref([]);
@@ -115,7 +122,7 @@ const showOwners = computed(() => createStore.condition_id !== 1);
 
 const checkIfEmpty = (item) => {
    if (createStore.id && !item) {
-      return true; 
+      return true;
    }
    return false;
 };
@@ -135,6 +142,7 @@ const fetchOptions = async () => {
          fetchOwnersOptions(),
          fetchHandlebarOptions(),
          fetchPtsOptions(),
+         fetchConditionOptions(),
       ]);
       loading.value = false;
    } catch (error) {
@@ -181,6 +189,20 @@ const fetchHandlebarOptions = async () => {
       }
    } catch (error) {
       console.error('Ошибка при получении типов руля:', error);
+   }
+};
+
+const fetchConditionOptions = async () => {
+   try {
+      const cachedConditionOptions = JSON.parse(localStorage.getItem('conditionOptions'));
+      if (cachedConditionOptions) {
+         conditionIdOptions.value = cachedConditionOptions;
+      } else {
+         conditionIdOptions.value = await getCarCondition();
+         localStorage.setItem('conditionOptions', JSON.stringify(conditionIdOptions.value));
+      }
+   } catch (error) {
+      console.error('Ошибка при получении цветов:', error);
    }
 };
 
@@ -349,6 +371,8 @@ const updatePhotos = (newPhotos) => createStore.setPhotos(newPhotos);
 const handleServiceBookUpdate = (selectedOptions) => createStore.setIsServiceBook(selectedOptions);
 const handleServicedDealerUpdate = (selectedOptions) => createStore.setIsServicedDealer(selectedOptions);
 const handleUnderWarrantyUpdate = (selectedOptions) => createStore.setIsUnderWarranty(selectedOptions);
+const handleConditionIdUpdate = (selectedOptions) => createStore.setConditionId(selectedOptions);
+
 
 onMounted(() => {
    fetchOptions();
@@ -363,6 +387,19 @@ onMounted(() => {
 
    if (createStore.brand_id) {
       fetchModelsDropdownOptions(createStore.brand_id);
+   }
+});
+
+const resetFields = () => {
+   createStore.setStateNumber(null);
+   createStore.setMileage(null);
+   createStore.setOwners(null);
+   createStore.setStateId(null);
+};
+
+watch(() => createStore.condition_id, (newConditionId, oldConditionId) => {
+   if (newConditionId !== oldConditionId) {
+      resetFields();
    }
 });
 

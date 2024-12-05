@@ -60,7 +60,18 @@ export const useUserStore = defineStore('user', {
             console.error('Ошибка при обновлении имени пользователя: ', error);
          }
       },
-
+      setCounts(countData) {
+         if (countData.success) {
+            this.countAds = countData.count_ads ?? this.countAds;
+            this.countFavorites = countData.count_favorites ?? this.countFavorites;
+            this.countUnreadNotify = countData.count_unread_notify ?? this.countUnreadNotify;
+            this.count_new_messages = countData.count_new_messages ?? this.count_new_messages;
+            this.countDrafts = countData.count_drafts ?? this.countDrafts;
+            this.countReviews = countData.count_reviews_about_myself ?? this.countReviews;
+         } else {
+            console.error('Ошибка при обновлении счетчиков: данные не валидны.');
+         }
+      },
       async fetchAndSetUserdata() {
          try {
             const { success, data } = await getUserDetails();
@@ -130,6 +141,7 @@ export const useUserStore = defineStore('user', {
       async updateProfile(changedFields) {
          try {
             const formData = new FormData();
+            console.log(changedFields);
 
             Object.entries(changedFields).forEach(([key, value]) => {
                if (key === 'phone') {
@@ -138,15 +150,8 @@ export const useUserStore = defineStore('user', {
                formData.append(key, value);
             });
 
-            const updatedData = await updateUserInfo(formData);
-
-            if (updatedData.phone) {
-               updatedData.phone = formatPhoneNumber(updatedData.phone);
-            }
-
+            await updateUserInfo(formData);
             this.fetchAndSetUserdata();
-
-            return updatedData;
          } catch (error) {
             console.error('Ошибка при обновлении профиля', error);
          }

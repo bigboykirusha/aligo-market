@@ -245,14 +245,9 @@ const mapAdProps = (ad) => ({
       grid-template-columns: 1fr;
       gap: 24px;
       height: auto;
-      max-height: calc(100vh - 450px);
       overflow-y: auto;
       padding: 2px 0;
-      padding-right: 16px;
 
-      @media screen and (max-width: 480px) {
-         max-height: calc(100vh - 420px);
-      }
    }
 
    &__check {

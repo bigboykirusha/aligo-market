@@ -1,7 +1,7 @@
 <template>
-   <PhotoViewer :images="images" :activeIndex="currentIndex" :isVisible="isPhotoViewerVisible" :adsId="adsId" :userId="userId"
-      @close="closePhotoViewer" />
-   <div class="gallery-container">
+   <PhotoViewer :images="images" :activeIndex="currentIndex" :isVisible="isPhotoViewerVisible" :adsId="adsId"
+      :userId="userId" @close="closePhotoViewer" />
+   <div class="gallery-container" :class="{ 'gallery-container--no-thumbnails': images.length === 1 }">
       <div class="main-slide">
          <div class="clickable-area clickable-area--left" @click="slidePrev"></div>
          <Swiper :slides-per-view="1" :navigation="false" @slideChange="updateActiveImage" :space-between="16"
@@ -26,7 +26,8 @@
          </div>
       </div>
 
-      <div class="thumbnails">
+      <!-- Отображаем блок с миниатюрами, если больше одного изображения -->
+      <div v-if="images.length > 1" class="thumbnails">
          <button @click="slidePrev" class="thumbnail__button thumbnail__button--top"
             :class="{ 'thumbnail__button--disabled': isPrevDisabled }" :disabled="isPrevDisabled"
             aria-label="Предыдущее изображение">
@@ -138,6 +139,20 @@ watch(isPhotoViewerVisible, (newVal) => {
    @media (max-width: 600px) {
       width: 100%;
       height: 240px;
+   }
+
+   &.gallery-container--no-thumbnails {
+      max-width: 739px;
+      width: 100%;
+
+      @media (max-width: 1280px) {
+         max-width: 100%;
+      }
+
+      @media (max-width: 600px) {
+         width: 100%;
+         height: 240px;
+      }
    }
 
    .main-slide {

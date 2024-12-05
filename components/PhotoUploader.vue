@@ -92,14 +92,13 @@ onMounted(() => {
    label {
       font-size: 14px;
       color: #323232;
-      width: 270px;
+      min-width: 270px;
    }
 
    &__photos {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      height: 65px;
    }
 
    &__photo {

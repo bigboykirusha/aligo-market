@@ -1,5 +1,5 @@
 <template>
-   <div class="user-menu" ref="userMenuRef">
+   <div class="user-menu" :class="{ 'user-menu--scrolled': isScrolled }" ref="userMenuRef">
       <div class="user-menu__header">
          <client-only>
             <div class="user-menu__block">
@@ -104,6 +104,15 @@ watch(() => route.params.title, (newTitle) => {
    activeItem.value = newTitle;
 });
 
+
+watch(
+   () => userStore.$state,
+   () => {
+      avatarUrl.value = getImageUrl(userStore.photo?.path, avatarPhoto);
+   },
+   { deep: true }
+);
+
 const selectMenuItem = (item) => {
    activeItem.value = item;
 };
@@ -130,16 +139,25 @@ const triggerFileInput = () => {
 const fetchUserCounts = async () => {
    try {
       const data = await getUserCount();
-      countFavorites.value = data.count_favorites;
-      countUnreadNotify.value = data.count_unread_notify;
-      countMessage.value = data.count_new_messages;
-      countAds.value = data.count_ads;
+      console.log('Данные пользователя: ', data);
+      userStore.setCounts(data);
    } catch (error) {
       console.error('Ошибка при получении данных пользователя: ', error);
    }
 };
 
+const isScrolled = ref(false);
+
+const handleScroll = () => {
+   isScrolled.value = window.scrollY > 0; 
+};
+
+onUnmounted(() => {
+   window.removeEventListener('scroll', handleScroll);
+});
+
 onMounted(() => {
+   window.addEventListener('scroll', handleScroll);
    fetchUserCounts();
 });
 
@@ -169,7 +187,9 @@ function pluralizeReview(count) {
 
 <style scoped lang="scss">
 .user-menu {
-   position: relative;
+   position: fixed;
+   top: 0;
+   z-index: 1000;
    background-color: white;
    border: 1px solid #eeeeee;
    border-radius: 4px;
@@ -178,8 +198,13 @@ function pluralizeReview(count) {
    flex-direction: column;
    align-items: center;
    width: 270px;
-   min-width: 270px;
    height: fit-content;
+   margin-top: 134px;
+   transition: margin-top 0.3s ease;
+
+   &--scrolled {
+      margin-top: 90px;
+   }
 
    @media (max-width: 991px) {
       width: 230px;

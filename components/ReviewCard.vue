@@ -53,7 +53,7 @@
                </svg>
             </div>
          </div>
-         <div class="review-card__images">
+         <div v-if="review.photos.length > 0" class="review-card__images">
             <img v-for="photo in review.photos" :key="photo.id" :src="getImageUrl(photo.path)" :alt="photo.title"
                class="review-card__image" />
          </div>
@@ -376,8 +376,6 @@ onUnmounted(() => {
    }
 
    &__owner-reply {
-      border-top: 1px solid #ddd;
-      margin-top: 16px;
       padding-top: 16px;
 
       & .review-card__header {

@@ -52,6 +52,10 @@ onUnmounted(() => {
    &--with-margin {
       margin-top: 44px;
       box-shadow: none;
+
+      @media (max-width: 768px) {
+         margin-top: 0;
+      }
    }
 
    &__container {

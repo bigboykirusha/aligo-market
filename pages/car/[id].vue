@@ -2,9 +2,11 @@
    <div class="container">
       <CarToolbar v-if="isOwner" v-bind="toolbarProps" />
       <div class="info-wrapper">
-         <CarInfo v-if="car" :car="car" />
+         <CarInfoSkeleton v-if="isLoading" />
+         <CarInfo v-else :car="car" />
          <div class="car-contact-wrapper">
-            <CarContact v-if="car" :id_user_owner_ads="car.id_user_owner_ads"
+            <CarContactSkeleton v-if="isLoading" />
+            <CarContact v-else :id_user_owner_ads="car.id_user_owner_ads"
                :brand="car.auto_technical_specifications[0].brand.title"
                :model="car.auto_technical_specifications[0].model.title"
                :year="car.auto_technical_specifications[0].year_release.title" :amount="car.ads_parameter.amount"
@@ -12,6 +14,7 @@
                :place="car.ads_parameter.place_inspection || 'Не указано'" :id="car.id"
                :is_in_favorites="car.is_in_favorites" :latitude="car.ads_parameter.latitude"
                :longitude="car.ads_parameter.longitude" :photos="car.photos" />
+
          </div>
       </div>
       <div class="ads-wrapper">
@@ -37,6 +40,7 @@ const { t } = useI18n();
 
 const car = ref(null);
 const adsSimilar = ref([]);
+const isLoading = ref(true);
 const title3 = t('titles.title3');
 
 const bannerContent = {
@@ -62,9 +66,12 @@ const isOwner = computed(() => car.value && car.value.id_user_owner_ads === user
 
 const fetchCarDetails = async (id) => {
    try {
+      isLoading.value = true;
       car.value = await getCarById(id);
    } catch (error) {
       console.error('Ошибка при получении данных автомобиля:', error);
+   } finally {
+      isLoading.value = false;
    }
 };
 

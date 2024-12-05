@@ -1,0 +1,155 @@
+<template>
+   <div class="reviews-popup" v-if="visible">
+      <!-- Оверлей для закрытия попапа при клике вне -->
+      <div class="reviews-popup__overlay" @click="closePopup"></div>
+      <div class="reviews-popup__content">
+         <!-- Кнопка закрытия -->
+         <button class="reviews-popup__close-button" @click="closePopup">
+            <img src="../assets/icons/close.svg" alt="close" />
+         </button>
+
+         <!-- Заголовок с разделительной полоской -->
+         <div class="reviews-popup__header">
+            <div class="reviews-popup__title">
+               <span>Отзывы о пользователе</span>
+            </div>
+            <div class="reviews-popup__border"></div>
+         </div>
+
+         <!-- Рейтинг и количество отзывов -->
+         <div class="reviews-popup__rating">
+            <NuxtRating :rating-value="rating" :rating-count="5" :rating-size="24" :rating-spacing="4"
+               :active-color="'#3366FF'" :inactive-color="'#FFFFFF'" :border-color="'#3366FF'" :border-width="2"
+               :rounded-corners="true" :read-only="true" />
+            <div class="reviews-popup__average-rating">
+               <span class="rating-text">Средняя оценка: {{ rating }}</span>
+               <span>Всего оценок: {{ count_reviews_about_myself }}</span>
+            </div>
+         </div>
+
+         <!-- Блок отзывов с прокруткой -->
+         <div class="reviews-popup__reviews">
+            <ReviewListUser :userId="props.userId" hideTitle />
+         </div>
+      </div>
+   </div>
+</template>
+
+<script setup>
+const props = defineProps({
+   userId: Number,
+   visible: Boolean,
+   count_reviews_about_myself: Number,
+   rating: Number
+});
+
+const emit = defineEmits(['update:visible']);
+
+const closePopup = () => {
+   emit('update:visible', false);
+};
+</script>
+
+<style scoped>
+.reviews-popup {
+   position: fixed;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   z-index: 1000;
+}
+
+.reviews-popup__overlay {
+   position: absolute;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   background: rgba(0, 0, 0, 0.5);
+}
+
+.reviews-popup__content {
+   position: relative;
+   background: white;
+   padding: 20px;
+   border-radius: 8px;
+   max-width: 600px;
+   width: 100%;
+   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+   max-height: 80vh;
+   display: flex;
+   flex-direction: column;
+}
+
+.reviews-popup__close-button {
+   position: absolute;
+   top: 10px;
+   right: 10px;
+   background: none;
+   border: none;
+   font-size: 18px;
+   cursor: pointer;
+}
+
+.reviews-popup__close-button img {
+   width: 20px;
+   height: 20px;
+}
+
+.reviews-popup__reviews {
+   flex-grow: 1;
+   margin-top: 24px;
+   overflow-y: auto;
+   max-height: 70vh;
+   padding-right: 10px;
+}
+
+.reviews-popup__header {
+   display: flex;
+   flex-direction: column;
+   align-items: flex-start;
+}
+
+.reviews-popup__title {
+   font-size: 24px;
+   font-weight: bold;
+   color: #3366FF;
+}
+
+.reviews-popup__border {
+   width: 100%;
+   height: 1px;
+   background-color: #d6d6d6;
+   margin-top: 8px;
+}
+
+.reviews-popup__rating {
+   display: flex;
+   flex-direction: column;
+   align-items: flex-start;
+   font-size: 14px;
+   margin-top: 16px;
+}
+
+.reviews-popup__average-rating {
+   display: flex;
+   flex-direction: column;
+   margin-top: 8px;
+   font-size: 14px;
+   color: #323232;
+}
+
+.reviews-popup__average-rating span {
+   margin-right: 12px;
+}
+
+.rating-text {
+   font-size: 20px;
+   font-weight: bold;
+   color: #323232;
+}
+</style>

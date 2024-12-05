@@ -1,70 +1,67 @@
 <template>
-    <div>
-      <header :class="{ 'header--hidden': isHeaderHidden }" class="header">
-        <div :class="containerClasses">
-          <nav class="header__nav" aria-label="Primary">
-            <ul class="header__nav-list" v-show="!isMyselfRoute || isDesktop">
-              <nuxt-link to="/" class="header__nav-item header__nav-item--mobile">
-                <img class="header__nav--logo" src="../assets/images/logo-white.svg" alt="Logo">
+  <div>
+    <header :class="{ 'header--hidden': isHeaderHidden }" class="header">
+      <div :class="containerClasses">
+        <nav class="header__nav" aria-label="Primary">
+          <ul class="header__nav-list" v-show="!isMyselfRoute || isDesktop">
+            <nuxt-link to="/" class="header__nav-item header__nav-item--mobile">
+              <img class="header__nav--logo" src="../assets/images/logo-white.svg" alt="Logo">
+            </nuxt-link>
+            <li class="header__nav-item">
+              <button class="header__nav-link" @click="toggleModal">
+                <img :src="defaultLocationIcon" alt="Location icon" class="header__icon">
+                <span class="header__text header__text--hidden">{{ translatedCityName }}</span>
+              </button>
+              <LocationPopup @open-modal="toggleModal" />
+            </li>
+            <li class="header__nav-item">
+              <nuxt-link to="/business" class="header__nav-link">
+                <img src="../assets/icons/business.svg" alt="Business icon" class="header__icon">
+                <span class="header__text header__text--hidden">{{ $t('nav.business') }}</span>
               </nuxt-link>
-              <li class="header__nav-item">
-                <LanguageSwitcher />
-              </li>
-              <li class="header__nav-item">
-                <button class="header__nav-link" @click="toggleModal">
-                  <img :src="defaultLocationIcon" alt="Location icon" class="header__icon">
-                  <span class="header__text header__text--hidden">{{ translatedCityName }}</span>
-                </button>
-                <LocationPopup @open-modal="toggleModal" />
-              </li>
-              <li class="header__nav-item">
-                <nuxt-link to="/business" class="header__nav-link">
-                  <img src="../assets/icons/business.svg" alt="Business icon" class="header__icon">
-                  <span class="header__text header__text--hidden">{{ $t('nav.business') }}</span>
-                </nuxt-link>
-              </li>
-            </ul>
-          </nav>
-          <div v-show="isMyselfRoute && !isDesktop" class="header__images">
-            <img src="../assets/icons/white-logo.svg" alt="Logo">
-          </div>
-          <nuxt-link to="/createAd" v-show="isMyselfRoute" class="header__actions">
-            <button class="header__nav-link header__nav-link--add">
-              <img src="../assets/icons/add.svg" alt="Add icon" class="header__icon">
-              <span class="header__text header__text--add">Разместить объявление</span>
-            </button>
-          </nuxt-link>
-          <img class="header__user-avatar" v-show="isMyselfRoute && !isDesktop" :src="getImageUrl(userStore.photo?.path, avatarPhoto)" alt="Menu"
-            @click="toggleSideMenu" />
-          <div v-show="!isMyselfRoute" class="header__actions">
-            <template v-if="isLoggedIn">
-              <div class="header__user-info">
-                <div class="header__user-block">
-                  <IconLink v-for="icon in userIcons" :key="icon.to" :to="icon.to" :icon-src="icon.src"
-                    :icon-count="icon.count" />
-                </div>
-
-                <div class="header__menu" @click.stop="toggleUserMenu">
-                  <img v-if="userStore.photo?.path || !userName" :src="userAvatar" alt="Avatar"
-                    class="header__user-avatar">
-                  <span v-else class="header__user-circle">{{ initial }}</span>
-                  <span class="header__user-name">{{ displayName }}</span>
-                  <UserMenuPopup v-if="isUserMenuOpen && isDesktop" @close-userMenu="toggleUserMenu" />
-                </div>
-              </div>
-            </template>
-            <button v-else class="header__nav-link" @click="toggleLoginModal">
-              <img src="../assets/icons/user.svg" alt="Login icon" class="header__icon header__icon--large">
-              <span class="header__text">{{ $t('nav.login') }}</span>
-            </button>
-          </div>
+            </li>
+          </ul>
+        </nav>
+        <div v-show="isMyselfRoute && !isDesktop" class="header__images">
+          <img src="../assets/icons/white-logo.svg" alt="Logo">
         </div>
-      </header>
-      <component :is="currentPageComponent" />
-      <LocationModal v-if="modalOpen" @close-modal="toggleModal" />
-      <LoginModal v-if="modalLoginOpen" @close-loginModal="toggleLoginModal" />
-      <UserMenuBurger v-model="isSideMenuOpen" :isRight="!isMyselfRoute" />
-    </div>
+        <nuxt-link to="/createAd" v-show="isMyselfRoute" class="header__actions">
+          <button class="header__nav-link header__nav-link--add">
+            <img src="../assets/icons/add.svg" alt="Add icon" class="header__icon">
+            <span class="header__text header__text--add">Разместить объявление</span>
+          </button>
+        </nuxt-link>
+        <img class="header__user-avatar" v-show="isMyselfRoute && !isDesktop"
+          :src="getImageUrl(userStore.photo?.path, avatarPhoto)" alt="Menu" @click="toggleSideMenu" />
+        <div v-show="!isMyselfRoute" class="header__actions">
+          <template v-if="isLoggedIn">
+            <div class="header__user-info">
+              <div class="header__user-block">
+                <IconLink v-for="icon in userIcons" :key="icon.to" :to="icon.to" :icon-src="icon.src"
+                  :icon-count="icon.count" />
+              </div>
+
+              <div class="header__menu" @click.stop="toggleUserMenu">
+                <img v-if="userStore.photo?.path || !userName" :src="userAvatar" alt="Avatar"
+                  class="header__user-avatar">
+                <span v-else class="header__user-circle">{{ initial }}</span>
+                <span class="header__user-name">{{ displayName }}</span>
+                <UserMenuPopup v-if="isUserMenuOpen && isDesktop" @close-userMenu="toggleUserMenu" />
+              </div>
+            </div>
+          </template>
+          <button v-else class="header__nav-link" @click="toggleLoginModal">
+            <img src="../assets/icons/user.svg" alt="Login icon" class="header__icon header__icon--large">
+            <span class="header__text">{{ $t('nav.login') }}</span>
+          </button>
+        </div>
+      </div>
+    </header>
+    <component :is="currentPageComponent" />
+    <LocationModal v-if="modalOpen" @close-modal="toggleModal" />
+    <LoginModal v-if="modalLoginOpen" @close-loginModal="toggleLoginModal" />
+    <UserMenuBurger v-model="isSideMenuOpen" :isRight="!isMyselfRoute" />
+  </div>
 </template>
 
 <script setup>
@@ -118,7 +115,7 @@ const toggleLoginModal = () => {
 
 const updateIsDesktop = () => {
   if (typeof window !== 'undefined') {
-    isDesktop.value = window.innerWidth > 768;
+    isDesktop.value = window.innerWidth >= 768;
   }
 };
 
@@ -149,8 +146,12 @@ const userIcons = computed(() => [
 ]);
 
 const currentPageComponent = computed(() => {
-  if (route.path.startsWith('/createAd')) return HeaderRowNew;
-  if (route.path.startsWith('/myself')) return HeaderRowMyself;
+  if (route.path.startsWith('/createAd')) {
+    return HeaderRowNew;
+  }
+  if (route.path.startsWith('/myself')) {
+    return isDesktop.value ? HeaderRowMyself : HeaderRow;
+  }
   return HeaderRow;
 });
 
@@ -183,9 +184,13 @@ onUnmounted(() => {
   width: 100%;
   max-width: 100vw;
   top: 0;
-  z-index: 9;
+  z-index: 11;
   padding: 0 16px;
   transition: transform 0.3s ease-in-out;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 
   &--hidden {
     transform: translateY(-100%);

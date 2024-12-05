@@ -1,24 +1,16 @@
 <template>
-   <div :class="['side-menu', { 'side-menu--right': isRight, 'side-menu--open': isMenuOpen }]" ref="userMenuRef">
+   <div :class="['side-menu', { 'side-menu--open': isMenuOpen }]" ref="userMenuRef">
       <div class="user-menu">
          <div class="user-menu__header">
             <client-only>
                <div class="user-menu__block">
                   <ul class="user-menu__nav-list">
                      <li class="user-menu__nav-item">
-                        <button class="side-menu__close-button" @click="toggleMenu">
-                           <img src="../assets/icons/close-white.svg" alt="Close" />
-                        </button>
-                     </li>
-                     <li class="user-menu__nav-item">
                         <button class="user-menu__nav-link" @click="toggleModal">
                            <img :src="defaultLocationIcon" alt="location icon" />
                            <span class="user-menu__text user-menu__text--hidden">{{ translatedCityName }}</span>
                         </button>
                         <LocationPopup @open-modal="toggleModal" />
-                     </li>
-                     <li class="user-menu__nav-item">
-                        <LanguageSwitcher />
                      </li>
                   </ul>
 
@@ -116,8 +108,6 @@ const toggleMenu = () => {
    emit('update:modelValue', isMenuOpen.value);
 };
 
-const isRight = computed(() => props.isRight);
-
 const toggleModal = () => (modalOpen.value = !modalOpen.value);
 
 const logout = () => {
@@ -164,17 +154,14 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
    right: 0;
    bottom: 0;
    background-color: #1a1a1a;
-   z-index: 1000;
+   z-index: 100;
    width: 100%;
    display: flex;
    justify-content: center;
    transform: translateX(100%);
    align-items: center;
    transition: transform 0.3s ease-in-out;
-
-   &--right {
-      left: auto;
-   }
+   margin-bottom: 66px;
 
    &--open {
       transform: translateX(0);
@@ -216,10 +203,6 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
       display: flex;
       align-items: center;
       position: relative;
-
-      &:last-child {
-         margin-left: auto;
-      }
    }
 
    &__rating {

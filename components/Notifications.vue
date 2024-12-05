@@ -161,8 +161,8 @@ onMounted(fetchNotifications);
       padding: 2px 0;
       padding-right: 16px;
 
-      @media screen and (max-width: 480px) {
-         max-height: calc(100vh - 320px);
+      @media (max-width: 768px) {
+         max-height: calc(100vh - 136px - 104px - 16px);
       }
    }
 

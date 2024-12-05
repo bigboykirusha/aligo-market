@@ -1,4 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+
 export default defineNuxtConfig({
   ssr: false,
   app: {
@@ -44,7 +45,7 @@ export default defineNuxtConfig({
           additionalData: '@use "~/assets/scss/_vars.scss" as *;'
         }
       }
-    }
+    },
   },
   i18n: {
     locales: [

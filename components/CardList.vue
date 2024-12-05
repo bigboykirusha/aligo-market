@@ -2,7 +2,7 @@
    <div class="cards">
       <h2 class="cards__title">{{ title }}</h2>
       <div class="cards__main">
-         <CardSkeleton v-if="loading" v-for="index in 5" :key="index" />
+         <CardSkeleton v-if="isLoading" v-for="index in 5" :key="index" />
          <Card v-else v-for="ad in uniqueAds" :key="ad.id" :id="ad.id" :description="ad.ads_parameter?.ads_description"
             :price="ad.ads_parameter?.amount" :place="ad.ads_parameter?.place_inspection || 'Адрес не указан'"
             :callNumber="ad.ads_parameter?.phone" :messageEmail="ad.ads_parameter?.email"
@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watchEffect } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
    title: {
@@ -26,6 +26,10 @@ const props = defineProps({
    },
    ads: {
       type: Array,
+      required: true,
+   },
+   isLoading: {
+      type: Boolean,
       required: true,
    },
 });
@@ -37,12 +41,7 @@ const uniqueAds = computed(() => {
       (ad, index, self) => self.findIndex(item => item.id === ad.id) === index
    );
 });
-
-watchEffect(() => {
-   loading.value = !props.ads.length;
-});
 </script>
-
 
 <style scoped lang="scss">
 .cards {

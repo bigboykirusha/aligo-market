@@ -24,16 +24,18 @@ watch(() => route.params.id, (newId) => {
 .wrapper {
    max-width: 1312px;
    width: 100%;
+   margin: 0 auto;
    padding: 0 16px;
    display: flex;
    flex-direction: row;
    gap: 40px;
-   margin: 158px auto;
+   margin-top: 158px;
    justify-content: space-between;
-   margin-bottom: 72px;
+   margin-bottom: 24px;
 
-   @media screen and (max-width: 768px) {
-      margin-top: 120px;
+   @media  (max-width: 768px) {
+      margin-top: 70px;
+      margin-bottom: 94px;
       flex-direction: column;
    }
 }

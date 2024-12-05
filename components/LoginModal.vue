@@ -1,53 +1,52 @@
 <template>
-   <div id="main-login-modal" class="modal" @click.self="closeModal" tabindex="0">
+   <div id="main-login-modal" class="modal" @click.self="closeModal" @keydown="handleEnterKeydown">
       <transition name="modal-fade">
-         <div :class="modalContentClasses" tabindex="0">
-            <button class="modal__close-button" @click="closeModal" aria-label="Close" @keydown.enter.prevent
-               tabindex="0">
+         <div :class="modalContentClasses" @keydown="handleEnterKeydown">
+            <button class="modal__close-button" @click="closeModal" aria-label="Close" tabindex="0"
+               @keydown="handleEnterKeydown">
                <img :src="closeIcon" alt="close icon" />
             </button>
-            <div class="modal__header">
+            <div class="modal__header" @keydown="handleEnterKeydown">
                <div class="modal__header-image">
                   <img src="../assets/images/logo.svg" alt="header image" />
                   <img src="../assets/icons/ID.svg" alt="header image" />
                </div>
                <div class="modal__header-bar"></div>
                <div v-show="isBothSaved && !showCodeInput" class="modal__header-switcher">
-                  <button :class="{ 'active': activeTab === 0 }" @click="switchTab(0)" @keydown.enter.prevent
-                     tabindex="0">
+                  <button :class="{ 'active': activeTab === 0 }" @click="switchTab(0)" tabindex="0">
                      {{ $t('loginModal.smsLogin') }}
                   </button>
-                  <button :class="{ 'active': activeTab === 1 }" @click="switchTab(1)" @keydown.enter.prevent
-                     tabindex="0">
+                  <button :class="{ 'active': activeTab === 1 }" @click="switchTab(1)" tabindex="0">
                      {{ $t('loginModal.emailLogin') }}
                   </button>
                   <div class="switcher" :style="{ transform: `translateX(${activeTab * 100}%)` }"></div>
                </div>
             </div>
 
-            <form class="modal__form" @submit.prevent="submitForm" @keydown.enter.prevent="handleEnter">
-               <div v-if="isLoading" class="loading-overlay">
+            <form class="modal__form" @submit="submitForm" @keydown="handleEnterKeydown">
+               <div v-show="isLoading" class="loading-overlay">
                   <div class="spinner"></div>
                </div>
-               <div v-show="activeTab === 0 || activeTab === 1" class="modal__form-section">
-                  <div v-if="!showCodeInput" class="input-wrapper">
+               <div v-show="(activeTab === 0 || activeTab === 1) && !isLoading" class="modal__form-section"
+                  @keydown="handleEnterKeydown">
+                  <div v-show="!showCodeInput" class="input-wrapper">
                      <p class="input-wrapper__title">{{ isPhoneTab ? 'Введите номер телефона' : 'Введите адрес почты' }}
                      </p>
                      <p class="input-wrapper__description">Мы отправим вам проверочный код для входа в аккаунт</p>
-                     <input v-if="isPhoneTab" type="tel" v-model="phoneNumber" class="phone-input"
-                        v-mask="'+7 (###) ###-##-##'" ref="phoneInput" />
-                     <input v-else type="email" v-model="email" @input="validateEmail" class="phone-input"
-                        ref="emailInput" />
-                     <div v-if="isPhoneTab" class="input-wrapper__telegram-checkbox">
-                        <input type="checkbox" v-model="loginWithTelegram" />
+                     <input v-show="isPhoneTab" type="tel" v-model="phoneNumber" class="phone-input"
+                        @keydown.enter="handleEnter" v-mask="'+7 (###) ###-##-##'" ref="phoneInput" />
+                     <input v-show="!isPhoneTab" type="email" v-model="email" @input="validateEmail" class="phone-input"
+                        @keydown.enter="handleEnter" ref="emailInput" />
+                     <label v-show="isPhoneTab" class="input-wrapper__telegram-checkbox">
+                        <input tabindex="0" type="checkbox" v-model="loginWithTelegram" />
                         <span>Вход через <span class="checkbox-wrapper--blue">Telegram</span></span>
-                     </div>
+                     </label>
                   </div>
-                  <div class="input-wrapper" v-else>
+                  <div class="input-wrapper" v-show="showCodeInput" @keydown="handleEnterKeydown">
                      <p class="input-wrapper__title">Введите код</p>
                      <p class="input-wrapper__description">
                         Мы отправили код на {{ isPhoneTab ? formattedPhoneNumber : email }}<br />
-                     <div @click.prevent="switchTab(activeTab)" class="input-wrapper__description--link">
+                     <div @click.prevent="switchTab(activeTab); startTimer" class="input-wrapper__description--link">
                         Изменить {{ isPhoneTab ? 'номер' : 'почту' }}
                      </div>
                      </p>
@@ -62,11 +61,12 @@
                </div>
 
                <div v-if="!showCodeInput" class="modal__footer">
-                  <button v-show="isBothSaved && !showCodeInput" :disabled="isContactInfoInvalid" class="modal__button"
+                  <p class="timer-message" v-if="timeLeft > 0">Войти снова можно через {{ formattedTime }}</p>
+                  <button v-show="isBothSaved && !showCodeInput && !(timeLeft > 0)" :disabled="isContactInfoInvalid" class="modal__button"
                      :class="{ '--disabled': isContactInfoInvalid }" @click.prevent="requestCode" tabindex="0">
                      Вход
                   </button>
-                  <button v-show="!isBothSaved && !showCodeInput" :disabled="isContactInfoRegInvalid"
+                  <button v-show="!isBothSaved && !showCodeInput && !(timeLeft > 0)" :disabled="isContactInfoRegInvalid"
                      class="modal__button" :class="{ '--disabled': isContactInfoRegInvalid }" tabindex="0">
                      {{ showCodeInput ? 'Зарегистрироваться' : 'Отправить' }}
                   </button>
@@ -94,6 +94,7 @@ import closeIcon from '../assets/icons/close.svg';
 import { getCookie, setCookie } from '~/services/auth';
 import { loginUserByPhone, confirmPhoneCode } from '../services/apiClient';
 import { useUserStore } from '../store/user';
+import { nextTick } from 'vue';
 import VueOtpInput from 'vue3-otp-input';
 
 const userStore = useUserStore();
@@ -104,7 +105,7 @@ const email = ref('');
 const code = ref('');
 const showCodeInput = ref(false);
 let timer = null;
-const timeLeft = ref(180);
+const timeLeft = ref(0);
 const isLoading = ref(false);
 const emit = defineEmits(['close-loginModal']);
 const checkbox1 = ref(false);
@@ -148,21 +149,35 @@ onMounted(() => {
    if (savedUserData) {
       phoneNumber.value = savedUserData.phoneNumber || '';
       email.value = savedUserData.email || '';
-      if (savedUserData.email) {
+
+      if (savedUserData.phoneNumber && savedUserData.email) {
+         activeTab.value = 0;
+      } else if (savedUserData.email) {
          activeTab.value = 1;
+      } else {
+         activeTab.value = 0;
       }
    }
-   setFocusOnInput();
+   nextTick(() => {
+      setFocusOnInput();
+   });
 });
 
 const setFocusOnInput = () => {
-   if (isPhoneTab.value) {
-      if (phoneInput.value) {
-         phoneInput.value.focus();
+   if (showCodeInput.value) {
+      const otpInput = document.querySelector('.otp-input');
+      if (otpInput) {
+         otpInput.focus();
       }
    } else {
-      if (emailInput.value) {
-         emailInput.value.focus();
+      if (isPhoneTab.value) {
+         if (phoneInput.value) {
+            phoneInput.value.focus();
+         }
+      } else {
+         if (emailInput.value) {
+            emailInput.value.focus();
+         }
       }
    }
 };
@@ -183,16 +198,6 @@ const switchTab = (index) => {
    activeTab.value = index;
    showCodeInput.value = false;
    setFocusOnInput();
-};
-
-const handleEnter = (event) => {
-   event.preventDefault();
-   event.stopPropagation();
-   if (isBothSaved.value && !showCodeInput.value) {
-      requestCode();
-   } else if (showCodeInput.value) {
-      submitForm();
-   }
 };
 
 const submitForm = async () => {
@@ -248,6 +253,7 @@ const handleSuccessfulLogin = (data, cleanedPhoneNumber) => {
 };
 
 const closeModal = () => {
+   document.body.style.overflow = '';
    clearFormFields();
    emit('close-loginModal');
    showCodeInput.value = false;
@@ -309,6 +315,24 @@ const isPhoneSaved = computed(() => {
    return false;
 });
 
+const handleEnterKeydown = (event) => {
+   console.log(event);
+   if (event.key === 'Enter') {
+      event.preventDefault();
+      submitForm();
+   }
+};
+
+
+const handleEnter = (event) => {
+
+   if (isBothSaved.value && !showCodeInput.value) {
+      requestCode();
+   } else if (showCodeInput.value) {
+      submitForm();
+   }
+};
+
 const isEmailSaved = computed(() => {
    const savedUserData = JSON.parse(getCookie('userData'));
    if (savedUserData && savedUserData.email) {
@@ -323,7 +347,7 @@ const isEmailSaved = computed(() => {
 <style scoped lang="scss">
 .modal {
    position: fixed;
-   z-index: 10;
+   z-index: 1222;
    top: 0;
    left: 0;
    width: 100%;
@@ -430,10 +454,9 @@ const isEmailSaved = computed(() => {
             z-index: 111;
             background-color: transparent;
             width: 50%;
-            border: none;
             cursor: pointer;
             font-size: 14px;
-            outline: none;
+            border: none;
 
             @media screen and (max-width: 480px) {
                font-size: 12px;
@@ -487,6 +510,7 @@ const isEmailSaved = computed(() => {
 
                &--link {
                   color: #3366ff;
+                  cursor: pointer;
                   margin-top: 8px;
                   font-size: 14px;
                   line-height: 18px;
@@ -518,6 +542,11 @@ const isEmailSaved = computed(() => {
                input {
                   height: 14px;
                   width: 14px;
+
+                  &:focus {
+                     outline: 2px solid #3366FF;
+                     border: 1px solid #3366FF;
+                  }
                }
 
                span {

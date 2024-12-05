@@ -1,6 +1,6 @@
 <template>
    <div class="my-ads">
-      <h1 class="my-ads__title">Мои объявления</h1>
+      <div class="my-ads__title">Мои объявления</div>
       <div class="my-ads__switcher">
          <div v-for="(item, index) in SWITCHER_ITEMS" :key="index" class="my-ads__item"
             :class="{ 'my-ads__item--active': selectedItem === item }" @click="handleSwitch(item)">
@@ -37,11 +37,12 @@ import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getMyAds, getDrafts, getArchives } from '../services/apiClient';
 
-const SWITCHER_ITEMS = ['Все', 'Черновики', 'Архив'];
+const SWITCHER_ITEMS = ['Все', 'Черновики', 'Архив', 'Отклоненные'];
 const ITEM_MAP = {
    'ads': SWITCHER_ITEMS[0],
    'drafts': SWITCHER_ITEMS[1],
    'archive': SWITCHER_ITEMS[2],
+   'canceled': SWITCHER_ITEMS[3],
 };
 
 const route = useRoute();
@@ -63,6 +64,9 @@ const fetchAds = async (is_published) => {
             break;
          case 'Архив':
             ads = (await getArchives()).map(item => ({ ...item.ads_show || {}, main_id: item.id }));
+            break;
+         case 'Отклоненные':
+            ads = (await getDrafts()).map(item => item.ads_show || {});
             break;
       }
       adsMain.value = ads;
@@ -93,7 +97,7 @@ const handleSwitch = (item) => {
    selectedItem.value = item;
    nextTick(() => {
       setTimeout(() => {
-         router.push(`/myself/${item === 'Все' ? 'ads' : item === 'Черновики' ? 'drafts' : 'archive'}`);
+         router.push(`/myself/${item === 'Все' ? 'ads' : item === 'Черновики' ? 'drafts' : item === 'Архив' ? 'archive' : 'canceled'}`);
       }, 300);
    });
 };

@@ -23,7 +23,7 @@ export const fetchCity = async (lat, lon) => {
 
       const featureMember = cityData?.response?.GeoObjectCollection?.featureMember[0]?.GeoObject?.metaDataProperty?.GeocoderMetaData?.AddressDetails?.Country?.AdministrativeArea;
 
-      const cityName = featureMember?.Locality?.LocalityName || featureMember?.SubAdministrativeArea?.Locality?.LocalityName || 'Неизвестный город';
+      const cityName = featureMember?.Locality?.LocalityName || featureMember?.SubAdministrativeArea?.Locality?.LocalityName || 'Ростов-на-Дону';
 
       return cityName;
    } catch (error) {

@@ -1,12 +1,13 @@
 <template>
-   <footer class="footer">
+   <footer class="footer" :class="{ 'footer--visible': isVisible }" @mouseenter="cancelAutoHide"
+      @mouseleave="startAutoHide">
       <div class="footer__row">
          <div class="footer__container">
             <div class="footer__bottom">
                <ul class="footer__links">
-                  <li><nuxt-link to="/autos">{{ $t('footer.links.rules') }}</nuxt-link></li>
-                  <li><nuxt-link to="/autos">{{ $t('footer.links.agreement') }}</nuxt-link></li>
-                  <li><nuxt-link to="/autos">{{ $t('footer.links.privacy') }}</nuxt-link></li>
+                  <li><nuxt-link to="/autos">Правила</nuxt-link></li>
+                  <li><nuxt-link to="/autos">Соглашение</nuxt-link></li>
+                  <li><nuxt-link to="/autos">Конфиденциальность</nuxt-link></li>
                </ul>
                <div class="footer__text">
                   Аligo corporate co ltd. 2024г. Мы делаем Грузию мобильнее.
@@ -20,8 +21,65 @@
    </footer>
 </template>
 
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
+
+const isVisible = ref(false)
+let lastScrollTop = 0
+let autoHideTimeout = null
+
+const handleScroll = () => {
+   const currentScrollTop = window.scrollY
+   if (currentScrollTop < lastScrollTop) {
+      isVisible.value = true
+      startAutoHide()
+   } else {
+      isVisible.value = false
+      cancelAutoHide()
+   }
+   lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop
+}
+
+const startAutoHide = () => {
+   cancelAutoHide()
+   autoHideTimeout = setTimeout(() => {
+      isVisible.value = false
+   }, 3000)
+}
+
+const cancelAutoHide = () => {
+   clearTimeout(autoHideTimeout)
+}
+
+onMounted(() => {
+   window.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+   window.removeEventListener('scroll', handleScroll)
+   cancelAutoHide()
+})
+</script>
+
 <style scoped lang="scss">
 .footer {
+   margin-top: 40px;
+   position: fixed;
+   bottom: 0;
+   left: 0;
+   width: 100%;
+   transform: translateY(100%);
+   transition: transform 0.3s ease-in-out;
+   z-index: 1000;
+
+   @media (max-width: 768px) {
+      display: none;
+   }
+
+   &--visible {
+      transform: translateY(0);
+   }
+
    &__row {
       background: #3366FF;
    }

@@ -243,15 +243,15 @@ onUnmounted(() => {
    max-height: 65vh;
    transition: $transition-1;
 
-   @media screen and (max-width: 460px) {
+   @media (max-width: 460px) {
       max-height: unset;
    }
 
    &--with-margin {
       padding-top: 150px;
 
-      @media screen and (max-width: 460px) {
-         padding-top: 92px;
+      @media (max-width: 768px) {
+         padding-top: 66px;
       }
    }
 

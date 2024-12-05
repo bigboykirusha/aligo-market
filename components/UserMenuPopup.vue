@@ -145,7 +145,7 @@ const logout = () => {
 <style scoped lang="scss">
 .user-menu {
    position: absolute;
-   z-index: 20;
+   z-index: 200;
    background-color: white;
    border: 1px solid #3366FF;
    border-radius: 0 0 4px 4px;

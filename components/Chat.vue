@@ -52,7 +52,7 @@
       </div>
 
       <!-- Содержимое чата -->
-      <div v-if="chatStore.currentChat && !chatStore.isCollapsed" class="chat-wrapper__chat-box">
+      <div v-if="chatStore.currentChat && !chatStore.isCollapsed" class="chat-wrapper__chat-box" ref="chatContainer">
          <!-- Всплывающее окно для имени пользователя -->
          <UsernamePopup v-if="!userStore.username" :isVisible="true" @close="closePopup" />
 
@@ -91,7 +91,7 @@
             </div>
 
             <!-- Отображение сообщений -->
-            <div v-else class="chat-wrapper__wrapper">
+            <div v-else class="chat-wrapper__wrapper" >
                <div v-for="(item, index) in groupedMessages" :key="index"
                   :class="{ 'chat-wrapper__date-divider': item.type === 'date' }">
                   <template v-if="item.type === 'date'">
@@ -189,6 +189,7 @@ const file = ref([]);
 const total = ref(0);
 const loading = ref(true);
 const isPopupVisible = ref(false);
+const chatContainer = ref(null);
 
 const toUserId = computed(() => {
    return relevantUser(chatStore.currentChat).id;
@@ -205,6 +206,15 @@ const remainingCount = computed(() => {
    const uniqueUsers = [...new Set(chatStore.usersWithAvatars)];
    return Math.max(uniqueUsers.length - 2, 0);
 });
+
+function scrollToBottom() {
+   nextTick(() => {
+      if (chatContainer.value) {
+         chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+         console.log(chatContainer.value.scrollHeight)
+      }
+   });
+}
 
 const messages = computed(() => chatStore.messages);
 const hasMessages = computed(() => messages.value.length > 0);
@@ -266,6 +276,7 @@ async function loadMessages() {
       console.error('Ошибка при загрузке сообщений:', error);
    } finally {
       loading.value = false;
+      scrollToBottom();
    }
 }
 
@@ -281,6 +292,7 @@ async function handleSendMessage() {
       const response = await sendMessage(newMessage.value, chatStore.currentChat.ads_id, chatStore.currentChat.main_category_id, toUserId.value, file.value);
       chatStore.messages.push({ ...response.data, isSelf: true });
       resetMessageInput();
+      scrollToBottom()
    } catch (error) {
       console.error('Ошибка при отправке сообщения:', error);
    }
@@ -433,10 +445,10 @@ watch(() => chatStore.currentChat, loadMessages, { immediate: true });
    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.08), 0px 0px 6px rgba(0, 0, 0, 0.08);
    flex-direction: column;
    transition: height 0.3s ease;
-   max-height: calc(100% + 70px);
    overflow-y: auto;
 
    @media (max-width: 768px) {
+      display: none;
       right: 0;
       width: 100%;
       height: 100%;
@@ -470,14 +482,16 @@ watch(() => chatStore.currentChat, loadMessages, { immediate: true });
    &__chat-box {
       display: flex;
       flex-direction: column;
+      scroll-behavior: smooth;
       flex-grow: 1;
+      height: calc(100% - 140px);
       gap: 16px;
       padding: 16px;
-      padding-top: 82px;
+      margin-top: 70px;
       background: #ffffff;
       overflow-y: auto;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          padding: 12px;
          padding-top: 82px;
       }

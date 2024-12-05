@@ -1,14 +1,13 @@
 <template>
    <div ref="menuRef" :class="['menu-2', { 'menu-2--with-margin': isWithMargin }]">
       <div class="menu-2__container">
-         <!-- Другие элементы меню остаются такими же -->
          <div class="menu-2__block">
             <ul class="menu-2__list">
                <li v-for="(item, index) in menuItems" :key="index" :data-target="item.target"
                   @click="handleMenuItemClick(item)" @mouseenter="showDetailedMenu(item.target)"
                   :class="['menu-2__list-item', { 'menu-2__list-item--active': activeTarget === item.target }]">
-                  <img :src="item.icon" :alt="t(`menu.${item.text}`)" class="menu-2__list-item-icon" />
-                  {{ t(`menu.${item.text}`) }}
+                  <img :src="item.icon" :alt="item.text" class="menu-2__list-item-icon" />
+                  {{ item.text }}
                </li>
             </ul>
             <div :class="['menu-2__detailed', { 'menu-2__detailed--active': activeTarget !== null }]">
@@ -18,26 +17,18 @@
                      <div class="menu-2__back-button" @click="hideDetailedMenu">
                         <div class="menu-2__back-icon"></div>
                      </div>
-                     <nuxt-link :to="group.link" class="menu-2__detailed-title" @click="$emit('close')">
-                        {{ t(`menu.${group.title}`) }}
-                     </nuxt-link>
+                     <div class="menu-2__detailed-title">
+                        {{ group.title }}
+                     </div>
                      <div class="menu-2__detailed-count-total">{{ group.count }}</div>
                   </div>
                   <div class="menu-2__detailed-list-wrapper">
-                     <ul class="menu-2__detailed-list">
+                     <ul v-if="group.items.length" class="menu-2__detailed-list">
                         <li v-for="(item, itemIndex) in group.items" :key="itemIndex" class="menu-2__detailed-list-item"
-                           @click="handleClick(item.title)">
+                           @click="handleSubCategoryClick(item)">
                            <nuxt-link :to="item.link" class="menu-2__detailed-list-title" @click="$emit('close')">
-                              {{ t(`menu.${item.title}`) }}
+                              {{ item.title }}
                            </nuxt-link>
-                           <ul v-if="item.subitems" class="menu-2__detailed-sublist">
-                              <li v-for="(subitem, subitemIndex) in item.subitems" :key="subitemIndex"
-                                 class="menu-2__detailed-sublist-item">
-                                 <nuxt-link :href="subitem.link" @click="$emit('close')">
-                                    {{ t(`menu.${subitem.title}`) }}
-                                 </nuxt-link>
-                              </li>
-                           </ul>
                         </li>
                      </ul>
                   </div>
@@ -50,19 +41,14 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { getCars } from '../services/apiClient.js'
+import { getCars } from '../services/apiClient.js';
 import { useRouter } from 'vue-router';
 import carIcon from '../assets/icons/car.svg';
-import houseIcon from '../assets/icons/house.svg';
-import peoplesIcon from '../assets/images/svg/peoples.svg';
-import servicesIcon from '../assets/icons/servises.svg';
-import goodsIcon from '../assets/images/svg/goods.svg';
+import diskIcon from '../assets/icons/disc.svg';
+import motoIcon from '../assets/icons/moto.svg';
 import { useFiltersStore } from '~/store/filters.js';
 
-const { t } = useI18n();
 const isWithMargin = ref(true);
-const lastScrollTop = ref(0);
 const adsCount = ref(0);
 const activeTarget = ref(null);
 const menuRef = ref(null);
@@ -71,72 +57,47 @@ const router = useRouter();
 
 const emit = defineEmits(['close']);
 
+const isDesktop = ref(window.innerWidth > 1024);
+
+const handleScroll = () => {
+   const currentScrollTop = window.scrollY || document.documentElement.scrollTop;
+   isWithMargin.value = currentScrollTop === 0;
+};
+
+const updateDeviceMode = () => {
+   isDesktop.value = window.innerWidth > 1024;
+};
+
 const menuItems = ref([
-   { target: 'autos', icon: carIcon, text: 'auto' },
-   { target: 'realty', icon: houseIcon, text: 'realty' },
-   { target: 'job', icon: peoplesIcon, text: 'job' },
-   { target: 'service', icon: servicesIcon, text: 'service' },
-   { target: 'product', icon: goodsIcon, text: 'product' },
+   { target: 'autos', icon: carIcon, text: 'Автомобили' },
+   { target: 'parts', icon: diskIcon, text: 'Запчасти и аксессуары' },
+   { target: 'moto', icon: motoIcon, text: 'Мототехника' },
 ]);
 
 const detailedGroups = ref([
    {
       target: 'autos',
-      title: 'auto',
+      title: 'Автомобили',
       link: '/autos',
       count: adsCount,
       items: [
-         { title: 'used', link: '/autos' },
-         { title: 'new', link: '/autos' },
+         { title: 'Б/у', link: '/autos', type: 'used' },
+         { title: 'Новые', link: '/autos', type: 'new' },
       ],
    },
    {
-      target: 'realty',
-      title: 'realty',
+      target: 'parts',
+      title: 'Запчасти и аксессуары',
       link: '/realty',
-      count: '21 537',
-      items: [
-         {
-            title: 'apartments',
-            link: '/realty',
-            subitems: [
-               { title: 'sell', link: '/realty' },
-               { title: 'rent', link: '/realty' },
-            ],
-         },
-         {
-            title: 'rooms',
-            link: '/realty',
-            subitems: [
-               { title: 'sell', link: '/realty' },
-               { title: 'rent', link: '/realty' },
-            ],
-         },
-         {
-            title: 'houses',
-            link: '/realty',
-            subitems: [
-               { title: 'sell', link: '/realty' },
-               { title: 'rent', link: '/realty' },
-            ],
-         },
-         {
-            title: 'land',
-            link: '/realty',
-            subitems: [
-               { title: 'sell', link: '/realty' },
-               { title: 'rent', link: '/realty' },
-            ],
-         },
-         {
-            title: 'commercial',
-            link: '/realty',
-            subitems: [
-               { title: 'sell', link: '/realty' },
-               { title: 'rent', link: '/realty' },
-            ],
-         },
-      ],
+      count: '15 000',
+      items: [],
+   },
+   {
+      target: 'moto',
+      title: 'Мототехника',
+      link: '/goods',
+      count: '8 500',
+      items: [],
    },
 ]);
 
@@ -148,46 +109,8 @@ const showDetailedMenu = (target) => {
    activeTarget.value = target;
 };
 
-
-const handleMenuItemClick = (item) => {
-   if (window.innerWidth > 480) {
-      router.push(item.target);
-      emit('close');
-   } else {
-      toggleDetailedMenu(item.target);
-   }
-};
-
-const handleScroll = () => {
-   const currentScrollTop = window.scrollY || document.documentElement.scrollTop;
-   isWithMargin.value = currentScrollTop === 0;
-   lastScrollTop.value = currentScrollTop <= 0 ? 0 : currentScrollTop;
-};
-
-const fetchAdsCount = async () => {
-   try {
-      const { totalCount } = await getCars({ page: 1 });
-      adsCount.value = totalCount;
-   } catch (error) {
-      console.error('Ошибка при получении данных: ', error);
-   }
-};
-
-const handleClickOutside = (event) => {
-   if (menuRef.value && !menuRef.value.contains(event.target)) {
-      hideDetailedMenu();
-      event.stopPropagation()
-      emit('close');
-      console.log('click outside');
-   }
-};
-
-const handleClick = (title) => {
-   if (title === 'used') {
-      handleUsedClick();
-   } else if (title === 'new') {
-      handleNewClick();
-   }
+const hideDetailedMenu = () => {
+   activeTarget.value = null;
 };
 
 const handleUsedClick = () => {
@@ -200,23 +123,58 @@ const handleNewClick = () => {
    filtersStore.setSelectedCondition(1);
 };
 
+const handleClickOutside = (event) => {
+   if (menuRef.value && !menuRef.value.contains(event.target)) {
+      hideDetailedMenu();
+      emit('close');
+   }
+};
+
+const handleSubCategoryClick = (item) => {
+   if (item.type === 'new') {
+      handleNewClick();
+   } else if (item.type === 'used') {
+      handleUsedClick();
+   }
+   hideDetailedMenu();
+};
+
+const handleMenuItemClick = (item) => {
+   if (isDesktop.value) {
+      router.push(item.target);
+      if (item.target === 'autos') {
+         filtersStore.setSelectedCondition(null);
+      }
+      emit('close');
+   } else {
+      toggleDetailedMenu(item.target);
+   }
+};
+
+const fetchAdsCount = async () => {
+   try {
+      const { totalCount } = await getCars({ page: 1 });
+      adsCount.value = totalCount;
+   } catch (error) {
+      console.error('Ошибка при получении данных: ', error);
+   }
+};
+
 onMounted(() => {
    window.addEventListener('scroll', handleScroll);
    window.addEventListener('click', handleClickOutside);
+   window.addEventListener('resize', updateDeviceMode);
    fetchAdsCount();
 });
 
 onUnmounted(() => {
    window.removeEventListener('scroll', handleScroll);
    window.removeEventListener('click', handleClickOutside);
+   window.removeEventListener('resize', updateDeviceMode);
 });
 </script>
 
 <style scoped lang="scss">
-.menu-2--with-margin {
-   padding-top: 44px;
-}
-
 .menu-2 {
    position: fixed;
    left: 0;
@@ -229,12 +187,17 @@ onUnmounted(() => {
    max-height: 0;
    transition: max-height 0.3s ease, padding 0.3s ease;
 
-   @media (max-width: 460px) {
-      max-height: unset;
-   }
-
    &--active {
       max-height: 75vh;
+   }
+
+   &--with-margin {
+      padding-top: 44px;
+
+      @media (max-width: 768px) {
+         padding-top: 0;
+      }
+
    }
 
    &__container {
@@ -251,10 +214,9 @@ onUnmounted(() => {
 
       @media (max-width: 1313px) {
          padding: 60px 16px;
-         padding-top: 66px;
       }
 
-      @media (max-width: 460px) {
+      @media (max-width: 768px) {
          padding-top: 66px;
          max-height: 100vh;
       }
@@ -265,47 +227,43 @@ onUnmounted(() => {
       display: grid;
       grid-template-columns: 212px 1fr;
       gap: 32px;
-      border-top: #D6D6D6 1px solid;
+      border-top: 1px solid #d6d6d6;
       padding-top: 8px;
 
-      @media screen and (max-width: 460px) {
+      @media screen and (max-width: 768px) {
          grid-template-columns: 1fr;
          height: 100%;
       }
    }
 
-
    &__bar {
-      background-color: #D6D6D6;
+      background-color: #d6d6d6;
       height: 1px;
       width: 100%;
       margin-bottom: 16px;
    }
 
-
    &__list {
       list-style: none;
       height: 100%;
       overflow-y: auto;
-      margin-left: -9px;
+      min-width: 290px;
    }
 
    &__list-item {
       display: flex;
       align-items: center;
       gap: 6px;
-      padding: 12px;
       background: $white;
       border-radius: 4px;
       font-weight: 400;
       font-size: 14px;
       height: 40px;
       color: $main-button;
-      transition: all 0.1s ease;
+      transition: font-weight 0.1s ease-in-out;
       cursor: pointer;
 
       &:hover {
-         background: $text-button;
          font-weight: 700;
       }
 
@@ -376,7 +334,7 @@ onUnmounted(() => {
       justify-content: flex-start;
       padding-bottom: 24px;
 
-      @media screen and (max-width: 460px) {
+      @media (max-width: 460px) {
          cursor: pointer;
       }
 
@@ -388,25 +346,28 @@ onUnmounted(() => {
          background-size: contain;
          background-repeat: no-repeat;
 
-         @media screen and (max-width: 460px) {
+         @media (max-width: 460px) {
             display: block;
          }
       }
 
-      @media screen and (max-width: 460px) {
+      @media (max-width: 460px) {
          cursor: pointer;
       }
    }
 
    &__detailed-title {
       font-weight: 700;
+      display: flex;
+      align-items: center;
       font-size: 20px;
-      color: $main-text;
+      line-height: 1;
+      height: 24px;
+      color: #323232;
       text-decoration: none;
-      transition: $transition-1;
       margin-right: 8px;
 
-      @media screen and (max-width: 460px) {
+      @media (max-width: 460px) {
          pointer-events: none;
          margin: 0 8px;
       }
@@ -417,11 +378,12 @@ onUnmounted(() => {
    }
 
    &__detailed-count-total {
-      background: #D6EFFF;
+      background: #d6efff;
       border-radius: 12px;
       padding: 3px 10px;
       font-weight: 400;
       font-size: 14px;
+      height: 24px;
       display: flex;
       align-items: center;
       color: $main-button;
@@ -433,7 +395,7 @@ onUnmounted(() => {
       padding-right: 92px;
       overflow-y: auto;
 
-      @media screen and (max-width: 1200px) {
+      @media (max-width: 1200px) {
          padding-right: 0;
       }
 
@@ -446,11 +408,11 @@ onUnmounted(() => {
       }
 
       &::-webkit-scrollbar-thumb {
-         background: #EBEBEB;
+         background: #ebebeb;
          border-radius: 4px;
 
          &:hover {
-            background: #D6EFFF;
+            background: #d6efff;
          }
       }
    }
@@ -532,7 +494,7 @@ onUnmounted(() => {
       transition: $transition-1;
 
       &:hover {
-         opacity: .7;
+         opacity: 0.7;
       }
    }
 }

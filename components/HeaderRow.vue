@@ -47,7 +47,7 @@
       </div>
       <DropdownMenu v-show="showDropdown" @close="closeCategories" />
       <LoginModal v-show="modalLoginOpen" @close-loginModal="toggleLoginModal" />
-      <UserMenuBurger v-model="isSideMenuOpen" :isRight="false" />
+      <UserMenuBurger v-model="isSideMenuOpen" />
    </div>
 </template>
 
@@ -56,7 +56,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useUserStore } from '~/store/user';
 import { useCityStore } from '../store/city.js';
 import { useRouter } from 'vue-router';
-import logoMain from '../assets/icons/logo-text.svg';
+import logoMain from '../assets/images/logo.svg';
 import { getImageUrl } from '~/services/imageUtils.js';
 
 const showDropdown = ref(false);
@@ -168,7 +168,7 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .header-row {
    position: fixed;
-   z-index: 5;
+   z-index: 10;
    display: flex;
    align-items: center;
    padding: 16px;
@@ -189,6 +189,10 @@ onUnmounted(() => {
       border: none;
       background-color: transparent;
       gap: 4px;
+
+      @media (max-width: 768px) {
+         display: none;
+      }
    }
 
    &__small-text {
@@ -211,6 +215,11 @@ onUnmounted(() => {
    &--with-margin {
       margin-top: 44px;
       box-shadow: none;
+
+      @media (max-width: 768px) {
+         margin-top: 0;
+      }
+
    }
 
    &__search-btn-icon {
@@ -270,7 +279,7 @@ onUnmounted(() => {
 
    &__logo-section {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       height: 34px;
       margin-right: 24px;
       outline: none;
@@ -278,15 +287,12 @@ onUnmounted(() => {
 
       @media (max-width: 480px) {
          margin-right: 0;
+         margin-right: 12px;
       }
    }
 
    &__logo {
-      height: 34px;
-
-      @media (max-width: 480px) {
-         display: none;
-      }
+      height: 32px;
    }
 
    &__controls {
@@ -325,9 +331,8 @@ onUnmounted(() => {
       line-height: 1;
       transition: background-color 0.3s ease;
 
-      @media (max-width: 480px) {
-         background-color: #fff;
-         padding: 0;
+      @media (max-width: 768px) {
+         display: none;
       }
 
       &--post-ad {

@@ -144,7 +144,11 @@ if (typeof window !== 'undefined') {
    flex-direction: column;
    border: 1px solid #e0e0e0;
    border-radius: 6px;
-   margin-top: 16px;
+   margin-top: 134px;
+
+   @media (max-width: 768px) {
+      margin-top: 65px;
+   }
 
    &__tabs {
       display: flex;
@@ -152,7 +156,7 @@ if (typeof window !== 'undefined') {
       gap: 8px;
       padding: 16px 40px;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          padding: 16px;
       }
    }

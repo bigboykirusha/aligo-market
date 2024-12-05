@@ -1,22 +1,21 @@
 <template>
   <CategoryList />
   <div class="cards-wrapper">
-    <CardListWithBanner :showTitle="true" :adsMain="adsMain" :pageSize="pageSize">
+    <CardListWithBanner :showTitle="true" :adsMain="adsMain" :pageSize="pageSize" :isLoading="isLoadingMain">
       <template #banner>
         <DubaiBanner />
       </template>
     </CardListWithBanner>
 
-    <Pagination v-if="totalItems > 0" :totalItems="totalItems" :pageSize="pageSize" :currentPage="currentPage"
-      @changePage="changePage" />
+    <Pagination v-if="totalItems > getAdsCount()" :totalItems="totalItems" :pageSize="pageSize"
+      :currentPage="currentPage" @changePage="changePage" />
 
-    <CardList v-if="adsSimilar.length" :title="title1" :ads="adsSimilar.slice(0, 5)" />
+    <CardList v-if="adsSimilar.length" :title="title1" :ads="adsSimilar.slice(0, 5)" :isLoading="isLoadingSimilar" />
 
     <BannerTemplate :content="bannerContent" />
 
-    <CardList v-if="adsHistory.length && isLoggedIn" :title="title2" :ads="adsHistory.slice(0, 5)" />
-
-    <InfoBanner />
+    <CardList v-if="(adsHistory.length && isLoggedIn)" :title="title2" :ads="adsHistory.slice(0, 5)"
+      :isLoading="isLoadingHistory" />
   </div>
 </template>
 
@@ -38,13 +37,16 @@ const isLoggedIn = ref(userStore.isLoggedIn);
 
 const title1 = t('titles.title1');
 const title2 = t('titles.title2');
-const ads = ref([]);
 const adsMain = ref([]);
 const adsHistory = ref([]);
 const adsSimilar = ref([]);
 const currentPage = ref(1);
 const pageSize = ref(20);
 const totalItems = ref(0);
+
+const isLoadingMain = ref(false);
+const isLoadingHistory = ref(false);
+const isLoadingSimilar = ref(false);
 
 const getAdsCount = () => {
   if (typeof window !== 'undefined') {
@@ -63,29 +65,29 @@ const bannerContent = {
   isMoscow: false,
 };
 
+const setLoadingWithDelay = (isLoadingRef) => {
+  setTimeout(() => {
+    isLoadingRef.value = false;
+  }, 1000);
+};
+
 const fetchMainAds = async () => {
+  isLoadingMain.value = true;
   pageSize.value = getAdsCount();
   try {
     const { data } = await getCars({ page: currentPage.value, count: pageSize.value, order_by: 'desc' });
     adsMain.value = data;
   } catch (error) {
     console.error('Ошибка при получении данных: ', error);
-  }
-};
-
-const fetchAds = async () => {
-  try {
-    const { data, totalCount } = await getCars({ count: 5 });
-    totalItems.value = totalCount;
-    ads.value = data;
-  } catch (error) {
-    console.error('Ошибка при получении данных: ', error);
+  } finally {
+    setLoadingWithDelay(isLoadingMain);
   }
 };
 
 const fetchAdsHistory = async () => {
   if (!isLoggedIn.value) return;
 
+  isLoadingHistory.value = true;
   try {
     const newAdsHistory = await getAdsHistory(cityStore.selectedCity.name);
     adsHistory.value = newAdsHistory
@@ -93,22 +95,29 @@ const fetchAdsHistory = async () => {
       .map(item => item.ads_show);
   } catch (error) {
     console.error('Ошибка при получении данных: ', error);
+  } finally {
+    setLoadingWithDelay(isLoadingHistory);
   }
 };
 
 const fetchAdsSimilar = async (newCity) => {
+  isLoadingSimilar.value = true;
   if (cityStore.selectedCity.name) {
     try {
-      const newAdsHistory = await getAdsSimilar(newCity);
-      adsSimilar.value = newAdsHistory;
+      const newAdsSimilar = await getAdsSimilar(newCity);
+      adsSimilar.value = newAdsSimilar;
     } catch (error) {
       console.error('Ошибка при получении данных: ', error);
+    } finally {
+      setLoadingWithDelay(isLoadingSimilar);
     }
+  } else {
+    isLoadingSimilar.value = false;
   }
 };
 
 const changePage = async (page) => {
-  if (page < 1 || page > Math.ceil(totalItems.value / pageSize)) return;
+  if (page < 1 || page > Math.ceil(totalItems.value / pageSize.value)) return;
   currentPage.value = page;
   await fetchMainAds();
 };
@@ -121,11 +130,10 @@ watch(
 );
 
 onMounted(() => {
-  fetchAds();
+  fetchMainAds();
   if (isLoggedIn.value) {
     fetchAdsHistory();
   }
-  fetchMainAds();
   fetchAdsSimilar(cityStore.selectedCity.name);
 });
 </script>

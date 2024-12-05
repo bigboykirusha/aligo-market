@@ -13,7 +13,7 @@
                      <NuxtRating :rating-value="Number(userData.grade)" :rating-count="5" :rating-size="10"
                         :rating-spacing="6" :active-color="'#3366FF'" :inactive-color="'#FFFFFF'"
                         :border-color="'#3366FF'" :border-width="2" :rounded-corners="true" :read-only="true" />
-                     <div class="user-info__reviews">
+                     <div @click="toggleReviewsModal" class="user-info__reviews">
                         {{ userData.count_reviews_about_myself }} {{
                            pluralizeReview(Number(userData.count_reviews_about_myself))
                         }}
@@ -24,6 +24,8 @@
                   </template>
                </div>
             </div>
+            <div class="user-info__completed-ads">ID: {{ formatUniqueCode(userData.unique_code) }}</div>
+            <div class="user-info__completed-ads">Частное лицо</div>
             <div class="user-info__completed-ads">Завершено 5 объявлений</div>
             <div class="user-info__registered-date">{{ registeredDate }}</div>
          </div>
@@ -41,6 +43,8 @@
       </div>
    </div>
    <LoginModal v-if="modalLoginOpen" @close-loginModal="toggleLoginModal" />
+   <ReviewsPopup :userId="props.userId" :visible="isReviewsPopupVisible"
+      :count_reviews_about_myself="count_reviews_about_myself" :rating="rating" @update:visible="toggleReviewsModal" />
 </template>
 
 <script setup>
@@ -52,6 +56,11 @@ import { useChatStore } from '~/store/chatStore';
 import { useUserStore } from '~/store/user';
 
 const modalLoginOpen = ref(false);
+const isReviewsPopupVisible = ref(false);
+
+const toggleReviewsModal = (visible) => {
+   isReviewsPopupVisible.value = visible;
+};
 
 const toggleLoginModal = () => {
    modalLoginOpen.value = !modalLoginOpen.value;
@@ -82,6 +91,10 @@ const fetchUserData = async () => {
    } catch (error) {
       console.error('Ошибка при получении данных пользователя: ', error);
    }
+};
+
+const formatUniqueCode = (code) => {
+   return code ? code.replace(/(.{4})(?=.)/g, '$1 ') : '';
 };
 
 const formatDate = (date) => {
@@ -252,6 +265,11 @@ onMounted(() => {
    &__reviews {
       font-size: 14px;
       color: #3366FF;
+      cursor: pointer;
+
+      &:hover {
+         text-decoration: underline;
+      }
    }
 
    &__completed-ads,

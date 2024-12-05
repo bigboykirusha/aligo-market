@@ -37,7 +37,7 @@
                      <NuxtRating :rating-value="Number(rating)" :rating-count="5" :rating-size="10" :rating-spacing="6"
                         :active-color="'#3366FF'" :inactive-color="'#FFFFFF'" :border-color="'#3366FF'"
                         :border-width="2" :rounded-corners="true" :read-only="true" />
-                     <div class="car-details__reviews">{{ count_reviews_about_myself }}{{
+                     <div @click="toggleReviewsModal" class="car-details__reviews">{{ count_reviews_about_myself }}{{
                         pluralizeReview(Number(count_reviews_about_myself)) }}</div>
                   </div>
                   <a href="#" class="user-info__reviews">Частное лицо</a>
@@ -68,6 +68,8 @@
       </div>
    </div>
    <LoginModal v-show="modalLoginOpen" @close-loginModal="toggleLoginModal" />
+   <ReviewsPopup :userId="props.id_user_owner_ads" :visible="isReviewsPopupVisible"
+      :count_reviews_about_myself="count_reviews_about_myself" :rating="rating" @update:visible="toggleReviewsModal" />
 </template>
 
 <script setup>
@@ -99,7 +101,7 @@ const props = defineProps({
 const modalLoginOpen = ref(false);
 const showPhone = ref(false);
 const phone = ref('');
-const isMapVisible = ref(false);
+const isMapVisible = ref(true);
 const userStore = useUserStore();
 const userPhotoUrl = ref('');
 const isDesktop = ref(false);
@@ -109,9 +111,20 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const rating = ref(null);
 const count_reviews_about_myself = ref(0);
 
+const isReviewsPopupVisible = ref(false);
+
+const toggleReviewsModal = (visible) => {
+   isReviewsPopupVisible.value = visible;
+};
+
 const formattedPhone = computed(() => {
    const phoneString = phone.value.replace(/\D/g, '');
-   return `+7 (${phoneString.slice(0, 3)}) ${phoneString.slice(3, 6)}-${phoneString.slice(6, 8)}-${phoneString.slice(8)}`;
+
+   if (phoneString.startsWith('7') && phoneString.length === 11) {
+      return `+7 (${phoneString.slice(1, 4)}) ${phoneString.slice(4, 7)}-${phoneString.slice(7, 9)}-${phoneString.slice(9)}`;
+   }
+
+   return phoneString;
 });
 
 const formattedUsername = computed(() => {

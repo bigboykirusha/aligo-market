@@ -8,7 +8,8 @@
       <Footer v-if="showFooter" />
       <FooterAlternative v-else />
       <Chat
-         v-if="userStore.isLoggedIn && !route.path.startsWith('/myself') && !route.path.startsWith('/autos') && !route.path.startsWith('/createAd')" />
+         v-show="userStore.isLoggedIn && !route.path.startsWith('/myself') && !route.path.startsWith('/autos') && !route.path.startsWith('/createAd')" />
+      <BottomToolbar />
    </div>
 </template>
 

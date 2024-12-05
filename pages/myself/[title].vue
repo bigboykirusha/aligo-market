@@ -1,7 +1,9 @@
 <template>
    <div class="wrapper">
       <UserMenu />
-      <component :is="currentComponent" />
+      <div class="current-component-wrapper">
+         <component :is="currentComponent" />
+      </div>
    </div>
 </template>
 
@@ -25,7 +27,6 @@ const componentsMap = {
    notifications: Notifications,
    editProfile: EditProfile,
    messages: Messages,
-
 };
 
 const updateComponent = () => {
@@ -40,17 +41,27 @@ watch(() => route.params.title, updateComponent, { immediate: true });
    max-width: 1312px;
    width: 100%;
    padding: 0 16px;
-   column-gap: 48px;
-   margin: 134px auto;
-   max-height: calc(100vh - 208px); 
+   margin: 134px auto auto;
    display: flex;
-   justify-content: space-between;
+   flex-direction: column;
+   justify-content: flex-start;
    overflow-y: auto;
-   margin-bottom: auto;
 
-   @media screen and (max-width: 768px) {
-      margin-top: 72px;
-      margin-bottom: auto;
+   @media (max-width: 768px) {
+      margin-top: 66px;
+      margin-bottom: 70px;
+      flex-grow: 1;
+   }
+}
+
+.current-component-wrapper {
+   width: calc(100% - 270px - 40px);
+   margin-left: auto;
+
+   @media (max-width: 768px) {
+      width: 100%;
+      margin: 0 auto;
+      margin-bottom: 24px;
    }
 }
 </style>

@@ -2,15 +2,14 @@
    <div class="container">
       <AutosFilters @updateSort="handleSortUpdate" />
       <div class="wrap">
-         <CardListWithBanner v-show="adsMain.length > 0" :showTitle="false" :adsMain="adsMain" :pageSize="count"
+         <CardListWithBanner :showTitle="false" :adsMain="adsMain" :pageSize="count" :isLoading="isLoading"
             @updateSort="handleSortUpdate">
             <template #banner>
                <AutosBanner />
             </template>
          </CardListWithBanner>
-         <Pagination v-show="adsMain.length > 0" :totalItems="totalItems" :pageSize="count" :currentPage="currentPage"
-            @changePage="changePage" />
-         <NoResults v-show="!(adsMain.length > 0)"/>
+         <Pagination v-if="totalItems > getAdsCount()" :totalItems="totalItems" :pageSize="count"
+            :currentPage="currentPage" @changePage="changePage" />
       </div>
    </div>
    <div class="wrap2">
@@ -74,32 +73,47 @@ const sliderData = [
 
 const fetchAds = async () => {
    try {
+      isLoading.value = true;
       const { data, totalCount } = await getCars({ count: 5, order_by: 'desc' });
       ads.value = data;
       totalItems.value = totalCount;
    } catch (error) {
       console.error('Ошибка при получении данных: ', error);
+   } finally {
+      setLoadingWithDelay();
    }
 };
 
 const fetchDefaultAds = async () => {
    try {
+      isLoading.value = true;
       const { data, totalCount } = await getCars({ count, order_by: 'desc' });
       adsMain.value = data;
       totalItems.value = totalCount;
    } catch (error) {
       console.error('Ошибка при получении данных: ', error);
+   } finally {
+      setLoadingWithDelay();
    }
 };
 
 const fetchAdsMain = async () => {
    try {
+      isLoading.value = true;
       const { data, totalCount } = await filtersStore.fetchFilteredCars({ page: currentPage.value, count });
       adsMain.value = data;
       totalItems.value = totalCount;
    } catch (error) {
       console.error('Ошибка при получении данных: ', error);
+   } finally {
+      setLoadingWithDelay();
    }
+};
+
+const setLoadingWithDelay = () => {
+   setTimeout(() => {
+      isLoading.value = false;
+   }, 1000); 
 };
 
 const changePage = async (page) => {
@@ -117,6 +131,8 @@ onMounted(() => {
    fetchAds();
    fetchDefaultAds();
 });
+
+const isLoading = ref(false);
 </script>
 
 <style scoped lang="scss">
@@ -137,8 +153,13 @@ onMounted(() => {
    }
 
    @media(max-width: 768px) {
-      margin-top: 116px;
+      margin-top: calc(66px + 24px);
    }
+}
+
+.autos-title {
+   color: #323232;
+
 }
 
 .wrap {
