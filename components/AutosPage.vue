@@ -16,7 +16,6 @@
    </div>
    <div class="wrap2">
       <CardList v-show="ads.length > 0" :title="title3" :ads="ads" :isLoading="isLoading" />
-      <InfoBanner />
    </div>
 </template>
 
@@ -142,7 +141,7 @@ onMounted(() => {
    margin: 0 auto;
    margin-top: 142px;
    display: flex;
-   gap: 60px;
+   gap: 40px;
    justify-content: space-between;
 
    @media (max-width: 1250px) {

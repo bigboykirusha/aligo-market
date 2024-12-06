@@ -3,7 +3,7 @@
       <div class="characteristics__content">
          <BlockTitle text="Категория" />
          <SwitcherCreateSkeleton v-if="loading" />
-         <AutosSwitcherCreate v-else :options="conditionIdOptions" label="Категория"
+         <AutosSwitcherCreate v-else :options="conditionIdOptions" label="Состояние"
             @updateSelected="handleConditionIdUpdate" :activeIndex="createStore.condition_id" />
       </div>
       <div class="characteristics__content">
@@ -67,7 +67,7 @@
             @update:option="handleMileageUpdate" v-if="showMileage" validationType="number"
             :isEmpty="checkIfEmpty(createStore.mileage)" />
          <SwitcherCreateSkeleton v-if="loading" />
-         <AutosSwitcherCreate v-else :options="switcherStateOptions" label="Состояние*"
+         <AutosSwitcherCreate v-else :options="switcherStateOptions" label="Состояние"
             @updateSelected="handleStateUpdate" :activeIndex="createStore.state_id" v-if="showState" />
          <SwitcherCreateSkeleton v-if="loading" />
          <AutosSwitcherCreate v-else :options="ownersOptions" label="Владельцев" @updateSelected="handleOwnersUpdate"

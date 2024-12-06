@@ -12,81 +12,70 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { onBeforeRouteLeave } from 'vue-router';
+import { ref, computed } from 'vue';
 import { useCreateStore } from '../store/create.js';
 import { useUserStore } from '../store/user.js';
+import { useRouter } from '#vue-router';
 import { publishFromArchive } from '../services/apiClient.js';
 
 const createStore = useCreateStore();
 const userStore = useUserStore();
 const isAdSended = ref(false);
 const isPopupVisible = ref(false);
+const router = useRouter();
 
 createStore.initializeUserData();
 
-const isAnyFieldFilled = computed(() => createStore.isAnyFieldFilled);
+const isAnyFieldFilled = computed(() => createStore.isAnyFieldFilled);  // Проверка на наличие заполненных полей
 
-onBeforeRouteLeave((to, from, next) => {
-   if (isAnyFieldFilled.value) {
-      isPopupVisible.value = true;
-      savedRoute.value = to;
-      nextFunction.value = next;
+// Показывать попап перед переходом на другую страницу, если есть незаполненные поля
+router.beforeEach((to, from, next) => {
+   if (isAnyFieldFilled.value && !isAdSended.value) {
+      isPopupVisible.value = true;  // Показываем попап, если есть незаполненные поля и объявление не отправлено
+      next(false);  // Останавливаем переход, пока не будет решено
    } else {
-      next();
+      next();  // Разрешаем переход
    }
 });
 
-const beforeUnloadHandler = (event) => {
-   if (isAnyFieldFilled.value) {
-      event.preventDefault();
-      event.returnValue = '';
-   }
-};
-
-onMounted(() => {
-   window.addEventListener('beforeunload', beforeUnloadHandler);
-});
-
-onBeforeUnmount(() => {
-   window.removeEventListener('beforeunload', beforeUnloadHandler);
-});
-
+// Обработка отправки объявления
 const handleSendAd = async () => {
-   await handleAdAction(0);
-   isAdSended.value = true;
-};
-
-const saveAd = async () => {
-   createStore.setIsDraft(1);
-   await createStore.sendCarAd();
-   createStore.resetParams();
-   await userStore.fetchUserCounts();
-   closePopup();
-   nextFunction.value();
-};
-
-const handleAdAction = async (draftStatus) => {
-   createStore.setIsDraft(draftStatus);
    if (createStore.id) {
       if (createStore.is_in_archive) {
          await publishFromArchive(createStore.id);
-         await createStore.updateCarAd()
-      } else { await createStore.updateCarAd() }
+         await createStore.updateCarAd();
+      } else {
+         await createStore.updateCarAd();
+      }
    } else {
       await createStore.sendCarAd();
    }
-   isAdSended.value = true;
+
+   if (createStore.is_draft === 1) {
+      router.push('/');  // Переход на главную страницу после сохранения черновика
+   } else {
+      isAdSended.value = true;
+   }
+   createStore.resetParams();
 };
 
-const closePopup = () => {
-   isPopupVisible.value = false;
+const saveAd = async () => {
+   router.push('/');  // Переход на главную страницу после сохранения
+   createStore.setIsDraft(1);  // Устанавливаем статус черновика
+   await createStore.sendCarAd();
+   createStore.resetParams();
+   await userStore.fetchUserCounts();
+   isPopupVisible.value = false;  // Закрываем попап
 };
 
 const discardAd = () => {
    createStore.resetParams();
-   closePopup();
-   nextFunction.value();
+   router.push('/');  // Переход на главную страницу после отказа
+   isPopupVisible.value = false;  // Закрываем попап
+};
+
+const closePopup = () => {
+   isPopupVisible.value = false;
 };
 </script>
 

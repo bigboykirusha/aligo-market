@@ -5,7 +5,7 @@
          <div v-for="(option, index) in options" :key="option.id"
             :class="['switcher__item', { 'switcher__item--active': selectedIndex === (index + 1) }]"
             @click="selectOption(index)" :style="{ width: itemWidth }">
-            {{ option.title }}
+            {{ capitalizeFirstWord(option.title) }}
             <div v-if="shouldShowDivider(index)" class="switcher__divider"></div>
          </div>
          <div v-if="selectedIndex !== null" class="switcher__indicator" :style="indicatorStyle">
@@ -58,6 +58,13 @@ const shouldShowDivider = (index) => {
    return actualIndex < props.options.length;
 };
 
+const capitalizeFirstWord = (text) => {
+   if (!text) return '';
+   const words = text.split(' ');
+   words[0] = words[0].charAt(0).toUpperCase() + words[0].slice(1).toLowerCase();
+   return words.join(' ');
+};
+
 const indicatorStyle = computed(() => {
    const translateX = (selectedIndex.value - 1) * 100;
    const width = 100 / props.options.length;
@@ -76,7 +83,7 @@ const itemWidth = computed(() => {
 <style scoped lang="scss">
 .switcher {
    display: flex;
-   align-items: center;
+   align-items: flex-start;
 
    @media (max-width: 768px) {
       flex-direction: column;
@@ -110,7 +117,6 @@ const itemWidth = computed(() => {
       position: relative;
       transition: color 0.3s;
       white-space: nowrap;
-      text-transform: capitalize;
 
       &--active {
          color: white;

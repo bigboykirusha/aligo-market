@@ -150,10 +150,11 @@ const logout = () => {
    border: 1px solid #3366FF;
    border-radius: 0 0 4px 4px;
    top: 0;
+   right: 0;
    display: flex;
    flex-direction: column;
    align-items: center;
-   width: 216px;
+   width: 224px;
 
    &--compact {
       border-radius: 6px;

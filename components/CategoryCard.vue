@@ -4,7 +4,7 @@
          @click="handleMainClick">
          <div class="card__content">
             <div class="card__text">
-               <span class="card__title">{{ category.title }}</span>
+               <nuxt-link :to="category.href" class="card__title">{{ category.title }}</nuxt-link>
                <ul class="card__list">
                   <li @click.stop="handleClick(subcategory)" v-for="(subcategory, index) in category.subcategories"
                      :key="index" class="card__list-item">
@@ -30,7 +30,6 @@ const props = defineProps({
 
 // Обработка клика на основную категорию
 const handleMainClick = () => {
-   console.log('Клик по основной категории');
    filtersStore.setSelectedCondition(null); // Сбрасываем condition
 };
 

@@ -141,9 +141,8 @@ export const useCreateStore = defineStore('create', {
             state.handlebar_id,
             state.condition_id,
             state.drive_id,
-            state.state_id,
             state.pts,
-         ].every(field => field !== null);
+         ].every(field => field !== null && field !== "" && !(Array.isArray(field) && field.length === 0) && !(typeof field === 'object' && Object.keys(field).length === 0));
       },
       isAdFieldsFilled: (state) => {
          return [
@@ -194,7 +193,7 @@ export const useCreateStore = defineStore('create', {
          const { lat, lon } = await fetchLocation();
          this.phone = userStore.phoneNumber ? userStore.phoneNumber : null;
          this.email = userStore.email ? userStore.email : null;
-         this.username = userStore.login ? userStore.login : null;
+         this.username = userStore.username ? userStore.username : `User #${userStore.uniqueCode}`;
          this.latitude = userStore.latitude ? userStore.latitude : lat;
          this.longitude = userStore.longitude ? userStore.longitude : lon;
          this.place_inspection = userStore.address ? userStore.address : null;

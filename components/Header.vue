@@ -49,8 +49,8 @@
                 <img v-if="userAvatar" :src="userAvatar" alt="Avatar" class="header__user-avatar">
                 <span v-else class="header__user-circle">{{ initial }}</span>
                 <span class="header__user-name">{{ displayName }}</span>
-                <UserMenuPopup v-if="isUserMenuOpen && isDesktop" @close-userMenu="toggleUserMenu" />
               </div>
+              <UserMenuPopup v-if="isUserMenuOpen && isDesktop" @close-userMenu="toggleUserMenu" />
             </div>
           </template>
           <button v-else class="header__nav-link" @click="toggleLoginModal">
@@ -351,6 +351,7 @@ onUnmounted(() => {
 
   &__user-info {
     display: flex;
+    position: relative;
     height: 44px;
     gap: 24px;
     align-items: center;

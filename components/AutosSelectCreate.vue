@@ -105,7 +105,7 @@ watch(selectedOption, (newOption) => {
       height: 34px;
       width: 310px;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          width: 100%;
       }
 
