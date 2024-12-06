@@ -5,7 +5,8 @@
             <img src="../assets/icons/send-complite.svg" alt="Картинка" />
          </div>
          <div class="business__block-left">
-            <h2>Поздравляем! Ваше объявление опубликовано. Следить за объявления можно не только на сайте, но и через
+            <h2>Поздравляем! Ваше объявление отправлено на модерацию. Следить за объявления можно не только на сайте, но
+               и через
                бота в телегаме.</h2>
             <div class="telegram">Перейти в Telegram</div>
             <nuxt-link to="/">{{ $t('business.homeLink') }}</nuxt-link>
