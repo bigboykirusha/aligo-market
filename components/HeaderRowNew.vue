@@ -39,7 +39,7 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .header-row {
    position: fixed;
-   z-index: 5;
+   z-index: 15;
    display: flex;
    align-items: center;
    transition: $transition-1;
@@ -49,12 +49,20 @@ onUnmounted(() => {
    width: 100%;
    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
 
+   @media (max-width: 768px) {
+      z-index: 5;
+   }
+
    &--with-margin {
       margin-top: 44px;
       box-shadow: none;
 
       @media (max-width: 768px) {
          margin-top: 0;
+      }
+
+      .header-row__container {
+         border-bottom: 1px solid #d6d6d6;
       }
    }
 
@@ -75,9 +83,10 @@ onUnmounted(() => {
       outline: none;
       margin-right: 24px;
 
-      @media screen and (max-width: 991px) {
+      @media (max-width: 991px) {
          margin-right: 16px;
          justify-content: center;
+         padding-left: 2px;
       }
    }
 

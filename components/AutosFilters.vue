@@ -757,19 +757,21 @@ onUnmounted(() => {
       background-color: #EEF9FF;
 
       @media (max-width: 768px) {
-         height: 82px;
          bottom: 70px;
-         background-color: transparent;
+         background-color: rgba(#EEF9FF, 0.3);
+         backdrop-filter: blur(8px);
+         border-radius: 24px 24px 0 0;
       }
    }
 
    &__seacrh {
       padding: 16px 16px 24px;
       max-width: 1312px;
+      height: 70px;
       margin: 0 auto;
 
       @media (max-width: 768px) {
-         padding: 24px 46px;
+         padding: 16px 46px;
       }
    }
 
@@ -789,7 +791,7 @@ onUnmounted(() => {
 
       @media (max-width: 600px) {
          width: 100%;
-         height: 40px;
+         height: 36px;
          max-width: 100%;
          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       }

@@ -86,7 +86,7 @@ const indicatorStyle = computed(() => {
    display: flex;
    flex-direction: column;
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       gap: 8px;
    }
 

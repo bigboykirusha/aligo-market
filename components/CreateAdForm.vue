@@ -1,11 +1,10 @@
 <template>
    <div class="create-ad-form">
       <div class="create-ad-form__tabs">
-         <div class="create-ad-form__tab" :class="setTabClass(1)" @click="selectTab(1)" :style="{ cursor: activeTab > 1 ? 'pointer' : 'default' }">
-            <img v-if="activeTab > 1 && isMobile" src="../assets/icons/check.svg" alt=""
-               class="create-ad-form__tab-icon" />
-            <b v-if="!isMobile || activeTab === 1">1</b>
-            <span v-if="!isMobile || activeTab === 1"> • Характеристики</span>
+         <div class="create-ad-form__tab" :class="setTabClass(1)" @click="selectTab(1)">
+            <img v-if="activeTab > 1" src="../assets/icons/check.svg" alt="" class="create-ad-form__tab-icon" />
+            <b v-if="activeTab === 1">1</b>
+            <span v-if="activeTab === 1"> • Характеристики</span>
          </div>
          <div class="create-ad-form__arrow" :class="{ 'create-ad-form__arrow--active': activeTab >= 2 }">
             <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -17,11 +16,10 @@
                   stroke-linecap="round" stroke-linejoin="round" />
             </svg>
          </div>
-         <div class="create-ad-form__tab" :class="setTabClass(2)" @click="selectTab(2)" :style="{ cursor: activeTab > 2 ? 'pointer' : 'default' }">
-            <img v-if="activeTab > 2 && isMobile" src="../assets/icons/check.svg" alt=""
-               class="create-ad-form__tab-icon" />
-            <b v-if="!isMobile || activeTab <= 2">2</b>
-            <span v-if="!isMobile || activeTab == 2"> • Опции</span>
+         <div class="create-ad-form__tab" :class="setTabClass(2)" @click="selectTab(2)">
+            <img v-if="activeTab > 2" src="../assets/icons/check.svg" alt="" class="create-ad-form__tab-icon" />
+            <b v-if="activeTab <= 2">2</b>
+            <span v-if="activeTab === 2"> • Опции</span>
          </div>
          <div class="create-ad-form__arrow" :class="{ 'create-ad-form__arrow--active': activeTab >= 3 }">
             <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -35,7 +33,7 @@
          </div>
          <div class="create-ad-form__tab" :class="setTabClass(3)">
             <b>3</b>
-            <span v-if="!isMobile || activeTab === 3"> • Объявление</span>
+            <span v-if="activeTab === 3"> • Объявление</span>
          </div>
       </div>
 
@@ -52,32 +50,25 @@
       </div>
 
       <div class="create-ad-form__actions">
-         <nuxt-link to="/">
+         <div class="create-ad-form__overlay">
             <button class="create-ad-form__button create-ad-form__button--save" @click="saveAndExit">
                Сохранить и выйти
             </button>
-         </nuxt-link>
-         <div class="create-ad-form__continue" v-if="activeTab === 3">
-            <button class="create-ad-form__button create-ad-form__button--continue" @click="publishAndExit"
-               :disabled="!isPublishEnabled">
-               Разместить объявление
+            <button v-if="activeTab === 3" class="create-ad-form__button create-ad-form__button--continue"
+               @click="publishAndExit" :disabled="!isPublishEnabled">
+               Опубликовать
             </button>
-            <div class="create-ad-form__info">
-               Вы публикуете объявление и данные в нём, чтобы их мог посмотреть кто угодно в интернете. Вы также
-               соглашаетесь
-               <span class="rules">правилами</span>.
-            </div>
+            <button v-else class="create-ad-form__button create-ad-form__button--continue" @click="continueToNextTab"
+               :disabled="!isNextEnabled">
+               Продолжить
+            </button>
          </div>
-         <button v-else class="create-ad-form__button create-ad-form__button--continue" @click="continueToNextTab"
-            :disabled="!isNextEnabled">
-            Продолжить
-         </button>
       </div>
    </div>
 </template>
 
 <script setup>
-import { ref, computed, watchEffect } from 'vue';
+import { ref, computed } from 'vue';
 import { useCreateStore } from '../store/create';
 
 const activeTab = ref(1);
@@ -124,12 +115,6 @@ const isPublishEnabled = computed(() => {
    }
    return true;
 });
-
-const isMobile = ref(false);
-
-watchEffect(() => {
-   isMobile.value = window.innerWidth <= 768;
-});
 </script>
 
 <style lang="scss" scoped>
@@ -139,9 +124,14 @@ watchEffect(() => {
    border: 1px solid #e0e0e0;
    border-radius: 6px;
    margin-top: 134px;
+   margin-bottom: 70px;
+   width: 100%;
 
    @media (max-width: 768px) {
       margin-top: 65px;
+      margin-bottom: calc(147px - 16px);
+      border-radius: 0;
+      border: none;
    }
 
    &__tabs {
@@ -149,9 +139,15 @@ watchEffect(() => {
       align-items: center;
       gap: 8px;
       padding: 16px 40px;
+      background-color: white;
+      z-index: 10;
 
       @media (max-width: 768px) {
-         padding: 16px;
+         position: sticky;
+         height: 65px;
+         top: 0;
+         padding: 16px 0;
+         margin-bottom: 24px;
       }
    }
 
@@ -161,6 +157,7 @@ watchEffect(() => {
       align-items: center;
       justify-content: center;
       padding: 2px 10px;
+      height: 24px;
       border-radius: 12px;
       background-color: #EEEEEE;
       color: #757575;
@@ -168,10 +165,9 @@ watchEffect(() => {
       transition: background-color 0.3s, color 0.3s, transform 0.3s;
 
       @media (max-width: 768px) {
-         height: 26px;
+         height: 18px;
       }
 
-      b,
       img {
          padding-right: 3px;
       }
@@ -180,14 +176,15 @@ watchEffect(() => {
          font-size: 16px;
 
          @media (max-width: 480px) {
-            font-size: 12px;
+            font-size: 13px;
          }
       }
 
       span {
          font-size: 16px;
+         padding-left: 3px;
 
-         @media screen and (max-width: 360px) {
+         @media (max-width: 360px) {
             font-size: 13px;
          }
       }
@@ -232,16 +229,23 @@ watchEffect(() => {
    }
 
    &__content {
-      border-top: 1px solid #e0e0e0;
-      border-bottom: 1px solid #e0e0e0;
-      border-radius: 6px;
-      background-color: #ffffff;
-      padding: 40px;
-      overflow-y: auto;
+      margin: 16px 40px;
+      width: 100%;
 
       @media (max-width: 768px) {
-         padding: 40px 16px;
-         max-height: 100%;
+         margin: 0;
+      }
+   }
+
+   &__overlay {
+      max-width: 1280px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      gap: 40px;
+
+      @media (max-width: 768px) {
+         gap: 16px;
       }
    }
 
@@ -250,24 +254,25 @@ watchEffect(() => {
       bottom: 0;
       left: 0;
       right: 0;
+      height: 70px;
+      padding: 0 40px;
       display: flex;
-      justify-content: flex-start;
-      gap: 40px;
-      padding: 24px 40px;
+      align-items: center;
       background-color: white;
       border-top: 1px solid #e0e0e0;
       box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
       z-index: 100;
 
       @media (max-width: 768px) {
-         flex-direction: column;
-         gap: 24px;
+         flex-direction: row;
          padding: 24px 16px 40px;
          margin-bottom: 70px;
          box-shadow: none;
          padding: 16px;
          border: none;
-         background-color: transparent;
+         background-color: rgba(#EEF9FF, 0.3);
+         backdrop-filter: blur(8px);
+         border-radius: 24px 24px 0 0;
       }
    }
 
@@ -277,23 +282,16 @@ watchEffect(() => {
    }
 
    &__button {
-      padding: 9px 0;
-      width: 232px;
-      height: 40px;
+      padding: 9px 16px;
+      height: 36px;
+      width: 50%;
+      white-space: nowrap;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 14px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
-
-      @media screen and (max-width: 768px) {
-         width: 100%;
-      }
-
-      &:hover {
-         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      }
 
       &--continue {
          background-color: #3366FF;
@@ -319,25 +317,6 @@ watchEffect(() => {
             background-color: lighten(#D6EFFF, 1%);
          }
       }
-   }
-}
-
-.rules {
-   color: #3366FF;
-
-   &:hover {
-      text-decoration: underline;
-      cursor: pointer;
-   }
-}
-
-.create-ad-form__continue {
-   display: flex;
-   align-items: flex-start;
-   gap: 8px;
-
-   @media (max-width: 768px) {
-      flex-direction: column;
    }
 }
 </style>

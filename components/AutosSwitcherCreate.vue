@@ -35,7 +35,6 @@ const props = defineProps({
 
 const selectedIndex = ref(props.activeIndex);
 
-
 watch(() => props.activeIndex, (newIndex) => {
    selectedIndex.value = newIndex;
 });
@@ -70,12 +69,7 @@ const indicatorStyle = computed(() => {
 });
 
 const itemWidth = computed(() => {
-   const screenWidth = window.innerWidth;
-   if (screenWidth < 768) {
-      return props.options.length > 3 ? '67.5px' : '90px';
-   } else {
-      return props.options.length > 3 ? '67.5px' : '120px';
-   }
+      return props.options.length > 3 ? '77.5px' : '103px';
 });
 </script>
 
@@ -84,7 +78,7 @@ const itemWidth = computed(() => {
    display: flex;
    align-items: center;
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       flex-direction: column;
       gap: 8px;
       align-items: flex-start;
@@ -136,7 +130,7 @@ const itemWidth = computed(() => {
       position: absolute;
       top: 3px;
       bottom: 3px;
-      border-radius: 3px;
+      border-radius: 4px;
       background-color: #3366FF;
       transition: transform 0.3s, width 0.3s;
    }

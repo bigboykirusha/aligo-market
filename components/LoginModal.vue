@@ -23,7 +23,7 @@
                </div>
             </div>
 
-            <form class="modal__form" @submit="submitForm" @keydown="handleEnterKeydown">
+            <form class="modal__form" @submit.prevent="submitForm" @keydown="handleEnterKeydown">
                <div v-show="isLoading" class="loading-overlay">
                   <div class="spinner"></div>
                </div>

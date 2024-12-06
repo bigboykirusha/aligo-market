@@ -773,7 +773,7 @@ onBeforeUnmount(() => {
       box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.08), 0px 0px 6px rgba(0, 0, 0, 0.08);
       border-radius: 4px;
       height: 100%;
-      max-height: calc(100vh - 300px);
+      max-height: 508px;
 
       @media (max-width: 768px) {
          position: absolute;

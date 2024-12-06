@@ -139,8 +139,9 @@ const validate = (value) => {
 .simple-input {
    display: flex;
    align-items: flex-start;
+   width: 100%;
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       flex-direction: column;
       gap: 8px;
    }
@@ -153,10 +154,19 @@ const validate = (value) => {
 
    &__wrapper {
       position: relative;
-      width: 310px;
+      width: 100%;
 
-      @media screen and (max-width: 768px) {
-         width: calc(100vw - 64px);
+      @media (max-width: 768px) {
+         width: 100%;
+      }
+   }
+
+   &__block {
+      width: 100%;
+      max-width: 310px;
+
+      @media (max-width: 768px) {
+         max-width: 100%;
       }
    }
 
