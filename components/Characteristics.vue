@@ -1,6 +1,12 @@
 <template>
    <div class="characteristics">
       <div class="characteristics__content">
+         <BlockTitle text="Категория" />
+         <SwitcherCreateSkeleton v-if="loading" />
+         <AutosSwitcherCreate v-else :options="conditionIdOptions" label="Категория"
+            @updateSelected="handleConditionIdUpdate" :activeIndex="createStore.condition_id" />
+      </div>
+      <div class="characteristics__content">
          <BlockTitle text="Внешний вид" />
          <PhotoUploader label="Фотографии (до 10 шт)*" :photos="createStore.photos" @updatePhotos="updatePhotos" />
          <ColorPickerCreateSkeleton v-if="loading" />
@@ -9,12 +15,6 @@
          <TextSkeleton v-if="loading" />
          <AutosTextTemplate v-else label="Видео с youtube" placeholder="Cсылка на видео" :option="createStore.video"
             validationType="url" @update:option="handleVideoUpdate" />
-      </div>
-      <div class="characteristics__content">
-         <BlockTitle text="Категория" />
-         <SwitcherCreateSkeleton v-if="loading" />
-         <AutosSwitcherCreate v-else :options="conditionIdOptions" label="Категория"
-            @updateSelected="handleConditionIdUpdate" :activeIndex="createStore.condition_id" />
       </div>
       <div class="characteristics__content">
          <BlockTitle text="Регистрационные данные" />

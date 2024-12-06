@@ -1,6 +1,6 @@
 <template>
    <footer class="footer" :class="{ 'footer--visible': isVisible }" @mouseenter="cancelAutoHide"
-      @mouseleave="startAutoHide">
+      @mouseleave="startAutoHide" v-if="!isCreateAdPage">
       <div class="footer__row">
          <div class="footer__container">
             <div class="footer__bottom">
@@ -10,7 +10,7 @@
                   <li><nuxt-link to="/autos">Конфиденциальность</nuxt-link></li>
                </ul>
                <div class="footer__text">
-                  Аligo corporate co ltd. 2024г. Мы делаем Грузию мобильнее.
+                  Aligo corporate co ltd. 2024г. Мы делаем Грузию мобильнее.
                </div>
             </div>
             <nuxt-link to="/" class="footer__logo">
@@ -22,43 +22,48 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue';
+import { useRoute } from 'vue-router';
 
-const isVisible = ref(false)
-let lastScrollTop = 0
-let autoHideTimeout = null
+const isVisible = ref(false);
+const isCreateAdPage = ref(false);
+let lastScrollTop = 0;
+let autoHideTimeout = null;
+
+const route = useRoute();
 
 const handleScroll = () => {
-   const currentScrollTop = window.scrollY
+   const currentScrollTop = window.scrollY;
    if (currentScrollTop < lastScrollTop) {
-      isVisible.value = true
-      startAutoHide()
+      isVisible.value = true;
+      startAutoHide();
    } else {
-      isVisible.value = false
-      cancelAutoHide()
+      isVisible.value = false;
+      cancelAutoHide();
    }
-   lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop
-}
+   lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop;
+};
 
 const startAutoHide = () => {
-   cancelAutoHide()
+   cancelAutoHide();
    autoHideTimeout = setTimeout(() => {
-      isVisible.value = false
-   }, 3000)
-}
+      isVisible.value = false;
+   }, 3000);
+};
 
 const cancelAutoHide = () => {
-   clearTimeout(autoHideTimeout)
-}
+   clearTimeout(autoHideTimeout);
+};
 
 onMounted(() => {
-   window.addEventListener('scroll', handleScroll)
-})
+   window.addEventListener('scroll', handleScroll);
+   isCreateAdPage.value = route.name === 'createAd';
+});
 
 onUnmounted(() => {
-   window.removeEventListener('scroll', handleScroll)
-   cancelAutoHide()
-})
+   window.removeEventListener('scroll', handleScroll);
+   cancelAutoHide();
+});
 </script>
 
 <style scoped lang="scss">
@@ -94,7 +99,7 @@ onUnmounted(() => {
       margin: 0 auto;
       padding: 0 16px;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          align-items: flex-start;
       }
    }
@@ -105,7 +110,7 @@ onUnmounted(() => {
       height: 24px;
       margin: 16px 0;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          position: absolute;
          top: 0;
          right: 16px;
@@ -115,7 +120,7 @@ onUnmounted(() => {
       img {
          height: 24px;
 
-         @media screen and (max-width: 768px) {
+         @media (max-width: 768px) {
             height: 16px;
          }
       }
@@ -128,7 +133,7 @@ onUnmounted(() => {
       gap: 6px;
       padding: 16px 0;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          gap: 10px;
       }
    }
@@ -141,7 +146,7 @@ onUnmounted(() => {
       margin: 0;
       gap: 16px;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          flex-direction: column;
          align-items: flex-start;
          gap: 8px;

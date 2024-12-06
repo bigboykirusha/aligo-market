@@ -15,11 +15,11 @@
                </a>
                <a v-else-if="!(id_user_owner_ads === userStore.userId)" href="#" class="car-details__contact-button"
                   @click.prevent="showTel">
-                  <span class="car-details__contact-button-text">Позвонить</span>
+                  <span class="car-details__contact-button-text">Показать номер</span>
                </a>
                <a v-else-if="!(id_user_owner_ads === userStore.userId)" href="#" class="car-details__contact-button"
                   @click.prevent="toggleLoginModal">
-                  <span class="car-details__contact-button-text">Позвонить</span>
+                  <span class="car-details__contact-button-text">Показать номер</span>
                </a>
                <div @click="openChat" v-if="!(id_user_owner_ads === userStore.userId)"
                   class="car-details__write-button">
