@@ -78,13 +78,15 @@ const userStore = useUserStore();
 const { count_new_messages, countFavorites } = storeToRefs(userStore);
 const loggedIn = ref(userStore.isLoggedIn);
 
-const menuItems = [
-   { title: 'Каталог', path: '/autos', icon: 'catalog' },
-   { title: 'Разместить', path: '/createAd', icon: 'post' },
-   { title: 'Чаты', path: '/myself/messages', icon: 'chats' },
-   { title: 'Избранное', path: '/myself/favorites', icon: 'favorites' },
-   { title: 'Профиль', path: '/myself/editProfile', icon: 'profile' },
-];
+const menuItems = computed(() =>
+   [
+      { title: 'Каталог', path: '/autos', icon: 'catalog' },
+      { title: 'Разместить', path: '/createAd', icon: 'post' },
+      { title: 'Чаты', path: '/myself/messages', icon: 'chats' },
+      { title: 'Избранное', path: '/myself/favorites', icon: 'favorites' },
+      { title: loggedIn.value ? 'Профиль' : 'Вход', path: '/myself/editProfile', icon: 'profile' },
+   ]
+);
 
 const isActive = (path, icon) => {
    if (icon === 'catalog') {

@@ -24,11 +24,11 @@
             </div>
 
             <form class="modal__form" @submit.prevent="submitForm" @keydown="handleEnterKeydown">
-               <div v-show="isLoading" class="loading-overlay">
-                  <div class="spinner"></div>
-               </div>
-               <div v-show="(activeTab === 0 || activeTab === 1) && !isLoading" class="modal__form-section"
+               <div v-show="(activeTab === 0 || activeTab === 1)" class="modal__form-section"
                   @keydown="handleEnterKeydown">
+                  <div v-show="isLoading" class="loading-overlay">
+                     <div class="spinner"></div>
+                  </div>
                   <div v-show="!showCodeInput" class="input-wrapper">
                      <p class="input-wrapper__title">{{ isPhoneTab ? 'Введите номер телефона' : 'Введите адрес почты' }}
                      </p>
@@ -268,7 +268,7 @@ const handleBackspace = () => {
    const lengthBefore = value.length;
 
    if (['-', '('].includes(value[lengthBefore - 2])) {
-      phoneNumber.value = value.slice(0, lengthBefore - 1); 
+      phoneNumber.value = value.slice(0, lengthBefore - 1);
    }
 };
 
