@@ -1,7 +1,7 @@
 <template>
    <div class="cards">
       <h2 class="cards__title">{{ title }}</h2>
-      <div class="cards__main">
+      <div class="cards__main" :class="{ 'cards__main--four': isFour }">
          <CardSkeleton v-if="isLoading" v-for="index in 5" :key="index" />
          <Card v-else v-for="ad in uniqueAds" :key="ad.id" :id="ad.id" :description="ad.ads_parameter?.ads_description"
             :price="ad.ads_parameter?.amount" :place="ad.ads_parameter?.place_inspection || 'Адрес не указан'"
@@ -32,6 +32,10 @@ const props = defineProps({
       type: Boolean,
       required: true,
    },
+   isFour: {
+      type: Boolean,
+      default: false,
+   },
 });
 
 const loading = ref(true);
@@ -60,21 +64,43 @@ const uniqueAds = computed(() => {
       grid-template-columns: repeat(5, 1fr);
       gap: 40px;
 
-      @media screen and (max-width: 1300px) {
+      &--four {
          grid-template-columns: repeat(4, 1fr);
+         column-gap: 30px;
       }
 
-      @media screen and (max-width: 1040px) {
+      @media (max-width: 1300px) {
+         grid-template-columns: repeat(4, 1fr);
+
+         &--four {
+            grid-template-columns: repeat(4, 1fr);
+            column-gap: 30px;
+         }
+      }
+
+      @media (max-width: 1040px) {
          grid-template-columns: repeat(3, 1fr);
          gap: 24px;
+
+         &--four {
+            grid-template-columns: repeat(3, 1fr);
+         }
       }
 
-      @media screen and (max-width: 800px) {
+      @media (max-width: 800px) {
          grid-template-columns: repeat(2, 1fr);
+
+         &--four {
+            grid-template-columns: repeat(2, 1fr);
+         }
       }
 
-      @media screen and (max-width: 500px) {
+      @media (max-width: 480px) {
          grid-template-columns: 1fr;
+
+         &--four {
+            grid-template-columns: 1fr;
+         }
       }
    }
 }

@@ -2,37 +2,42 @@
   <div>
     <header :class="{ 'header--hidden': isHeaderHidden }" class="header">
       <div :class="containerClasses">
+        <!-- Навигация -->
         <nav class="header__nav" aria-label="Primary">
           <ul class="header__nav-list" v-show="!isMyselfRoute || isDesktop">
             <nuxt-link to="/" class="header__nav-item header__nav-item--mobile">
-              <img class="header__nav--logo" src="../assets/images/logo-white.svg" alt="Logo">
+              <img class="header__nav--logo" src="@/assets/images/logo-white.svg" alt="Logo">
             </nuxt-link>
             <li class="header__nav-item">
               <button class="header__nav-link" @click="toggleModal">
                 <img :src="defaultLocationIcon" alt="Location icon" class="header__icon">
                 <span class="header__text header__text--hidden">{{ translatedCityName }}</span>
               </button>
-              <LocationPopup @open-modal="toggleModal" />
+              <LocationPopup v-if="modalOpen" @open-modal="toggleModal" />
             </li>
             <li class="header__nav-item">
               <nuxt-link to="/business" class="header__nav-link">
-                <img src="../assets/icons/business.svg" alt="Business icon" class="header__icon">
+                <img src="@/assets/icons/business.svg" alt="Business icon" class="header__icon">
                 <span class="header__text header__text--hidden">{{ $t('nav.business') }}</span>
               </nuxt-link>
             </li>
           </ul>
         </nav>
+        <!-- Логотип для мобильной версии -->
         <div v-show="isMyselfRoute && !isDesktop" class="header__images">
-          <img src="../assets/icons/white-logo.svg" alt="Logo">
+          <img src="@/assets/icons/white-logo.svg" alt="Logo">
         </div>
+        <!-- Кнопка добавления объявления -->
         <nuxt-link to="/createAd" v-show="isMyselfRoute" class="header__actions">
           <button class="header__nav-link header__nav-link--add">
-            <img src="../assets/icons/add.svg" alt="Add icon" class="header__icon">
+            <img src="@/assets/icons/add.svg" alt="Add icon" class="header__icon">
             <span class="header__text header__text--add">Разместить объявление</span>
           </button>
         </nuxt-link>
-        <img class="header__user-avatar" v-show="isMyselfRoute && !isDesktop"
-          :src="getImageUrl(userStore.photo?.path, avatarPhoto)" alt="Menu" @click="toggleSideMenu" />
+        <!-- Аватар пользователя -->
+        <img class="header__user-avatar" v-show="isMyselfRoute && !isDesktop" :src="userAvatar" alt="Menu"
+          @click="toggleSideMenu" />
+        <!-- Действия пользователя -->
         <div v-show="!isMyselfRoute" class="header__actions">
           <template v-if="isLoggedIn">
             <div class="header__user-info">
@@ -40,10 +45,8 @@
                 <IconLink v-for="icon in userIcons" :key="icon.to" :to="icon.to" :icon-src="icon.src"
                   :icon-count="icon.count" />
               </div>
-
               <div class="header__menu" @click.stop="toggleUserMenu">
-                <img v-if="userStore.photo?.path || !userName" :src="userAvatar" alt="Avatar"
-                  class="header__user-avatar">
+                <img v-if="userAvatar" :src="userAvatar" alt="Avatar" class="header__user-avatar">
                 <span v-else class="header__user-circle">{{ initial }}</span>
                 <span class="header__user-name">{{ displayName }}</span>
                 <UserMenuPopup v-if="isUserMenuOpen && isDesktop" @close-userMenu="toggleUserMenu" />
@@ -51,7 +54,7 @@
             </div>
           </template>
           <button v-else class="header__nav-link" @click="toggleLoginModal">
-            <img src="../assets/icons/user.svg" alt="Login icon" class="header__icon header__icon--large">
+            <img src="@/assets/icons/user.svg" alt="Login icon" class="header__icon header__icon--large">
             <span class="header__text">{{ $t('nav.login') }}</span>
           </button>
         </div>
@@ -273,6 +276,7 @@ onUnmounted(() => {
     font-size: 12px;
     background: none;
     border: none;
+    outline: none;
     cursor: pointer;
     text-decoration: none;
     transition: $transition-1;

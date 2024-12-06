@@ -70,7 +70,7 @@ const updateDeviceMode = () => {
 
 const menuItems = ref([
    { target: 'autos', icon: carIcon, text: 'Автомобили' },
-   { target: 'parts', icon: diskIcon, text: 'Запчасти и аксессуары' },
+   { target: 'parts', icon: diskIcon, text: 'Автотовары' },
    { target: 'moto', icon: motoIcon, text: 'Мототехника' },
 ]);
 
@@ -87,7 +87,7 @@ const detailedGroups = ref([
    },
    {
       target: 'parts',
-      title: 'Запчасти и аксессуары',
+      title: 'Автотовары',
       link: '/realty',
       count: '15 000',
       items: [],

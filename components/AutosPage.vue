@@ -10,10 +10,12 @@
          </CardListWithBanner>
          <Pagination v-if="totalItems > getAdsCount()" :totalItems="totalItems" :pageSize="count"
             :currentPage="currentPage" @changePage="changePage" />
+         <CardList v-show="adsMain.length == 0" isFour :title="'Это может быть интересно'" :ads="ads"
+            :isLoading="isLoading" />
       </div>
    </div>
    <div class="wrap2">
-      <CardList v-show="ads.length > 0" :title="title3" :ads="ads" :isLoading="isLoading"/>
+      <CardList v-show="ads.length > 0" :title="title3" :ads="ads" :isLoading="isLoading" />
       <InfoBanner />
    </div>
 </template>
@@ -23,6 +25,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getCars } from '../../services/apiClient';
 import { useFiltersStore } from '../../store/filters';
+import { useCityStore } from '../../store/city';
 
 import cardImage1 from '../assets/images/other/cat-card-1.png';
 import cardImage2 from '../assets/images/other/cat-card-2.png';
@@ -32,30 +35,28 @@ import cardImage5 from '../assets/images/other/cat-card-5.png';
 import cardImage6 from '../assets/images/other/cat-card-6.png';
 
 const { t } = useI18n();
+const filtersStore = useFiltersStore();
+const cityStore = useCityStore();
+
 const titleBase = "Купить автомобиль в г. ";
+const title3 = t('titles.title3');
+const city = ref(cityStore.selectedCity.name);
 
 const computedTitle = computed(() => {
-   if (filtersStore.selectedCondition === 2) {
-      return `Купить автомобили с пробегом в г. `;
-   } else if (filtersStore.selectedCondition === 1) {
-      return `Купить новые автомобили в г. `;
-   }
-   return titleBase;
+   const { selectedCondition } = filtersStore;
+   if (selectedCondition === 2) return `Купить автомобили с пробегом в г. `;
+   if (selectedCondition === 1) return `Купить новые автомобили в г. `;
+   return `${titleBase}`;
 });
 
-const title3 = t('titles.title3');
-
 const getAdsCount = () => {
-   if (typeof window !== 'undefined') {
-      if (window.innerWidth < 1000) return 12;
-      return 16;
-   }
+   if (typeof window !== 'undefined') return window.innerWidth < 1000 ? 12 : 16;
    return 16;
 };
 
 const ads = ref([]);
 const adsMain = ref([]);
-const filtersStore = useFiltersStore();
+const isLoading = ref(false);
 const currentPage = ref(1);
 const totalItems = ref(0);
 const count = getAdsCount();
@@ -113,7 +114,7 @@ const fetchAdsMain = async () => {
 const setLoadingWithDelay = () => {
    setTimeout(() => {
       isLoading.value = false;
-   }, 1000); 
+   }, 1000);
 };
 
 const changePage = async (page) => {
@@ -131,8 +132,6 @@ onMounted(() => {
    fetchAds();
    fetchDefaultAds();
 });
-
-const isLoading = ref(false);
 </script>
 
 <style scoped lang="scss">
@@ -154,12 +153,12 @@ const isLoading = ref(false);
 
    @media(max-width: 768px) {
       margin-top: calc(66px + 24px);
+      margin-bottom: 40px;
    }
 }
 
 .autos-title {
    color: #323232;
-
 }
 
 .wrap {
@@ -168,6 +167,13 @@ const isLoading = ref(false);
    @media screen and (max-width: 1250px) {
       max-width: 100%;
    }
+}
+
+.autos-title {
+   font-size: 20px;
+   font-weight: bold;
+   color: #323232;
+   margin-bottom: 20px;
 }
 
 .wrap2 {

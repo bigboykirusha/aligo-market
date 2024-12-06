@@ -10,11 +10,12 @@
     <Pagination v-if="totalItems > getAdsCount()" :totalItems="totalItems" :pageSize="pageSize"
       :currentPage="currentPage" @changePage="changePage" />
 
-    <CardList :title="title1" :ads="adsSimilar.slice(0, 5)" :isLoading="isLoadingSimilar" />
+    <CardList :title="title1" :ads="adsSimilar.slice(0, MAX_ADS_COUNT)" :isLoading="isLoadingSimilar" />
 
     <BannerTemplate :content="bannerContent" />
 
-    <CardList v-if="isLoggedIn" :title="title2" :ads="adsHistory.slice(0, 5)" :isLoading="isLoadingHistory" />
+    <CardList v-if="isLoggedIn" :title="title2" :ads="adsHistory.slice(0, MAX_ADS_COUNT)"
+      :isLoading="isLoadingHistory" />
   </div>
 </template>
 
@@ -24,7 +25,7 @@ import mobileImage from '../assets/images/bg/banner-2-m.png';
 import { getCars, getAdsHistory, getAdsSimilar } from '../services/apiClient';
 import { useCityStore } from '~/store/city';
 import { useUserStore } from '~/store/user';
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed, onUnmounted, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -36,16 +37,6 @@ const isLoggedIn = ref(userStore.isLoggedIn);
 
 const title1 = t('titles.title1');
 const title2 = t('titles.title2');
-const adsMain = ref([]);
-const adsHistory = ref([]);
-const adsSimilar = ref([]);
-const currentPage = ref(1);
-const pageSize = ref(20);
-const totalItems = ref(0);
-
-const isLoadingMain = ref(false);
-const isLoadingHistory = ref(false);
-const isLoadingSimilar = ref(false);
 
 const getAdsCount = () => {
   if (typeof window !== 'undefined') {
@@ -55,19 +46,40 @@ const getAdsCount = () => {
   return 20;
 };
 
-const bannerContent = {
+const adsMain = ref([]);
+const adsHistory = ref([]);
+const adsSimilar = ref([]);
+const currentPage = ref(1);
+const pageSize = ref(getAdsCount());
+const totalItems = ref(0);
+
+const isLoadingMain = ref(false);
+const isLoadingHistory = ref(false);
+const isLoadingSimilar = ref(false);
+
+const MAX_ADS_COUNT = 5;
+
+const bannerContent = computed(() => ({
   headerText: t('bannerRent.headerText'),
   desktopImage,
   mobileImage,
   altText: t('bannerRent.altText'),
   titleText: t('bannerRent.titleText'),
-  isMoscow: false,
+  isMoscow: cityStore.selectedCity.name === 'Moscow',
+}));
+
+const handleError = (error, message) => {
+  console.error(`${message}: `, error);
 };
 
 const setLoadingWithDelay = (isLoadingRef) => {
-  setTimeout(() => {
+  const timeoutId = setTimeout(() => {
     isLoadingRef.value = false;
   }, 1000);
+
+  onBeforeUnmount(() => {
+    clearTimeout(timeoutId);
+  });
 };
 
 const fetchMainAds = async () => {
@@ -77,7 +89,7 @@ const fetchMainAds = async () => {
     const { data } = await getCars({ page: currentPage.value, count: pageSize.value, order_by: 'desc' });
     adsMain.value = data;
   } catch (error) {
-    console.error('Ошибка при получении данных: ', error);
+    handleError(error, 'Ошибка при получении данных');
   } finally {
     setLoadingWithDelay(isLoadingMain);
   }
@@ -93,25 +105,25 @@ const fetchAdsHistory = async () => {
       .filter(item => item.ads_show !== null)
       .map(item => item.ads_show);
   } catch (error) {
-    console.error('Ошибка при получении данных: ', error);
+    handleError(error, 'Ошибка при получении истории объявлений');
   } finally {
     setLoadingWithDelay(isLoadingHistory);
   }
 };
 
 const fetchAdsSimilar = async (newCity) => {
-  isLoadingSimilar.value = true;
-  if (cityStore.selectedCity.name) {
-    try {
-      const newAdsSimilar = await getAdsSimilar(newCity);
-      adsSimilar.value = newAdsSimilar;
-    } catch (error) {
-      console.error('Ошибка при получении данных: ', error);
-    } finally {
-      setLoadingWithDelay(isLoadingSimilar);
-    }
-  } else {
+  if (!cityStore.selectedCity.name) {
     isLoadingSimilar.value = false;
+    return;
+  }
+
+  isLoadingSimilar.value = true;
+  try {
+    adsSimilar.value = await getAdsSimilar(newCity);
+  } catch (error) {
+    handleError(error, 'Ошибка при получении похожих объявлений');
+  } finally {
+    setLoadingWithDelay(isLoadingSimilar);
   }
 };
 
@@ -120,6 +132,16 @@ const changePage = async (page) => {
   currentPage.value = page;
   await fetchMainAds();
 };
+
+const handleResize = () => {
+  pageSize.value = getAdsCount();
+};
+
+window.addEventListener('resize', handleResize);
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize);
+});
 
 watch(
   () => cityStore.selectedCity.name,

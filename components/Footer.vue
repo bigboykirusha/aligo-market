@@ -5,11 +5,11 @@
             <div class="footer__top">
                <ul class="footer__menu">
                   <li><nuxt-link to="/autos">Автомобили</nuxt-link></li>
-                  <li><nuxt-link to="/parts">Запчасти и аксессуары</nuxt-link></li>
+                  <li><nuxt-link to="/parts">Автотовары</nuxt-link></li>
                   <li><nuxt-link to="/moto">Мототехника</nuxt-link></li>
                </ul>
                <nuxt-link to="/" class="footer__logo">
-                  <img src="../assets/images/logo-white.svg" alt="Логотип">
+                  <img src="../assets/images/logo-white.svg" alt="Логотип" />
                </nuxt-link>
             </div>
          </div>
@@ -44,18 +44,21 @@
    &__row {
       &--1 {
          background: $main-button;
-         padding: 24px 0;
+         padding: 16px 0;
+
+         @media (max-width: 768px) {
+            padding: 12px 0;
+         }
       }
 
       &--2 {
-         background: #003BCE;
-         height: 40px;
+         background: #003bce;
+         padding: 16px 0;
          display: flex;
          align-items: center;
 
-         @media screen and (max-width: 1000px) {
-            height: fit-content;
-            padding: 16px 0;
+         @media (max-width: 768px) {
+            padding: 12px 0;
          }
       }
    }
@@ -68,13 +71,12 @@
    }
 
    &__logo {
-      transition: $transition-1;
-
       img {
          height: 46px;
+         transition: $transition-1;
 
-         @media screen and (max-width: 1000px) {
-            height: 32px;
+         @media (max-width: 768px) {
+            height: 30px;
          }
       }
    }
@@ -84,33 +86,32 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 20px;
 
-      @media screen and (max-width: 1000px) {
-         gap: 24px;
-         padding: 0 16px;
+      @media (max-width: 768px) {
+         flex-direction: column;
+         gap: 12px;
       }
    }
 
    &__menu,
    &__links {
       display: flex;
-      align-items: center;
       list-style: none;
       padding: 0;
       margin: 0;
 
-      @media screen and (max-width: 1000px) {
+      @media (max-width: 768px) {
          flex-wrap: wrap;
          justify-content: center;
+         gap: 12px;
       }
    }
 
    &__menu {
-      gap: 32px;
+      gap: 24px;
 
-      @media screen and (max-width: 1000px) {
-         gap: 18px;
+      @media (max-width: 768px) {
+         gap: 16px;
       }
 
       li {
@@ -119,9 +120,8 @@
          nuxt-link {
             color: $white;
             text-decoration: none;
-            font-weight: 400;
-            font-size: 16px;
-            line-height: 20px;
+            font-size: 14px;
+            line-height: 18px;
             transition: $transition-1;
 
             &:hover {
@@ -132,17 +132,11 @@
    }
 
    &__links {
-      gap: 44px;
+      gap: 24px;
 
-      @media screen and (max-width: 1000px) {
-         justify-content: space-between;
-         width: 100%;
-         gap: 12px;
-      }
-
-      @media screen and (max-width: 620px) {
-         flex-direction: column;
+      @media (max-width: 768px) {
          justify-content: center;
+         gap: 12px;
       }
 
       li {
@@ -150,11 +144,9 @@
          a,
          nuxt-link {
             color: $white;
-            font-weight: 400;
-            font-size: 14px;
-            line-height: 19px;
+            font-size: 12px;
+            line-height: 16px;
             text-decoration: underline;
-            transition: $transition-1;
 
             &:hover {
                text-decoration: underline;
@@ -164,11 +156,14 @@
    }
 
    &__copyright {
-      font-weight: 400;
-      font-size: 14px;
-      line-height: 18px;
+      font-size: 12px;
+      line-height: 16px;
       color: $white;
       text-align: center;
+
+      @media (max-width: 768px) {
+         margin-top: 8px;
+      }
    }
 }
 </style>

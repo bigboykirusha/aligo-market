@@ -3,7 +3,7 @@ import { setCookie, getCookie } from '../services/auth'
 
 export const useCityStore = defineStore('city', {
    state: () => ({
-      selectedCity: { name: 'Москва', flag: '' },
+      selectedCity: { name: 'Ростов-на-Дону', flag: '' },
    }),
    actions: {
       setSelectedCity(city) {

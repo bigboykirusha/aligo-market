@@ -62,7 +62,7 @@
       width: 100%;
       max-width: 300px;
 
-      @media screen and (max-width: 600px) {
+      @media (max-width: 600px) {
          max-width: 380px;
       }
    }

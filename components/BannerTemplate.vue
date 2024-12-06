@@ -54,12 +54,12 @@ defineProps({
       .banner__row {
          grid-template-columns: 2fr 1fr;
 
-         @media screen and (max-width: 600px) {
+         @media (max-width: 600px) {
             grid-template-columns: 1fr;
          }
       }
 
-      @media screen and (max-width: 600px) {
+      @media (max-width: 600px) {
          height: 500px !important;
       }
    }
@@ -92,7 +92,7 @@ defineProps({
          display: none;
       }
 
-      @media screen and (max-width: 600px) {
+      @media (max-width: 600px) {
          .banner__bg-img {
             display: none;
          }
@@ -112,11 +112,11 @@ defineProps({
       z-index: 1;
       height: 100%;
 
-      @media screen and (max-width: 1000px) {
+      @media (max-width: 1000px) {
          gap: 18px;
       }
 
-      @media screen and (max-width: 600px) {
+      @media (max-width: 600px) {
          grid-template-columns: 1fr;
          padding-top: 1px;
          align-content: baseline;
@@ -130,7 +130,7 @@ defineProps({
       align-self: center;
       align-items: center;
 
-      @media screen and (max-width: 600px) {
+      @media (max-width: 600px) {
          align-self: start;
       }
 
@@ -147,8 +147,9 @@ defineProps({
       color: #003BCE;
       margin-bottom: 0.69em;
       max-width: 290px;
+      
 
-      @media screen and (max-width: 600px) {
+      @media (max-width: 600px) {
          text-align: center;
          margin-bottom: 0.62em;
       }

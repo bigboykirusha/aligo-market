@@ -1,7 +1,7 @@
 <template>
    <div class="cards">
       <h2 v-if="showTitle" class="cards__title">{{ props.title }}</h2>
-      <div v-if="!showTitle" class="cards__block">
+      <div v-if="!showTitle && adsMain.length > 0" class="cards__block">
          <AdsDropdown :options="sortOptions" @updateSort="handleSortUpdate" :defaultValue="'desc'" />
          <div class="switcher">
             <div class="switcher__item" :class="{ 'switcher__item--active': activeIndex === 0 }"
@@ -132,7 +132,7 @@ const mapCardProps = (ad) => ({
          column-gap: 30px;
       }
 
-      @media screen and (max-width: 1300px) {
+      @media (max-width: 1300px) {
          grid-template-columns: repeat(4, 1fr);
 
          &--four {
@@ -140,7 +140,7 @@ const mapCardProps = (ad) => ({
          }
       }
 
-      @media screen and (max-width: 1040px) {
+      @media (max-width: 1040px) {
          grid-template-columns: repeat(3, 1fr);
          gap: 24px;
 
@@ -149,7 +149,7 @@ const mapCardProps = (ad) => ({
          }
       }
 
-      @media screen and (max-width: 800px) {
+      @media (max-width: 800px) {
          grid-template-columns: repeat(2, 1fr);
 
          &--four {
@@ -157,7 +157,7 @@ const mapCardProps = (ad) => ({
          }
       }
 
-      @media screen and (max-width: 480px) {
+      @media (max-width: 480px) {
          grid-template-columns: 1fr;
 
          &--four {

@@ -1,11 +1,12 @@
 <template>
    <li class="card">
-      <nuxt-link :to="category.href" class="card__cover" :style="{ backgroundImage: 'url(' + category.imgSrc + ')' }">
+      <nuxt-link :to="category.href" class="card__cover" :style="{ backgroundImage: 'url(' + category.imgSrc + ')' }"
+         @click="handleMainClick">
          <div class="card__content">
             <div class="card__text">
                <span class="card__title">{{ category.title }}</span>
                <ul class="card__list">
-                  <li @click="handleClick(subcategory)" v-for="(subcategory, index) in category.subcategories"
+                  <li @click.stop="handleClick(subcategory)" v-for="(subcategory, index) in category.subcategories"
                      :key="index" class="card__list-item">
                      <nuxt-link :to="subcategory.href" class="card__list-item-link">{{ subcategory.title }}</nuxt-link>
                   </li>
@@ -17,17 +18,23 @@
 </template>
 
 <script setup>
-import { useFiltersStore } from '../store/filters.js'
+import { useFiltersStore } from '../store/filters.js';
 const filtersStore = useFiltersStore();
 
 const props = defineProps({
    category: {
       type: Object,
-      required: true
-   }
+      required: true,
+   },
 });
 
-// Обработка клика по подкатегориям
+// Обработка клика на основную категорию
+const handleMainClick = () => {
+   console.log('Клик по основной категории');
+   filtersStore.setSelectedCondition(null); // Сбрасываем condition
+};
+
+// Обработка клика на подкатегорию
 const handleClick = (subcategory) => {
    if (subcategory.title === 'Подержанные авто') {
       handleUsedClick();
@@ -59,7 +66,7 @@ const handleNewClick = () => {
       display: flex;
       justify-content: space-between;
       width: 100%;
-      background-color: #D6EFFF;
+      background-color: #d6efff;
       border-radius: 6px;
       padding: 16px;
       background-size: contain;
@@ -107,7 +114,7 @@ const handleNewClick = () => {
    &__title {
       font-weight: 700;
       font-size: 16px;
-      color: #3366FF;
+      color: #3366ff;
       text-decoration: none;
 
       @media (max-width: 600px) {
@@ -127,7 +134,7 @@ const handleNewClick = () => {
 
    &__list-item-link {
       font-size: 14px;
-      color: #3366FF;
+      color: #3366ff;
       text-decoration: none;
       transition: opacity 0.3s;
 
