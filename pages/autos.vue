@@ -26,13 +26,6 @@ import { getCars } from '../../services/apiClient';
 import { useFiltersStore } from '../../store/filters';
 import { useCityStore } from '../../store/city';
 
-import cardImage1 from '../assets/images/other/cat-card-1.png';
-import cardImage2 from '../assets/images/other/cat-card-2.png';
-import cardImage3 from '../assets/images/other/cat-card-3.png';
-import cardImage4 from '../assets/images/other/cat-card-4.png';
-import cardImage5 from '../assets/images/other/cat-card-5.png';
-import cardImage6 from '../assets/images/other/cat-card-6.png';
-
 const { t } = useI18n();
 const filtersStore = useFiltersStore();
 const cityStore = useCityStore();
@@ -59,17 +52,6 @@ const isLoading = ref(false);
 const currentPage = ref(1);
 const totalItems = ref(0);
 const count = getAdsCount();
-
-const sliderData = [
-   { id: 1, title: 'Легковые автомобили', imageUrl: cardImage1, backgroundColor: '#F7D3C7' },
-   { id: 2, title: 'Мотоциклы', imageUrl: cardImage2, backgroundColor: '#C7E9F7' },
-   { id: 3, title: 'Транспорт и перевозки', imageUrl: cardImage3, backgroundColor: '#E5C7F7' },
-   { id: 4, title: 'Внедорожники из Грузии', imageUrl: cardImage4, backgroundColor: '#CEF7C7' },
-   { id: 5, title: 'Авто из Эмиратов', imageUrl: cardImage5, backgroundColor: '#F7C7E5' },
-   { id: 6, title: 'Микроавтобусы и минивены', imageUrl: cardImage6, backgroundColor: '#C7F7E5' },
-   { id: 7, title: 'Легковые автомобили', imageUrl: cardImage1, backgroundColor: '#F7D3C7' },
-   { id: 8, title: 'Мотоциклы', imageUrl: cardImage2, backgroundColor: '#C7E9F7' },
-];
 
 const fetchAds = async () => {
    try {

@@ -1,20 +1,20 @@
 <template>
-   <li class="card">
+   <div class="card">
       <nuxt-link :to="category.href" class="card__cover" :style="{ backgroundImage: 'url(' + category.imgSrc + ')' }"
-         @click="handleMainClick">
+         @click.native="handleMainClick">
          <div class="card__content">
-            <div class="card__text">
-               <nuxt-link :to="category.href" class="card__title">{{ category.title }}</nuxt-link>
-               <ul class="card__list">
-                  <li @click.stop="handleClick(subcategory)" v-for="(subcategory, index) in category.subcategories"
-                     :key="index" class="card__list-item">
-                     <nuxt-link :to="subcategory.href" class="card__list-item-link">{{ subcategory.title }}</nuxt-link>
-                  </li>
-               </ul>
-            </div>
+            <span class="card__title">{{ category.title }}</span>
+            <ul class="card__list">
+               <li v-for="(subcategory, index) in category.subcategories" :key="index" class="card__list-item"
+                  @click.stop="handleSubcategoryClick(subcategory)">
+                  <nuxt-link :to="subcategory.href" class="card__list-item-link">
+                     {{ subcategory.title }}
+                  </nuxt-link>
+               </li>
+            </ul>
          </div>
       </nuxt-link>
-   </li>
+   </div>
 </template>
 
 <script setup>
@@ -28,29 +28,16 @@ const props = defineProps({
    },
 });
 
-// Обработка клика на основную категорию
 const handleMainClick = () => {
-   filtersStore.setSelectedCondition(null); // Сбрасываем condition
+   filtersStore.setSelectedCondition(null);
 };
 
-// Обработка клика на подкатегорию
-const handleClick = (subcategory) => {
+const handleSubcategoryClick = (subcategory) => {
    if (subcategory.title === 'Подержанные авто') {
-      handleUsedClick();
+      filtersStore.setSelectedCondition(2);
    } else if (subcategory.title === 'Новые авто') {
-      handleNewClick();
+      filtersStore.setSelectedCondition(1);
    }
-};
-
-// Функции для обработки выбора
-const handleUsedClick = () => {
-   console.log('Выбран б/у автомобиль');
-   filtersStore.setSelectedCondition(2);
-};
-
-const handleNewClick = () => {
-   console.log('Выбран новый автомобиль');
-   filtersStore.setSelectedCondition(1);
 };
 </script>
 
@@ -96,18 +83,12 @@ const handleNewClick = () => {
 
    &__content {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      z-index: 1;
-   }
-
-   &__text {
-      display: flex;
       flex-direction: column;
       justify-content: center;
+      align-items: flex-start;
+      width: 100%;
       gap: 8px;
-      flex: 1;
+      z-index: 1;
    }
 
    &__title {
@@ -135,6 +116,7 @@ const handleNewClick = () => {
       font-size: 14px;
       color: #3366ff;
       text-decoration: none;
+      border: none;
       transition: opacity 0.3s;
 
       &:hover {

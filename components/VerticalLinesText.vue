@@ -31,13 +31,12 @@ const texts = [props.firstText, props.secondText];
    justify-content: space-between;
    align-items: stretch;
    height: 100%;
-   max-width: 1312px;
-   padding: 0 16px;
-   margin: 0 auto;
-   margin-bottom: 40px;
+   max-width: 1280px;
+   margin: 40px auto;
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       flex-direction: column;
+      margin: 32px auto;
    }
 
    .text-block {
@@ -54,7 +53,7 @@ const texts = [props.firstText, props.secondText];
          width: 2px;
          background-color: #3366FF;
 
-         @media screen and (max-width: 768px) {
+         @media (max-width: 768px) {
             display: none;
          }
       }
@@ -67,7 +66,7 @@ const texts = [props.firstText, props.secondText];
          color: #323232;
          flex: 1;
 
-         @media screen and (max-width: 768px) {
+         @media (max-width: 768px) {
             padding-left: 0;
          }
       }

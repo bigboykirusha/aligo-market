@@ -28,19 +28,19 @@ const categories = ref([
       title: 'Автомобили',
       icon: carIcon,
       subcategories: [
-         { href: '/autos/used', title: 'Подержанные авто' },
-         { href: '/autos/new', title: 'Новые авто' }
+         { href: '/autos', title: 'Подержанные авто' },
+         { href: '/autos', title: 'Новые авто' }
       ]
    },
    {
-      href: '/disc',
+      href: '/parts',
       imgSrc: discImage,
       imgAlt: 'Диски',
       title: 'Автотовары',
       icon: discIcon,
       subcategories: [
-         { href: '/disc/avtodiski', title: 'Шины' },
-         { href: '/disc/aksessuary-dlya-diskov', title: 'Диски' }
+         { href: '/parts', title: 'Шины' },
+         { href: '/parts', title: 'Диски' }
       ]
    },
    {
@@ -50,8 +50,8 @@ const categories = ref([
       title: 'Мототехника',
       icon: motoIcon,
       subcategories: [
-         { href: '/moto/sportivnye-motokicly', title: 'Мотоциклы' },
-         { href: '/moto/zapchasti-dlya-motokiclov', title: 'Квадроциклы' }
+         { href: '/moto', title: 'Мотоциклы' },
+         { href: '/moto', title: 'Квадроциклы' }
       ]
    }
 ]);

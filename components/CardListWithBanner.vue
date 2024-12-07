@@ -1,7 +1,7 @@
 <template>
    <div class="cards">
-      <h2 v-if="showTitle" class="cards__title">{{ props.title }}</h2>
-      <div v-if="!showTitle && adsMain.length > 0" class="cards__block">
+      <h2 v-show="showTitle" class="cards__title">{{ props.title }}</h2>
+      <div v-show="!showTitle" class="cards__block">
          <AdsDropdown :options="sortOptions" @updateSort="handleSortUpdate" :defaultValue="'desc'" />
          <div class="switcher">
             <div class="switcher__item" :class="{ 'switcher__item--active': activeIndex === 0 }"

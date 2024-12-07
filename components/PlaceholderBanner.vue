@@ -1,7 +1,7 @@
 <template>
    <div class="banner" :style="{ backgroundImage: `url(${backgroundImage})` }">
       <div class="banner__content">
-         <h1 class="banner__title">{{ title }}</h1>
+         <div class="banner__title">{{ title }}</div>
          <p class="banner__description">{{ description }}</p>
          <button class="banner__button">{{ tg }}</button>
       </div>
@@ -19,7 +19,6 @@ const props = defineProps({
 
 <style lang="scss" scoped>
 .banner {
-   position: relative;
    display: flex;
    align-items: center;
    justify-content: flex-start;
@@ -31,48 +30,28 @@ const props = defineProps({
    border-radius: 6px;
    background-size: contain;
    background-repeat: no-repeat;
-   background-position: right;
+   background-position: bottom right;
    background-color: #D6EFFF;
    transition: background-position 0.3s ease;
 
-   @media (max-width: 1200px) {
-      background-position: 120%;
-   }
-
-   @media (max-width: 1100px) {
-      background-position: 140%;
-   }
-
-   @media (max-width: 1000px) {
-      background-position: 160%;
-   }
-
-   @media (max-width: 900px) {
-      background-position: 240%;
-   }
-
-   @media (max-width: 800px) {
-      background-position: 280%;
-   }
-
    @media (max-width: 768px) {
-      height: 400px;
-      padding: 32px;
+      height: 420px;
+      padding: 32px 24px;
       align-items: flex-start;
       background-position: center bottom;
    }
 
    &__content {
-      max-width: 550px;
+      max-width: 530px;
+      padding-right: 24px;
       text-align: left;
    }
 
    &__title {
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 700;
       color: #003BCE;
       margin-bottom: 16px;
-      line-height: 1;
 
       @media (max-width: 768px) {
          font-size: 24px;
@@ -82,20 +61,25 @@ const props = defineProps({
    &__description {
       font-size: 16px;
       color: #003BCE;
-      margin-bottom: 26px;
+      margin-bottom: 24px;
 
-      @media (max-width: 1200px) {
-         max-width: 450px;
+      @media (max-width: 768px) {
+         margin-bottom: 16px;
+         font-size: 14px;
       }
    }
 
    &__button {
-      font-size: 16px;
+      font-size: 14px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: #fff;
       background-color: #3366FF;
       border: none;
       border-radius: 6px;
-      padding: 10px 20px;
+      padding: 0 20px;
       cursor: pointer;
 
       &:hover {
