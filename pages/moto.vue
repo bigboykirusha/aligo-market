@@ -3,7 +3,7 @@
       <PlaceholderBanner :title="bannerTitle" :description="bannerDescription" :backgroundImage="placeimage"
          tg="Перейти в Telegram" />
       <VerticalLinesText :firstText="firstText" :secondText="secondText" />
-      <CardList :title="title5" :ads="ads" />
+      <CardList :title="title5" :ads="ads" :isLoading="isLoadingMain" />
    </div>
 </template>
 
@@ -20,12 +20,27 @@ const bannerDescription = `Раздел находится в разработк
 const firstText = `Если вы ищите работу в своем городе или подбираете сотрудника в компанию, для вас отличные новости: в ближайшее время мы запустим раздел, в котором будут публиковаться объявления от работодателей и соискателей вакансий. Объявления можно будет фильтровать по сфере деятельности и по уровню зарплат.`;
 const secondText = `Вы сможете найти работу недалеко от дома или с более удобным графиком, а компании смогут подобрать подходящего специалиста. Все объявления проходят модерацию нашей системой безопасности, что позволяет защитить пользователей от мошенников и недобросовестных людей.`;
 
+const isLoadingMain = ref(false);
+
+const setLoadingWithDelay = (isLoadingRef) => {
+   const timeoutId = setTimeout(() => {
+      isLoadingRef.value = false;
+   }, 1000);
+
+   onBeforeUnmount(() => {
+      clearTimeout(timeoutId);
+   });
+};
+
 const fetchAds = async () => {
+   isLoadingMain.value = true;
    try {
       const { data } = await getCars({ count: 10, order_by: 'desc' });
       ads.value = data;
    } catch (error) {
       console.error('Ошибка при получении данных: ', error);
+   } finally {
+      setLoadingWithDelay(isLoadingMain);
    }
 };
 

@@ -3,7 +3,7 @@
       <PlaceholderBanner :title="bannerTitle" :description="bannerDescription" :backgroundImage="placeimage"
          tg="Перейти в Telegram" />
       <VerticalLinesText :firstText="firstText" :secondText="secondText" />
-      <CardList :title="title5" :ads="ads" />
+      <CardList :title="title5" :ads="ads" :isLoading="isLoadingMain" />
    </div>
 </template>
 
@@ -20,12 +20,27 @@ const bannerDescription = `Раздел находится в разработк
 const firstText = `В ближайшее время в этом разделе появятся объявление о продаже личных вещей и бытовых товаров. Вы сможете продать или купить всё, начиная с одежды, аксессуаров и обуви для детей и взрослых, заканчивая мебелью для вашего дома или офиса, велосипедами и ювелирными украшениями.`;
 const secondText = `Так же это раздел может быть интересным для мастеров и мелких производителей, желающих продать свои бытовые товары. Связаться с продавцом можно прямо на сайте или использую контактные данные продавца, а понравившиеся объявления можно добавить в избранное и вернуться к ним позже.`;
 
+const isLoadingMain = ref(false);
+
+const setLoadingWithDelay = (isLoadingRef) => {
+   const timeoutId = setTimeout(() => {
+      isLoadingRef.value = false;
+   }, 1000);
+
+   onBeforeUnmount(() => {
+      clearTimeout(timeoutId);
+   });
+};
+
 const fetchAds = async () => {
+   isLoadingMain.value = true;
    try {
       const { data } = await getCars({ count: 5, order_by: 'desc' });
       ads.value = data;
    } catch (error) {
       console.error('Ошибка при получении данных: ', error);
+   } finally {
+      setLoadingWithDelay(isLoadingMain);
    }
 };
 
