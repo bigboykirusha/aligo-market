@@ -34,11 +34,15 @@ const props = defineProps({
    background-color: #D6EFFF;
    transition: background-position 0.3s ease;
 
+   @media (max-width: 1024px) {
+      background-position: calc(100% + 300px) bottom;
+   }
+
    @media (max-width: 768px) {
       height: 420px;
       padding: 32px 24px;
       align-items: flex-start;
-      background-position: center bottom;
+      background-position: right bottom; 
    }
 
    &__content {

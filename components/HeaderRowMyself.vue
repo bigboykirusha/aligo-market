@@ -13,11 +13,11 @@
                   <img :src="carIcon" alt="Автомобили" />
                   <span>Автомобили</span>
                </nuxt-link>
-               <nuxt-link to="/realty" class="header-row__button">
+               <nuxt-link to="/parts" class="header-row__button">
                   <img :src="discIcon" alt="Недвижимость" />
                   <span>Автотовары</span>
                </nuxt-link>
-               <nuxt-link to="/job" class="header-row__button">
+               <nuxt-link to="/moto" class="header-row__button">
                   <img :src="motoIcon" alt="Работа" />
                   <span>Мототехника</span>
                </nuxt-link>
@@ -29,11 +29,9 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import carIcon from '../assets/icons/disc.svg';
-import discIcon from '../assets/icons/moto.svg';
-import motoIcon from '../assets/images/svg/peoples.svg';
-import servicesIcon from '../assets/icons/servises.svg';
-import goodsIcon from '../assets/images/svg/goods.svg';
+import carIcon from '../assets/icons/car.svg';
+import discIcon from '../assets/icons/disc.svg';
+import motoIcon from '../assets/icons/moto.svg';
 
 const showDropdown = ref(false);
 const isWithMargin = ref(true);

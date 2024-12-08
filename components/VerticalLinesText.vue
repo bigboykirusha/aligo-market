@@ -1,9 +1,9 @@
 <template>
    <div class="container">
-      <div class="text-block" v-for="(text, index) in texts" :key="index">
+      <div class="text-block" v-for="(text, index) in [firstText, secondText]" :key="index">
          <div class="vertical-line"></div>
          <div class="text-content">
-            <div>{{ text }}</div>
+            <p>{{ text }}</p>
          </div>
       </div>
    </div>
@@ -11,17 +11,9 @@
 
 <script setup>
 const props = defineProps({
-   firstText: {
-      type: String,
-      required: true,
-   },
-   secondText: {
-      type: String,
-      required: true,
-   },
+   firstText: String,
+   secondText: String,
 });
-
-const texts = [props.firstText, props.secondText];
 </script>
 
 <style lang="scss" scoped>
@@ -68,6 +60,10 @@ const texts = [props.firstText, props.secondText];
 
          @media (max-width: 768px) {
             padding-left: 0;
+         }
+
+         p {
+            margin: 0;
          }
       }
    }
