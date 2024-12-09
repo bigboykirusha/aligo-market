@@ -86,8 +86,9 @@ const fetchMainAds = async () => {
   isLoadingMain.value = true;
   pageSize.value = getAdsCount();
   try {
-    const { data } = await getCars({ page: currentPage.value, count: pageSize.value, order_by: 'desc' });
+    const { data, totalCount } = await getCars({ page: currentPage.value, count: pageSize.value, order_by: 'desc' });
     adsMain.value = data;
+    totalItems.value = totalCount;
   } catch (error) {
     handleError(error, 'Ошибка при получении данных');
   } finally {
@@ -101,9 +102,7 @@ const fetchAdsHistory = async () => {
   isLoadingHistory.value = true;
   try {
     const newAdsHistory = await getAdsHistory(cityStore.selectedCity.name);
-    adsHistory.value = newAdsHistory
-      .filter(item => item.ads_show !== null)
-      .map(item => item.ads_show);
+    adsHistory.value = newAdsHistory.map(item => item.ads_show);
   } catch (error) {
     handleError(error, 'Ошибка при получении истории объявлений');
   } finally {
@@ -142,13 +141,6 @@ window.addEventListener('resize', handleResize);
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize);
 });
-
-watch(
-  () => cityStore.selectedCity.name,
-  (newCity) => {
-    fetchAdsSimilar(newCity);
-  }
-);
 
 onMounted(() => {
   fetchMainAds();

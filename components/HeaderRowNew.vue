@@ -44,13 +44,15 @@ onUnmounted(() => {
    background-color: #fff;
    width: 100%;
    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.2);
+   transform: translateY(0);
+   transition: transform 0.3s ease;
 
    &--with-margin {
-      margin-top: 44px;
+      transform: translateY(44px);
       box-shadow: none;
 
       @media (max-width: 768px) {
-         margin-top: 0;
+         transform: translateY(0);
       }
    }
 

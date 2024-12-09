@@ -55,13 +55,12 @@ watch(() => route.params.title, updateComponent, { immediate: true });
 }
 
 .current-component-wrapper {
-   width: calc(100% - 270px - 40px);
    margin-left: auto;
 
    @media (max-width: 768px) {
       width: 100%;
       margin: 0 auto;
-      margin-bottom: 24px;
+      margin-bottom: 40px;
    }
 }
 </style>

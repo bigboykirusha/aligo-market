@@ -154,19 +154,46 @@ function calculateTimeAgo(dateString) {
 const timeAgo = computed(() => calculateTimeAgo(props.created_at));
 
 const props = defineProps({
-   id: Number,
-   description: String,
-   price: Number,
+   id: {
+      type: Number,
+      default: 0
+   },
+   description: {
+      type: String,
+      default: 'Нет описания'
+   },
+   price: {
+      type: Number,
+      default: 0
+   },
    place: {
       type: String,
       default: 'Не указано'
    },
-   callNumber: String,
-   messageEmail: String,
-   brand: String,
-   model: String,
-   year: String,
-   username: String,
+   callNumber: {
+      type: String,
+      default: 'Не указано'
+   },
+   messageEmail: {
+      type: String,
+      default: 'Не указано'
+   },
+   brand: {
+      type: String,
+      default: 'Не указано'
+   },
+   model: {
+      type: String,
+      default: 'Не указано'
+   },
+   year: {
+      type: String,
+      default: 'Не указано'
+   },
+   username: {
+      type: String,
+      default: 'Не указано'
+   },
    horizontal: {
       type: Boolean,
       default: false
@@ -175,9 +202,18 @@ const props = defineProps({
       type: Number,
       default: 1
    },
-   images: Array,
-   created_at: String,
-   id_user_owner_ads: Number,
+   images: {
+      type: Array,
+      default: () => []
+   },
+   created_at: {
+      type: String,
+      default: 'Не указано'
+   },
+   id_user_owner_ads: {
+      type: Number,
+      default: 0
+   },
 });
 
 const isWishlisted = computed(() => favoritesStore.items.includes(props.id))

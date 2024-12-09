@@ -24,15 +24,22 @@
          <template v-if="!adsMain.length">
             <NoResults />
          </template>
+
          <div :class="['cards__main', { 'cards__main--four': !showTitle, 'cards__main--list': activeIndex === 1 }]">
-            <!-- Меньше 10 объявлений -->
+            <!-- Когда объявлений меньше 10 -->
             <template v-if="adsMain.length < 10">
                <Card v-for="ad in adsMain" :key="ad.id" v-bind="mapCardProps(ad)" />
             </template>
-            <!-- Больше 10 объявлений -->
+
+            <!-- Когда объявлений 10 и больше -->
             <template v-else>
+               <!-- Первая половина -->
                <Card v-for="ad in firstHalf" :key="ad.id" v-bind="mapCardProps(ad)" />
+
+               <!-- Баннер между двумя частями -->
                <slot name="banner" />
+
+               <!-- Вторая половина -->
                <Card v-for="ad in secondHalf" :key="ad.id" v-bind="mapCardProps(ad)" />
             </template>
          </div>
@@ -41,7 +48,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useFiltersStore } from '~/store/filters';
 import list from '../assets/icons/list.svg';
 import listNone from '../assets/icons/list-none.svg';
@@ -51,7 +58,7 @@ import tileNone from '../assets/icons/tile-none.svg';
 const props = defineProps({
    showTitle: { type: Boolean, default: true },
    adsMain: { type: Array, required: true },
-   pageSize: { type: Number, default: 10 },
+   pageSize: { type: Number, default: 20 },
    title: { type: String, default: 'Свежие объявления' },
    isLoading: { type: Boolean, required: true }
 });
@@ -70,9 +77,16 @@ const images = [
    { active: list, inactive: listNone, alt: 'List' }
 ];
 
-const firstHalf = computed(() => adsMain.slice(0, Math.ceil(adsMain.length / 2)));
+const firstHalf = ref([]);
+const secondHalf = ref([]);
 
-const secondHalf = computed(() => adsMain.slice(Math.ceil(adsMain.length / 2)));
+watch(() => props.adsMain, (newAdsMain) => {
+   if (newAdsMain.length) {
+      const midIndex = Math.ceil(newAdsMain.length / 2);
+      firstHalf.value = newAdsMain.slice(0, midIndex);
+      secondHalf.value = newAdsMain.slice(midIndex);
+   }
+}, { immediate: true });
 
 const handleSortUpdate = (order_by) => {
    filtersStore.setOrderBy(order_by);

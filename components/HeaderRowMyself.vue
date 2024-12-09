@@ -58,20 +58,25 @@ onUnmounted(() => {
    z-index: 16;
    display: flex;
    align-items: center;
-   transition: $transition-1;
    padding: 16px;
    padding-bottom: 0;
    background-color: #fff;
    width: 100%;
    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
+   transform: translateY(0);
+   transition: transform 0.3s ease;
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       display: none;
    }
 
    &--with-margin {
-      margin-top: 44px;
+      transform: translateY(44px);
       box-shadow: none;
+
+      @media (max-width: 768px) {
+         transform: translateY(0);
+      }
    }
 
    &__container {
@@ -81,7 +86,6 @@ onUnmounted(() => {
       justify-content: flex-start;
       padding-bottom: 16px;
       gap: 40px;
-      border-bottom: 1px solid #d6d6d6;
       margin: 0 auto;
    }
 
