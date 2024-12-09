@@ -1,17 +1,24 @@
 <template>
-   <div id="main-login-modal" class="modal" @click.self="closeModal" @keydown="handleEnterKeydown">
+   <!-- Основной контейнер модального окна -->
+   <div id="main-login-modal" class="modal" @click.self="closeModal" @keydown="handleTabKeydown">
+      <!-- Анимация для модального контента -->
       <transition name="modal-fade">
-         <div :class="modalContentClasses" @keydown="handleEnterKeydown">
-            <button class="modal__close-button" @click="closeModal" aria-label="Close" tabindex="0"
-               @keydown="handleEnterKeydown">
+         <div class="modal__content">
+            <!-- Кнопка закрытия модального окна -->
+            <button class="modal__close-button" @click="closeModal" aria-label="Close" tabindex="0">
                <img :src="closeIcon" alt="close icon" />
             </button>
-            <div class="modal__header" @keydown="handleEnterKeydown">
+
+            <!-- Заголовок модального окна -->
+            <div class="modal__header">
+               <!-- Логотип и иконка в заголовке -->
                <div class="modal__header-image">
                   <img src="../assets/images/logo.svg" alt="header image" />
                   <img src="../assets/icons/ID.svg" alt="header image" />
                </div>
+               <!-- Разделительная линия -->
                <div class="modal__header-bar"></div>
+               <!-- Переключатель вкладок (SMS или Email) -->
                <div v-show="isBothSaved && !showCodeInput" class="modal__header-switcher">
                   <button :class="{ 'active': activeTab === 0 }" @click="switchTab(0)" tabindex="0">
                      {{ $t('loginModal.smsLogin') }}
@@ -19,41 +26,58 @@
                   <button :class="{ 'active': activeTab === 1 }" @click="switchTab(1)" tabindex="0">
                      {{ $t('loginModal.emailLogin') }}
                   </button>
+                  <!-- Индикатор активной вкладки -->
                   <div class="switcher" :style="{ transform: `translateX(${activeTab * 100}%)` }"></div>
                </div>
             </div>
 
-            <form class="modal__form" @submit.prevent="submitForm" @keydown="handleEnterKeydown">
-               <div v-show="(activeTab === 0 || activeTab === 1)" class="modal__form-section"
-                  @keydown="handleEnterKeydown">
+            <!-- Форма входа -->
+            <form class="modal__form" @submit.prevent="submitForm">
+               <!-- Секция формы: ввод телефона или email -->
+               <div v-show="(activeTab === 0 || activeTab === 1)" class="modal__form-section">
+                  <!-- Загрузка (оверлей со спиннером) -->
                   <div v-show="isLoading" class="loading-overlay">
                      <div class="spinner"></div>
                   </div>
+
+                  <!-- Поле ввода телефона или email -->
                   <div v-show="!showCodeInput" class="input-wrapper">
                      <p class="input-wrapper__title">{{ isPhoneTab ? 'Введите номер телефона' : 'Введите адрес почты' }}
                      </p>
-                     <p class="input-wrapper__description">Мы отправим вам проверочный код для входа в аккаунт</p>
-                     <input v-show="isPhoneTab" type="tel" v-model="phoneNumber" class="phone-input"
-                        @keydown.enter="handleEnter" @keydown.backspace="handleBackspace" v-mask="'+7 (###) ###-##-##'"
-                        ref="phoneInput" />
-                     <input v-show="!isPhoneTab" type="email" v-model="email" @input="validateEmail" class="phone-input"
-                        @keydown.enter="handleEnter" ref="emailInput" />
+                     <p class="input-wrapper__description">
+                        Мы отправим вам проверочный код для входа в аккаунт
+                     </p>
+                     <!-- Ввод телефона -->
+                     <input v-show="isPhoneTab" :class="{ 'input-error': contactInfoError && isPhoneTab }" type="tel"
+                        @keydown.backspace="handleBackspace" v-model="phoneNumber" class="phone-input" ref="phoneInput"
+                        @input="resetError" v-mask="'+7 (###) ###-##-##'" />
+                     <!-- Ввод email -->
+                     <input v-show="!isPhoneTab" type="email" v-model="email" @input="handleInput" class="phone-input"
+                        :class="{ 'input-error': contactInfoError && !isPhoneTab }" ref="emailInput" />
+                     <!-- Чекбокс "Вход через Telegram" -->
+                     <p v-if="contactInfoError && !showCodeInput" class="error-message">{{ contactInfoError }}</p>
                      <label v-show="isPhoneTab" class="input-wrapper__telegram-checkbox">
                         <input tabindex="0" type="checkbox" v-model="loginWithTelegram" />
                         <span>Вход через <span class="checkbox-wrapper--blue">Telegram</span></span>
                      </label>
                   </div>
-                  <div class="input-wrapper" v-show="showCodeInput" @keydown="handleEnterKeydown">
+
+                  <!-- Поле ввода кода подтверждения -->
+                  <div class="input-wrapper" v-show="showCodeInput">
                      <p class="input-wrapper__title">Введите код</p>
                      <p class="input-wrapper__description">
                         Мы отправили код на {{ isPhoneTab ? formattedPhoneNumber : email }}<br />
+                     </p>
                      <div @click.prevent="switchTab(activeTab); startTimer" class="input-wrapper__description--link">
                         Изменить {{ isPhoneTab ? 'номер' : 'почту' }}
                      </div>
-                     </p>
+                     <!-- Компонент ввода кода (VueOtpInput) -->
                      <VueOtpInput input-classes="otp-input" inputType="numeric" :num-inputs="6" v-model:value="code"
                         :should-auto-focus="true" @on-complete="submitForm" />
-                     <p class="timer-message" v-if="timeLeft > 0">Получить новый можно через {{ formattedTime }}</p>
+                     <!-- Таймер до получения нового кода -->
+                     <p class="timer-message" v-if="timeLeft > 0">
+                        Получить новый можно через {{ formattedTime }}
+                     </p>
                      <button v-else @click.prevent="requestCode" class="modal__button modal__button--revers"
                         tabindex="0">
                         Получить новый код
@@ -61,17 +85,24 @@
                   </div>
                </div>
 
+               <!-- Нижняя часть модального окна (кнопки и чекбоксы) -->
                <div v-if="!showCodeInput" class="modal__footer">
-                  <p class="timer-message" v-if="timeLeft > 0">Войти снова можно через {{ formattedTime }}</p>
+                  <!-- Таймер до повторного входа -->
+                  <p class="timer-message" v-if="timeLeft > 0">
+                     Войти снова можно через {{ formattedTime }}
+                  </p>
+                  <!-- Кнопка "Вход" -->
                   <button v-show="isBothSaved && !showCodeInput && !(timeLeft > 0)" :disabled="isContactInfoInvalid"
-                     class="modal__button" :class="{ '--disabled': isContactInfoInvalid }" @click.prevent="requestCode"
+                     class="modal__button" :class="{ '--disabled': isContactInfoInvalid }" @click.prevent="submitForm"
                      tabindex="0">
                      Вход
                   </button>
+                  <!-- Кнопка "Отправить" или "Зарегистрироваться" -->
                   <button v-show="!isBothSaved && !showCodeInput && !(timeLeft > 0)" :disabled="isContactInfoRegInvalid"
                      class="modal__button" :class="{ '--disabled': isContactInfoRegInvalid }" tabindex="0">
                      {{ showCodeInput ? 'Зарегистрироваться' : 'Отправить' }}
                   </button>
+                  <!-- Чекбоксы согласия с правилами -->
                   <div v-if="!isBothSaved && !showCodeInput" class="checkbox-wrapper">
                      <label>
                         <input type="checkbox" v-model="checkbox1" />
@@ -91,14 +122,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, nextTick } from 'vue';
 import closeIcon from '../assets/icons/close.svg';
 import { getCookie, setCookie } from '~/services/auth';
 import { loginUserByPhone, confirmPhoneCode } from '../services/apiClient';
 import { useUserStore } from '../store/user';
-import { nextTick } from 'vue';
 import VueOtpInput from 'vue3-otp-input';
 
+// Store и базовые рефы
 const userStore = useUserStore();
 const loginWithTelegram = ref(false);
 const activeTab = ref(0);
@@ -106,166 +137,84 @@ const phoneNumber = ref('');
 const email = ref('');
 const code = ref('');
 const showCodeInput = ref(false);
-let timer = null;
-const timeLeft = ref(0);
 const isLoading = ref(false);
 const emit = defineEmits(['close-loginModal']);
-const checkbox1 = ref(false);
-const checkbox2 = ref(false);
-const phoneInput = ref(null);
-const emailInput = ref(null);
-const isFirstAttempt = ref(true);
 
+// Таймер и ошибки
+let timer = null;
+const timeLeft = ref(0);
 const contactInfoError = ref('');
 const generalError = ref('');
 
+const isFirstAttempt = ref(true);
+
+// Для ввода
+const phoneInput = ref(null);
+const emailInput = ref(null);
+const checkbox1 = ref(false);
+const checkbox2 = ref(false);
+
+// Вспомогательные вычисления
 const isPhoneTab = computed(() => activeTab.value === 0);
 const isBothSaved = computed(() => isPhoneSaved.value && isEmailSaved.value);
-const formattedPhoneNumber = computed(() => {
-   return phoneNumber.value.replace(/(\d{3})(\d{3})(\d{2})(\d{2})/, '7 ($1) $2 - $3 - $4');
-});
+const formattedPhoneNumber = computed(() =>
+   phoneNumber.value.replace(/(\d{3})(\d{3})(\d{2})(\d{2})/, '7 ($1) $2 - $3 - $4')
+);
 const formattedTime = computed(() => {
    const minutes = Math.floor(timeLeft.value / 60);
    const seconds = timeLeft.value % 60;
    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 });
-const modalContentClasses = computed(() => ({
-   'modal__content': true,
-   'modal__content--animated': true,
-}));
-
-const userData = ref({ user_id: '', phoneNumber: '', email: '', token: '' });
 const isContactInfoInvalid = computed(() => {
-   const isInvalid = isPhoneTab.value ? !validatePhoneNumber(phoneNumber.value) : !validateEmail(email.value);
-   contactInfoError.value = isInvalid ? 'Пожалуйста, введите корректный номер телефона или адрес почты.' : '';
+   const isInvalid = isPhoneTab.value
+      ? !validatePhoneNumber(phoneNumber.value)
+      : !validateEmail(email.value);
    return isInvalid;
 });
-const isContactInfoRegInvalid = computed(() => {
-   const commonInvalid = isPhoneTab.value ? !validatePhoneNumber(phoneNumber.value) : !validateEmail(email.value);
-   const isInvalid = commonInvalid || !checkbox1.value || !checkbox2.value;
-   return isInvalid;
-});
+const isContactInfoRegInvalid = computed(
+   () => isContactInfoInvalid.value || !checkbox1.value || !checkbox2.value
+);
 const isCodeInvalid = computed(() => showCodeInput.value && code.value.length < 6);
 
-onMounted(() => {
-   const savedUserData = JSON.parse(getCookie('userData'));
-   if (savedUserData) {
-      phoneNumber.value = savedUserData.phoneNumber || '';
-      email.value = savedUserData.email || '';
-
-      if (savedUserData.phoneNumber && savedUserData.email) {
-         activeTab.value = 0;
-      } else if (savedUserData.email) {
-         activeTab.value = 1;
-      } else {
-         activeTab.value = 0;
-      }
-   }
-   nextTick(() => {
-      setFocusOnInput();
-   });
+// Сохранение данных
+const isPhoneSaved = computed(() => {
+   const savedData = JSON.parse(getCookie('userData') || '{}');
+   if (savedData.phoneNumber) phoneNumber.value = savedData.phoneNumber;
+   return !!savedData.phoneNumber;
+});
+const isEmailSaved = computed(() => {
+   const savedData = JSON.parse(getCookie('userData') || '{}');
+   if (savedData.email) email.value = savedData.email;
+   return !!savedData.email;
 });
 
-const setFocusOnInput = () => {
-   if (showCodeInput.value) {
-      const otpInput = document.querySelector('.otp-input');
-      if (otpInput) {
-         otpInput.focus();
-      }
+// Монтирование компонента
+onMounted(() => {
+   const savedUserData = JSON.parse(getCookie('userData') || '{}');
+   phoneNumber.value = savedUserData.phoneNumber || '';
+   email.value = savedUserData.email || '';
+   if (savedUserData.phoneNumber && savedUserData.email) {
+      activeTab.value = 0;  // Вкладка телефона
    } else {
-      if (isPhoneTab.value) {
-         if (phoneInput.value) {
-            phoneInput.value.focus();
-         }
-      } else {
-         if (emailInput.value) {
-            emailInput.value.focus();
-         }
-      }
+      activeTab.value = savedUserData.email ? 1 : 0;  // Если есть email, активируем его вкладку
    }
-};
+   nextTick(() => setFocusOnInput());
+});
 
-const startTimer = () => {
-   clearInterval(timer);
-   timeLeft.value = 180;
-   timer = setInterval(() => {
-      if (timeLeft.value > 0) {
-         timeLeft.value--;
+// Установка фокуса
+const setFocusOnInput = () => {
+   nextTick(() => {
+      if (showCodeInput.value) {
+         document.querySelector('.otp-input')?.focus();
       } else {
-         clearInterval(timer);
+         (isPhoneTab.value ? phoneInput.value : emailInput.value)?.focus();
       }
-   }, 1000);
+   });
 };
 
-const switchTab = (index) => {
-   activeTab.value = index;
-   showCodeInput.value = false;
-   setFocusOnInput();
-};
-
-const submitForm = async () => {
-   if (isCodeInvalid.value || isLoading.value) return;
-
-   isLoading.value = true;
-   generalError.value = '';
-   try {
-      const cleanedPhoneNumber = removePhoneFormatting(phoneNumber.value);
-      const requestData = activeTab.value === 0 ? { phone: cleanedPhoneNumber } : { email: email.value };
-
-      if (loginWithTelegram.value) {
-         requestData.is_send_code_telegram = 1;
-      }
-
-      let response;
-      if (!showCodeInput.value) {
-         response = await loginUserByPhone(requestData);
-         if (response.success) {
-            showCodeInput.value = true;
-            alert(`Код: ${response.code}`);
-            console.log('Код:', response.code);
-
-            if (!isFirstAttempt.value) {
-               startTimer();
-            }
-
-            isFirstAttempt.value = false;
-         } else {
-            generalError.value = response.message || 'Неизвестная ошибка. Пожалуйста, попробуйте еще раз.';
-         }
-      } else {
-         response = await confirmPhoneCode({ ...requestData, code: code.value });
-         if (response.success) {
-            handleSuccessfulLogin(response.data, cleanedPhoneNumber);
-         } else {
-            generalError.value = response.message || 'Ошибка при подтверждении кода.';
-         }
-      }
-   } catch (error) {
-      console.error('Ошибка при выполнении запроса', error);
-      generalError.value = 'Произошла ошибка. Пожалуйста, попробуйте позже.';
-   } finally {
-      isLoading.value = false;
-   }
-};
-
-const handleSuccessfulLogin = (data, cleanedPhoneNumber) => {
-   const { token, user_id } = data;
-   userData.value = activeTab.value === 0
-      ? { token, user_id, phoneNumber: cleanedPhoneNumber }
-      : { token, user_id, email: email.value };
-   setCookie('userData', JSON.stringify(userData.value), 7);
-   clearFormFields();
-   userStore.isLoggedIn = true;
-   userStore.fetchAndSetUserdata();
-   closeModal();
-};
-
-const closeModal = () => {
-   document.body.style.overflow = '';
-   clearFormFields();
-   emit('close-loginModal');
-   showCodeInput.value = false;
-   clearInterval(timer);
+const handleInput = () => {
+   resetError();
+   validateEmail(email.value);
 };
 
 const handleBackspace = () => {
@@ -278,92 +227,141 @@ const handleBackspace = () => {
    }
 };
 
-const requestCode = async () => {
-   if (isLoading.value) return;
+const resetError = () => {
+   contactInfoError.value = '';
+};
+
+const handleTabKeydown = (event) => {
+   // Собираем список фокусируемых элементов с учетом состояния модального окна
+   const focusableElements = Array.from(
+      document.querySelectorAll(
+         '#main-login-modal .modal__content button:not([disabled]), ' +
+         '#main-login-modal .modal__content input:not([disabled]), ' +
+         '#main-login-modal .modal__content select:not([disabled]), ' +
+         '#main-login-modal .modal__content textarea:not([disabled]), ' +
+         '#main-login-modal .modal__content a[href]:not([disabled]), ' +
+         '#main-login-modal .modal__content [tabindex]:not([tabindex="-1"]):not([disabled])'
+      )
+   );
+
+   // Убираем элементы, которые скрыты или недоступны (например, кнопка "Отправить" после таймера или код)
+   const visibleElements = focusableElements.filter(el => el.offsetParent !== null);
+
+   const firstElement = visibleElements[0];
+   const lastElement = visibleElements[visibleElements.length - 1];
+
+   if (event.key === 'Tab') {
+      if (event.shiftKey) {  // Shift + Tab (движение в обратную сторону)
+         if (document.activeElement === firstElement) {
+            lastElement.focus();
+            event.preventDefault();
+         }
+      } else {  // Tab
+         if (document.activeElement === lastElement) {
+            firstElement.focus();
+            event.preventDefault();
+         }
+      }
+   }
+};
+
+// Обработка переключения табов
+const switchTab = (index) => {
+   activeTab.value = index;
+   showCodeInput.value = false;
+   setFocusOnInput();
+};
+
+// Таймер
+const startTimer = () => {
+   clearInterval(timer);
+   timeLeft.value = 180;
+   timer = setInterval(() => {
+      timeLeft.value > 0 ? timeLeft.value-- : clearInterval(timer);
+   }, 1000);
+};
+
+// Очистка формы
+const clearFormFields = () => {
+   code.value = '';
+   generalError.value = '';
+};
+
+// Закрытие модального окна
+const closeModal = () => {
+   document.body.style.overflow = '';
+   clearFormFields();
+   emit('close-loginModal');
+   showCodeInput.value = false;
+   clearInterval(timer);
+};
+
+// Проверка и обработка входа
+const submitForm = async () => {
+   if (isCodeInvalid.value || isLoading.value) return;
 
    isLoading.value = true;
-   generalError.value = '';
+
    try {
-      const requestData = activeTab.value === 0
-         ? { phone: removePhoneFormatting(phoneNumber.value) }
+      const cleanedPhone = removePhoneFormatting(phoneNumber.value);
+      const requestData = isPhoneTab.value
+         ? { phone: cleanedPhone }
          : { email: email.value };
 
       if (loginWithTelegram.value) {
          requestData.is_send_code_telegram = 1;
       }
 
-      const response = await loginUserByPhone(requestData);
-      if (response.success) {
-         showCodeInput.value = true;
-
-         if (!isFirstAttempt.value) {
-            startTimer();
+      if (!showCodeInput.value) {
+         const response = await loginUserByPhone(requestData);
+         if (response.success) {
+            showCodeInput.value = true;
+            if (!isFirstAttempt.value) {
+               startTimer();
+            }
+            alert(`Код: ${response.code}`);
+         } else {
+            contactInfoError.value = response.message || 'Ошибка при отправке кода.';
          }
-
-         isFirstAttempt.value = false;
-
-         alert(`Код: ${response.code}`);
       } else {
-         generalError.value = response.message || 'Неизвестная ошибка. Пожалуйста, попробуйте еще раз.';
+         const response = await confirmPhoneCode({ ...requestData, code: code.value });
+         if (response.success) {
+            handleSuccessfulLogin(response.data, cleanedPhone);
+         } else {
+            contactInfoError.value = response.data.message || 'Неверный код.';
+         }
       }
    } catch (error) {
-      console.error('Ошибка при отправке кода', error);
-      generalError.value = 'Произошла ошибка. Пожалуйста, попробуйте позже.';
+      contactInfoError.value = error.message;
+      console.error('Ошибка при отправке запроса:', contactInfoError);
    } finally {
       isLoading.value = false;
-      console.log('Код:', response);
    }
 };
 
-const validatePhoneNumber = (phone) => {
-   const cleanedPhone = String(phone).replace(/[^\d+]/g, '');
-   return /^(\+7|7)?(\d{3})(\d{3})(\d{2})(\d{2})$/.test(cleanedPhone);
+// Успешный вход
+const handleSuccessfulLogin = (data, cleanedPhone) => {
+   const { token, user_id } = data;
+   setCookie(
+      'userData',
+      JSON.stringify({
+         token,
+         user_id,
+         phoneNumber: isPhoneTab.value ? cleanedPhone : '',
+         email: !isPhoneTab.value ? email.value : '',
+      }),
+      7
+   );
+   clearFormFields();
+   userStore.isLoggedIn = true;
+   userStore.fetchAndSetUserdata();
+   closeModal();
 };
 
+// Дополнительные методы
+const validatePhoneNumber = (phone) => /^\+7\d{10}$/.test(removePhoneFormatting(phone));
 const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-const clearFormFields = () => {
-   code.value = '';
-   generalError.value = '';
-};
-
-const removePhoneFormatting = (phone) => String(phone).replace(/[^\d+]/g, '');
-
-const isPhoneSaved = computed(() => {
-   const savedUserData = JSON.parse(getCookie('userData'));
-   if (savedUserData && savedUserData.phoneNumber) {
-      phoneNumber.value = savedUserData.phoneNumber;
-      return true;
-   }
-   return false;
-});
-
-const handleEnterKeydown = (event) => {
-   console.log(event);
-   if (event.key === 'Enter') {
-      event.preventDefault();
-      submitForm();
-   }
-};
-
-const handleEnter = (event) => {
-
-   if (isBothSaved.value && !showCodeInput.value) {
-      requestCode();
-   } else if (showCodeInput.value) {
-      submitForm();
-   }
-};
-
-const isEmailSaved = computed(() => {
-   const savedUserData = JSON.parse(getCookie('userData'));
-   if (savedUserData && savedUserData.email) {
-      email.value = savedUserData.email;
-      activeTab.value = 1;
-      return true;
-   }
-   return false;
-});
+const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
 </script>
 
 <style scoped lang="scss">
@@ -480,7 +478,7 @@ const isEmailSaved = computed(() => {
             font-size: 14px;
             border: none;
 
-            @media screen and (max-width: 480px) {
+            @media (max-width: 480px) {
                font-size: 12px;
                height: 27px;
             }
@@ -534,6 +532,7 @@ const isEmailSaved = computed(() => {
                   color: #3366ff;
                   cursor: pointer;
                   margin-top: 8px;
+                  margin-bottom: 8px;
                   font-size: 14px;
                   line-height: 18px;
                }
@@ -548,10 +547,6 @@ const isEmailSaved = computed(() => {
                font-size: 14px;
                padding: 0 12px;
                box-sizing: border-box;
-
-               &:focus {
-                  outline: 1px solid #3366FF;
-               }
             }
 
             &__telegram-checkbox {
@@ -563,10 +558,6 @@ const isEmailSaved = computed(() => {
                input {
                   height: 14px;
                   width: 14px;
-
-                  &:focus {
-                     outline: 2px solid #3366FF;
-                  }
                }
 
                span {
@@ -705,6 +696,16 @@ const isEmailSaved = computed(() => {
    width: 40px;
    height: 40px;
    animation: spin 1s linear infinite;
+}
+
+.input-error {
+   outline: 1px solid red;
+}
+
+.error-message {
+   color: red;
+   font-size: 14px;
+   margin-top: 4px;
 }
 
 @keyframes spin {
