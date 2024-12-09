@@ -156,13 +156,12 @@ onMounted(fetchNotifications);
       flex-direction: column;
       gap: 16px;
       height: auto;
-      max-height: calc(100vh - 350px);
       overflow-y: auto;
       padding: 2px 0;
-      padding-right: 16px;
+      margin-bottom: 24px;
 
       @media (max-width: 768px) {
-         max-height: calc(100vh - 136px - 104px - 16px);
+         margin-bottom: 0;
       }
    }
 
