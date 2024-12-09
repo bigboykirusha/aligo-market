@@ -32,7 +32,6 @@
       </template>
 
       <CardList title="Свежие объявления" :ads="ads" :isLoading="isLoading" />
-      <InfoBanner />
    </div>
 </template>
 

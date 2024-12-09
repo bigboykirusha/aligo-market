@@ -114,6 +114,7 @@ const checkbox1 = ref(false);
 const checkbox2 = ref(false);
 const phoneInput = ref(null);
 const emailInput = ref(null);
+const isFirstAttempt = ref(true);
 
 const contactInfoError = ref('');
 const generalError = ref('');
@@ -222,7 +223,12 @@ const submitForm = async () => {
             showCodeInput.value = true;
             alert(`Код: ${response.code}`);
             console.log('Код:', response.code);
-            startTimer();
+
+            if (!isFirstAttempt.value) {
+               startTimer();
+            }
+
+            isFirstAttempt.value = false;
          } else {
             generalError.value = response.message || 'Неизвестная ошибка. Пожалуйста, попробуйте еще раз.';
          }
@@ -289,7 +295,13 @@ const requestCode = async () => {
       const response = await loginUserByPhone(requestData);
       if (response.success) {
          showCodeInput.value = true;
-         startTimer();
+
+         if (!isFirstAttempt.value) {
+            startTimer();
+         }
+
+         isFirstAttempt.value = false;
+
          alert(`Код: ${response.code}`);
          console.log('Код:', response.code);
       } else {
@@ -539,8 +551,7 @@ const isEmailSaved = computed(() => {
                box-sizing: border-box;
 
                &:focus {
-                  outline: none;
-                  border-color: #3366ff;
+                  outline: 1px solid #3366FF;
                }
             }
 
@@ -556,7 +567,6 @@ const isEmailSaved = computed(() => {
 
                   &:focus {
                      outline: 2px solid #3366FF;
-                     border: 1px solid #3366FF;
                   }
                }
 

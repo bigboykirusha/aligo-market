@@ -75,8 +75,7 @@ import { useUserStore } from '@/store/user';
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
-const { count_new_messages, countFavorites } = storeToRefs(userStore);
-const loggedIn = ref(userStore.isLoggedIn);
+const { count_new_messages, countFavorites, isLoggedIn: loggedIn } = storeToRefs(userStore);
 
 const menuItems = computed(() =>
    [

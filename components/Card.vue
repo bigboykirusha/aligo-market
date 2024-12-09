@@ -1,6 +1,5 @@
 <template>
-   <div :class="['card', { 'card--horizontal': horizontal }]" @mouseenter="enableAutoplay"
-      @mouseleave="disableAutoplay">
+   <div :class="['card', { 'card--horizontal': horizontal }]">
       <nuxt-link :to="`/car/${id}`" class="card__image">
          <Swiper v-if="images.length" :modules="[SwiperAutoplay, SwiperPagination]" :slides-per-view="1"
             :pagination="{ clickable: true }" :navigation="false" :loop="true" :autoplay="false">>
@@ -122,26 +121,6 @@ const phone = ref('');
 function getRandomDelay() {
    return Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
 };
-
-const autoplayEnabled = ref(false);
-const autoplaySettings = computed(() => ({
-   delay: getRandomDelay(),
-   enabled: autoplayEnabled.value
-}));
-
-const enableAutoplay = () => {
-   autoplayEnabled.value = true;
-   console.log('Автоплей включен');
-};
-
-const disableAutoplay = () => {
-   autoplayEnabled.value = false;
-   console.log('Автоплей выключен');
-};
-
-watch(autoplayEnabled, (newVal) => {
-   console.log('Автоплей изменился:', newVal);
-});
 
 function calculateTimeAgo(dateString) {
    const now = new Date();

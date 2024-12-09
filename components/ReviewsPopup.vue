@@ -18,12 +18,12 @@
 
          <!-- Рейтинг и количество отзывов -->
          <div class="reviews-popup__rating">
-            <NuxtRating :rating-value="rating" :rating-count="5" :rating-size="28" :rating-spacing="4"
+            <NuxtRating :rating-value="rating" :rating-count="5" :rating-size="25" :rating-spacing="16"
                :active-color="'#3366FF'" :inactive-color="'#FFFFFF'" :border-color="'#3366FF'" :border-width="2"
                :rounded-corners="true" :read-only="true" />
             <div class="reviews-popup__average-rating">
                <span class="rating-text">Средняя оценка: {{ rating }}</span>
-               <span>Всего оценок: {{ count_reviews_about_myself }}</span>
+               <span class="rating-average">Всего оценок: {{ count_reviews_about_myself }}</span>
             </div>
          </div>
 
@@ -77,12 +77,13 @@ const closePopup = () => {
    background: white;
    padding: 40px;
    border-radius: 8px;
-   max-width: 600px;
+   max-width: 850px;
+   max-height: 80vh;
    width: 100%;
    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-   max-height: 80vh;
    display: flex;
    flex-direction: column;
+   animation: slide-up 0.3s ease-out;
 
    @media (max-width: 768px) {
       max-height: calc(100% - 70px);
@@ -111,7 +112,6 @@ const closePopup = () => {
    flex-grow: 1;
    margin-top: 24px;
    overflow-y: auto;
-   max-height: 70vh;
    padding-right: 10px;
 }
 
@@ -158,5 +158,21 @@ const closePopup = () => {
    font-size: 20px;
    font-weight: bold;
    color: #323232;
+}
+
+.rating-average {
+   margin-top: 4px;
+}
+
+@keyframes slide-up {
+   from {
+      opacity: 0;
+      transform: translateY(50%);
+   }
+
+   to {
+      opacity: 1;
+      transform: translateY(0);
+   }
 }
 </style>
