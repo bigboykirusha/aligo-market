@@ -303,7 +303,6 @@ const requestCode = async () => {
          isFirstAttempt.value = false;
 
          alert(`Код: ${response.code}`);
-         console.log('Код:', response.code);
       } else {
          generalError.value = response.message || 'Неизвестная ошибка. Пожалуйста, попробуйте еще раз.';
       }
