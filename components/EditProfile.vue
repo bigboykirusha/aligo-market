@@ -347,6 +347,11 @@ const validateField = (field) => {
    let isValid = true;
    let errorMessage = '';
 
+   if (!changedFields.value[field]) {
+      validationErrors.value[field] = `Вы не изменили ${field === 'email' ? 'email' : 'номер'}.`;
+      return;
+   }
+
    if (field === 'username' && !validateUsername(profile.value.username)) {
       isValid = false;
       errorMessage = 'Имя должно быть латиницей или кириллицей, без использования обоих алфавитов одновременно, с возможностью использования одного пробела или тире.';
