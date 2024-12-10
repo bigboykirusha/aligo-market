@@ -16,7 +16,7 @@
             </div>
 
             <!-- Поле Username -->
-            <div class="simple-input">
+            <div class="simple-input" :class="{ 'has-error': validationErrors.username }">
                <label class="simple-input__label">Имя</label>
                <div class="simple-input__wrapper">
                   <div class="simple-input__block">
@@ -24,11 +24,16 @@
                         class="simple-input__field" placeholder="Введите имя пользователя"
                         @input="markAsChanged('username')" />
                      <div v-else class="simple-input__text">{{ profile.username }}</div>
+                     <div v-if="validationErrors.username" class="simple-input__error-message">
+                        {{ validationErrors.username }}
+                     </div>
                      <div v-if="editMode.username" class="edit-input-actions">
-                        <button @click="saveField('username')" class="edit-input-actions__save-button">Сохранить
-                           изменения</button>
+                        <button @click="saveField('username')"
+                           class="edit-input-actions__save-button edit-input-actions__save-button-common"> <img
+                              src="..//assets/icons/check-icon.svg" alt="">Отправить</button>
                         <button @click="cancelEdit('username')"
-                           class="edit-input-actions__cancel-button">Отмена</button>
+                           class="edit-input-actions__cancel-button edit-input-actions__cancel-button-common"> <img
+                              src="..//assets/icons/cancel.svg" alt="">Отменить</button>
                      </div>
                      <div v-if="!profile.username && !editMode.username" class="simple-input__text">
                         <button type="button" class="edit-button" @click="toggleEditMode('username')">
@@ -44,14 +49,14 @@
                </div>
             </div>
 
-            <div class="simple-input simple-input--phone">
+            <div class="simple-input simple-input--phone" :class="{ 'has-error': validationErrors.phone }">
                <label class="simple-input__label simple-input__label--phone">Телефон</label>
                <div v-if="!(!profile.phone && !editMode.phone)"
                   class="simple-input__wrapper simple-input__wrapper--phone">
                   <div class="simple-input__block simple-input__block--phone">
-                     <input v-mask="'+7 (###) ###-##-##'" v-if="editMode.phone" id="phone" v-model="profile.phone"
-                        type="text" class="simple-input__field" placeholder="Введите телефон" maxlength="18"
-                        @input="markAsChanged('phone')" />
+                     <input @keydown.backspace="handleBackspace" v-mask="'+7 (###) ###-##-##'" v-if="editMode.phone"
+                        id="phone" v-model="profile.phone" type="text" class="simple-input__field"
+                        placeholder="Введите телефон" maxlength="18" @input="markAsChanged('phone')" />
                      <div v-else class="simple-input__text">{{ profile.phone }}
                         <div v-if="!codeInputVisible" class="simple-input__description">
                            При изменение номера потребуется подтверждение через SMS - код.
@@ -66,18 +71,18 @@
                         <img src="../assets/icons/edit.svg" alt="Edit" class="edit-button__icon" /> Изменить
                      </button>
                   </div>
+                  <div v-if="validationErrors.phone" class="simple-input__error-message">
+                     {{ validationErrors.phone }}
+                  </div>
                   <div v-if="editMode.phone" class="edit-input-actions">
-                     <button @click="saveField('phone')" class="edit-input-actions__save-button">Сохранить
-                        изменения</button>
-                     <button @click="cancelEdit('phone')" class="edit-input-actions__cancel-button">Отмена</button>
+                     <button @click="saveField('phone')" class="edit-input-actions__save-button"> <img
+                           src="..//assets/icons/check-icon.svg" alt="">Отправить</button>
+                     <button @click="cancelEdit('phone')" class="edit-input-actions__cancel-button"><img
+                           src="..//assets/icons/cancel.svg" alt="">Отменить</button>
                   </div>
                   <div v-if="codeInputVisible" class="simple-input__code-block">
                      <VueOtpInput input-classes="otp-input" inputType="numeric" :num-inputs="6" v-model:value="code"
                         :should-auto-focus="true" @on-complete="submitCode" />
-                     <div class="edit-input-actions">
-                        <button @click="submitCode" class="edit-input-actions__save-button">Отправить</button>
-                        <button @click="cancelCode" class="edit-input-actions__cancel-button">Отмена</button>
-                     </div>
                   </div>
                </div>
                <div v-if="!profile.phone && !editMode.phone" class="simple-input__text simple-input__text--btn">
@@ -89,7 +94,7 @@
             </div>
 
             <!-- Поле Email -->
-            <div class="simple-input simple-input--phone">
+            <div class="simple-input simple-input--phone" :class="{ 'has-error': validationErrors.email }">
                <label class="simple-input__label simple-input__label--phone">Почта</label>
                <div v-if="!(!profile.email && !editMode.email)"
                   class="simple-input__wrapper simple-input__wrapper--phone">
@@ -105,9 +110,14 @@
                         <img src="../assets/icons/edit.svg" alt="Edit" class="edit-button__icon" /> Изменить
                      </button>
                   </div>
+                  <div v-if="validationErrors.email" class="simple-input__error-message">
+                     {{ validationErrors.email }}
+                  </div>
                   <div v-if="editMode.email" class="edit-input-actions">
-                     <button @click="saveField('email')" class="edit-input-actions__save-button">Сохранить</button>
-                     <button @click="cancelEdit('email')" class="edit-input-actions__cancel-button">Отмена</button>
+                     <button @click="saveField('email')" class="edit-input-actions__save-button"><img
+                           src="..//assets/icons/check-icon.svg" alt="">Сохранить</button>
+                     <button @click="cancelEdit('email')" class="edit-input-actions__cancel-button"><img
+                           src="..//assets/icons/cancel.svg" alt="">Отменить</button>
                   </div>
                   <div v-if="emailCodeInputVisible" class="simple-input__code-block">
                      <!-- Используем VueOtpInput для email -->
@@ -115,8 +125,10 @@
                         v-model:value="emailCode" :should-auto-focus="true" @on-complete="submitEmailCode" />
                      <div class="simple-input__description">Введите код, отправленный на новый email.</div>
                      <div class="edit-input-actions">
-                        <button @click="submitEmailCode" class="edit-input-actions__save-button">Отправить</button>
-                        <button @click="cancelEmailCode" class="edit-input-actions__cancel-button">Отмена</button>
+                        <button @click="submitEmailCode" class="edit-input-actions__save-button"> <img
+                              src="..//assets/icons/check-icon.svg" alt="">Отправить</button>
+                        <button @click="cancelEmailCode" class="edit-input-actions__cancel-button"><img
+                              src="..//assets/icons/cancel.svg" alt="">Отмена</button>
                      </div>
                   </div>
                </div>
@@ -144,8 +156,12 @@
                         </button>
                      </div>
                      <div v-if="editMode.address" class="edit-input-actions">
-                        <button @click="saveField('address')" class="edit-input-actions__save-button">Сохранить</button>
-                        <button @click="cancelEdit('address')" class="edit-input-actions__cancel-button">Отмена</button>
+                        <button @click="saveField('address')"
+                           class="edit-input-actions__save-button edit-input-actions__save-button-common"> <img
+                              src="..//assets/icons/check-icon.svg" alt="">Отправить</button>
+                        <button @click="cancelEdit('address')"
+                           class="edit-input-actions__cancel-button edit-input-actions__cancel-button-common"><img
+                              src="..//assets/icons/cancel.svg" alt="">Отменить</button>
                      </div>
                      <ul v-if="suggestions.length > 0" class="address-suggestions">
                         <li v-for="suggestion in suggestions" :key="suggestion.id"
@@ -168,7 +184,6 @@
                   <div class="simple-input__text">{{ formattedDate }}</div>
                </div>
             </div>
-
          </form>
       </div>
    </div>
@@ -219,6 +234,16 @@ const handleAddressInput = () => {
    }
 };
 
+const handleBackspace = () => {
+
+   let value = profile.value['phone'];
+   const lengthBefore = value.length;
+
+   if (['-', '('].includes(value[lengthBefore - 2])) {
+      profile.value['phone'] = value.slice(0, lengthBefore - 1);
+   }
+};
+
 const submitEmailCode = async () => {
    try {
       await confirmCode({ email: profile.value.email, code: emailCode.value });
@@ -246,10 +271,11 @@ const submitCode = async () => {
    }
 };
 
-const cancelCode = () => {
-   codeInputVisible.value = false;
-   code.value = '';
-};
+const validationErrors = ref({
+   username: '',
+   email: '',
+   phone: ''
+});
 
 const fetchSuggestionsData = async (query) => {
    try {
@@ -305,6 +331,8 @@ const markAsChanged = (field) => {
    } else {
       delete changedFields.value[field];
    }
+
+   validationErrors.value[field] = false;
 };
 
 const toggleEditMode = (field) => {
@@ -315,38 +343,42 @@ const toggleEditMode = (field) => {
    editMode.value[field] = !editMode.value[field];
 };
 
+const validateField = (field) => {
+   let isValid = true;
+   let errorMessage = '';
+
+   if (field === 'username' && !validateUsername(profile.value.username)) {
+      isValid = false;
+      errorMessage = 'Имя должно быть латиницей или кириллицей, без использования обоих алфавитов одновременно, с возможностью использования одного пробела или тире.';
+   } else if (field === 'email' && !validateEmail(profile.value.email)) {
+      isValid = false;
+      errorMessage = 'Пожалуйста, введите корректный email.';
+   } else if (field === 'phone' && (!profile.value.phone || !validatePhoneNumber(profile.value.phone.replace(/[^\d+]/g, '')))) {
+      isValid = false;
+      errorMessage = 'Пожалуйста, введите корректный номер телефона.';
+   }
+
+   validationErrors.value[field] = errorMessage;
+
+   return isValid;
+};
+
 const saveField = async (field) => {
    if (editMode.value[field]) {
-      let isValid = true;
-      let originalValue = profile.value[field];
+      let isValid = validateField(field);
 
-      if (field === 'username' && !validateUsername(profile.value.username)) {
-         isValid = false;
-         alert('Имя должно быть латиницей или кириллицей, без использования обоих алфавитов одновременно, с возможностью использования одного пробела или тире.');
-      } else if (field === 'email' && !validateEmail(profile.value.email)) {
-         isValid = false;
-         alert('Пожалуйста, введите корректный email.');
-      } else if (field === 'phone' && (!profile.value.phone || !validatePhoneNumber(profile.value.phone.replace(/[^\d+]/g, '')))) {
-         isValid = false;
-         alert('Пожалуйста, введите корректный номер телефона.');
+      if (!isValid) return;
+
+      if (field === 'phone') {
+         codeInputVisible.value = true;
+         await handleSubmit();
+      } else if (field === 'email') {
+         emailCodeInputVisible.value = true;
+         await handleSubmit();
+      } else {
+         await handleSubmit();
       }
 
-      if (!isValid) {
-         profile.value[field] = originalValue;
-         return;
-      }
-
-      if (editMode.value[field]) {
-         if (field === 'phone') {
-            codeInputVisible.value = true;
-            await handleSubmit();
-         } else if (field === 'email') {
-            emailCodeInputVisible.value = true;
-            await handleSubmit();
-         } else {
-            await handleSubmit();
-         }
-      }
       editMode.value[field] = false;
    }
 };
@@ -361,7 +393,7 @@ const cancelEdit = (field) => {
    editMode.value[field] = false;
    codeInputVisible.value = false;
    code.value = '';
-   console.log(profile.value[field]);
+   validationErrors.value[field] = false;
 };
 
 const handleSubmit = async () => {
@@ -499,13 +531,11 @@ const handleSubmit = async () => {
          justify-content: space-between;
          position: relative;
          width: 100%;
-         gap: 16px;
 
          &--phone {
             padding: 16px;
             margin-left: -16px;
             flex-direction: column;
-            gap: 8px;
             border-radius: 6px;
             background-color: #D6EFFF;
 
@@ -563,7 +593,7 @@ const handleSubmit = async () => {
 
       .edit-input-actions {
          display: flex;
-         gap: 16px;
+         gap: 40px;
          margin-top: 10px;
       }
    }
@@ -599,7 +629,7 @@ const handleSubmit = async () => {
 
    .edit-input-actions {
       display: flex;
-      gap: 16px;
+      gap: 40px;
       margin-top: 10px;
 
       &__save-button {
@@ -607,7 +637,7 @@ const handleSubmit = async () => {
          justify-content: center;
          align-items: center;
          height: 34px;
-         min-width: 180px;
+         gap: 8px;
          background-color: #D6EFFF;
          color: #3366FF;
          border: none;
@@ -615,21 +645,37 @@ const handleSubmit = async () => {
          font-size: 14px;
          cursor: pointer;
          transition: background-color 0.3s;
+
+         &-common {
+            background-color: #FFFFFF;
+         }
+
+         img {
+            width: 14px;
+         }
       }
 
       &__cancel-button {
          display: flex;
          justify-content: center;
+         gap: 8px;
          align-items: center;
          height: 34px;
-         width: 100%;
-         background-color: #ffffff;
+         background-color: #D6EFFF;
          color: #3366FF;
          border: none;
          border-radius: 6px;
          font-size: 14px;
          cursor: pointer;
          transition: background-color 0.3s;
+
+         &-common {
+            background-color: #FFFFFF;
+         }
+
+         img {
+            width: 14px;
+         }
       }
    }
 
@@ -644,9 +690,23 @@ const handleSubmit = async () => {
       cursor: pointer;
       transition: background-color 0.3s;
 
+      &-common {
+         background-color: #FFFFFF;
+      }
+
       &:hover {
          background-color: #0044cc;
       }
    }
+}
+
+.simple-input.has-error .simple-input__field {
+   border-color: red;
+}
+
+.simple-input__error-message {
+   color: red;
+   font-size: 12px;
+   margin-top: 5px;
 }
 </style>

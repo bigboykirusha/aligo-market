@@ -191,15 +191,6 @@ onUnmounted(() => {
       max-height: 75vh;
    }
 
-   &--with-margin {
-      padding-top: 44px;
-
-      @media (max-width: 768px) {
-         padding-top: 0;
-      }
-
-   }
-
    &__container {
       padding: 60px 40px;
       padding-top: 66px;

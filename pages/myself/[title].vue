@@ -45,7 +45,6 @@ watch(() => route.params.title, updateComponent, { immediate: true });
    display: flex;
    flex-direction: column;
    justify-content: flex-start;
-   overflow-y: auto;
 
    @media (max-width: 768px) {
       margin-top: 66px;
