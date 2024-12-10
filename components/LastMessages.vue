@@ -1,7 +1,7 @@
 <template>
    <div :class="['messages-container', { 'profile-page': isProfilePage }]">
-      <SkeletonMessage v-if="loading" v-for="index in 3" :key="index" />
-      <div v-else v-for="message in lastMessages" :key="message.id"
+      <SkeletonMessage v-if="messagesStore.loading" v-for="index in 3" :key="index" />
+      <div v-else v-for="message in messagesStore.lastMessages" :key="message.id"
          :class="['message-item', { 'unread-message': !message.read_at, 'profile-page': isProfilePage }]"
          @click="openChat(message)">
          <input v-if="isProfilePage" @click.stop type="checkbox" class="message-checkbox" :value="message.id"
@@ -23,7 +23,8 @@
                   <div class="ad-details">
                      {{ message.ads_info }}
                      <div class="chat-header__ad-amount">
-                        {{ formatNumberWithSpaces(message.ads_amount) }} <span class="chat-header__ad-amount-currency">₽</span>
+                        {{ formatNumberWithSpaces(message.ads_amount) }}
+                        <span class="chat-header__ad-amount-currency">₽</span>
                      </div>
                   </div>
                </div>
@@ -40,21 +41,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { getImageUrl } from '../services/imageUtils';
-import { fetchLastMessages } from '~/services/apiClient';
-import { formatNumberWithSpaces } from '../services/amountUtils.js';
-import { relevantUser, relevantUserInfo} from '../services/userUtils.js'
-import { useUserStore } from '~/store/user';
+import { useMessagesStore } from '~/store/messages';
 import { useSelectedMessagesStore } from '~/store/selectedMessages';
+import { relevantUser, relevantUserInfo } from '../services/userUtils.js';
+import { formatNumberWithSpaces } from '../services/amountUtils.js';
+import { getImageUrl } from '../services/imageUtils.js';
 import avatar from '../assets/icons/avatar-revers.svg';
 
-const userStore = useUserStore();
-const selectedMessagesStore = useSelectedMessagesStore();
 const emit = defineEmits(['open-chat']);
-const lastMessages = ref([]);
-const loading = ref(true);
+
+const messagesStore = useMessagesStore();
+const selectedMessagesStore = useSelectedMessagesStore();
 const { locale } = useI18n();
 
 const props = defineProps({
@@ -67,7 +66,8 @@ const props = defineProps({
 const formatDate = (dateString) => {
    const months = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'нояб', 'дек'];
    const date = new Date(dateString);
-   return `${date.getDate()} ${months[date.getMonth()]} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes()
+   return `${date.getDate()} ${months[date.getMonth()]} ${date.getHours().toString().padStart(2, '0')}:${date
+      .getMinutes()
       .toString()
       .padStart(2, '0')}`;
 };
@@ -76,20 +76,8 @@ const messageContent = (message) => {
    return locale.value !== 'ru' && message.message_translate ? message.message_translate : message.message;
 };
 
-const loadLastMessages = async () => {
-   loading.value = true;
-   try {
-      const { data } = await fetchLastMessages(locale.value);
-      lastMessages.value = data;
-   } catch (error) {
-      console.error('Ошибка при загрузке последних сообщений:', error);
-   } finally {
-      loading.value = false;
-   }
-};
-
 const openChat = (message) => {
-   emit('open-chat', message );
+   emit('open-chat', message);
 };
 
 const isMessageSelected = (message) => {
@@ -106,7 +94,9 @@ const toggleMessage = (message) => {
    selectedMessagesStore.toggleMessage(messageData);
 };
 
-onMounted(loadLastMessages);
+onMounted(() => {
+   messagesStore.loadLastMessages(locale.value);
+});
 </script>
 
 <style lang="scss" scoped>

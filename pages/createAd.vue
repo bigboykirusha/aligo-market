@@ -15,11 +15,14 @@
 import { ref, computed } from 'vue';
 import { useCreateStore } from '../store/create.js';
 import { useUserStore } from '../store/user.js';
+import { useTabsStore } from '~/store/tabsStore.js';
 import { useRouter } from '#vue-router';
 import { publishFromArchive } from '../services/apiClient.js';
 
 const createStore = useCreateStore();
 const userStore = useUserStore();
+const tabsStore = useTabsStore();
+
 const isAdSended = ref(false);
 const isPopupVisible = ref(false);
 const router = useRouter();
@@ -57,6 +60,7 @@ const handleSendAd = async () => {
       isAdSended.value = true;
    }
    createStore.resetParams();
+   tabsStore.resetTabs();
 };
 
 const saveAd = async () => {
@@ -66,12 +70,14 @@ const saveAd = async () => {
    createStore.resetParams();
    await userStore.fetchUserCounts();
    isPopupVisible.value = false;  // Закрываем попап
+   tabsStore.resetTabs();
 };
 
 const discardAd = () => {
    createStore.resetParams();
    router.push('/');  // Переход на главную страницу после отказа
    isPopupVisible.value = false;  // Закрываем попап
+   tabsStore.resetTabs();
 };
 
 const closePopup = () => {

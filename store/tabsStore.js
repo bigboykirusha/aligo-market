@@ -17,6 +17,9 @@ export const useTabsStore = defineStore('tabs', {
       updateTabs(newTabs) {
          this.tabs = newTabs;
       },
+      resetTabs() {
+         this.activeTab = 1;
+      },
    },
 
    getters: {

@@ -202,10 +202,12 @@ import { formatNumberWithSpaces } from '../services/amountUtils.js';
 import { relevantUser, relevantUserInfo } from '../services/userUtils.js'
 import { fetchMessages, sendMessage, fetchLastMessages } from '~/services/apiClient';
 import { useUserStore } from '~/store/user';
+import { useMessagesStore } from '~/store/messages';
 import { useRouter } from 'vue-router';
 
 const userStore = useUserStore();
 const chatStore = useChatStore();
+const messagesStore = useMessagesStore();
 const selectedMessagesStore = useSelectedMessagesStore();
 const messages = computed(() => chatStore.messages);
 const toUserId = computed(() => {
@@ -267,6 +269,7 @@ const handleMarkAllAsRead = async () => {
 const handleDeleteAll = async () => {
    try {
       await selectedMessagesStore.deleteSelectedChats();
+      messagesStore.loadLastMessages();
    } catch (error) {
       console.error('Ошибка при удалении всех сообщений:', error);
    }
@@ -730,8 +733,15 @@ onBeforeUnmount(() => {
       text-wrap: wrap;
       max-width: 100%;
       gap: 16px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15), 0px 0px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
       overflow-y: auto;
       padding: 2px 0;
+
+      @media (max-width: 768px) {
+         box-shadow: none;
+         border-radius: 0;
+      }
    }
 
    &__placeholder {
@@ -774,6 +784,7 @@ onBeforeUnmount(() => {
       border-radius: 4px;
       height: 100%;
       max-height: 508px;
+      min-height: 508px;
 
       @media (max-width: 768px) {
          position: absolute;

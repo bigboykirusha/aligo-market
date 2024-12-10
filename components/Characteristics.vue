@@ -12,9 +12,6 @@
          <ColorPickerCreateSkeleton v-if="loading" />
          <ColorPickerCreate v-else :options="colorOptions" label="Цвет" @updateSelected="handleColorUpdate"
             :activeIndex="createStore.color_id" />
-         <TextSkeleton v-if="loading" />
-         <AutosTextTemplate v-else label="Видео с youtube" placeholder="Cсылка на видео" :option="createStore.video"
-            validationType="url" @update:option="handleVideoUpdate" />
       </div>
       <div class="characteristics__content">
          <BlockTitle text="Регистрационные данные" />

@@ -56,6 +56,7 @@ watch(() => route.params.title, updateComponent, { immediate: true });
 
 .current-component-wrapper {
    margin-left: auto;
+   width: calc(100% - 270px - 40px);
 
    @media (max-width: 768px) {
       width: 100%;

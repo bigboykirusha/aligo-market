@@ -251,7 +251,7 @@ const handleTabKeydown = (event) => {
    const lastElement = visibleElements[visibleElements.length - 1];
 
    if (event.key === 'Tab') {
-      if (event.shiftKey) {  // Shift + Tab (движение в обратную сторону)
+      if (event.shiftKey) { 
          if (document.activeElement === firstElement) {
             lastElement.focus();
             event.preventDefault();
@@ -355,6 +355,7 @@ const handleSuccessfulLogin = (data, cleanedPhone) => {
    clearFormFields();
    userStore.isLoggedIn = true;
    userStore.fetchAndSetUserdata();
+   userStore.fetchUserCounts();
    closeModal();
 };
 
