@@ -1,14 +1,10 @@
 <template>
    <div class="container">
-      <div v-if="!isAdSended">
-         <CreateAdForm @sendAd="handleSendAd" />
-      </div>
-      <div v-else>
-         <CreateAdComplite />
-      </div>
+      <CreateAdForm v-if="!isAdSended" @sendAd="handleSendAd" />
       <SaveAdPopup v-if="isPopupVisible && isAnyFieldFilled" :title="'Хотите сохранить объявление в черновики?'"
          :isVisible="isPopupVisible" @close="closePopup" @save="saveAd" @discard="discardAd" />
    </div>
+   <CreateAdComplite v-if="isAdSended" />
 </template>
 
 <script setup>

@@ -648,7 +648,8 @@ export const updateUserInfo = async (params) => {
       });
       return response.data;
    } catch (error) {
-      return response.data;
+      console.error('Ошибка при обновлении информации о пользователе', error);
+      return error.response.data;
    }
 };
 

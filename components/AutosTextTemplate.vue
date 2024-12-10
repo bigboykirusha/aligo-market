@@ -3,11 +3,12 @@
       <label v-if="label" class="simple-input__label">{{ label }}</label>
       <div class="simple-input__block">
          <div class="simple-input__wrapper">
-            <input type="text" class="simple-input__field" :class="{
-               'simple-input__field--error': shouldShowError,
-               'simple-input__field--success': shouldShowSuccess,
-               'simple-input__field--highlighted': isHighlighted
-            }" :placeholder="placeholder" v-model="optionValue" :disabled="disabled" @input="handleInput" />
+            <input type="text" :inputmode="props.validationType === 'number' ? 'numeric' : null"
+               class="simple-input__field" :class="{
+                  'simple-input__field--error': shouldShowError,
+                  'simple-input__field--success': shouldShowSuccess,
+                  'simple-input__field--highlighted': isHighlighted
+               }" :placeholder="placeholder" v-model="optionValue" :disabled="disabled" @input="handleInput" />
             <img v-if="optionValue" src="../assets/icons/close-gray.svg" alt="Clear" class="simple-input__clear"
                @click="clearInput" />
          </div>
@@ -133,7 +134,6 @@ const validate = (value) => {
    }
 };
 </script>
-
 
 <style scoped lang="scss">
 .simple-input {

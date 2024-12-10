@@ -150,14 +150,13 @@ export const useUserStore = defineStore('user', {
                formData.append(key, value);
             });
 
-            const response = await updateUserInfo(formData); 
-            console.log(response);
+            const response = await updateUserInfo(formData);
 
             await this.fetchAndSetUserdata();
 
-            return response; 
+            return response;
          } catch (error) {
-            return response; 
+            return error.response;
          }
       }
    },

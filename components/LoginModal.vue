@@ -146,8 +146,6 @@ const timeLeft = ref(0);
 const contactInfoError = ref('');
 const generalError = ref('');
 
-const isFirstAttempt = ref(true);
-
 // Для ввода
 const phoneInput = ref(null);
 const emailInput = ref(null);
@@ -314,9 +312,7 @@ const submitForm = async () => {
          const response = await loginUserByPhone(requestData);
          if (response.success) {
             showCodeInput.value = true;
-            if (!isFirstAttempt.value) {
                startTimer();
-            }
             alert(`Код: ${response.code}`);
          } else {
             contactInfoError.value = response.message || 'Ошибка при отправке кода.';

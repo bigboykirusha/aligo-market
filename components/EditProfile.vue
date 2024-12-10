@@ -55,7 +55,7 @@
                   class="simple-input__wrapper simple-input__wrapper--phone">
                   <div class="simple-input__block simple-input__block--phone">
                      <input @keydown.backspace="handleBackspace" v-mask="'+7 (###) ###-##-##'" v-if="editMode.phone"
-                        id="phone" v-model="profile.phone" type="text" class="simple-input__field"
+                        id="phone" v-model="profile.phone" type="tel" class="simple-input__field"
                         placeholder="Введите телефон" maxlength="18" @input="markAsChanged('phone')" />
                      <div v-else class="simple-input__text">{{ profile.phone }}
                         <div v-if="!codeInputVisible" class="simple-input__description">
@@ -66,7 +66,7 @@
                         </div>
                      </div>
 
-                     <button v-if="!editMode.phone && profile.phone && !codeInputVisible" type="button"
+                     <button v-if="!editMode.phone && profile.phone" type="button"
                         class="edit-button edit-button--phone" @click="toggleEditMode('phone')">
                         <img src="../assets/icons/edit.svg" alt="Edit" class="edit-button__icon" /> Изменить
                      </button>
@@ -83,6 +83,12 @@
                   <div v-if="codeInputVisible" class="simple-input__code-block">
                      <VueOtpInput input-classes="otp-input" inputType="numeric" :num-inputs="6" v-model:value="code"
                         :should-auto-focus="true" @on-complete="submitCode" />
+                     <p class="timer-message" v-if="timeLeft > 0">
+                        Получить новый можно через {{ formattedTime }}
+                     </p>
+                     <button v-else @click.prevent="saveField('phone')" class="timer-text" tabindex="0">
+                        Получить новый код
+                     </button>
                   </div>
                </div>
                <div v-if="!profile.phone && !editMode.phone" class="simple-input__text simple-input__text--btn">
@@ -123,13 +129,12 @@
                      <!-- Используем VueOtpInput для email -->
                      <VueOtpInput input-classes="otp-input" inputType="numeric" :num-inputs="6"
                         v-model:value="emailCode" :should-auto-focus="true" @on-complete="submitEmailCode" />
-                     <div class="simple-input__description">Введите код, отправленный на новый email.</div>
-                     <div class="edit-input-actions">
-                        <button @click="submitEmailCode" class="edit-input-actions__save-button"> <img
-                              src="..//assets/icons/check-icon.svg" alt="">Отправить</button>
-                        <button @click="cancelEmailCode" class="edit-input-actions__cancel-button"><img
-                              src="..//assets/icons/cancel.svg" alt="">Отмена</button>
-                     </div>
+                     <p class="timer-message" v-if="timeLeft > 0">
+                        Получить новый можно через {{ formattedTime }}
+                     </p>
+                     <button v-else @click.prevent="saveField('phone')" class="timer-text" tabindex="0">
+                        Получить новый код
+                     </button>
                   </div>
                </div>
                <div v-if="!profile.email && !editMode.email" class="simple-input__text simple-input__text--btn">
@@ -209,6 +214,23 @@ const profile = ref({
    city: userStore.city || null,
    latitude: userStore.latitude || null,
    longitude: userStore.longitude || null,
+});
+
+let timer = null;
+const timeLeft = ref(0);
+
+const startTimer = () => {
+   clearInterval(timer);
+   timeLeft.value = 180;
+   timer = setInterval(() => {
+      timeLeft.value > 0 ? timeLeft.value-- : clearInterval(timer);
+   }, 1000);
+};
+
+const formattedTime = computed(() => {
+   const minutes = Math.floor(timeLeft.value / 60);
+   const seconds = timeLeft.value % 60;
+   return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 });
 
 const changedFields = ref({});
@@ -336,11 +358,17 @@ const markAsChanged = (field) => {
 };
 
 const toggleEditMode = (field) => {
-   if (editMode.value[field]) {
-      profile.value[field] = addressInputValue.value;
-      markAsChanged(field);
-   }
+   // Переключаем режим редактирования
    editMode.value[field] = !editMode.value[field];
+
+   // Если редактируется телефон или email, сбрасываем состояния
+   if (field === 'phone') {
+      codeInputVisible.value = false;
+      code.value = '';
+   } else if (field === 'email') {
+      emailCodeInputVisible.value = false;
+      emailCode.value = '';
+   }
 };
 
 const validateField = (field) => {
@@ -348,7 +376,22 @@ const validateField = (field) => {
    let errorMessage = '';
 
    if (!changedFields.value[field]) {
-      validationErrors.value[field] = `Вы не изменили ${field === 'email' ? 'email' : 'номер'}.`;
+      let fieldName = '';
+      switch (field) {
+         case 'email':
+            fieldName = 'email';
+            break;
+         case 'phone':
+            fieldName = 'номер';
+            break;
+         case 'username':
+            fieldName = 'имя';
+            break;
+         default:
+            fieldName = 'значение';
+      }
+
+      validationErrors.value[field] = `Вы не изменили ${fieldName}.`;
       return;
    }
 
@@ -380,20 +423,22 @@ const saveField = async (field) => {
 
          if (response.success) {
             codeInputVisible.value = true;
+            startTimer();
          } else {
             console.log(response.message || response, 'osibka tut');
             validationErrors.value[field] = response.message || response;
-            return; // Если ошибка, выходим из функции и ничего дальше не выполняем
+            return;
          }
       } else if (field === 'email') {
          response = await handleSubmit();
 
          if (response.success) {
             emailCodeInputVisible.value = true;
+            startTimer();
          } else {
             console.log(response.message || response);
             validationErrors.value[field] = response.message || response;
-            return; // Если ошибка, выходим из функции и ничего дальше не выполняем
+            return;
          }
       } else {
          response = await handleSubmit();
@@ -427,7 +472,6 @@ const handleSubmit = async () => {
    console.log('changedFields.value', changedFields.value);
    if (Object.keys(changedFields.value).length > 0) {
       const response = await userStore.updateProfile(changedFields.value);
-
       if (response.success) {
          Object.keys(editMode.value).forEach((key) => {
             editMode.value[key] = false;
@@ -468,10 +512,10 @@ const handleSubmit = async () => {
       position: absolute;
       background-color: #fff;
       border: 1px solid #C4C4C4;
-      border-radius: 6px;
-      top: 34px;
+      border-radius: 0 0 6px 6px;
+      top: 30px;
       width: 100%;
-      max-height: 200px;
+      max-height: 180px;
       overflow-y: auto;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       z-index: 10;
@@ -581,12 +625,6 @@ const handleSubmit = async () => {
          font-size: 14px;
          min-width: 220px;
          line-height: 18px;
-      }
-
-      &__field {
-         &--address {
-            width: 100%;
-         }
       }
 
       &__text {
@@ -729,6 +767,15 @@ const handleSubmit = async () => {
    }
 }
 
+.simple-input__field--address {
+   width: 100%;
+
+   &:focus {
+      border-radius: none;
+   }
+
+}
+
 .simple-input.has-error .simple-input__field {
    border-color: #FF5959;
    color: #FF5959;
@@ -738,5 +785,19 @@ const handleSubmit = async () => {
    color: #FF5959;
    font-size: 12px;
    margin-top: 6px;
+}
+
+.timer-message {
+   margin-top: 16px;
+   color: #787878;
+   font-size: 14px;
+   text-align: center;
+}
+
+.timer-text {
+   margin-top: 16px;
+   color: #3366FF;
+   font-size: 14px;
+   text-align: center;
 }
 </style>
