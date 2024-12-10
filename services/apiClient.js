@@ -170,7 +170,7 @@ export const loginUserByPhone = async ({ phone, email, is_send_code_telegram }) 
          email,
          is_send_code_telegram: is_send_code_telegram ? 1 : 0
       });
-      return response.data; 
+      return response.data;
    } catch (error) {
       console.error('Ошибка при входе: ', error.response?.data || error.message);
       throw error.response?.data || error;
@@ -646,10 +646,9 @@ export const updateUserInfo = async (params) => {
             'Content-Type': 'multipart/form-data',
          }
       });
-      return response.data.data;
+      return response.data;
    } catch (error) {
-      console.error('Ошибка при создании', error);
-      throw error;
+      return response.data;
    }
 };
 

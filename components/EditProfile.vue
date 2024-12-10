@@ -370,20 +370,42 @@ const validateField = (field) => {
 
 const saveField = async (field) => {
    if (editMode.value[field]) {
-      let isValid = validateField(field);
+      const isValid = validateField(field);
 
       if (!isValid) return;
 
+      let response;
       if (field === 'phone') {
-         codeInputVisible.value = true;
-         await handleSubmit();
+         response = await handleSubmit();
+
+         if (response.success) {
+            codeInputVisible.value = true;
+         } else {
+            console.log(response.message || response, 'osibka tut');
+            validationErrors.value[field] = response.message || response;
+            return; // Если ошибка, выходим из функции и ничего дальше не выполняем
+         }
       } else if (field === 'email') {
-         emailCodeInputVisible.value = true;
-         await handleSubmit();
+         response = await handleSubmit();
+
+         if (response.success) {
+            emailCodeInputVisible.value = true;
+         } else {
+            console.log(response.message || response);
+            validationErrors.value[field] = response.message || response;
+            return; // Если ошибка, выходим из функции и ничего дальше не выполняем
+         }
       } else {
-         await handleSubmit();
+         response = await handleSubmit();
+
+         if (!response.success) {
+            console.log(response.message || response);
+            validationErrors.value[field] = response.message || response;
+            return;
+         }
       }
 
+      // Если нет ошибок, сбрасываем режим редактирования
       editMode.value[field] = false;
    }
 };
@@ -394,7 +416,7 @@ const cancelEdit = (field) => {
    } else {
       profile.value[field] = userStore[field];
    }
-
+   delete changedFields.value[field];
    editMode.value[field] = false;
    codeInputVisible.value = false;
    code.value = '';
@@ -402,18 +424,20 @@ const cancelEdit = (field) => {
 };
 
 const handleSubmit = async () => {
-   try {
-      if (Object.keys(changedFields.value).length > 0) {
-         const response = await userStore.updateProfile(changedFields.value);
+   console.log('changedFields.value', changedFields.value);
+   if (Object.keys(changedFields.value).length > 0) {
+      const response = await userStore.updateProfile(changedFields.value);
+
+      if (response.success) {
          Object.keys(editMode.value).forEach((key) => {
             editMode.value[key] = false;
          });
          changedFields.value = {};
-         return { success: true, data: response.data };
+
+         console.log('Профиль успешно обновлен:', response.data);
       }
-   } catch (error) {
-      console.error('Ошибка при обновлении профиля', error);
-      return { error: true, message: error.message || 'Произошла ошибка при обновлении профиля' };
+
+      return response;
    }
 };
 </script>
@@ -706,12 +730,13 @@ const handleSubmit = async () => {
 }
 
 .simple-input.has-error .simple-input__field {
-   border-color: red;
+   border-color: #FF5959;
+   color: #FF5959;
 }
 
 .simple-input__error-message {
-   color: red;
+   color: #FF5959;
    font-size: 12px;
-   margin-top: 5px;
+   margin-top: 6px;
 }
 </style>

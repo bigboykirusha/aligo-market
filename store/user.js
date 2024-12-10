@@ -150,10 +150,14 @@ export const useUserStore = defineStore('user', {
                formData.append(key, value);
             });
 
-            await updateUserInfo(formData);
-            this.fetchAndSetUserdata();
+            const response = await updateUserInfo(formData); 
+            console.log(response);
+
+            await this.fetchAndSetUserdata();
+
+            return response; 
          } catch (error) {
-            console.error('Ошибка при обновлении профиля', error);
+            return response; 
          }
       }
    },

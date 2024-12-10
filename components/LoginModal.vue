@@ -232,7 +232,6 @@ const resetError = () => {
 };
 
 const handleTabKeydown = (event) => {
-   // Собираем список фокусируемых элементов с учетом состояния модального окна
    const focusableElements = Array.from(
       document.querySelectorAll(
          '#main-login-modal .modal__content button:not([disabled]), ' +
@@ -244,7 +243,6 @@ const handleTabKeydown = (event) => {
       )
    );
 
-   // Убираем элементы, которые скрыты или недоступны (например, кнопка "Отправить" после таймера или код)
    const visibleElements = focusableElements.filter(el => el.offsetParent !== null);
 
    const firstElement = visibleElements[0];
