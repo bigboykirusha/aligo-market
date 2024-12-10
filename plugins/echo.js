@@ -6,11 +6,13 @@ import { useUserStore } from '~/store/user';
 
 export default defineNuxtPlugin(nuxtApp => {
    const userStore = useUserStore();
+   const chatStore = useChatStore();
+
 
    // Проверяем, залогинен ли пользователь
    if (!userStore.isLoggedIn) {
       console.warn('Пользователь не залогинен. Инициализация Echo отменена.');
-      return; // Если пользователь не залогинен, выходим из плагина
+      return;
    }
 
    let token = '';
@@ -32,7 +34,7 @@ export default defineNuxtPlugin(nuxtApp => {
 
    if (!token) {
       console.error('Токен не найден');
-      return; 
+      return;
    }
 
    window.Pusher = Pusher;
