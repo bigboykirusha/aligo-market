@@ -14,6 +14,23 @@ export const fetchLocation = async () => {
    }
 };
 
+export const getCityByIp = async (ip) => {
+   const config = useRuntimeConfig();
+   const apiToken = config.public.apiToken;
+
+   try {
+      // Запрос к API для получения данных по IP
+      const response = await axios.get(`https://ipinfo.io/${ip}/json?token=${apiToken}`);
+
+      // Деструктурируем данные и возвращаем город и страну
+      const { city, country } = response.data;
+      return { city: city || 'Неизвестно', country: country || 'Неизвестно' };
+   } catch (error) {
+      console.error(`Ошибка при получении данных для IP ${ip}:`, error);
+      return { city: 'Неизвестно', country: 'Неизвестно' };  // Возвращаем 'Неизвестно' в случае ошибки
+   }
+};
+
 export const fetchCity = async (lat, lon) => {
    const config = useRuntimeConfig();
    const yandexApiKey = config.public.yandexApiKey;

@@ -112,7 +112,7 @@ const PtsOptions = ref([]);
 const isModelsDropdownDisabled = computed(() => !(createStore.brand_id));
 const isMobile = ref(false);
 
-const showStateNumber = computed(() => createStore.condition_id !== 1);
+const showStateNumber = computed(() => createStore.country_id !== 1 && createStore.country_id !== null);
 const showMileage = computed(() => createStore.condition_id !== 1);
 const showState = computed(() => createStore.condition_id !== 1);
 const showOwners = computed(() => createStore.condition_id !== 1);

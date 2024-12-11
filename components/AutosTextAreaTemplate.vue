@@ -6,7 +6,7 @@
             <textarea class="simple-textarea__field" :placeholder="placeholder" v-model="optionValue"
                :disabled="disabled" :maxlength="maxLength"></textarea>
             <div class="simple-textarea__char-count">
-               {{ remainingCharacters }}/{{ maxLength }}
+               {{ remainingCharacters }} / {{ maxLength }}
             </div>
          </div>
          <div class="simple-textarea__subtext">
@@ -19,7 +19,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 const props = defineProps({
    option: {
@@ -38,20 +38,26 @@ const props = defineProps({
       type: Boolean,
       default: false,
    },
+   maxLength: {
+      type: Number,
+      default: 3000, // максимальная длина по умолчанию
+   },
 });
 
 const emit = defineEmits(['update:option']);
-const maxLength = 3000;
 const optionValue = ref(props.option || '');
 
+// Обновление значения при изменении текста
 watch(optionValue, (newValue) => {
    emit('update:option', newValue);
 });
 
+// Вычисление оставшихся символов
 const remainingCharacters = computed(() => {
-   return maxLength - (optionValue.value?.length || 0);
+   return optionValue.value.length;
 });
 
+// Очистка ввода
 const clearInput = () => {
    optionValue.value = '';
 };

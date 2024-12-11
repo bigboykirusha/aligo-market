@@ -294,12 +294,35 @@ export const getUserCount = async () => {
    }
 };
 
-export const logoutUser = async () => {
+export const getMyselfAuthEvents = async () => {
+   try {
+      const response = await apiClient.get('/user/get_myself_auth_events');
+      return response.data;
+   } catch (error) {
+      console.error('Ошибка при получении событий аутентификации: ', error);
+      throw error;
+   }
+};
+
+export const logoutUser = async (authEventId) => {
+   try {
+      const endpoint = authEventId
+         ? `/logout/${authEventId}`
+         : '/logout';
+      const response = await apiClient.post(endpoint);
+      return response.data;
+   } catch (error) {
+      console.error('Ошибка при выходе: ', error);
+      throw error;
+   }
+};
+
+export const logoutEverywhere = async () => {
    try {
       const response = await apiClient.post('/logout_everywhere');
       return response.data;
    } catch (error) {
-      console.error('Ошибка при выходе: ', error);
+      console.error('Ошибка при выходе везде: ', error);
       throw error;
    }
 };

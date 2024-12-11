@@ -1,6 +1,6 @@
 <template>
    <div class="container">
-      <CreateAdForm v-if="!isAdSended" @sendAd="handleSendAd" />
+      <CreateAdForm v-if="!isAdSended" @sendAd="handleSendAd" @saveAd="handleSaveAd" />
       <SaveAdPopup v-if="isPopupVisible && isAnyFieldFilled" :title="'Хотите сохранить объявление в черновики?'"
          :isVisible="isPopupVisible" @close="closePopup" @save="saveAd" @discard="discardAd" />
    </div>
@@ -39,6 +39,8 @@ router.beforeEach((to, from, next) => {
 
 // Обработка отправки объявления
 const handleSendAd = async () => {
+   isAdSended.value = true;
+
    if (createStore.id) {
       if (createStore.is_in_archive) {
          await publishFromArchive(createStore.id);
@@ -49,14 +51,12 @@ const handleSendAd = async () => {
    } else {
       await createStore.sendCarAd();
    }
-
-   if (createStore.is_draft === 1) {
-      router.push('/');  // Переход на главную страницу после сохранения черновика
-   } else {
-      isAdSended.value = true;
-   }
    createStore.resetParams();
    tabsStore.resetTabs();
+};
+
+const handleSaveAd = () => {
+   isPopupVisible.value = true;
 };
 
 const saveAd = async () => {

@@ -191,6 +191,7 @@
             </div>
          </form>
       </div>
+      <Security />
    </div>
 </template>
 
@@ -501,6 +502,8 @@ const handleSubmit = async () => {
    width: 100%;
    background-color: #fff;
    border-radius: 8px;
+   display: flex;
+   flex-direction: column;
    margin-bottom: 24px;
    padding: 16px;
 

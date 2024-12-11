@@ -2,8 +2,7 @@
    <div class="color-picker">
       <div class="color-picker__title">{{ label }}</div>
       <div class="color-picker__options">
-         <div v-for="color in options" :key="color.id" class="color-picker__option"
-            :style="{ backgroundColor: color.code }"
+         <div v-for="color in options" :key="color.id" class="color-picker__option" :style="getStyle(color)"
             :class="{ 'color-picker__option--selected': selectedColor === color.id }" @click="selectColor(color.id)">
             <div class="color-picker__tooltip">
                {{ color.title }}
@@ -50,6 +49,30 @@ watch(selectedColor, (newColor) => {
 const selectColor = (id) => {
    selectedColor.value = id;
 };
+
+const getStyle = (color) => {
+   if (color.is_gradient) {
+      if (color.id === 5) {
+         // Серебряный
+         return {
+            background: 'linear-gradient(149.74deg, #D9D9D9 13.83%, #F5F5F5 48.22%, #CECECE 64.1%)',
+         };
+      }
+      if (color.id === 13) {
+         // Золотой
+         return {
+            background: 'linear-gradient(149.74deg, #E3D2B8 13.83%, #FCF4E9 48.22%, #D6BB93 64.1%)',
+         };
+      }
+      if (color.id === 17) {
+         // Бронзовый
+         return {
+            background: 'linear-gradient(149.74deg, #C8A381 13.83%, #F2DED2 48.22%, #B08C6E 64.1%)',
+         };
+      }
+   }
+   return { backgroundColor: color.code };
+};
 </script>
 
 <style scoped lang="scss">
@@ -58,7 +81,7 @@ const selectColor = (id) => {
    flex-direction: row;
    align-items: flex-start;
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       flex-direction: column;
       gap: 8px;
       align-items: flex-start;
@@ -101,9 +124,9 @@ const selectColor = (id) => {
       position: absolute;
       bottom: -42px;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translateX(-30%);
       background-color: #3366ff;
-      color: #fff;
+      color: #FFF;
       padding: 5px 10px;
       border-radius: 6px;
       font-size: 14px;
@@ -115,12 +138,13 @@ const selectColor = (id) => {
       display: flex;
       align-items: center;
       justify-content: center;
+      text-transform: capitalize;
    }
 
    &__tooltip-arrow {
       position: absolute;
       top: -8px;
-      left: 50%;
+      left: 30%;
       transform: translateX(-50%);
       width: 0;
       height: 0;

@@ -38,13 +38,13 @@ import { useTabsStore } from '~/store/tabsStore';
 const createStore = useCreateStore();
 const tabsStore = useTabsStore();
 
-const emit = defineEmits(['sendAd']);
+const emit = defineEmits(['sendAd', 'saveAd']);
 
 const activeTab = computed(() => tabsStore.activeTab);
 
 const saveAndExit = () => {
    createStore.setIsDraft(1);
-   emit('sendAd');
+   emit('saveAd');
 };
 
 const publishAndExit = () => {

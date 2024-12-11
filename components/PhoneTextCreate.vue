@@ -5,6 +5,7 @@
          <input type="text" class="simple-input__field" :placeholder="placeholder" v-model="displayValue"
             v-mask="'+7 (###) ###-##-##'" :disabled="disabled" />
          <div class="simple-input__subtext">
+            Номер телефона будет виден только зарегистрированным пользователям. Эту защиту нельзя отключить.
          </div>
          <img v-if="displayValue" src="../assets/icons/close-gray.svg" alt="Clear" class="simple-input__clear"
             @click="clearInput" />
@@ -71,9 +72,10 @@ const clearInput = () => {
 
    &__subtext {
       font-size: 14px;
-      color: #fff;
-      padding-top: 16px;
+      color: #FFFFFF;
+      padding-top: 8px;
       padding-bottom: 8px;
+      margin-top: 5px;
    }
 
    &__wrapper {

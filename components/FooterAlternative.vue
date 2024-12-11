@@ -70,6 +70,7 @@ onUnmounted(() => {
 .footer {
    margin-top: 40px;
    position: fixed;
+   display: none;
    bottom: 0;
    left: 0;
    width: 100%;

@@ -8,7 +8,7 @@
                   'simple-input__field--error': shouldShowError,
                   'simple-input__field--success': shouldShowSuccess,
                   'simple-input__field--highlighted': isHighlighted
-               }" :placeholder="placeholder" v-model="optionValue" :disabled="disabled" @input="handleInput" />
+               }" :placeholder="placeholder" v-model="displayValue" :disabled="disabled" @input="handleInput" />
             <img v-if="optionValue" src="../assets/icons/close-gray.svg" alt="Clear" class="simple-input__clear"
                @click="clearInput" />
          </div>
@@ -52,28 +52,86 @@ const optionValue = ref(props.option ? String(props.option).trim() : '');
 const hasInput = ref(false);
 const isHighlighted = ref(props.isEmpty);
 
-const isValid = computed(() => {
-   return props.validationType ? validate(optionValue.value) : true;
+// Функция для форматирования числа с разделением на разряды
+const formatNumber = (value) => {
+   // Убираем все символы, кроме цифр
+   const numValue = value.replace(/\D/g, '');
+   // Форматируем число с пробелами для отображения
+   return numValue.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+};
+
+// Вычисляем отображаемое значение (с пробелами) только для поля с числовой валидацией
+const displayValue = computed({
+   get() {
+      if (props.validationType === 'number') {
+         return formatNumber(optionValue.value); // Форматируем только для отображения
+      }
+      return optionValue.value; // Для других типов не форматируем
+   },
+   set(newValue) {
+      if (props.validationType === 'number') {
+         // Если это число, убираем пробелы для сохранения
+         optionValue.value = newValue.replace(/\s/g, '');
+      } else {
+         optionValue.value = newValue; // Для других типов сохраняем без изменений
+      }
+   }
 });
+
+// Функция валидации
+const isValid = computed(() => {
+   switch (props.validationType) {
+      case 'number':
+         return !isNaN(optionValue.value) && Number(optionValue.value) > 0;
+      case 'email':
+         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(optionValue.value);
+      case 'url':
+         return /^(https?:\/\/)?([\w\d\-_]+(\.[\w\d\-_]+)+)(\/[\w\d\-._~:/?#\[\]@!$&'()*+,;=]*)?$/.test(optionValue.value);
+      case 'doors':
+         const numberValue = Number(optionValue.value);
+         return Number.isInteger(numberValue) && numberValue >= 2 && numberValue <= 12;
+      case 'vin':
+         return validateVIN(optionValue.value);
+      case 'licensePlate':
+         return /^[A-Z]{1}\d{3}[A-Z]{2}\d{2,3}$/.test(optionValue.value);
+      default:
+         return true;
+   }
+});
+
+const validateVIN = (vin) => {
+   // Регулярное выражение для проверки VIN
+   const vinRegex = /^[A-HJ-NPR-Za-hj-npr-z\d]{17}$/;
+
+   // Проверяем, что строка состоит ровно из 17 символов
+   // и что в ней присутствуют хотя бы одна буква и хотя бы одна цифра
+   if (!vinRegex.test(vin)) return false;
+
+   // Проверяем, что в VIN есть хотя бы одна буква (без I, O, Q)
+   const letterCheck = /[A-HJ-NPR-Za-hj-npr-z]/;
+   const digitCheck = /\d/;
+
+   return letterCheck.test(vin) && digitCheck.test(vin);
+};
 
 const errorMessage = computed(() => {
    if (!props.validationType) return '';
+   if (isValid.value) return '';
    switch (props.validationType) {
       case 'number':
-         return (isNaN(optionValue.value) || optionValue.value <= 0) ? 'Введите корректное значение' : '';
-      case 'doors':
-         const numberValue = Number(optionValue.value);
-         return Number.isInteger(numberValue) && numberValue >= 4 && numberValue <= 12 ? '' : 'Введите корректное количество дверей (от 4 до 12)';
+         return 'Введите число больше нуля';
       case 'email':
-         return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(optionValue.value) ? 'Введите корректный email' : '';
+         return 'Введите корректный email';
       case 'url':
-         return !/^(https?:\/\/)?([\w\d\-_]+(\.[\w\d\-_]+)+)(\/[\w\d\-._~:/?#\[\]@!$&'()*+,;=]*)?$/.test(optionValue.value) ? 'Введите корректный URL' : '';
+         return 'Введите корректный URL';
+      case 'doors':
+         return 'Введите количество дверей от 2 до 12';
       case 'vin':
-         return !/^[A-HJ-NPR-Z0-9]{17}$/.test(optionValue.value) ? 'Введите корректный VIN (17 символов, буквы и цифры)' : '';
+         return 'Некорректный VIN';
       case 'licensePlate':
-         return !/^[A-Z]{1}\d{3}[A-Z]{2}\d{2,3}$/.test(optionValue.value) ? 'Введите корректный госномер (например, A123BC77)' : '';
+         return 'Некорректный номер';
       default:
-         return '';
+         return 'Некорректное значение';
    }
 });
 
@@ -98,6 +156,7 @@ watch(() => optionValue.value, (newValue) => {
    }
 });
 
+// Обрабатываем ввод
 const handleInput = () => {
    isHighlighted.value = false;
    if (optionValue.value.trim() !== '') {
@@ -112,26 +171,6 @@ const clearInput = () => {
    optionValue.value = '';
    hasInput.value = false;
    emit('update:option', null);
-};
-
-const validate = (value) => {
-   switch (props.validationType) {
-      case 'number':
-         return !isNaN(value) && value > 0;
-      case 'email':
-         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-      case 'url':
-         return /^(https?:\/\/)?([\w\d\-_]+(\.[\w\d\-_]+)+)(\/[\w\d\-._~:/?#\[\]@!$&'()*+,;=]*)?$/.test(value);
-      case 'doors':
-         const numberValue = Number(value);
-         return Number.isInteger(numberValue) && numberValue >= 4 && numberValue <= 12;
-      case 'vin':
-         return /^[A-HJ-NPR-Z0-9]{17}$/.test(value);
-      case 'licensePlate':
-         return /^[A-Z]{1}\d{3}[A-Z]{2}\d{2,3}$/.test(value);
-      default:
-         return true;
-   }
 };
 </script>
 

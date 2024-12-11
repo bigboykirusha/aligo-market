@@ -88,7 +88,7 @@ watch(selectedOption, (newOption) => {
    width: auto;
    align-items: center;
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       flex-direction: column;
       gap: 8px;
       align-items: flex-start;
@@ -161,7 +161,7 @@ watch(selectedOption, (newOption) => {
       border-radius: 6px;
       overflow-y: auto;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          width: 100%;
          left: 0;
          top: 60px;
@@ -201,13 +201,26 @@ watch(selectedOption, (newOption) => {
       }
    }
 
-   &--disabled .dropdown-2__input input {
-      pointer-events: none;
-      background: #eeeeee;
-      color: #a8a8a8;
+   &--disabled {
+      .dropdown-2__input {
+         background: #EEEEEE;
+         border-radius: 6px;
+      }
 
-      &::before {
-         filter: grayscale(1) brightness(1.5);
+      input {
+         background: #EEEEEE;
+         pointer-events: none;
+         border: 1px solid #EEEEEE;
+         border-radius: 6px;
+      }
+
+      .dropdown-2__input::before {
+            background: url('/assets/icons/arrow-gray.svg') center center / contain no-repeat;
+            transform: translate(0, -50%);
+         }
+
+      &::placeholder {
+         color: #787878;
       }
    }
 }
