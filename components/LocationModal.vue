@@ -1,7 +1,7 @@
 <template>
   <div id="location-switcher-modal" class="modal" @click.self="closeModal">
     <div class="modal__content">
-      <button class="modal__close-button" @click="closeModal">
+      <button class="modal__close-button" @click.stop="closeModal">
         <img :src="closeIcon" alt="close icon" />
       </button>
       <form class="modal__form" @submit.prevent="saveCity">

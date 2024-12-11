@@ -45,7 +45,7 @@
             </button>
          </div>
       </div>
-      <DropdownMenu v-model="showDropdown" @close="closeCategories" />
+      <DropdownMenu v-model="showDropdown" />
       <LoginModal v-show="modalLoginOpen" @close-loginModal="toggleLoginModal" />
       <UserMenuBurger v-model="isSideMenuOpen" />
    </div>
@@ -89,7 +89,6 @@ const toggleSideMenu = () => {
 const toggleUserMenu = () => {
    if (isDesktop.value) {
       isUserMenuOpen.value = !isUserMenuOpen.value;
-      console.log('wedwed')
    } else {
       toggleSideMenu();
    }
@@ -110,11 +109,6 @@ const iconClass = computed(() =>
 const toggleCategories = () => {
    dropdownStore.toggleDropdown();
 };
-
-const closeCategories = () => {
-   dropdownStore.setDropdownState(false);
-};
-
 
 const toggleLoginModal = () => {
    modalLoginOpen.value = !modalLoginOpen.value;
@@ -160,7 +154,7 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .header-row {
    position: fixed;
-   z-index: 101;
+   z-index: 10001;
    display: flex;
    align-items: center;
    padding: 0 16px;

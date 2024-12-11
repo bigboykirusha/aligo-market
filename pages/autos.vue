@@ -58,20 +58,6 @@ const fetchAds = async () => {
       isLoading.value = true;
       const { data, totalCount } = await getCars({ count: 5, order_by: 'desc' });
       ads.value = data;
-      totalItems.value = totalCount;
-   } catch (error) {
-      console.error('Ошибка при получении данных: ', error);
-   } finally {
-      setLoadingWithDelay();
-   }
-};
-
-const fetchDefaultAds = async () => {
-   try {
-      isLoading.value = true;
-      const { data, totalCount } = await getCars({ count, order_by: 'desc' });
-      adsMain.value = data;
-      totalItems.value = totalCount;
    } catch (error) {
       console.error('Ошибка при получении данных: ', error);
    } finally {
@@ -111,7 +97,7 @@ const handleSortUpdate = () => {
 
 onMounted(() => {
    fetchAds();
-   fetchDefaultAds();
+   fetchAdsMain();
 });
 </script>
 

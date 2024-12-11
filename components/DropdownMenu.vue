@@ -1,7 +1,12 @@
 <template>
    <div ref="menuRef" class='menu-2' :class="{ 'menu-2--open': modelValue }">
       <div class="menu-2__header-row">
-
+         <img @click="dropdownStore.setDropdownState(false);" class="header__close-icon" src="../assets/icons/close.svg"
+            alt="">
+         <button class="header__nav-link" @click="toggleModal">
+            <img :src="defaultLocationIcon" alt="Location icon" class="header__icon">
+            <span class="header__text header__text--hidden">{{ translatedCityName }}</span>
+         </button>
       </div>
       <div class="menu-2__container">
          <div class="menu-2__columns">
@@ -22,6 +27,7 @@
             </div>
          </div>
       </div>
+      <LocationModal v-if="modalOpen" @close-modal="toggleModal" />
    </div>
 </template>
 
@@ -33,6 +39,9 @@ import carIcon from '../assets/icons/car.svg';
 import diskIcon from '../assets/icons/disc.svg';
 import motoIcon from '../assets/icons/moto.svg';
 import { useFiltersStore } from '~/store/filters.js';
+import { useDropdownStore } from '~/store/dropdown.js';
+import { useCityStore } from '~/store/city.js';
+import defaultLocationIcon from '../assets/icons/Location-blue.svg';
 
 const props = defineProps({
    modelValue: Boolean,
@@ -40,10 +49,16 @@ const props = defineProps({
 
 const adsCount = ref(0);
 const menuRef = ref(null);
+const modalOpen = ref(false);
 const filtersStore = useFiltersStore();
+const dropdownStore = useDropdownStore();
+const cityStore = useCityStore();
+
 const router = useRouter();
 
 const emit = defineEmits(['update:modelValue']);
+
+const translatedCityName = computed(() => cityStore.selectedCity.name);
 
 const toggleDropdown = (value) => {
    emit('update:modelValue', value);
@@ -51,6 +66,10 @@ const toggleDropdown = (value) => {
 
 const hideDetailedMenu = () => {
    toggleDropdown(false);
+};
+
+const toggleModal = () => {
+   modalOpen.value = !modalOpen.value;
 };
 
 const detailedGroups = ref([
@@ -122,10 +141,25 @@ const handleNewClick = () => {
    filtersStore.setSelectedCondition(1);
 };
 
+const handleSedansClick = () => {
+   filtersStore.setSelectedBodyTypes([2])
+   console.log('Седаны выбраны');
+};
+
+const handleWagonsClick = () => {
+   filtersStore.setSelectedBodyTypes([3])
+   console.log('Универсалы выбраны');
+};
+
+const handleSuvsClick = () => {
+   filtersStore.setSelectedBodyTypes([1])
+   console.log('Внедорожники выбраны');
+};
+
 const handleClickOutside = (event) => {
    if (menuRef.value && !menuRef.value.contains(event.target)) {
       hideDetailedMenu();
-      emit('close');
+      dropdownStore.setDropdownState(false);
    }
 };
 
@@ -134,17 +168,23 @@ const handleSubCategoryClick = (item) => {
       handleNewClick();
    } else if (item.type === 'used') {
       handleUsedClick();
+   } else if (item.type === 'sedans') {
+      handleSedansClick();
+   } else if (item.type === 'wagons') {
+      handleWagonsClick();
+   } else if (item.type === 'suvs') {
+      handleSuvsClick();
    }
+   dropdownStore.setDropdownState(false);
    router.push(item.link);
-   emit('close');
 };
 
 const handleMenuItemClick = (item) => {
-   router.push(item.target);
    if (item.target === 'autos') {
       filtersStore.setSelectedCondition(null);
    }
-   emit('close');
+   dropdownStore.setDropdownState(false);
+   router.push(item.target);
 };
 
 const fetchAdsCount = async () => {
@@ -190,16 +230,18 @@ onUnmounted(() => {
    &--open {
       transform: translateY(0);
    }
-   
 
    &__header-row {
       height: 66px;
       display: none;
       width: 100%;
-      background-color: #3366FF;
+      padding: 0 16px;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #FFFFFF;
 
       @media (max-width: 768px) {
-         display: block;
+         display: flex;
       }
    }
 
@@ -209,15 +251,14 @@ onUnmounted(() => {
       background: $white;
       width: 100%;
       border: 1px solid $color-block;
-      box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
       transition: max-height 0.3s ease;
-      overflow-y: auto;
 
       @media (max-width: 768px) {
-         padding: 0 16px 86px;
+         padding: 0 16px 16px;
+         overflow-y: auto;
          border: none;
-         border-radius: none;
-         height: 100%;
+         border-radius: 0;
+         height: calc(100% - 66px);
       }
    }
 
@@ -236,6 +277,7 @@ onUnmounted(() => {
       @media (max-width: 768px) {
          grid-template-columns: repeat(2, 50%);
          padding-top: 16px;
+         border: none;
       }
 
       @media (max-width: 480px) {
@@ -249,13 +291,6 @@ onUnmounted(() => {
       display: flex;
       flex-direction: column;
       gap: 16px;
-   }
-
-   &__bar {
-      background-color: #d6d6d6;
-      height: 1px;
-      width: 100%;
-      margin-bottom: 16px;
    }
 
    &__list {
@@ -326,5 +361,30 @@ onUnmounted(() => {
          color: #3366FF;
       }
    }
+}
+
+.header__nav-link {
+   display: flex;
+   align-items: center;
+   color: #3366FF;
+   font-weight: 400;
+   font-size: 14px;
+   line-height: 18px;
+   gap: 6px;
+   background: none;
+   border: none;
+   outline: none;
+   cursor: pointer;
+   text-decoration: none;
+
+   .header__icon {
+      width: 16px;
+      height: 16px;
+   }
+}
+
+.header__close-icon {
+   width: 16px;
+   height: 16px;
 }
 </style>
