@@ -1,5 +1,5 @@
 <template>
-   <nav class="bottom-toolbar">
+   <nav class="bottom-toolbar" :class="{ 'bottom-toolbar--hidden': showDropdown }">
       <ul class="bottom-toolbar__list">
          <li class="bottom-toolbar__item" v-for="item in menuItems" :key="item.title"
             :class="{ 'bottom-toolbar__item--active': isActive(item.path, item.icon) }">
@@ -147,9 +147,15 @@ const handleMenuClick = (item) => {
    left: 0;
    width: 100%;
    background-color: #FFFFFF;
-   z-index: 10000;
+   z-index: 10004;
    justify-content: center;
    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+   transition: transform 0.2s ease-in-out;
+
+   &--hidden {
+      transform: translateY(100%);
+      
+   }
 
    @media (max-width: 768px) {
       display: flex;

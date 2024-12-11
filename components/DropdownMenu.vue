@@ -251,6 +251,7 @@ onUnmounted(() => {
       background: $white;
       width: 100%;
       border: 1px solid $color-block;
+      border-top: none;
       transition: max-height 0.3s ease;
 
       @media (max-width: 768px) {
