@@ -1,5 +1,8 @@
 <template>
-   <div ref="menuRef" class='menu-2'>
+   <div ref="menuRef" class='menu-2' :class="{ 'menu-2--open': modelValue }">
+      <div class="menu-2__header-row">
+
+      </div>
       <div class="menu-2__container">
          <div class="menu-2__columns">
             <div v-for="(group, groupIndex) in detailedGroups" :key="groupIndex" class="menu-2__column">
@@ -31,12 +34,24 @@ import diskIcon from '../assets/icons/disc.svg';
 import motoIcon from '../assets/icons/moto.svg';
 import { useFiltersStore } from '~/store/filters.js';
 
+const props = defineProps({
+   modelValue: Boolean,
+});
+
 const adsCount = ref(0);
 const menuRef = ref(null);
 const filtersStore = useFiltersStore();
 const router = useRouter();
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['update:modelValue']);
+
+const toggleDropdown = (value) => {
+   emit('update:modelValue', value);
+};
+
+const hideDetailedMenu = () => {
+   toggleDropdown(false);
+};
 
 const detailedGroups = ref([
    {
@@ -46,11 +61,14 @@ const detailedGroups = ref([
       icon: carIcon,
       count: adsCount,
       items: [
-         { title: 'Б/у', link: '/autos?condition=used', type: 'used' },
+         { title: 'С пробегом', link: '/autos?condition=used', type: 'used' },
          { title: 'Новые', link: '/autos?condition=new', type: 'new' },
+         { title: 'Седаны', link: '/autos?condition=new&type=sedans', type: 'sedans' },
+         { title: 'Хетчбеки', link: '/autos?condition=new&type=hatchbacks', type: 'hatchbacks' },
+         { title: 'Универсалы', link: '/autos?condition=new&type=wagons', type: 'wagons' },
+         { title: 'Внедорожники', link: '/autos?condition=new&type=suvs', type: 'suvs' },
          { title: 'Электромобили', link: '/autos?condition=electric', type: 'electric' },
          { title: 'Коммерческий транспорт', link: '/autos?condition=commercial', type: 'commercial' },
-         { title: 'С пробегом', link: '/autos?condition=with-mileage', type: 'mileage' },
       ],
    },
    {
@@ -60,11 +78,18 @@ const detailedGroups = ref([
       icon: diskIcon,
       count: '15 000',
       items: [
-         { title: 'Шины', link: '/parts?category=tires', type: 'tires' },
-         { title: 'Диски', link: '/parts?category=disks', type: 'disks' },
-         { title: 'Масла и жидкости', link: '/parts?category=fluids', type: 'fluids' },
-         { title: 'Автозапчасти', link: '/parts?category=spare-parts', type: 'spare-parts' },
+         { title: 'Шины и диски', link: '/parts?category=tires-and-disks', type: 'tires-and-disks' },
+         { title: 'Запчасти', link: '/parts?category=spare-parts', type: 'spare-parts' },
+         { title: 'Расходники для ТО', link: '/parts?category=maintenance-supplies', type: 'maintenance-supplies' },
+         { title: 'Инструменты', link: '/parts?category=tools', type: 'tools' },
+         { title: 'Аудио- и видеотехника', link: '/parts?category=audio-video', type: 'audio-video' },
+         { title: 'Противоугонные устройства', link: '/parts?category=anti-theft', type: 'anti-theft' },
+         { title: 'GPS-навигаторы', link: '/parts?category=gps', type: 'gps' },
          { title: 'Аксессуары', link: '/parts?category=accessories', type: 'accessories' },
+         { title: 'Экипировка', link: '/parts?category=gear', type: 'gear' },
+         { title: 'Масла и автохимия', link: '/parts?category=fluids-and-chemicals', type: 'fluids-and-chemicals' },
+         { title: 'Прицепы', link: '/parts?category=trailers', type: 'trailers' },
+         { title: 'Багажники и фаркопы', link: '/parts?category=roof-racks-and-hitches', type: 'roof-racks-and-hitches' },
       ],
    },
    {
@@ -75,10 +100,14 @@ const detailedGroups = ref([
       count: '8 500',
       items: [
          { title: 'Мотоциклы', link: '/moto?type=motorcycles', type: 'motorcycles' },
-         { title: 'Скутеры', link: '/moto?type=scooters', type: 'scooters' },
-         { title: 'Квадроциклы', link: '/moto?type=atvs', type: 'atvs' },
-         { title: 'Электроскутеры', link: '/moto?type=e-scooters', type: 'e-scooters' },
-         { title: 'Мотозапчасти', link: '/moto?type=moto-parts', type: 'moto-parts' },
+         { title: 'Мопеды и скутеры', link: '/moto?type=scooters-and-mopeds', type: 'scooters-and-mopeds' },
+         { title: 'Экипировка', link: '/moto?type=gear', type: 'gear' },
+         { title: 'Аксессуары', link: '/moto?type=accessories', type: 'accessories' },
+         { title: 'Вездеходы', link: '/moto?type=all-terrain-vehicles', type: 'all-terrain-vehicles' },
+         { title: 'Картинг', link: '/moto?type=go-karts', type: 'go-karts' },
+         { title: 'Квадроциклы и багги', link: '/moto?type=atvs-and-buggies', type: 'atvs-and-buggies' },
+         { title: 'Снегоходы', link: '/moto?type=snowmobiles', type: 'snowmobiles' },
+         { title: 'Запчасти', link: '/moto?type=moto-parts', type: 'moto-parts' },
       ],
    },
 ]);
@@ -147,29 +176,54 @@ onUnmounted(() => {
    z-index: -1;
    max-width: 1360px;
    margin: 0 auto;
-   max-height: 0;
-   transition: max-height 0.3s ease, padding 0.3s ease;
+   overflow: hidden;
+   min-height: 66px;
+   transform: translateY(-100%);
+   will-change: transform;
+   transition: transform 0.2s ease-in-out;
+
+   @media (max-width: 768px) {
+      height: 100vh;
+      z-index: 100;
+   }
+
+   &--open {
+      transform: translateY(0);
+   }
+   
+
+   &__header-row {
+      height: 66px;
+      display: none;
+      width: 100%;
+      background-color: #3366FF;
+
+      @media (max-width: 768px) {
+         display: block;
+      }
+   }
 
    &__container {
-      padding: 60px 40px;
-      padding-top: 66px;
+      padding: 66px 40px 60px;
       border-radius: 0 0 4px 4px;
       background: $white;
       width: 100%;
       border: 1px solid $color-block;
       box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
       transition: max-height 0.3s ease;
+      overflow-y: auto;
 
       @media (max-width: 768px) {
-         padding: 60px 16px;
-         height: calc(100vh - 70px);
+         padding: 0 16px 86px;
+         border: none;
+         border-radius: none;
+         height: 100%;
       }
    }
 
    &__columns {
       display: grid;
       grid-template-columns: repeat(3, 25%);
-      justify-content: start;
       column-gap: 32px;
       row-gap: 64px;
       border-top: 1px solid #d6d6d6;
@@ -181,11 +235,12 @@ onUnmounted(() => {
 
       @media (max-width: 768px) {
          grid-template-columns: repeat(2, 50%);
-         padding-top: 24px;
+         padding-top: 16px;
       }
 
       @media (max-width: 480px) {
-         grid-template-columns: 1fr;
+         display: flex;
+         flex-direction: column;
          row-gap: 32px;
       }
    }
@@ -270,18 +325,6 @@ onUnmounted(() => {
       &:hover {
          color: #3366FF;
       }
-   }
-}
-
-@keyframes slide-up {
-   from {
-      opacity: 0;
-      transform: translateY(-15%);
-   }
-
-   to {
-      opacity: 1;
-      transform: translateY(0);
    }
 }
 </style>

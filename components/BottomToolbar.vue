@@ -61,7 +61,6 @@
             </div>
          </li>
       </ul>
-      <DropdownMenu v-show="showDropdown" @close="closeCategories" />
       <UserMenuBurger v-model="showMenu" />
       <LoginModal v-if="modalLoginOpen" @close-loginModal="toggleLoginModal" />
    </nav>
@@ -71,6 +70,10 @@
 import { useRoute, useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/store/user';
+import { useDropdownStore } from '@/store/dropdown';
+
+const dropdownStore = useDropdownStore();
+const showDropdown = computed(() => dropdownStore.showDropdown);
 
 const route = useRoute();
 const router = useRouter();
@@ -96,13 +99,11 @@ const isActive = (path, icon) => {
    }
    return route.path.startsWith(path);
 };
-
-const showDropdown = ref(false);
 const showMenu = ref(false);
 const modalLoginOpen = ref(false);
 
 const toggleDropdown = () => {
-   showDropdown.value = !showDropdown.value;
+   dropdownStore.toggleDropdown();
    showMenu.value = false;
 };
 
@@ -111,16 +112,16 @@ const toggleMenu = () => {
       modalLoginOpen.value = true;
    } else {
       showMenu.value = !showMenu.value;
-      showDropdown.value = false;
+      closeCategories();
    }
 };
 
 const closeCategories = () => {
-   showDropdown.value = false;
+   dropdownStore.setDropdownState(false);
 };
 
 const closeAllMenus = () => {
-   showDropdown.value = false;
+   closeCategories();
    showMenu.value = false;
 };
 
@@ -145,8 +146,7 @@ const handleMenuClick = (item) => {
    bottom: 0;
    left: 0;
    width: 100%;
-   background-color: #fff;
-   padding: 16px 0;
+   background-color: #FFFFFF;
    z-index: 10000;
    justify-content: center;
    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
@@ -158,8 +158,9 @@ const handleMenuClick = (item) => {
    &__list {
       display: flex;
       justify-content: space-around;
+      background-color: #FFFFFF;
       width: 100%;
-      padding: 0;
+      padding: 16px 0;
       margin: 0;
       list-style: none;
    }

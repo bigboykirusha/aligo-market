@@ -45,7 +45,7 @@
             </button>
          </div>
       </div>
-      <DropdownMenu v-show="showDropdown" @close="closeCategories" />
+      <DropdownMenu v-model="showDropdown" @close="closeCategories" />
       <LoginModal v-show="modalLoginOpen" @close-loginModal="toggleLoginModal" />
       <UserMenuBurger v-model="isSideMenuOpen" />
    </div>
@@ -54,12 +54,14 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useUserStore } from '~/store/user';
+import { useDropdownStore } from '../store/dropdown.js';
 import { useCityStore } from '../store/city.js';
 import { useRouter } from 'vue-router';
 import logoMain from '../assets/images/logo.svg';
 import { getImageUrl } from '~/services/imageUtils.js';
 
-const showDropdown = ref(false);
+const dropdownStore = useDropdownStore();
+const showDropdown = computed(() => dropdownStore.showDropdown);
 const isWithMargin = ref(true);
 const modalLoginOpen = ref(false);
 const searchQuery = ref("");
@@ -106,26 +108,16 @@ const iconClass = computed(() =>
 );
 
 const toggleCategories = () => {
-   showDropdown.value = !showDropdown.value;
-   toggleBodyScroll(showDropdown.value);
+   dropdownStore.toggleDropdown();
 };
 
 const closeCategories = () => {
-   showDropdown.value = false;
-   toggleBodyScroll(false);
+   dropdownStore.setDropdownState(false);
 };
 
-const toggleBodyScroll = (shouldBlock) => {
-   if (shouldBlock) {
-      document.body.classList.add('no-scroll');
-   } else {
-      document.body.classList.remove('no-scroll');
-   }
-};
 
 const toggleLoginModal = () => {
    modalLoginOpen.value = !modalLoginOpen.value;
-   toggleBodyScroll(modalLoginOpen.value);
 };
 
 const clearSearch = () => {
@@ -168,12 +160,12 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .header-row {
    position: fixed;
-   z-index: 10;
+   z-index: 101;
    display: flex;
    align-items: center;
-   padding: 16px;
+   padding: 0 16px;
    font-size: 14px;
-   background-color: #fff;
+   background-color: #FFFFFF;
    width: 100%;
    max-width: 100vw;
    margin: 0 auto;
@@ -272,9 +264,11 @@ onUnmounted(() => {
    &__container {
       display: flex;
       justify-content: space-between;
+      background-color: #FFFFFF;
       width: 100%;
       max-width: 1280px;
       margin: 0 auto;
+      padding: 16px 0;
    }
 
    &__logo-section {
