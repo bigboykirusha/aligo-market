@@ -100,18 +100,47 @@ const isValid = computed(() => {
 });
 
 const validateVIN = (vin) => {
-   // Регулярное выражение для проверки VIN
+   // Регулярное выражение для проверки VIN (17 символов без I, O, Q)
    const vinRegex = /^[A-HJ-NPR-Za-hj-npr-z\d]{17}$/;
 
-   // Проверяем, что строка состоит ровно из 17 символов
-   // и что в ней присутствуют хотя бы одна буква и хотя бы одна цифра
+   // Проверка общего формата VIN
    if (!vinRegex.test(vin)) return false;
 
-   // Проверяем, что в VIN есть хотя бы одна буква (без I, O, Q)
-   const letterCheck = /[A-HJ-NPR-Za-hj-npr-z]/;
-   const digitCheck = /\d/;
+   // Исключение VIN из одинаковых символов
+   if (/^([A-HJ-NPR-Za-hj-npr-z\d])\1*$/.test(vin)) return false;
 
-   return letterCheck.test(vin) && digitCheck.test(vin);
+   // Таблица транслитерации (соответствие букв числам)
+   const transliterationTable = {
+      A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8, J: 1, K: 2, L: 3, M: 4, N: 5, P: 7, R: 9,
+      S: 2, T: 3, U: 4, V: 5, W: 6, X: 7, Y: 8, Z: 9,
+   };
+
+   // Весовые коэффициенты для позиций VIN
+   const weights = [8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2];
+
+   // Функция для трансформации символа в числовое значение
+   const getTransliteratedValue = (char) => {
+      if (!isNaN(char)) return parseInt(char); // Если символ - число, возвращаем его значение
+      return transliterationTable[char.toUpperCase()] || 0; // Транслитерация букв
+   };
+
+   // Проверка контрольной цифры
+   const validateCheckDigit = () => {
+      let sum = 0;
+      for (let i = 0; i < vin.length; i++) {
+         const char = vin[i];
+         const value = getTransliteratedValue(char);
+         sum += value * weights[i];
+      }
+      const remainder = sum % 11;
+      const calculatedCheckDigit = remainder === 10 ? 'X' : remainder.toString();
+      return vin[8].toUpperCase() === calculatedCheckDigit;
+   };
+
+   // Проверка VIN (включая контрольную цифру)
+   if (!validateCheckDigit()) return false;
+
+   return true;
 };
 
 const errorMessage = computed(() => {
@@ -119,7 +148,7 @@ const errorMessage = computed(() => {
    if (isValid.value) return '';
    switch (props.validationType) {
       case 'number':
-         return 'Введите число больше нуля';
+         return 'Используйте только цифры';
       case 'email':
          return 'Введите корректный email';
       case 'url':
@@ -129,7 +158,7 @@ const errorMessage = computed(() => {
       case 'vin':
          return 'Некорректный VIN';
       case 'licensePlate':
-         return 'Некорректный номер';
+         return 'Некорректный гос. номер';
       default:
          return 'Некорректное значение';
    }
