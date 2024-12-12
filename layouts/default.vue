@@ -9,6 +9,7 @@
       <FooterAlternative v-else />
       <Chat
          v-show="userStore.isLoggedIn && !route.path.startsWith('/myself') && !route.path.startsWith('/autos') && !route.path.startsWith('/createAd')" />
+      <NotifPopup />
       <BottomToolbar />
    </div>
 </template>

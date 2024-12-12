@@ -610,7 +610,7 @@ const handleSubmit = async () => {
             margin-left: -16px;
             flex-direction: column;
             border-radius: 6px;
-            background-color: #D6EFFF;
+            background-color: #EEF9FF;
 
             @media (max-width: 768px) {
                margin-left: 0;

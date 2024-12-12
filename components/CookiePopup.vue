@@ -34,16 +34,24 @@ onMounted(() => {
 <style scoped lang="scss">
 .cookie-popup {
    position: fixed;
-   bottom: 20px;
-   right: 20px;
+   bottom: 24px;
+   right: 24px;
    background-color: #3366FF;
    color: #fff;
    width: 324px;
    border-radius: 6px;
    padding: 24px;
+   padding-right: 36px;
    font-size: 14px;
    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
    z-index: 1000;
+
+   @media (max-width: 768px) {
+      width: calc(100% - 32px);
+      bottom: 86px;
+      right: 0;
+      left: 16px;
+   }
 
    &__content {
       display: flex;
@@ -52,6 +60,8 @@ onMounted(() => {
    }
 
    &__message {
+      font-weight: 700;
+
       &--underline {
          text-decoration: underline;
       }
@@ -72,6 +82,11 @@ onMounted(() => {
       background: none;
       border: none;
       cursor: pointer;
+
+      img {
+         width: 12px;
+         height: 12px;
+      }
    }
 
    &__button {
@@ -86,8 +101,14 @@ onMounted(() => {
       border-radius: 6px;
       cursor: pointer;
       font-size: 14px;
-      font-weight: 400;
-      transition: $transition-1;
+
+      @media (max-width: 768px) {
+         color: #fff;
+         height: auto;
+         background-color: #3366FF;
+         text-decoration: underline;
+         justify-content: flex-start;
+      }
    }
 
    &__button:hover {

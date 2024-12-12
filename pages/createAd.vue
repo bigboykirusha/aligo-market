@@ -4,7 +4,6 @@
       <SaveAdPopup v-if="isPopupVisible && isAnyFieldFilled" :title="'Хотите сохранить объявление в черновики?'"
          :isVisible="isPopupVisible" @close="closePopup" @save="saveAd" @discard="discardAd" />
    </div>
-   <CreateAdComplite v-if="isAdSended" />
 </template>
 
 <script setup>
@@ -14,10 +13,12 @@ import { useUserStore } from '../store/user.js';
 import { useTabsStore } from '~/store/tabsStore.js';
 import { useRouter } from '#vue-router';
 import { publishFromArchive } from '../services/apiClient.js';
+import { usePopupStore } from '../store/popup.js';
 
 const createStore = useCreateStore();
 const userStore = useUserStore();
 const tabsStore = useTabsStore();
+const popupStore = usePopupStore();
 
 const isAdSended = ref(false);
 const isPopupVisible = ref(false);
@@ -39,8 +40,6 @@ router.beforeEach((to, from, next) => {
 
 // Обработка отправки объявления
 const handleSendAd = async () => {
-   isAdSended.value = true;
-
    if (createStore.id) {
       if (createStore.is_in_archive) {
          await publishFromArchive(createStore.id);
@@ -51,6 +50,14 @@ const handleSendAd = async () => {
    } else {
       await createStore.sendCarAd();
    }
+   if (createStore.is_draft === 1) {
+      isAdSended.value = 1;
+      popupStore.setAdSended(1);
+   } else if (createStore.is_draft === 0) {
+      isAdSended.value = 2;
+      popupStore.setAdSended(2);
+   }
+   router.push('/');
    createStore.resetParams();
    tabsStore.resetTabs();
 };
@@ -60,20 +67,21 @@ const handleSaveAd = () => {
 };
 
 const saveAd = async () => {
-   router.push('/');  // Переход на главную страницу после сохранения
-   createStore.setIsDraft(1);  // Устанавливаем статус черновика
+   createStore.setIsDraft(1);
    await createStore.sendCarAd();
    createStore.resetParams();
    await userStore.fetchUserCounts();
-   isPopupVisible.value = false;  // Закрываем попап
+   isPopupVisible.value = false;
    tabsStore.resetTabs();
+   popupStore.setAdSended(2);
+   router.push('/');
 };
 
 const discardAd = () => {
    createStore.resetParams();
-   router.push('/');  // Переход на главную страницу после отказа
-   isPopupVisible.value = false;  // Закрываем попап
+   isPopupVisible.value = false;
    tabsStore.resetTabs();
+   router.push('/');
 };
 
 const closePopup = () => {

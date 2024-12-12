@@ -147,7 +147,7 @@ const handleMenuClick = (item) => {
    left: 0;
    width: 100%;
    background-color: #FFFFFF;
-   z-index: 10004;
+   z-index: 104;
    justify-content: center;
    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
    transition: transform 0.2s ease-in-out;

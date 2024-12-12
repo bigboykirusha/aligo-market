@@ -56,6 +56,8 @@ const continueToNextTab = () => {
       if (activeTab.value < 3) {
          tabsStore.setActiveTab(activeTab.value + 1);
       }
+   } else {
+      alert('Заполните обязательные поля!');
    }
 };
 

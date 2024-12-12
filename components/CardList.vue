@@ -8,7 +8,6 @@
             :callNumber="ad.ads_parameter?.phone" :messageEmail="ad.ads_parameter?.email"
             :brand="ad.auto_technical_specifications?.[0]?.brand?.title"
             :model="ad.auto_technical_specifications?.[0]?.model?.title"
-            :year="ad.auto_technical_specifications?.[0]?.year_release?.title"
             :username="ad.ads_parameter?.username || ad.ads_parameter?.login || 'Имя не указано'"
             :is_in_favorites="ad.is_in_favorites" :images="ad.photos" :created_at="ad.created_at"
             :id_user_owner_ads="ad.id_user_owner_ads" />

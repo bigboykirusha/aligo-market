@@ -282,8 +282,7 @@ const handleFocus = () => {
       }
 
       &--highlighted {
-         box-shadow: 0 0 16px rgba(#3366FF, 0.5);
-         border-color: #ADD8E6;
+         box-shadow: 0px 0px 16px 1px #D1F5FF;
       }
    }
 

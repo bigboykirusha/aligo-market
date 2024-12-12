@@ -131,6 +131,7 @@ export const useCreateStore = defineStore('create', {
             state.color_id,
             state.country_id,
             state.vin,
+            ...(state.country_id !== 1 ? [state.state_number] : []),
             state.brand_id,
             state.model_id,
             state.year_id,
@@ -208,6 +209,7 @@ export const useCreateStore = defineStore('create', {
       setIsPublished(is_published) {
          this.is_published = is_published;
       },
+
       // Характеристики
       setPhotos(photos) {
          this.photos = photos;
@@ -237,6 +239,7 @@ export const useCreateStore = defineStore('create', {
       setStateNumber(state_number) {
          this.state_number = state_number;
       },
+
 
       // Технические характеристики
       setBrandId(brand_id) {

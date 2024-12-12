@@ -435,7 +435,7 @@ watch(() => chatStore.currentChat, loadMessages, { immediate: true });
 .chat-wrapper {
    position: fixed;
    bottom: 0;
-   right: 100px;
+   left: 100px;
    z-index: 40;
    background-color: #f4f4f9;
    width: 420px;

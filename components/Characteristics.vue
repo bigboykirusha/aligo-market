@@ -14,12 +14,12 @@
             :activeIndex="createStore.color_id" />
       </div>
       <div class="characteristics__content">
-         <BlockTitle text="Регистрационные данные" />
+         <BlockTitle text="Регистрационные данные*" />
          <AutosSelectCreateSkeleton v-if="loading" />
-         <AutosSelectCreate v-else label="Страна регистрации*" :initialSelectedOption="createStore.country_id"
+         <AutosSelectCreate v-else label="Страна регистрации" :initialSelectedOption="createStore.country_id"
             :options="countryOptions" @updateSort="handleCountryUpdate" />
          <TextSkeleton v-if="loading" />
-         <AutosTextTemplate v-else label="VIN или номер кузова*" placeholder="Нажмите для ввода"
+         <AutosTextTemplate v-else label="VIN или номер кузова" placeholder="Нажмите для ввода"
             :option="createStore.vin" @update:option="handleVinUpdate" validationType="vin" />
          <TextSkeleton v-if="loading" />
          <AutosTextTemplate v-else label="Государтсвенный номер" placeholder="Нажмите для ввода"
@@ -45,8 +45,7 @@
             @updateSelected="handleHandlebarIdUpdate" :activeIndex="createStore.handlebar_id" />
          <TextSkeleton v-if="loading" />
          <AutosTextTemplate v-else label="Количество дверей" placeholder="Нажмите для ввода"
-            :option="createStore.count_doors" @update:option="handleCountDoorsUpdate" validationType="doors"
-            :isEmpty="checkIfEmpty(createStore.count_doors)" />
+            :option="createStore.count_doors" @update:option="handleCountDoorsUpdate" validationType="doors" />
          <SwitcherCreateSkeleton v-if="loading" />
          <AutosSwitcherCreate v-else :options="checkboxEngineTypeOptions" label="Тип двигателя"
             @updateSelected="handleEngineTypeUpdate" :activeIndex="createStore.engine_type_id" />
@@ -61,10 +60,9 @@
          <BlockTitle text="История эксплуатации и состояние" />
          <TextSkeleton v-if="loading" />
          <AutosTextTemplate v-else label="Пробег, км" placeholder="Нажмите для ввода" :option="createStore.mileage"
-            @update:option="handleMileageUpdate" v-if="showMileage" validationType="number"
-            :isEmpty="checkIfEmpty(createStore.mileage)" />
+            @update:option="handleMileageUpdate" v-if="showMileage" validationType="number" />
          <SwitcherCreateSkeleton v-if="loading" />
-         <AutosSwitcherCreate v-else :options="switcherStateOptions" label="Состояние"
+         <AutosSwitcherCreate v-else :options="switcherStateOptions" label="Состояние*"
             @updateSelected="handleStateUpdate" :activeIndex="createStore.state_id" v-if="showState" />
          <SwitcherCreateSkeleton v-if="loading" />
          <AutosSwitcherCreate v-else :options="ownersOptions" label="Владельцев" @updateSelected="handleOwnersUpdate"
@@ -116,13 +114,6 @@ const showStateNumber = computed(() => createStore.country_id !== 1 && createSto
 const showMileage = computed(() => createStore.condition_id !== 1);
 const showState = computed(() => createStore.condition_id !== 1);
 const showOwners = computed(() => createStore.condition_id !== 1);
-
-const checkIfEmpty = (item) => {
-   if (createStore.id && !item) {
-      return true;
-   }
-   return false;
-};
 
 const fetchOptions = async () => {
    try {
