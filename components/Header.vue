@@ -187,7 +187,7 @@ onUnmounted(() => {
   width: 100%;
   max-width: 100vw;
   top: 0;
-  z-index: 10002;
+  z-index: 12;
   padding: 0 16px;
   transition: transform 0.3s ease-in-out;
 

@@ -3,12 +3,14 @@
       <label v-if="label" class="simple-input__label">{{ label }}</label>
       <div class="simple-input__block">
          <div class="simple-input__wrapper">
-            <input type="text" :inputmode="props.validationType === 'number' ? 'numeric' : null"
+            <input type="text"
+               :inputmode="props.validationType === 'number' || props.validationType === 'doors' ? 'numeric' : null"
                class="simple-input__field" :class="{
                   'simple-input__field--error': shouldShowError,
                   'simple-input__field--success': shouldShowSuccess,
                   'simple-input__field--highlighted': isHighlighted
-               }" :placeholder="placeholder" v-model="displayValue" :disabled="disabled" @input="handleInput" />
+               }" :placeholder="placeholder" v-model="displayValue" :disabled="disabled" @input="handleInput"
+               @keypress="restrictNonNumericInput" />
             <img v-if="optionValue" src="../assets/icons/close-gray.svg" alt="Clear" class="simple-input__clear"
                @click="clearInput" />
          </div>
@@ -174,6 +176,13 @@ const errorMessage = computed(() => {
 
 const shouldShowError = computed(() => props.validationType && !isValid.value && hasInput.value);
 const shouldShowSuccess = computed(() => props.validationType && isValid.value && hasInput.value);
+
+const restrictNonNumericInput = (event) => {
+   // Проверяем, что валидация числа или дверей
+   if (['number', 'doors'].includes(props.validationType) && !/[0-9]/.test(event.key)) {
+      event.preventDefault(); // Блокируем ввод нецифровых символов
+   }
+};
 
 watch(() => optionValue.value, (newValue) => {
    const trimmedValue = newValue.trim();

@@ -154,7 +154,7 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .header-row {
    position: fixed;
-   z-index: 10001;
+   z-index: 11;
    display: flex;
    align-items: center;
    padding: 0 16px;
