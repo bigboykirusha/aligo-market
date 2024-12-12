@@ -22,8 +22,7 @@
                @click="publishAndExit" :disabled="!isPublishEnabled">
                Опубликовать
             </button>
-            <button v-else class="create-ad-form__button create-ad-form__button--continue" @click="continueToNextTab"
-               :disabled="!isNextEnabled">
+            <button v-else class="create-ad-form__button create-ad-form__button--continue" @click="continueToNextTab">
                Продолжить
             </button>
          </div>
@@ -53,8 +52,10 @@ const publishAndExit = () => {
 };
 
 const continueToNextTab = () => {
-   if (activeTab.value < 3) {
-      tabsStore.setActiveTab(activeTab.value + 1);
+   if (isNextEnabled.value) {
+      if (activeTab.value < 3) {
+         tabsStore.setActiveTab(activeTab.value + 1);
+      }
    }
 };
 

@@ -10,11 +10,11 @@
                   'simple-input__field--success': shouldShowSuccess,
                   'simple-input__field--highlighted': isHighlighted
                }" :placeholder="placeholder" v-model="displayValue" :disabled="disabled" @input="handleInput"
-               @keypress="restrictNonNumericInput" />
+               @blur="handleBlur" @focus="handleFocus" @keypress="restrictNonNumericInput" />
             <img v-if="optionValue" src="../assets/icons/close-gray.svg" alt="Clear" class="simple-input__clear"
                @click="clearInput" />
          </div>
-         <div v-if="hasInput && props.validationType"
+         <div v-if="hasInput && props.validationType && hasBlurred && isErrorDisplayed"
             :class="{ 'simple-input__error': !isValid, 'simple-input__success': isValid }">
             {{ isValid ? 'Значение введено корректно' : errorMessage }}
          </div>
@@ -53,34 +53,31 @@ const emit = defineEmits(['update:option']);
 const optionValue = ref(props.option ? String(props.option).trim() : '');
 const hasInput = ref(false);
 const isHighlighted = ref(props.isEmpty);
+const hasBlurred = ref(false);  // Состояние для отслеживания, потерял ли инпут фокус
+const isErrorDisplayed = ref(false);  // Состояние для отслеживания, была ли ошибка показана
 
 // Функция для форматирования числа с разделением на разряды
 const formatNumber = (value) => {
-   // Убираем все символы, кроме цифр
    const numValue = value.replace(/\D/g, '');
-   // Форматируем число с пробелами для отображения
    return numValue.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 };
 
-// Вычисляем отображаемое значение (с пробелами) только для поля с числовой валидацией
 const displayValue = computed({
    get() {
       if (props.validationType === 'number') {
-         return formatNumber(optionValue.value); // Форматируем только для отображения
+         return formatNumber(optionValue.value);
       }
-      return optionValue.value; // Для других типов не форматируем
+      return optionValue.value;
    },
    set(newValue) {
       if (props.validationType === 'number') {
-         // Если это число, убираем пробелы для сохранения
          optionValue.value = newValue.replace(/\s/g, '');
       } else {
-         optionValue.value = newValue; // Для других типов сохраняем без изменений
+         optionValue.value = newValue;
       }
    }
 });
 
-// Функция валидации
 const isValid = computed(() => {
    switch (props.validationType) {
       case 'number':
@@ -101,53 +98,41 @@ const isValid = computed(() => {
    }
 });
 
+// Функция валидации VIN
 const validateVIN = (vin, isNorthAmerican = false) => {
-   // Регулярное выражение для проверки VIN (17 символов без I, O, Q)
    const vinRegex = /^[A-HJ-NPR-Za-hj-npr-z\d]{17}$/;
 
-   // Проверка общего формата VIN
    if (!vinRegex.test(vin)) return false;
 
-   // Исключение VIN из одинаковых символов
    if (/^([A-HJ-NPR-Za-hj-npr-z\d])\1*$/.test(vin)) return false;
 
-   // Таблица транслитерации (соответствие букв числам)
    const transliterationTable = {
       A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8, J: 1, K: 2, L: 3, M: 4, N: 5, P: 7, R: 9,
       S: 2, T: 3, U: 4, V: 5, W: 6, X: 7, Y: 8, Z: 9,
    };
 
-   // Весовые коэффициенты для позиций VIN
-   const weights = [8, 7, 6, 5, 4, 3, 2, 10, 1, 9, 8, 7, 6, 5, 4, 3, 2]; // Изменён вес для 9-й позиции
+   const weights = [8, 7, 6, 5, 4, 3, 2, 10, 1, 9, 8, 7, 6, 5, 4, 3, 2];
 
-   // Функция для трансформации символа в числовое значение
    const getTransliteratedValue = (char) => {
-      if (!isNaN(char)) return parseInt(char); // Если символ - число, возвращаем его значение
-      return transliterationTable[char.toUpperCase()] || 0; // Транслитерация букв
+      if (!isNaN(char)) return parseInt(char);
+      return transliterationTable[char.toUpperCase()] || 0;
    };
 
-   // Проверка контрольной цифры, если это необходимо
    const validateCheckDigit = () => {
       let sum = 0;
-      console.log(`\nVIN: ${vin}`);
       for (let i = 0; i < vin.length; i++) {
          const char = vin[i];
          const value = getTransliteratedValue(char);
          const weight = weights[i];
          const weightedValue = value * weight;
          sum += weightedValue;
-
-         // Отладочная информация на каждом шаге
-         console.log(`Position ${i + 1}: '${char}' -> Value: ${value}, Weight: ${weight}, Weighted Value: ${weightedValue}, Cumulative Sum: ${sum}`);
       }
 
       const remainder = sum % 11;
       const calculatedCheckDigit = remainder === 10 ? 'X' : remainder.toString();
-      console.log(`Calculated Check Digit: ${calculatedCheckDigit}, Actual: ${vin[8].toUpperCase()}`);
       return vin[8].toUpperCase() === calculatedCheckDigit;
    };
 
-   // Если нужно, проверяем контрольную цифру
    if (isNorthAmerican && !validateCheckDigit()) return false;
 
    return true;
@@ -168,19 +153,18 @@ const errorMessage = computed(() => {
       case 'vin':
          return 'Проверьте правильность ввода VIN';
       case 'licensePlate':
-         return 'Государственный регистрационный номер автомобиля может содержать только буквы (А, В, Е, К, М, Н, О, Р, С, Т, У, Х) и цифры (0-9) в определенном порядке, например Х123ХХ123.';
+         return 'Государственный номер может содержать только буквы (А, В, Е, К, М, Н, О, Р, С, Т, У, Х) и цифры (0-9) в определенном порядке, например Х123ХХ123.';
       default:
          return 'Некорректное значение';
    }
 });
 
-const shouldShowError = computed(() => props.validationType && !isValid.value && hasInput.value);
-const shouldShowSuccess = computed(() => props.validationType && isValid.value && hasInput.value);
+const shouldShowError = computed(() => props.validationType && !isValid.value && hasInput.value && hasBlurred.value && isErrorDisplayed.value);
+const shouldShowSuccess = computed(() => props.validationType && isValid.value && hasInput.value && hasBlurred.value && isErrorDisplayed.value);
 
 const restrictNonNumericInput = (event) => {
-   // Проверяем, что валидация числа или дверей
    if (['number', 'doors'].includes(props.validationType) && !/[0-9]/.test(event.key)) {
-      event.preventDefault(); // Блокируем ввод нецифровых символов
+      event.preventDefault();
    }
 };
 
@@ -202,7 +186,6 @@ watch(() => optionValue.value, (newValue) => {
    }
 });
 
-// Обрабатываем ввод
 const handleInput = () => {
    isHighlighted.value = false;
    if (optionValue.value.trim() !== '') {
@@ -218,7 +201,22 @@ const clearInput = () => {
    hasInput.value = false;
    emit('update:option', null);
 };
+
+const handleBlur = () => {
+   hasBlurred.value = true;
+   isErrorDisplayed.value = true; // Показываем ошибку после потери фокуса
+   if (isValid.value) {
+      emit('update:option', optionValue.value.trim());
+   } else {
+      emit('update:option', null);
+   }
+};
+
+const handleFocus = () => {
+   isErrorDisplayed.value = false; // Ошибка скрывается, если фокус на инпуте
+};
 </script>
+
 
 <style scoped lang="scss">
 .simple-input {
