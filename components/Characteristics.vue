@@ -82,6 +82,7 @@
             </div>
          </div>
       </div>
+      <div class="characteristics__info">*– обязательные поля</div>
    </div>
 </template>
 
@@ -406,6 +407,12 @@ onUnmounted(() => {
       display: flex;
       flex-direction: column;
       gap: 24px;
+   }
+
+   &__info {
+      font-size: 14px;
+      line-height: 18px;
+      color: #A8A8A8;
    }
 }
 

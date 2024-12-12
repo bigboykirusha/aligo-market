@@ -132,6 +132,7 @@ export const useCreateStore = defineStore('create', {
             state.country_id,
             state.vin,
             ...(state.country_id !== 1 ? [state.state_number] : []),
+            ...(state.condition_id == 2 ? [state.state_id] : []),
             state.brand_id,
             state.model_id,
             state.year_id,

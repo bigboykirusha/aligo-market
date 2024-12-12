@@ -4,22 +4,22 @@
       <div class="characteristics__content">
          <AutosTextAreaTemplate label="Описание" placeholder="Нажмите для ввода" :option="createStore.ads_description"
             @update:option="handleDescription" />
-         <AutosAddressInput label="Адрес" @update:address="handlePlace" :option="createStore.place_inspection"/>
+         <AutosAddressInput label="Адрес" @update:address="handlePlace" :option="createStore.place_inspection" />
          <AutosTextTemplate label="Цена, ₽" placeholder="Нажмите для ввода" :option="createStore.amount"
-            validationType="number" @update:option="handleAmount" :isEmpty="checkIfEmpty(createStore.amount)"/>
+            validationType="number" @update:option="handleAmount" :isEmpty="checkIfEmpty(createStore.amount)" />
       </div>
       <BlockTitle text="Контакты" />
       <div class="characteristics__content">
          <PhoneTextCreate label="Телефон" placeholder="Нажмите для ввода" :option="createStore.phone"
             @update:option="handlePhone" />
          <AutosTextTemplate label="Имя пользователя" placeholder="Нажмите для ввода" :option="createStore.username"
-            @update:option="handleUsername" :isEmpty="checkIfEmpty(createStore.username)"/>
+            @update:option="handleUsername" :isEmpty="checkIfEmpty(createStore.username)" />
          <AutosSelectCreateSkeleton v-if="loading" />
          <AutosSelectCreate v-else label="Метод коммуникации"
             :initialSelectedOption="createStore.communication_method_id" :options="CommunicationMethodOptions"
             @updateSort="handleCommunicationMethodUpdate" />
          <AutosTextTemplate label="Email" placeholder="Нажмите для ввода" :option="createStore.email"
-            validationType="email" @update:option="handleEmail" :isEmpty="checkIfEmpty(createStore.email)"/>
+            validationType="email" @update:option="handleEmail" :isEmpty="checkIfEmpty(createStore.email)" />
       </div>
    </div>
 </template>
@@ -55,7 +55,7 @@ const fetchCommunicationMethod = async () => {
 
 const checkIfEmpty = (item) => {
    if (createStore.id && !item) {
-      return true; 
+      return true;
    }
    return false;
 };
@@ -90,6 +90,10 @@ onUnmounted(() => {
    display: flex;
    flex-direction: column;
    gap: 40px;
+
+   @media (max-width: 768px) {
+      padding-bottom: 40px;
+   }
 
    &__content {
       display: flex;

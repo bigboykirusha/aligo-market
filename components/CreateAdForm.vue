@@ -25,6 +25,9 @@
             <button v-else class="create-ad-form__button create-ad-form__button--continue" @click="continueToNextTab">
                Продолжить
             </button>
+            <div v-if="activeTab === 3" class="create-ad-form__text">Вы также соглашаетесь с <span>правилами
+                  Aligo</span> и публикуете
+               информацию, которую увидят другие люди</div>
          </div>
       </div>
    </div>
@@ -115,6 +118,9 @@ const isSaveandExitEnabled = computed(() => {
 
       @media (max-width: 768px) {
          gap: 16px;
+         margin: 0;
+         flex-wrap: wrap;
+         justify-content: center;
       }
    }
 
@@ -123,8 +129,7 @@ const isSaveandExitEnabled = computed(() => {
       bottom: 0;
       left: 0;
       right: 0;
-      height: 70px;
-      padding: 0 40px;
+      padding: 16px 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -145,10 +150,28 @@ const isSaveandExitEnabled = computed(() => {
       }
    }
 
+   &__text {
+      color: #787878;
+      font-size: 12px;
+      line-height: 16px;
+      max-width: 400px;
+      text-align: center;
+
+      @media (max-width: 768px) {
+         max-width: 100%;
+      }
+
+      span {
+         color: #3366FF;
+         cursor: pointer;
+         text-decoration: underline;
+      }
+   }
+
    &__button {
       padding: 9px 16px;
       height: 36px;
-      width: 50%;
+      width: calc(50% - 8px);
       white-space: nowrap;
       border: none;
       border-radius: 6px;
@@ -160,10 +183,15 @@ const isSaveandExitEnabled = computed(() => {
       &--continue {
          background-color: #3366FF;
          color: #ffffff;
+         transition: background-color 0.2s ease;
+
+         &:hover {
+            background-color: #144DF8;
+         }
 
          &:disabled {
             background-color: #EEEEEE;
-            color: #757575;
+            color: #787878;
             cursor: not-allowed;
             box-shadow: none;
          }
@@ -173,9 +201,15 @@ const isSaveandExitEnabled = computed(() => {
          background-color: #D6EFFF;
          color: #3366FF;
 
+         transition: background-color 0.2s ease;
+
+         &:hover {
+            background-color: #A4DCFF;
+         }
+
          &:disabled {
             background-color: #EEEEEE;
-            color: #757575;
+            color: #787878;
             cursor: not-allowed;
             box-shadow: none;
          }

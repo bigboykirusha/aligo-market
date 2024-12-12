@@ -31,11 +31,11 @@
                <img :src="getDeviceIcon(device)" alt="Device Icon" class="auth-devices__icon" />
                <div class="auth-devices__info">
                   <p class="auth-devices__status">
-                     {{ getDeviceCategory(currentDevice) }}, {{ currentDevice.platform }}
+                     {{ getDeviceCategory(device) }}, {{ device.platform }}
                   </p>
                   <p class="auth-devices__browser">{{ currentDevice.browser }}</p>
-                  <p class="auth-devices__geo">{{ currentDevice.city }}, {{ currentDevice.country }} · {{
-                     formatDate(currentDevice.auth_time) }}</p>
+                  <p class="auth-devices__geo">{{ device.city }}, {{ device.country }} · {{
+                     formatDate(device.auth_time) }}</p>
                </div>
                <button @click="logoutDevice(device.id)" class="auth-devices__logout-button">
                   <img class="logout-icon" src="../assets/icons/out-icon.svg" alt="Logout Icon" />
