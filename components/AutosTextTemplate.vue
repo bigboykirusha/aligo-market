@@ -99,7 +99,7 @@ const isValid = computed(() => {
    }
 });
 
-const validateVIN = (vin) => {
+const validateVIN = (vin, isNorthAmerican = false) => {
    // Регулярное выражение для проверки VIN (17 символов без I, O, Q)
    const vinRegex = /^[A-HJ-NPR-Za-hj-npr-z\d]{17}$/;
 
@@ -116,7 +116,7 @@ const validateVIN = (vin) => {
    };
 
    // Весовые коэффициенты для позиций VIN
-   const weights = [8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2];
+   const weights = [8, 7, 6, 5, 4, 3, 2, 10, 1, 9, 8, 7, 6, 5, 4, 3, 2]; // Изменён вес для 9-й позиции
 
    // Функция для трансформации символа в числовое значение
    const getTransliteratedValue = (char) => {
@@ -124,21 +124,29 @@ const validateVIN = (vin) => {
       return transliterationTable[char.toUpperCase()] || 0; // Транслитерация букв
    };
 
-   // Проверка контрольной цифры
+   // Проверка контрольной цифры, если это необходимо
    const validateCheckDigit = () => {
       let sum = 0;
+      console.log(`\nVIN: ${vin}`);
       for (let i = 0; i < vin.length; i++) {
          const char = vin[i];
          const value = getTransliteratedValue(char);
-         sum += value * weights[i];
+         const weight = weights[i];
+         const weightedValue = value * weight;
+         sum += weightedValue;
+
+         // Отладочная информация на каждом шаге
+         console.log(`Position ${i + 1}: '${char}' -> Value: ${value}, Weight: ${weight}, Weighted Value: ${weightedValue}, Cumulative Sum: ${sum}`);
       }
+
       const remainder = sum % 11;
       const calculatedCheckDigit = remainder === 10 ? 'X' : remainder.toString();
+      console.log(`Calculated Check Digit: ${calculatedCheckDigit}, Actual: ${vin[8].toUpperCase()}`);
       return vin[8].toUpperCase() === calculatedCheckDigit;
    };
 
-   // Проверка VIN (включая контрольную цифру)
-   if (!validateCheckDigit()) return false;
+   // Если нужно, проверяем контрольную цифру
+   if (isNorthAmerican && !validateCheckDigit()) return false;
 
    return true;
 };
@@ -148,17 +156,17 @@ const errorMessage = computed(() => {
    if (isValid.value) return '';
    switch (props.validationType) {
       case 'number':
-         return 'Используйте только цифры';
+         return 'Используйте только цифры для ввода';
       case 'email':
-         return 'Введите корректный email';
+         return 'Проверьте адрес электронной почты';
       case 'url':
-         return 'Введите корректный URL';
+         return 'Проверьте правильность ввода URL';
       case 'doors':
          return 'Введите количество дверей от 2 до 12';
       case 'vin':
-         return 'Некорректный VIN';
+         return 'Проверьте правильность ввода VIN';
       case 'licensePlate':
-         return 'Некорректный гос. номер';
+         return 'Государственный регистрационный номер автомобиля может содержать только буквы (А, В, Е, К, М, Н, О, Р, С, Т, У, Х) и цифры (0-9) в определенном порядке, например Х123ХХ123.';
       default:
          return 'Некорректное значение';
    }

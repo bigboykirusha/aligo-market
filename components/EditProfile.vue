@@ -398,7 +398,7 @@ const validateField = (field) => {
 
    if (field === 'username' && !validateUsername(profile.value.username)) {
       isValid = false;
-      errorMessage = 'Имя должно быть латиницей или кириллицей, без использования обоих алфавитов одновременно, с возможностью использования одного пробела или тире.';
+      errorMessage = 'Имя может содержать только латинские или только кириллические буквы, пробел и тире.';
    } else if (field === 'email' && !validateEmail(profile.value.email)) {
       isValid = false;
       errorMessage = 'Пожалуйста, введите корректный email.';
@@ -426,7 +426,6 @@ const saveField = async (field) => {
             codeInputVisible.value = true;
             startTimer();
          } else {
-            console.log(response.message || response, 'osibka tut');
             validationErrors.value[field] = response.message || response;
             return;
          }
@@ -437,7 +436,6 @@ const saveField = async (field) => {
             emailCodeInputVisible.value = true;
             startTimer();
          } else {
-            console.log(response.message || response);
             validationErrors.value[field] = response.message || response;
             return;
          }
@@ -445,7 +443,6 @@ const saveField = async (field) => {
          response = await handleSubmit();
 
          if (!response.success) {
-            console.log(response.message || response);
             validationErrors.value[field] = response.message || response;
             return;
          }
