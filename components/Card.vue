@@ -438,17 +438,6 @@ const makeCall = () => {
             display: flex;
             align-items: center;
             justify-content: center;
-            text-indent: -9999px;
-         }
-
-         &:nth-child(1) .button__text::before {
-            content: url('../assets/icons/mail-blue.svg');
-            text-indent: 0;
-         }
-
-         &:nth-child(2) .button__text::before {
-            content: url('../assets/icons/call.svg');
-            text-indent: 0;
          }
       }
    }
