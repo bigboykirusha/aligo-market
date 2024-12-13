@@ -534,7 +534,10 @@ export const useCreateStore = defineStore('create', {
 
          // Характеристики
          this.photos.forEach((photo, index) => {
-            formData.append(`photos[${index}]`, photo);
+            if (photo.file instanceof File) {
+               // Добавляем только объекты File
+               formData.append(`photos[${index}]`, photo.file);
+            }
          });
 
          if (this.color_id !== null) formData.append('color_id', this.color_id);
@@ -664,8 +667,10 @@ export const useCreateStore = defineStore('create', {
 
          // Характеристики
          this.photos.forEach((photo, index) => {
-            formData.append(`photos[${index}]`, photo);
-            console.log(formData.get(`photos[${index}]`))
+            if (photo.file instanceof File) {
+               // Добавляем только объекты File
+               formData.append(`photos[${index}]`, photo.file);
+            }
          });
 
          if (this.color_id !== null) formData.append('color_id', this.color_id);
@@ -798,7 +803,7 @@ export const useCreateStore = defineStore('create', {
             this.condition_id = carData.condition?.id || null;
 
             // Характеристики
-            this.photos = carData.auto_appearances?.[0]?.photos || [];
+            this.photos = carData.photos || [];
             this.color_id = carData.auto_appearances?.[0]?.color?.id || null;
             this.video = carData.auto_appearances?.[0]?.video || null;
 

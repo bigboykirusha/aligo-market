@@ -204,8 +204,9 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
    display: flex;
    flex-direction: row;
    height: 120px;
+   width: 100%;
    background: #ffffff;
-   box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.2);
+   box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
    border-radius: 6px;
    overflow: hidden;
    transition: transform 0.3s, box-shadow 0.3s;
@@ -290,7 +291,7 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
       padding: 16px;
       gap: 110px;
 
-      @media screen and (max-width: 1200px) {
+      @media (max-width: 1200px) {
          gap: 40px;
       }
 

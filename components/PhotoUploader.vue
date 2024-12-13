@@ -2,9 +2,11 @@
    <div class="photo-uploader">
       <label>{{ label }}</label>
       <div class="photo-uploader__photos">
+         <!-- Отображаем как файлы с сервера, так и загруженные -->
          <div v-for="(photo, index) in localPhotos" :key="index" class="photo-uploader__photo">
             <img :src="getImageUrl(photo)" alt="uploaded photo" />
-            <button @click="removePhoto(index)" class="photo-uploader__remove-btn">
+            <!-- Убираем кнопку удаления для серверных фото -->
+            <button v-if="photo.is_file === 1" @click="removePhoto(index)" class="photo-uploader__remove-btn">
                <img src="../assets/icons/close-white.svg" alt="" />
             </button>
          </div>
@@ -38,6 +40,7 @@ const props = defineProps({
 
 const emit = defineEmits(['updatePhotos']);
 const localPhotos = ref([...props.photos]);
+const baseUrl = 'https://dev.aligo.pro';
 
 watch(
    () => props.photos,
@@ -52,7 +55,11 @@ const onPhotoSelected = (event) => {
 
    const newPhotos = Array.from(files).slice(0, props.maxPhotos - localPhotos.value.length);
 
-   localPhotos.value.push(...newPhotos);
+   // Добавляем файлы пользователя в локальные фото
+   newPhotos.forEach(file => {
+      localPhotos.value.push({ file, is_file: 1 }); // Отметка, что это файл пользователя
+   });
+
    emit('updatePhotos', localPhotos.value);
 };
 
@@ -69,11 +76,19 @@ const triggerFileInput = () => {
 
 const fileInput = ref(null);
 
-const getImageUrl = (file) => {
-   return URL.createObjectURL(file);
+// Функция для получения URL изображения
+const getImageUrl = (photo) => {
+   if (photo.is_file === 0) {
+      // Для серверных фото (полученных через API)
+      return `${baseUrl}/${photo.path}`;
+   } else {
+      // Для файлов пользователя
+      return URL.createObjectURL(photo.file);
+   }
 };
 
 onMounted(() => {
+   // Инициализация данных (загрузка фото с бека)
    localPhotos.value = [...props.photos];
 });
 </script>
