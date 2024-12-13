@@ -14,7 +14,7 @@
                      </li>
                   </ul>
 
-                  <img :src="avatarUrl || avatarRevers" alt="login icon" class="user-menu__icon" />
+                  <img :src="avatarUrl" alt="login icon" class="user-menu__icon" />
                   <input type="file" id="avatarUpload" ref="avatarUpload" @change="handleAvatarChange"
                      class="hidden-input" />
                   <img src="../assets/icons/change-ava.svg" alt="change avatar icon" class="user-menu__icon-change"
@@ -85,7 +85,7 @@ const modalOpen = ref(false);
 const userMenuRef = ref(null);
 
 const userName = computed(() => userStore.username || userStore.login);
-const avatarUrl = ref(getImageUrl(userStore.photo?.path));
+const avatarUrl = ref(getImageUrl(userStore.photo?.path, avatarRevers));
 const phoneNumber = computed(() => userStore.phoneNumber);
 const rating = computed(() => userStore.grade);
 

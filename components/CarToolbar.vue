@@ -19,7 +19,7 @@
             <span class="popup__text">Снять с публикации</span>
          </li>
 
-         <li class="popup__item" v-else-if="!isArchived && !isPublished" @click="publishFromArchive(props.id)">
+         <li class="popup__item" v-else-if="!isArchived && !isPublished" @click="rePublishAdFromArchive(props.id)">
             <img :src="publicationIcon" alt="Опубликовать снова" class="popup__icon" />
             <span class="popup__text">Опубликовать снова</span>
          </li>
@@ -34,7 +34,7 @@
             <span class="popup__text">Переместить в архив</span>
          </li>
 
-         <li class="popup__item" v-if="isArchived" @click="publishFromArchive(props.id)">
+         <li class="popup__item" v-if="isArchived" @click="rePublishAdFromArchive(props.id)">
             <img :src="againIcon" alt="Опубликовать снова" class="popup__icon" />
             <span class="popup__text">Опубликовать снова</span>
          </li>
@@ -48,12 +48,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed } from 'vue';
 import { useSelectedAdsStore } from '../store/selectedAds.js';
-import { useSelectedDraftsStore } from '../store/selectedDrafts.js';
 import { useCreateStore } from '~/store/create.js';
-import { publishFromArchive, deleteFromArchive } from "../services/apiClient.js";
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 
 import deleteIcon from '../assets/icons/delete.svg';
 import editIcon from "../assets/icons/edit.svg";
@@ -73,8 +71,8 @@ const props = defineProps({
    count_go_ad_page: Number
 });
 
-const isPublished = computed(() => props.is_published === 1);
-const isArchived = computed(() => props.is_in_archive === 1);
+const isPublished = ref(props.is_published === 1);
+const isArchived = ref(props.is_in_archive === 1);
 const publicationIcon = computed(() => isPublished.value ? stopIcon : againIcon);
 
 const statsIcons = computed(() => [
@@ -91,9 +89,7 @@ const statusText = computed(() => {
 });
 
 const router = useRouter();
-const route = useRoute();
 const createStore = useCreateStore();
-
 const store = useSelectedAdsStore();
 
 const editAd = async () => {
@@ -119,8 +115,10 @@ const editAd = async () => {
 const moveToArchive = () => {
    if (store) {
       store.deleteAds([props.id]);
+      isArchived.value = true;
+      isPublished.value = false;
    }
-   console.log('Переместить в архив');
+   console.log('Перемещено в архив');
 };
 
 const deleteAd = async () => {
@@ -131,6 +129,24 @@ const togglePublication = async () => {
    console.log('Снять с публикации');
    if (store) {
       store.takeOffPublication([props.id]);
+      isPublished.value = false;
+      isArchived.value = false;
+   }
+};
+
+const rePublishAdFromArchive = (id) => {
+   console.log('Опубликовать снова');
+   if (store) {
+      store.republish([id]);
+      isPublished.value = true;
+      isArchived.value = false;
+   }
+};
+
+const deleteFromArchive = (id) => {
+   console.log('Удалить из архива');
+   if (store) {
+      store.deleteAds([id]);
    }
 };
 </script>

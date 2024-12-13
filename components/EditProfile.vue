@@ -205,7 +205,7 @@ import { validateEmail, validatePhoneNumber, validateUsername } from '~/services
 import VueOtpInput from 'vue3-otp-input';
 
 const userStore = useUserStore();
-const profile = ref({
+const profile = computed(() => ({
    createdAt: userStore.createdAt,
    username: userStore.username,
    email: userStore.email,
@@ -215,7 +215,8 @@ const profile = ref({
    city: userStore.city || null,
    latitude: userStore.latitude || null,
    longitude: userStore.longitude || null,
-});
+}));
+
 
 let timer = null;
 const timeLeft = ref(0);

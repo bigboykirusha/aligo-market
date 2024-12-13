@@ -124,7 +124,7 @@ export const useUserStore = defineStore('user', {
             setCookie('userData', JSON.stringify(userData), 7);
             this.$reset();
             this.isLoggedIn = false;
-            router.push('/l');
+            router.push('/');
          } catch (error) {
             console.error('Ошибка при очистке данных пользователя: ', error);
          }
