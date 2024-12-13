@@ -62,7 +62,6 @@
     </header>
     <component :is="currentPageComponent" />
     <LocationModal v-if="modalOpen" @close-modal="toggleModal" />
-    <LoginModal v-if="modalLoginOpen" @close-loginModal="toggleLoginModal" />
     <UserMenuBurger v-model="isSideMenuOpen" :isRight="!isMyselfRoute" />
   </div>
 </template>
@@ -73,7 +72,9 @@ import { useRoute } from 'vue-router';
 import { getImageUrl } from '../services/imageUtils';
 import { useCityStore } from '~/store/city';
 import { useUserStore } from '~/store/user';
+import { useLoginModalStore } from '~/store/loginModal.js';  // Import the store
 
+const loginModalStore = useLoginModalStore();  // Initialize the store
 
 import HeaderRow from './HeaderRow.vue';
 import HeaderRowNew from './HeaderRowNew.vue';
@@ -113,7 +114,7 @@ const toggleUserMenu = () => {
 };
 
 const toggleLoginModal = () => {
-  modalLoginOpen.value = !modalLoginOpen.value;
+  loginModalStore.toggleLoginModal();
 };
 
 const updateIsDesktop = () => {

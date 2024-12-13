@@ -42,7 +42,6 @@
          </button>
       </div>
    </div>
-   <LoginModal v-if="modalLoginOpen" @close-loginModal="toggleLoginModal" />
    <ReviewsPopup :userId="props.userId" :visible="isReviewsPopupVisible"
       :count_reviews_about_myself="count_reviews_about_myself" :rating="rating" @update:visible="toggleReviewsModal" />
 </template>
@@ -54,16 +53,18 @@ import { getImageUrl } from '~/services/imageUtils';
 import avatar from '../assets/icons/avatar-revers.svg';
 import { useChatStore } from '~/store/chatStore';
 import { useUserStore } from '~/store/user';
+import { useLoginModalStore } from '~/store/loginModal.js';
 
-const modalLoginOpen = ref(false);
+const loginModalStore = useLoginModalStore();
+
+const toggleLoginModal = () => {
+   loginModalStore.toggleLoginModal();
+};
+
 const isReviewsPopupVisible = ref(false);
 
 const toggleReviewsModal = (visible) => {
    isReviewsPopupVisible.value = visible;
-};
-
-const toggleLoginModal = () => {
-   modalLoginOpen.value = !modalLoginOpen.value;
 };
 
 const props = defineProps({

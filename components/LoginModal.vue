@@ -1,6 +1,7 @@
 <template>
    <!-- Основной контейнер модального окна -->
-   <div id="main-login-modal" class="modal" @click.self="closeModal" @keydown="handleTabKeydown">
+   <div v-if="isLoginModalOpen" id="main-login-modal" class="modal" @click.self="closeModal"
+      @keydown="handleTabKeydown">
       <!-- Анимация для модального контента -->
       <transition name="modal-fade">
          <div class="modal__content">
@@ -128,6 +129,11 @@ import { getCookie, setCookie } from '~/services/auth';
 import { loginUserByPhone, confirmPhoneCode } from '../services/apiClient';
 import { useUserStore } from '../store/user';
 import VueOtpInput from 'vue3-otp-input';
+import { useLoginModalStore } from '~/store/loginModal.js';
+
+const loginModalStore = useLoginModalStore();
+
+const isLoginModalOpen = computed(() => loginModalStore.isOpen);
 
 // Store и базовые рефы
 const userStore = useUserStore();
@@ -138,7 +144,6 @@ const email = ref('');
 const code = ref('');
 const showCodeInput = ref(false);
 const isLoading = ref(false);
-const emit = defineEmits(['close-loginModal']);
 
 // Таймер и ошибки
 let timer = null;
@@ -247,7 +252,7 @@ const handleTabKeydown = (event) => {
    const lastElement = visibleElements[visibleElements.length - 1];
 
    if (event.key === 'Tab') {
-      if (event.shiftKey) { 
+      if (event.shiftKey) {
          if (document.activeElement === firstElement) {
             lastElement.focus();
             event.preventDefault();
@@ -287,7 +292,7 @@ const clearFormFields = () => {
 const closeModal = () => {
    document.body.style.overflow = '';
    clearFormFields();
-   emit('close-loginModal');
+   loginModalStore.closeLoginModal();
    showCodeInput.value = false;
    clearInterval(timer);
 };
@@ -312,7 +317,7 @@ const submitForm = async () => {
          const response = await loginUserByPhone(requestData);
          if (response.success) {
             showCodeInput.value = true;
-               startTimer();
+            startTimer();
             alert(`Код: ${response.code}`);
          } else {
             contactInfoError.value = response.message || 'Ошибка при отправке кода.';
@@ -366,7 +371,7 @@ const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
    top: 0;
    left: 0;
    width: 100%;
-   height: 100%;
+   height: 100vh;
    display: flex;
    justify-content: center;
    align-items: center;

@@ -35,8 +35,8 @@
             <button v-if="isLoggedIn && !isWithMargin" class="header-row__avatar" @click.stop="toggleUserMenu">
                <img :src="getImageUrl(userStore.photo?.path, avatarPhoto)" alt="User Avatar"
                   class="header-row__avatar-image" />
-               <div class="header-row__small-text">{{ userStore.username || userStore.phoneNumber || userStore.email
-                  }}</div>
+               <div class="header-row__small-text">{{ userStore.username || userStore.phoneNumber || userStore.email }}
+               </div>
                <UserMenuPopup v-if="isUserMenuOpen && isDesktop" :compact="true" @close-userMenu="toggleUserMenu" />
             </button>
             <button v-if="!isLoggedIn && !isWithMargin" class="header-row__avatar" @click="toggleLoginModal">
@@ -46,7 +46,6 @@
          </div>
       </div>
       <DropdownMenu v-model="showDropdown" />
-      <LoginModal v-show="modalLoginOpen" @close-loginModal="toggleLoginModal" />
       <UserMenuBurger v-model="isSideMenuOpen" />
    </div>
 </template>
@@ -59,11 +58,13 @@ import { useCityStore } from '../store/city.js';
 import { useRouter } from 'vue-router';
 import logoMain from '../assets/images/logo.svg';
 import { getImageUrl } from '~/services/imageUtils.js';
+import { useLoginModalStore } from '~/store/loginModal.js';  // Import the store
+
+const loginModalStore = useLoginModalStore();  // Initialize the store
 
 const dropdownStore = useDropdownStore();
 const showDropdown = computed(() => dropdownStore.showDropdown);
 const isWithMargin = ref(true);
-const modalLoginOpen = ref(false);
 const searchQuery = ref("");
 const searchInput = ref(null);
 const isUserMenuOpen = ref(false);
@@ -111,7 +112,7 @@ const toggleCategories = () => {
 };
 
 const toggleLoginModal = () => {
-   modalLoginOpen.value = !modalLoginOpen.value;
+   loginModalStore.toggleLoginModal(); 
 };
 
 const clearSearch = () => {
@@ -143,7 +144,6 @@ onMounted(() => {
    window.addEventListener('resize', updateIsDesktop);
    window.addEventListener('scroll', handleScroll);
 });
-
 
 onUnmounted(() => {
    window.removeEventListener('resize', updateIsDesktop);

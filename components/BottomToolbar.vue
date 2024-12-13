@@ -62,7 +62,6 @@
          </li>
       </ul>
       <UserMenuBurger v-model="showMenu" />
-      <LoginModal v-if="modalLoginOpen" @close-loginModal="toggleLoginModal" />
    </nav>
 </template>
 
@@ -71,6 +70,9 @@ import { useRoute, useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/store/user';
 import { useDropdownStore } from '@/store/dropdown';
+import { useLoginModalStore } from '~/store/loginModal.js';
+
+const loginModalStore = useLoginModalStore(); 
 
 const dropdownStore = useDropdownStore();
 const showDropdown = computed(() => dropdownStore.showDropdown);
@@ -100,7 +102,6 @@ const isActive = (path, icon) => {
    return route.path.startsWith(path);
 };
 const showMenu = ref(false);
-const modalLoginOpen = ref(false);
 
 const toggleDropdown = () => {
    dropdownStore.toggleDropdown();
@@ -109,7 +110,7 @@ const toggleDropdown = () => {
 
 const toggleMenu = () => {
    if (!loggedIn.value) {
-      modalLoginOpen.value = true;
+      toggleLoginModal();
    } else {
       showMenu.value = !showMenu.value;
       closeCategories();
@@ -126,7 +127,7 @@ const closeAllMenus = () => {
 };
 
 const toggleLoginModal = () => {
-   modalLoginOpen.value = !modalLoginOpen.value;
+   loginModalStore.toggleLoginModal();
 };
 
 const handleMenuClick = (item) => {

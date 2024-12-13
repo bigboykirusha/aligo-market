@@ -55,7 +55,6 @@
          </div>
       </div>
    </div>
-   <LoginModal v-show="modalLoginOpen" @close-loginModal="toggleLoginModal" />
 </template>
 
 <script setup>
@@ -66,6 +65,14 @@ import { useUserStore } from '~/store/user';
 import avatar from '../assets/icons/avatar-revers.svg';
 import { useChatStore } from '~/store/chatStore';
 import { formatNumberWithSpaces } from '~/services/amountUtils';
+
+import { useLoginModalStore } from '~/store/loginModal.js';
+
+const loginModalStore = useLoginModalStore();
+
+const toggleLoginModal = () => {
+   loginModalStore.toggleLoginModal();
+};
 
 const props = defineProps({
    userId: {
@@ -91,7 +98,6 @@ const brand = ref('');
 const model = ref('');
 const year = ref('');
 const inFavorite = ref(false);
-const modalLoginOpen = ref(false);
 const showPhoneText = ref('Показать номер');
 
 const fetchUserData = async () => {
@@ -135,11 +141,6 @@ const characteristics = computed(() => {
       'Руль': carData.value.auto_technical_specifications[0].handlebar.title || 'Не указано',
    };
 });
-
-const toggleLoginModal = () => {
-   modalLoginOpen.value = !modalLoginOpen.value;
-};
-
 
 function pluralizeReview(count) {
    const lastDigit = count % 10;

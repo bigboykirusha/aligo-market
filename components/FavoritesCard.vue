@@ -78,7 +78,6 @@
          </div>
       </div>
    </div>
-   <LoginModal v-if="modalLoginOpen" @close-loginModal="toggleLoginModal" />
 </template>
 
 <script setup>
@@ -90,6 +89,14 @@ import { getImageUrl } from '../services/imageUtils'
 import { useUserStore } from '~/store/user';
 import { useFavoritesStore } from '~/store/favorites';
 import { seeContact } from '~/services/apiClient';
+
+import { useLoginModalStore } from '~/store/loginModal.js';
+
+const loginModalStore = useLoginModalStore();
+
+const toggleLoginModal = () => {
+   loginModalStore.toggleLoginModal();
+};
 
 const props = defineProps({
    id: Number,
@@ -126,17 +133,12 @@ const formattedUsername = computed(() => {
    const username = props.username || 'Имя не указано';
    return username.charAt(0).toUpperCase() + username.slice(1);
 });
-const modalLoginOpen = ref(false);
 const showPhone = ref(false);
 const phone = ref('');
 
 const toggleWishList = async () => {
    await favoritesStore.toggleFavorite(props.id);
    userStore.fetchUserCounts();
-};
-
-const toggleLoginModal = () => {
-   modalLoginOpen.value = !modalLoginOpen.value;
 };
 
 const fetchPhoneNumber = async () => {

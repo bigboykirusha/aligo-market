@@ -98,7 +98,6 @@
          </div>
       </div>
    </div>
-   <LoginModal v-if="modalLoginOpen" @close-loginModal="toggleLoginModal" />
 </template>
 
 <script setup>
@@ -111,10 +110,16 @@ import { getImageUrl } from '../services/imageUtils'
 import { useFavoritesStore } from '~/store/favorites';
 import { seeContact, getUser } from '~/services/apiClient';
 import { useChatStore } from '~/store/chatStore';
+import { useLoginModalStore } from '~/store/loginModal.js';
+
+const loginModalStore = useLoginModalStore();
+
+const toggleLoginModal = () => {
+   loginModalStore.toggleLoginModal();
+};
 
 const currentChatStore = useChatStore();
 
-const modalLoginOpen = ref(false);
 const showPhone = ref(false);
 const phone = ref('');
 
@@ -264,10 +269,6 @@ const prepareChatData = async () => {
 
    currentChatStore.setCurrentChat(chatData);
    currentChatStore.openChat();
-};
-
-const toggleLoginModal = () => {
-   modalLoginOpen.value = !modalLoginOpen.value;
 };
 
 const fetchPhoneNumber = async () => {

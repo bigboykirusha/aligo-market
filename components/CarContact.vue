@@ -67,7 +67,6 @@
          </button>
       </div>
    </div>
-   <LoginModal v-show="modalLoginOpen" @close-loginModal="toggleLoginModal" />
    <ReviewsPopup :userId="props.id_user_owner_ads" :visible="isReviewsPopupVisible"
       :count_reviews_about_myself="count_reviews_about_myself" :rating="rating" @update:visible="toggleReviewsModal" />
 </template>
@@ -79,6 +78,13 @@ import { formatNumberWithSpaces } from '../services/amountUtils.js';
 import { useUserStore } from '~/store/user';
 import { getImageUrl } from '../services/imageUtils'
 import { useChatStore } from '~/store/chatStore';
+import { useLoginModalStore } from '~/store/loginModal.js';
+
+const loginModalStore = useLoginModalStore();
+
+const toggleLoginModal = () => {
+   loginModalStore.toggleLoginModal();
+};
 
 const currentChatStore = useChatStore();
 
@@ -98,7 +104,6 @@ const props = defineProps({
    count_reviews_about_myself: Number
 });
 
-const modalLoginOpen = ref(false);
 const showPhone = ref(false);
 const phone = ref('');
 const isMapVisible = ref(true);
@@ -173,10 +178,6 @@ const openChat = () => {
 
 const toggleMap = () => {
    isMapVisible.value = !isMapVisible.value;
-};
-
-const toggleLoginModal = () => {
-   modalLoginOpen.value = !modalLoginOpen.value;
 };
 
 const prepareChatData = async () => {

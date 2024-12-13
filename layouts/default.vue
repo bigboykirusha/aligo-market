@@ -5,6 +5,7 @@
       </div>
       <NuxtPage />
       <CookiePopup />
+      <LoginModal />
       <Footer v-if="showFooter" />
       <FooterAlternative v-else />
       <Chat
@@ -21,7 +22,6 @@ import { useUserStore } from '~/store/user';
 
 const route = useRoute();
 const userStore = useUserStore();
-
 
 const showFooter = computed(() => {
    return !route.path.startsWith('/createAd') && !route.path.startsWith('/myself');
