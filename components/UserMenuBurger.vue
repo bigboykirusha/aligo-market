@@ -156,12 +156,12 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
    background-color: #1a1a1a;
    z-index: 100;
    width: 100%;
+   height: calc(100vh - 70px);
    display: flex;
    justify-content: center;
    transform: translateX(100%);
    align-items: center;
    transition: transform 0.3s ease-in-out;
-   margin-bottom: 66px;
 
    &--open {
       transform: translateX(0);

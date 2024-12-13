@@ -225,6 +225,7 @@ onUnmounted(() => {
    @media (max-width: 768px) {
       height: 100vh;
       z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
    }
 
    &--open {
