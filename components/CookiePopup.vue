@@ -101,6 +101,11 @@ onMounted(() => {
       border-radius: 6px;
       cursor: pointer;
       font-size: 14px;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+         background-color: #EEF9FF;
+      }
 
       @media (max-width: 768px) {
          color: #fff;
@@ -108,11 +113,11 @@ onMounted(() => {
          background-color: #3366FF;
          text-decoration: underline;
          justify-content: flex-start;
-      }
-   }
 
-   &__button:hover {
-      background-color: #EEF9FF;
+         &:hover {
+            background-color: #3366FF;
+         }
+      }
    }
 }
 </style>
