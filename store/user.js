@@ -100,6 +100,8 @@ export const useUserStore = defineStore('user', {
                   grade: data.grade,
                });
 
+               this.isLoggedIn = true;
+
                // Обновляем данные в куках
                const userData = JSON.parse(getCookie('userData') || '{}');
                if (data.email) userData.email = data.email;
@@ -108,6 +110,7 @@ export const useUserStore = defineStore('user', {
             }
          } catch (error) {
             console.error('Ошибка при получении данных пользователя: ', error);
+            this.isLoggedIn = false;
          }
       },
 

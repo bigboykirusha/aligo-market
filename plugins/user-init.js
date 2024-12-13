@@ -7,7 +7,6 @@ export default defineNuxtPlugin(() => {
    const savedUserData = JSON.parse(getCookie('userData'));
    if (savedUserData && savedUserData.token) {
       if (savedUserData.phoneNumber || savedUserData.email) {
-         userStore.isLoggedIn = true;
          userStore.fetchAndSetUserdata();
       }
    }
