@@ -113,11 +113,6 @@ const toggleMenu = () => {
       toggleLoginModal();
    } else {
       showMenu.value = !showMenu.value;
-      if (showMenu.value) {
-         document.body.classList.add('no-scroll'); 
-      } else {
-         document.body.classList.remove('no-scroll');  
-      }
       closeCategories();
    }
 };
