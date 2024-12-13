@@ -296,13 +296,18 @@ export const getUserCount = async () => {
 
 export const getMyselfAuthEvents = async () => {
    try {
-      const response = await apiClient.get('/user/get_myself_auth_events');
+      const response = await apiClient.get('/user/get_myself_auth_events', {
+         params: {
+            is_active: 1,
+         },
+      });
       return response.data;
    } catch (error) {
       console.error('Ошибка при получении событий аутентификации: ', error);
       throw error;
    }
 };
+
 
 export const logoutUser = async (authEventId) => {
    try {
@@ -319,7 +324,7 @@ export const logoutUser = async (authEventId) => {
 
 export const logoutEverywhere = async () => {
    try {
-      const response = await apiClient.post('/logout_everywhere');
+      const response = await apiClient.post('/logout_everywhere_but_this');
       return response.data;
    } catch (error) {
       console.error('Ошибка при выходе везде: ', error);

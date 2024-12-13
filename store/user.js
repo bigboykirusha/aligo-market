@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia';
 import { getUserDetails, logoutUser, getUserCount, getMyAdsCount, updateUserInfo } from '../services/apiClient';
 import { getCookie, setCookie } from '../services/auth';
+import { useRouter } from '#vue-router';
+
+const router = useRouter();
 
 function formatPhoneNumber(phone) {
    const cleaned = phone.replace(/\D/g, '');
@@ -117,6 +120,7 @@ export const useUserStore = defineStore('user', {
             setCookie('userData', JSON.stringify(userData), 7);
             this.$reset();
             this.isLoggedIn = false;
+            router.push('/l');
          } catch (error) {
             console.error('Ошибка при очистке данных пользователя: ', error);
          }
