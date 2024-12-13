@@ -94,13 +94,11 @@ const formattedPhoneNumber = computed(() => phoneNumber.value || userStore.email
 const displayName = computed(() => userName.value ? capitalize(userName.value) : formattedPhoneNumber.value);
 
 const menuItems = [
-   { text: 'Поиск объявлений', link: '/', icon: searchIcon },
    { text: 'Мои объявления', link: '/myself/ads', icon: adIcon, count: userStore.countAds },
    { text: 'Избранное', link: '/myself/favorites', icon: favIcon, count: userStore.countFavorites },
    { text: 'Отзывы', link: '/myself/reviews', icon: reviewsIcon },
    { text: 'Оповещения', link: '/myself/notifications', icon: notifIcon, count: userStore.countUnreadNotify },
    { text: 'Сообщения', link: '/myself/messages', icon: mailMenuIcon, count: userStore.count_new_messages },
-   { text: 'Для бизнеса', link: '/myself/business', icon: busIcon },
 ];
 
 const toggleMenu = () => {

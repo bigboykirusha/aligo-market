@@ -501,6 +501,10 @@ const makeCall = () => {
          cursor: pointer;
          transition: background-color 0.3s;
 
+         @media (max-width: 768px) {
+            display: none;
+         }
+
          &:hover {
             background-color: #9ed2f1;
          }
@@ -663,6 +667,7 @@ const makeCall = () => {
 
                   @media (max-width: 768px) {
                      padding: 0;
+                     display: none;
                      height: 14px;
                      width: 14px;
                      margin-top: 3px;

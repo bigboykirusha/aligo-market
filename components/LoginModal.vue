@@ -257,7 +257,7 @@ const handleTabKeydown = (event) => {
             lastElement.focus();
             event.preventDefault();
          }
-      } else {  // Tab
+      } else { 
          if (document.activeElement === lastElement) {
             firstElement.focus();
             event.preventDefault();
