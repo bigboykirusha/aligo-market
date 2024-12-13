@@ -1,14 +1,14 @@
 <template>
    <div class="characteristics">
       <div class="characteristics__content">
-         <BlockTitle text="Категория" />
+         <BlockTitle text="Категория*" />
          <SwitcherCreateSkeleton v-if="loading" />
          <AutosSwitcherCreate v-else :options="conditionIdOptions" label="Состояние"
             @updateSelected="handleConditionIdUpdate" :activeIndex="createStore.condition_id" />
       </div>
       <div class="characteristics__content">
-         <BlockTitle text="Внешний вид" />
-         <PhotoUploader label="Фотографии (до 10 шт)*" :photos="createStore.photos" @updatePhotos="updatePhotos" />
+         <BlockTitle text="Внешний вид*" />
+         <PhotoUploader label="Фотографии (до 10 шт)" :photos="createStore.photos" @updatePhotos="updatePhotos" />
          <ColorPickerCreateSkeleton v-if="loading" />
          <ColorPickerCreate v-else :options="colorOptions" label="Цвет" @updateSelected="handleColorUpdate"
             :activeIndex="createStore.color_id" />

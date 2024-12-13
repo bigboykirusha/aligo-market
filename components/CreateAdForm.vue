@@ -155,10 +155,11 @@ const isSaveandExitEnabled = computed(() => {
       font-size: 12px;
       line-height: 16px;
       max-width: 400px;
-      text-align: center;
+      
 
       @media (max-width: 768px) {
          max-width: 100%;
+         text-align: center;
       }
 
       span {

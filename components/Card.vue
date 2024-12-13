@@ -81,19 +81,19 @@
          </div>
          <div v-if="!(id_user_owner_ads === userStore.userId)" class="card__buttons">
             <button v-if="isLoggedIn" class="button" @click="productCardAction('Написать')">
-               <a class="button__text">{{ $t('card.write') }}</a>
+               <a class="button__text">Написать на сайте</a>
             </button>
             <button v-else class="button" @click="toggleLoginModal">
-               <span class="button__text">{{ $t('card.write') }}</span>
+               <span class="button__text">Написать на сайте</span>
             </button>
             <button v-if="isLoggedIn && showPhone" class="button" @click="makeCall">
-               <a :href="`tel:${phone}`" class="button__text">{{ $t('card.call') }}</a>
+               <a :href="`tel:${phone}`" class="button__text">Показать номер</a>
             </button>
             <button v-else-if="isLoggedIn" class="button" @click="handleCallClick">
-               <span class="button__text">{{ $t('card.call') }}</span>
+               <span class="button__text">Показать номер</span>
             </button>
             <button v-else class="button" @click="toggleLoginModal">
-               <span class="button__text">{{ $t('card.call') }}</span>
+               <span class="button__text">Показать номер</span>
             </button>
          </div>
       </div>
