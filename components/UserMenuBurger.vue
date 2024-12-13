@@ -239,8 +239,8 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      padding: 0 40px 40px;
-      gap: 10px;
+      padding: 0 40px 24px;
+      gap: 8px;
       background-color: #3366FF;
       width: 100%;
    }
@@ -314,7 +314,7 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
       width: 100%;
       height: 100%;
       margin: 0;
-      padding: 40px;
+      padding: 24px 40px;
    }
 
    &__item {
@@ -365,7 +365,7 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
    &__item--logout {
       color: #323232;
-      padding-top: 24px;
+      padding-top: 16px;
       font-size: 14px;
       cursor: pointer;
       border-radius: 0 0 4px 4px;

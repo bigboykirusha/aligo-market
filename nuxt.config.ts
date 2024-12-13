@@ -33,7 +33,6 @@ export default defineNuxtConfig({
     '~/plugins/vue-the-mask',
     '~/plugins/v-tooltip',
     '~/plugins/user-init',
-    { src: '~/plugins/fetchFavorites', mode: 'client' },
     { src: '~/plugins/echo.js', mode: 'client' },
 
   ],

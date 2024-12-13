@@ -193,7 +193,7 @@ const props = defineProps({
    },
    year: {
       type: String,
-      default: 'Не указано'
+      default: '2007'
    },
    username: {
       type: String,

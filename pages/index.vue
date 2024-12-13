@@ -77,10 +77,16 @@ const setLoadingWithDelay = (isLoadingRef) => {
     isLoadingRef.value = false;
   }, 1000);
 
+  return timeoutId;
+};
+
+onMounted(() => {
+  const timeoutId = setLoadingWithDelay(isLoadingMain);
+
   onBeforeUnmount(() => {
     clearTimeout(timeoutId);
   });
-};
+});
 
 const fetchMainAds = async () => {
   isLoadingMain.value = true;
@@ -136,18 +142,18 @@ const handleResize = () => {
   pageSize.value = getAdsCount();
 };
 
-window.addEventListener('resize', handleResize);
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleResize);
-});
-
 onMounted(() => {
   fetchMainAds();
   if (isLoggedIn.value) {
     fetchAdsHistory();
   }
   fetchAdsSimilar(cityStore.selectedCity.name);
+
+  window.addEventListener('resize', handleResize);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize);
 });
 </script>
 

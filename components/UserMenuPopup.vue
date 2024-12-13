@@ -106,17 +106,6 @@ const userAvatar = computed(() => getImageUrl(userStore.photo?.path, avatarPhoto
 
 const emit = defineEmits(['close-userMenu']);
 
-const fetchUserCounts = async () => {
-   try {
-      const data = await getUserCount();
-      countUnreadNotify.value = data.count_unread_notify;
-      countDrafts.value = data.count_drafts;
-      countMessage.value = data.count_new_messages;
-   } catch (error) {
-      console.error('Ошибка при получении данных пользователя:', error);
-   }
-};
-
 const closeModal = () => {
    emit('close-userMenu');
 };
@@ -128,7 +117,6 @@ const handleClickOutside = (event) => {
 };
 
 onMounted(() => {
-   fetchUserCounts();
    document.addEventListener('click', handleClickOutside);
 });
 

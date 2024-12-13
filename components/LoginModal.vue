@@ -359,7 +359,7 @@ const handleSuccessfulLogin = (data, cleanedPhone) => {
 };
 
 // Дополнительные методы
-const validatePhoneNumber = (phone) => /^\+7\d{10}$/.test(removePhoneFormatting(phone));
+const validatePhoneNumber = (phone) => /^\+79\d{9}$/.test(removePhoneFormatting(phone));
 const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
 </script>

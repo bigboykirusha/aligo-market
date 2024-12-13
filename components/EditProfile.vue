@@ -146,12 +146,13 @@
             </div>
 
             <!-- Поле Адрес -->
-            <div class="simple-input">
+            <div class="simple-input" :class="{ 'has-error': validationErrors.address }">
                <label class="simple-input__label">Адрес</label>
                <div class="simple-input__wrapper">
                   <div class="simple-input__block">
                      <input v-if="editMode.address" type="text" class="simple-input__field simple-input__field--address"
-                        :placeholder="'Введите адрес'" v-model="addressInputValue" @input="handleAddressInput"
+                        :class="{ 'simple-input__field--open': suggestions.length > 0 }" :placeholder="'Введите адрес'"
+                        v-model="addressInputValue" @input="handleAddressInput"
                         @keydown.enter.prevent="handleEnterKey" />
                      <div v-else class="simple-input__text">{{ profile.address }}</div>
                      <div v-if="!profile.address && !editMode.address" class="simple-input__text">
@@ -159,6 +160,9 @@
                            <img src="../assets/icons/plus.svg" alt="wqdqdw">
                            Добавить
                         </button>
+                     </div>
+                     <div v-if="validationErrors.address" class="simple-input__error-message">
+                        {{ validationErrors.address }}
                      </div>
                      <div v-if="editMode.address" class="edit-input-actions">
                         <button @click="saveField('address')"
@@ -203,6 +207,8 @@ import { fetchSuggestions } from '~/services/apiLocation';
 import { confirmCode } from '~/services/apiClient';
 import { validateEmail, validatePhoneNumber, validateUsername } from '~/services/validation';
 import VueOtpInput from 'vue3-otp-input';
+
+const isAddressSelected = ref(false);
 
 const userStore = useUserStore();
 const profile = computed(() => ({
@@ -251,12 +257,28 @@ const emailCodeInputVisible = ref(false);
 const emailCode = ref('');
 
 const handleAddressInput = () => {
+   isAddressSelected.value = false;
    if (addressInputValue.value.length > 3) {
       debouncedFetchSuggestions(addressInputValue.value);
    } else {
       suggestions.value = [];
    }
 };
+
+const handleClickOutside = (event) => {
+   const suggestionsElement = document.querySelector('.address-suggestions');
+   if (suggestionsElement && !suggestionsElement.contains(event.target)) {
+      suggestions.value = [];
+   }
+};
+
+onMounted(() => {
+   document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+   document.removeEventListener('click', handleClickOutside);
+});
 
 const handleBackspace = () => {
 
@@ -278,11 +300,6 @@ const submitEmailCode = async () => {
    }
 };
 
-const cancelEmailCode = () => {
-   emailCodeInputVisible.value = false;
-   emailCode.value = '';
-};
-
 const submitCode = async () => {
    try {
       const formattedPhone = profile.value.phone.replace(/[^\d+]/g, '');
@@ -298,7 +315,8 @@ const submitCode = async () => {
 const validationErrors = ref({
    username: '',
    email: '',
-   phone: ''
+   phone: '',
+   address: '',
 });
 
 const fetchSuggestionsData = async (query) => {
@@ -315,6 +333,8 @@ const selectAddressSuggestion = (suggestion) => {
    addressInputValue.value = suggestion.fullAddress;
    suggestions.value = [];
    profile.value.address = addressInputValue.value;
+   isAddressSelected.value = true;
+
    markAsChanged('address');
 
    profile.value.city = suggestion.geoObject.metaDataProperty.GeocoderMetaData.Address.Components.find(comp => comp.kind === 'locality')?.name || '';
@@ -396,8 +416,10 @@ const validateField = (field) => {
       validationErrors.value[field] = `Вы не изменили ${fieldName}.`;
       return;
    }
-
-   if (field === 'username' && !validateUsername(profile.value.username)) {
+   if (field === 'address' && !isAddressSelected.value) {
+      errorMessage = 'Выберите адрес из списка подсказок.';
+      isValid = false;
+   } else if (field === 'username' && !validateUsername(profile.value.username)) {
       isValid = false;
       errorMessage = 'Имя может содержать только латинские или только кириллические буквы, пробел и тире.';
    } else if (field === 'email' && !validateEmail(profile.value.email)) {
@@ -512,9 +534,10 @@ const handleSubmit = async () => {
    .address-suggestions {
       position: absolute;
       background-color: #fff;
-      border: 1px solid #C4C4C4;
+      border: 1px solid #3366FF;
+      border-top: 1px solid #C4C4C4;
       border-radius: 0 0 6px 6px;
-      top: 30px;
+      top: 34px;
       width: 100%;
       max-height: 180px;
       overflow-y: auto;
@@ -626,6 +649,7 @@ const handleSubmit = async () => {
          font-size: 14px;
          min-width: 220px;
          line-height: 18px;
+
       }
 
       &__text {
@@ -651,6 +675,16 @@ const handleSubmit = async () => {
          font-size: 14px;
          color: #323232;
          outline: none;
+
+         &:focus {
+            border-color: #3366FF;
+         }
+
+         &--open {
+            border-radius: 6px 6px 0 0;
+            border-color: #3366FF;
+            border-bottom: none;
+         }
       }
 
       &__description {
@@ -770,10 +804,6 @@ const handleSubmit = async () => {
 
 .simple-input__field--address {
    width: 100%;
-
-   &:focus {
-      border-radius: none;
-   }
 
 }
 

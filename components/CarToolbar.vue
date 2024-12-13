@@ -1,10 +1,10 @@
 <template>
    <div class="car-ad">
       <div class="car-ad__header">
-         <div class="button">
+         <div class="button button--main">
             <span class="button__text">{{ statusText }}</span>
          </div>
-         <span class="car-ad__text">Срок 30 дней истек</span>
+         <span v-if="isArchived" class="car-ad__text">Срок 30 дней истек</span>
          <div class="button__block">
             <div class="button" v-for="(icon, idx) in statsIcons" :key="idx">
                <img :src="icon.src" :alt="icon.alt" class="button__icon" />
@@ -39,7 +39,7 @@
             <span class="popup__text">Опубликовать снова</span>
          </li>
 
-         <li class="popup__item" v-if="isArchived" @click="deleteFromArchive(props.id)">
+         <li class="popup__item" v-if="isArchived" @click="deleteAdFromArchive(props.id)">
             <img :src="deleteIcon" alt="Удалить" class="popup__icon" />
             <span class="popup__text">Удалить</span>
          </li>
@@ -52,6 +52,8 @@ import { ref, computed } from 'vue';
 import { useSelectedAdsStore } from '../store/selectedAds.js';
 import { useCreateStore } from '~/store/create.js';
 import { useRouter } from 'vue-router';
+import { deleteFromArchive } from '../services/apiClient.js';
+import { usePopupStore } from '../store/popup.js';
 
 import deleteIcon from '../assets/icons/delete.svg';
 import editIcon from "../assets/icons/edit.svg";
@@ -91,22 +93,12 @@ const statusText = computed(() => {
 const router = useRouter();
 const createStore = useCreateStore();
 const store = useSelectedAdsStore();
+const popupStore = usePopupStore();
 
 const editAd = async () => {
    try {
       await createStore.setStoreFromApi(props.id);
-      const conditionId = createStore.condition_id;
-      const subValue = conditionId === 1 ? 'Новые' : 'C пробегом';
-
-      if (subValue) {
-         router.push({
-            path: '/createAd',
-            query: {
-               main: 'auto',
-               sub: subValue
-            }
-         });
-      }
+      router.push('/createAd');
    } catch (error) {
       console.error('Ошибка при загрузке черновика: ', error);
    }
@@ -117,12 +109,9 @@ const moveToArchive = () => {
       store.deleteAds([props.id]);
       isArchived.value = true;
       isPublished.value = false;
+      popupStore.setAdSended(4); // Перемещено в архив
    }
    console.log('Перемещено в архив');
-};
-
-const deleteAd = async () => {
-   console.log('Удалить');
 };
 
 const togglePublication = async () => {
@@ -131,6 +120,7 @@ const togglePublication = async () => {
       store.takeOffPublication([props.id]);
       isPublished.value = false;
       isArchived.value = false;
+      popupStore.setAdSended(5); // Снято с публикации
    }
 };
 
@@ -140,16 +130,18 @@ const rePublishAdFromArchive = (id) => {
       store.republish([id]);
       isPublished.value = true;
       isArchived.value = false;
+      popupStore.setAdSended(3); // Снова опубликовано
    }
 };
 
-const deleteFromArchive = (id) => {
+const deleteAdFromArchive = (id) => {
    console.log('Удалить из архива');
-   if (store) {
-      store.deleteAds([id]);
-   }
+   deleteFromArchive(id);
+   popupStore.setAdSended(6); // Удалено из архива
+   router.push('/');
 };
 </script>
+
 
 <style lang="scss" scoped>
 .car-ad {
@@ -161,19 +153,22 @@ const deleteFromArchive = (id) => {
    margin: 0 auto;
    display: flex;
    flex-direction: column;
-   gap: 20px;
+   gap: 16px;
    margin-bottom: 24px;
 
    @media (max-width: 768px) {
       gap: 16px;
+      padding: 24px 16px;
    }
 
    &__header {
       display: flex;
       align-items: center;
-      gap: 24px;
+      gap: 16px;
       row-gap: 16px;
       flex-wrap: wrap;
+
+      @media (max-width: 768px) {}
    }
 
    &__text {
@@ -186,15 +181,20 @@ const deleteFromArchive = (id) => {
       align-items: center;
       gap: 8px;
       height: 24px;
-      padding: 3px 10px;
+      padding: 0 12px;
       background: #EEF9FF;
       border-radius: 12px;
       transition: background-color 0.3s;
       width: fit-content;
 
+      &--main {
+         padding: 0 16px;
+      }
+
       &__text {
          font-weight: 400;
          font-size: 14px;
+         line-height: 18px;
          color: #3366ff;
          text-wrap: nowrap;
          line-height: 1;
@@ -225,12 +225,16 @@ const deleteFromArchive = (id) => {
       padding: 0;
       flex-wrap: wrap;
 
+      @media (max-width: 768px) {
+         gap: 8px;
+      }
+
       .popup__item {
          display: flex;
          background-color: white;
          align-items: center;
          gap: 8px;
-         padding: 8px;
+         padding: 8px 12px;
          border-radius: 6px;
          cursor: pointer;
          font-size: 14px;
@@ -248,6 +252,7 @@ const deleteFromArchive = (id) => {
 
          .popup__icon {
             height: 16px;
+            width: 16px;
 
             @media (max-width: 768px) {
                height: 14px;
@@ -255,6 +260,8 @@ const deleteFromArchive = (id) => {
          }
 
          .popup__text {
+            color: #323232;
+
             @media (max-width: 768px) {
                display: none;
             }

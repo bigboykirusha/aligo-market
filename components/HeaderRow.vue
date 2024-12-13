@@ -2,7 +2,7 @@
    <div class="header-row"
       :class="{ 'header-row--expanded': showDropdown || !isWithMargin, 'header-row--with-margin': isWithMargin }">
       <div class="header-row__container">
-         <nuxt-link to="/" class="header-row__logo-section" @click="() => showDropdown = false">
+         <nuxt-link to="/" class="header-row__logo-section">
             <img :src="logoMain" alt="Logo" class="header-row__logo" />
          </nuxt-link>
          <div class="header-row__controls">
@@ -112,7 +112,7 @@ const toggleCategories = () => {
 };
 
 const toggleLoginModal = () => {
-   loginModalStore.toggleLoginModal(); 
+   loginModalStore.toggleLoginModal();
 };
 
 const clearSearch = () => {

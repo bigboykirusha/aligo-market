@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { addFavorites, getFavorites } from '../services/apiClient';
-import { useUserStore } from '../store/user'; // Импортируем store для проверки авторизации
+import { useUserStore } from '../store/user';
 
 export const useFavoritesStore = defineStore('favorites', {
    state: () => ({

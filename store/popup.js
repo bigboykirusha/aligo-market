@@ -15,7 +15,7 @@ export const usePopupStore = defineStore('popup', {
       setAdSended(status) {
          this.isAdSended = status;
 
-         if (status === 1 || status === 2) {
+         if (status === 1 || status === 2 || status === 3 || status === 4 || status === 5) {
             this.showPopup();
             setTimeout(() => {
                this.hidePopup();

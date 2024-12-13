@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { getUserDetails, logoutUser, getUserCount, getMyAdsCount, updateUserInfo } from '../services/apiClient';
 import { getCookie, setCookie } from '../services/auth';
+import { useFavoritesStore } from './favorites';
 import { useRouter } from '#vue-router';
 
 const router = useRouter();
@@ -78,6 +79,7 @@ export const useUserStore = defineStore('user', {
       async fetchAndSetUserdata() {
          try {
             const { success, data } = await getUserDetails();
+            const favoritesStore = useFavoritesStore();
 
             const formattedPhone = data.phone ? formatPhoneNumber(data.phone) : null;
             const formattedUniqueCode = data.unique_code ? formatUniqueCode(data.unique_code) : null;
@@ -99,9 +101,11 @@ export const useUserStore = defineStore('user', {
                   createdAt: data.created_at,
                   grade: data.grade,
                });
-               await this.fetchUserCounts();
 
                this.isLoggedIn = true;
+
+               await this.fetchUserCounts();
+               await favoritesStore.fetchFavorites();
 
                // Обновляем данные в куках
                const userData = JSON.parse(getCookie('userData') || '{}');

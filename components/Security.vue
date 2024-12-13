@@ -7,7 +7,7 @@
          <div class="auth-devices__sub-title">Это устройство</div>
          <ul class="auth-devices__list">
             <div class="auth-devices__block">
-               <li :key="currentDevice.id" class="auth-devices__item">
+               <li :key="currentDevice.id" class="auth-devices__item auth-devices__item--current">
                   <img :src="getDeviceIcon(currentDevice)" alt="Device Icon" class="auth-devices__icon" />
                   <div class="auth-devices__info">
                      <p class="auth-devices__status">
@@ -134,7 +134,6 @@ const getDeviceIcon = (device) => {
 onMounted(fetchDevices);
 </script>
 
-
 <style scoped lang="scss">
 .auth-devices {
    max-width: 600px;
@@ -183,6 +182,10 @@ onMounted(fetchDevices);
       padding: 16px;
       border-radius: 6px;
       width: 100%;
+
+      &--current {
+         border-radius: 6px 6px 0 0;
+      }
    }
 
    &__info {
@@ -250,7 +253,7 @@ onMounted(fetchDevices);
       background-color: #EEF9FF;
       color: #3366FF;
       border: none;
-      border-radius: 5px;
+      border-radius: 0 0 6px 6px;
       cursor: pointer;
       font-size: 14px;
    }

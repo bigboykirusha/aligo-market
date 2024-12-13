@@ -72,7 +72,7 @@ import { useUserStore } from '@/store/user';
 import { useDropdownStore } from '@/store/dropdown';
 import { useLoginModalStore } from '~/store/loginModal.js';
 
-const loginModalStore = useLoginModalStore(); 
+const loginModalStore = useLoginModalStore();
 
 const dropdownStore = useDropdownStore();
 const showDropdown = computed(() => dropdownStore.showDropdown);
@@ -113,6 +113,11 @@ const toggleMenu = () => {
       toggleLoginModal();
    } else {
       showMenu.value = !showMenu.value;
+      if (showMenu.value) {
+         document.body.classList.add('no-scroll'); 
+      } else {
+         document.body.classList.remove('no-scroll');  
+      }
       closeCategories();
    }
 };
@@ -152,6 +157,7 @@ const handleMenuClick = (item) => {
    justify-content: center;
    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
    transition: transform 0.2s ease-in-out;
+   padding-bottom: env(safe-area-inset-bottom);
 
    &--hidden {
       transform: translateY(100%);
@@ -210,8 +216,8 @@ const handleMenuClick = (item) => {
 
    &__icon {
       margin-bottom: 4px;
-      height: 22px;
-      width: 22px;
+      height: 20px;
+      width: 20px;
    }
 
    &__badge {

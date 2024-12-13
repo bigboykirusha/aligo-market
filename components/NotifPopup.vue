@@ -8,7 +8,20 @@
          <p v-if="popupStore.isAdSended === 1" class="popup__text">
             Объявление отправлено на модерацию. Мы проверим его в ближайшее время.
          </p>
-
+         <p v-if="popupStore.isAdSended === 3" class="popup__text">
+            Объявление было снова опубликовано и теперь доступно для просмотра пользователями.
+         </p>
+         <p v-if="popupStore.isAdSended === 4" class="popup__text">
+            Объявление было перемещено в архив и недоступно для пользователей. Вы можете восстановить его в
+            любое время.
+         </p>
+         <p v-if="popupStore.isAdSended === 5" class="popup__text">
+            Объявление снято с публикации и недоступно для пользователей. Вы можете повторно опубликовать его в
+            любой момент.
+         </p>
+         <p v-if="popupStore.isAdSended === 6" class="popup__text">
+            Объявление было удалено из архива и окончательно удалено из системы.
+         </p>
          <img @click="hidePopup" class="popup__close-btn" src="../assets/icons/close-white.svg" alt="Close">
       </div>
    </div>
@@ -27,7 +40,7 @@ const hidePopup = () => {
 };
 
 onMounted(() => {
-   if (popupStore.isAdSended === 1 || popupStore.isAdSended === 2) {
+   if ([1, 2, 3, 4, 5, 6].includes(popupStore.isAdSended)) {
       setTimeout(hidePopup, 5000);
    }
 });
