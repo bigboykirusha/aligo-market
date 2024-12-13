@@ -85,7 +85,7 @@ const modalOpen = ref(false);
 const userMenuRef = ref(null);
 
 const userName = computed(() => userStore.username || userStore.login);
-const avatarUrl = ref(getImageUrl(userStore.photo?.path, avatarRevers));
+const avatarUrl = computed(() => getImageUrl(userStore.photo?.path, avatarRevers));
 const phoneNumber = computed(() => userStore.phoneNumber);
 const rating = computed(() => userStore.grade);
 
