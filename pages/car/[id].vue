@@ -106,10 +106,10 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .container {
-   margin-top: 152px;
+   margin-top: 134px;
 
-   @media screen and (max-width: 768px) {
-      margin-top: 110px;
+   @media (max-width: 768px) {
+      margin-top: 82px;
    }
 }
 

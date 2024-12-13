@@ -100,28 +100,34 @@ const formatDate = (date) => {
 
 // Определяем категорию устройства (ПК, iPhone, Android)
 const getDeviceCategory = (device) => {
-   if (device.platform.includes('Windows') || device.platform.includes('Mac')) {
-      return 'ПК';
+   if (device.platform.includes('Mac')) {
+      return 'MacBook'; // Если это Mac
+   }
+   if (device.platform.includes('Windows') || device.platform.includes('Linux')) {
+      return 'ПК'; // Если это ПК
    }
    if (device.platform.includes('iOS')) {
-      return 'iPhone';
+      return 'iPhone'; // Если это iPhone
    }
    if (device.platform.includes('Android')) {
-      return 'Android';
+      return 'Android'; // Если это Android
    }
-   return 'Неизвестно';
+   return 'Неизвестно'; // Если категория не определена
 };
 
-// Определяем иконку устройства
+// Получаем иконку устройства в зависимости от категории
 const getDeviceIcon = (device) => {
    const category = getDeviceCategory(device);
-   if (category === 'ПК') {
+   if (category === 'ПК' || category === 'Linux') {
+      return pcIcon;
+   }
+   if (category === 'MacBook') {
       return pcIcon;
    }
    if (category === 'iPhone' || category === 'Android') {
       return phoneIcon;
    }
-   return ''; // Если категория неизвестна, не показывать иконку
+   return 'pcIcon'; // Если категория неизвестна, иконка не показывается
 };
 
 // Загрузка данных при монтировании компонента
