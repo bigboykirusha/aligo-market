@@ -110,7 +110,7 @@ const getDeviceCategory = (device) => {
       return 'iPhone'; // Если это iPhone
    }
    if (device.platform.includes('Android')) {
-      return 'Android'; // Если это Android
+      return 'Смартфон'; // Если это Android
    }
    return 'Неизвестно'; // Если категория не определена
 };
@@ -124,7 +124,7 @@ const getDeviceIcon = (device) => {
    if (category === 'MacBook') {
       return pcIcon;
    }
-   if (category === 'iPhone' || category === 'Android') {
+   if (category === 'iPhone' || category === 'Смартфон') {
       return phoneIcon;
    }
    return 'pcIcon'; // Если категория неизвестна, иконка не показывается
