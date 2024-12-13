@@ -99,6 +99,7 @@ export const useUserStore = defineStore('user', {
                   createdAt: data.created_at,
                   grade: data.grade,
                });
+               await this.fetchUserCounts();
 
                this.isLoggedIn = true;
 
