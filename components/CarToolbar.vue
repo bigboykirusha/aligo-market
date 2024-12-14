@@ -159,6 +159,8 @@ const deleteAdFromArchive = (id) => {
    @media (max-width: 768px) {
       gap: 16px;
       padding: 24px 16px;
+      margin-bottom: 16px;
+      border-radius: 0;
    }
 
    &__header {

@@ -5,15 +5,6 @@
             <span class="notification-card__type">{{ notification.data.notify }}</span>
          </div>
 
-         <!-- Уведомление о новом сообщении -->
-         <p v-if="notification.data.new_message">
-            <strong>От:</strong> {{ notification.data.from_user.username ? notification.data.from_user.username :
-               notification.data.from_user.phone }}
-         </p>
-         <p v-if="notification.data.new_message">
-            <strong>Сообщение:</strong> {{ notification.data.new_message.message }}
-         </p>
-
          <!-- Категория объявления -->
          <p v-if="notification.data.ads">
             <strong>Категория:</strong> {{ getCategoryName(notification.data.ads.main_category_id) }}
@@ -36,8 +27,9 @@
             </span>
          </p>
 
-         <p v-if="notification.data.new_message">
-            Вы можете <a href="#" class="link">перейти в чат</a>.
+         <!-- Отзыв -->
+         <p v-if="notification.data.review">
+            Спасибо за ваш отзыв! Мы ценим ваше мнение и обязательно примем его во внимание.
          </p>
       </div>
       <div class="notification-card__footer">
@@ -68,6 +60,9 @@ const props = defineProps({
 
 const emit = defineEmits(['mark-as-read', 'delete-notification']);
 
+/**
+ * Получение названия категории по идентификатору
+ */
 const getCategoryName = (categoryId) => {
    const categories = {
       1: 'Автомобили',
@@ -75,19 +70,31 @@ const getCategoryName = (categoryId) => {
    return categories[categoryId] || 'Неизвестная категория';
 };
 
+/**
+ * Формирование URL для объявления
+ */
 const getAdUrl = (adId) => {
    return `/car/${adId}`;
 };
 
+/**
+ * Форматирование даты для отображения
+ */
 const formatDate = (dateString) => {
    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
    return new Date(dateString).toLocaleDateString('ru-RU', options);
 };
 
+/**
+ * Обработка клика для пометки уведомления как прочитанного
+ */
 const markAsRead = () => {
    emit('mark-as-read', props.notification.id);
 };
 
+/**
+ * Обработка клика для удаления уведомления
+ */
 const deleteNotification = () => {
    emit('delete-notification', props.notification.id);
 };

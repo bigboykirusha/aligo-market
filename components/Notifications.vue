@@ -4,21 +4,33 @@
          Оповещения
       </div>
       <div class="notifications__actions">
-         <button @click="handleMarkAllAsRead" class="notifications__action-button"><img src="../assets/icons/done.svg"
-               alt="done"><span> Пометить все как прочитанные</span></button>
-         <button @click="handleDeleteAll" class="notifications__action-button"><img src="../assets/icons/delete.svg"
-               alt="delete"><span>Удалить все</span></button>
+         <button @click="handleMarkAllAsRead" class="notifications__action-button">
+            <img src="../assets/icons/done.svg" alt="done" />
+            <span> Пометить все как прочитанные</span>
+         </button>
+         <button @click="handleDeleteAll" class="notifications__action-button">
+            <img src="../assets/icons/delete.svg" alt="delete" />
+            <span>Удалить все</span>
+         </button>
       </div>
       <div class="notifications__content">
          <ul v-if="!loading && notifications.length">
-            <SpecialNotificationCard v-for="(notification, index) in notifications_specials" :key="index"
-               :title="notification.title" :message="notification.message" :bgImage="notification.bgImage" :bgColor="notification.bgColor"
-               :buttonText="notification.buttonText" @button-click="handleButtonClick(index)" />
+            <!-- Специальные уведомления -->
+            <SpecialNotificationCard v-for="(notification, index) in notifications_specials" :key="`special-${index}`"
+               :title="notification.title" :message="notification.message" :bgImage="notification.bgImage"
+               :bgColor="notification.bgColor" :buttonText="notification.buttonText"
+               @button-click="handleSpecialButtonClick(index)" />
+
+            <!-- Обычные уведомления -->
             <NotificationCard v-for="(notification, index) in notifications" :key="notification.id"
-               :notification="notification" :is-even="index % 2 === 0" @mark-as-read="handleMarkAsRead"
-               @delete-notification="handleDeleteNotification" />
+               :notification="notification" :isEven="index % 2 === 0" @mark-as-read="handleMarkAsRead(notification.id)"
+               @delete-notification="handleDeleteNotification(notification.id)" />
          </ul>
-         <NotificationCardSkeleton v-if="loading" v-for="index in 3" :key="index" />
+
+         <!-- Скелетон загрузки -->
+         <NotificationCardSkeleton v-if="loading" v-for="index in 3" :key="`skeleton-${index}`" />
+
+         <!-- Плейсхолдер для пустого списка -->
          <div v-show="!loading && !notifications.length" class="notifications__placeholder">
             <svg height="64" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                <path
@@ -36,14 +48,20 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { getNotifications, markNotificationAsRead, deleteNotificationById, deleteAllNotifications, markAllNotificationsAsRead } from '~/services/apiClient.js';
+import {
+   getNotifications,
+   markNotificationAsRead,
+   deleteNotificationById,
+   deleteAllNotifications,
+   markAllNotificationsAsRead,
+} from '~/services/apiClient.js';
 import NotificationCard from './NotificationCard.vue';
 import NotificationCardSkeleton from './NotificationCardSkeleton.vue';
-import bg1 from "../assets/icons/illustration.svg";
-import bg2 from "../assets/icons/illustration-1.svg";
-import bg3 from "../assets/icons/illustration-2.svg";
-import bg4 from "../assets/icons/illustration-3.svg";
-import bg5 from "../assets/icons/illustration-4.svg";
+import bg1 from '../assets/icons/illustration.svg';
+import bg2 from '../assets/icons/illustration-1.svg';
+import bg3 from '../assets/icons/illustration-2.svg';
+import bg4 from '../assets/icons/illustration-3.svg';
+import bg5 from '../assets/icons/illustration-4.svg';
 
 const notifications = ref([]);
 const loading = ref(true);
@@ -51,43 +69,48 @@ const loading = ref(true);
 const notifications_specials = [
    {
       title: 'Поздравляем! Вы зарегистрировались в Аligo!',
-      message: 'Здесь вы сможете безопасно разместить объявления или найти что-то для себя. Сохраняйте понравившиеся объявления в избранное, переписывайтесь с другими пользователями и оставайтесь с нами.',
+      message:
+         'Здесь вы сможете безопасно разместить объявления или найти что-то для себя. Сохраняйте понравившиеся объявления в избранное, переписывайтесь с другими пользователями и оставайтесь с нами.',
       bgColor: '#D6EFFF',
       bgImage: bg1,
       buttonText: 'Разместить объявление',
    },
    {
       title: 'Заполните свой аккаунт',
-      message: 'Объявление от пользователей с полными данными вызывают больше доверия и шанс заключить сделку выше. Также, вам будет удобней размещать объявления, ведь мы заполним некоторые поля имеющимися данными.',
+      message:
+         'Объявление от пользователей с полными данными вызывают больше доверия и шанс заключить сделку выше. Также, вам будет удобней размещать объявления, ведь мы заполним некоторые поля имеющимися данными.',
       bgColor: '#B3FFD3',
       bgImage: bg2,
       buttonText: 'Настроить аккаунт',
    },
    {
       title: 'Сделайте свой аккаунт безопасней',
-      message: 'Добавьте адрес электронной почты и сможете восстановить доступ через электронную почту в случае потери доступа к телефону. Так же вы сможете получать уведомления о ваших объявлениях и подписках.',
+      message:
+         'Добавьте адрес электронной почты и сможете восстановить доступ через электронную почту в случае потери доступа к телефону. Так же вы сможете получать уведомления о ваших объявлениях и подписках.',
       bgColor: '#D7C8FF',
       bgImage: bg3,
       buttonText: 'Добавить почту',
    },
    {
       title: 'Добавьте номер телефона',
-      message: 'Объявление с номером телефона и возможностью прозвонить популярней других.   Вход в профиль через  проверочный СМС - код является наиболее безопасным и поможет в случае утери доступа к электронной почте.',
+      message:
+         'Объявление с номером телефона и возможностью прозвонить популярней других. Вход в профиль через проверочный СМС-код является наиболее безопасным и поможет в случае утери доступа к электронной почте.',
       bgColor: '#FFE9B0',
       bgImage: bg4,
       buttonText: 'Добавить номер',
    },
    {
       title: 'Спросите у нашего бота',
-      message: 'Получайте всю необходимую информацию по объявлениям прямо в Telegram. Новости по подпискам, новые объявления, которые могут вас заинтересовать и помощь в использовании сервиса, если это потребуется.',
+      message:
+         'Получайте всю необходимую информацию по объявлениям прямо в Telegram. Новости по подпискам, новые объявления, которые могут вас заинтересовать и помощь в использовании сервиса, если это потребуется.',
       bgColor: '#75CAFF',
       bgImage: bg5,
       buttonText: 'Перейти в Telegram',
    },
 ];
 
-const handleButtonClick = (index) => () => {
-   console.log(`Кнопка была нажата для уведомления ${index + 1}`);
+const handleSpecialButtonClick = (index) => {
+   console.log(`Кнопка специального уведомления №${index + 1} была нажата.`);
 };
 
 const fetchNotifications = async () => {
@@ -103,7 +126,7 @@ const fetchNotifications = async () => {
 const handleMarkAsRead = async (id) => {
    try {
       await markNotificationAsRead(id);
-      const notification = notifications.value.find(notif => notif.id === id);
+      const notification = notifications.value.find((notif) => notif.id === id);
       if (notification) {
          notification.read_at = new Date().toISOString();
       }
@@ -115,7 +138,7 @@ const handleMarkAsRead = async (id) => {
 const handleDeleteNotification = async (id) => {
    try {
       await deleteNotificationById(id);
-      notifications.value = notifications.value.filter(notif => notif.id !== id);
+      notifications.value = notifications.value.filter((notif) => notif.id !== id);
    } catch (error) {
       console.error('Ошибка при удалении уведомления:', error);
    }
@@ -124,7 +147,7 @@ const handleDeleteNotification = async (id) => {
 const handleMarkAllAsRead = async () => {
    try {
       await markAllNotificationsAsRead();
-      notifications.value.forEach(notif => {
+      notifications.value.forEach((notif) => {
          notif.read_at = new Date().toISOString();
       });
    } catch (error) {

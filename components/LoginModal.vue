@@ -1,6 +1,6 @@
 <template>
    <!-- Основной контейнер модального окна -->
-   <div v-if="isLoginModalOpen" id="main-login-modal" class="modal" @click.self="closeModal"
+   <div v-show="isLoginModalOpen" id="main-login-modal" class="modal" @click.self="closeModal"
       @keydown="handleTabKeydown">
       <!-- Анимация для модального контента -->
       <transition name="modal-fade">
@@ -58,8 +58,9 @@
                      <!-- Чекбокс "Вход через Telegram" -->
                      <p v-if="contactInfoError && !showCodeInput" class="error-message">{{ contactInfoError }}</p>
                      <label v-show="isPhoneTab" class="input-wrapper__telegram-checkbox">
-                        <input tabindex="0" type="checkbox" v-model="loginWithTelegram" />
-                        <span>Вход через <span class="checkbox-wrapper--blue">Telegram</span></span>
+                        <input type="checkbox" v-model="loginWithTelegram" />
+                        <span>Отправить код в <img src="../assets/icons/tgshka.svg" alt=""><span
+                              class="checkbox-wrapper--tg">Telegram</span></span>
                      </label>
                   </div>
 
@@ -68,10 +69,11 @@
                      <p class="input-wrapper__title">Введите код</p>
                      <p class="input-wrapper__description">
                         Мы отправили код на {{ isPhoneTab ? formattedPhoneNumber : email }}<br />
-                     </p>
                      <div @click.prevent="switchTab(activeTab); startTimer" class="input-wrapper__description--link">
                         Изменить {{ isPhoneTab ? 'номер' : 'почту' }}
                      </div>
+                     </p>
+
                      <!-- Компонент ввода кода (VueOtpInput) -->
                      <VueOtpInput input-classes="otp-input" inputType="numeric" :num-inputs="6" v-model:value="code"
                         :should-auto-focus="true" @on-complete="submitForm" />
@@ -82,6 +84,16 @@
                      <button v-else @click.prevent="requestCode" class="modal__button modal__button--revers"
                         tabindex="0">
                         Получить новый код
+                     </button>
+                     <button v-if="activeTab === 0 && showCodeInput"
+                        class="modal__button modal__button--revers modal__button--change"
+                        @click.prevent="loginWithEmail">
+                        Войти через почту
+                     </button>
+                     <!-- Кнопка "Войти по SMS" -->
+                     <button v-if="activeTab === 1 && showCodeInput"
+                        class="modal__button modal__button--revers modal__button--change" @click.prevent="loginWithSMS">
+                        Войти по SMS
                      </button>
                   </div>
                </div>
@@ -148,6 +160,75 @@ const isLoading = ref(false);
 // Таймер и ошибки
 let timer = null;
 const timeLeft = ref(0);
+
+onMounted(() => {
+   checkAndRestoreTimer();
+});
+
+// Запуск таймера
+const startTimer = () => {
+   const firstTimeKey = 'firstTimeTimestamp';
+   const firstTimeDuration = 24 * 60 * 60 * 1000; // 24 часа в миллисекундах
+
+   // Проверяем, если прошло меньше 24 часов с первого запуска
+   const firstTime = localStorage.getItem(firstTimeKey);
+   const isFirstTime = !firstTime || Date.now() - firstTime > firstTimeDuration;
+
+   // Если первый запуск, сохраняем метку времени
+   if (isFirstTime) {
+      localStorage.setItem(firstTimeKey, Date.now());
+   }
+
+   clearInterval(timer);
+
+   // Устанавливаем время (1 минута при первом запуске, 3 минуты при повторных)
+   const duration = isFirstTime ? 60 : 180; // 1 минута или 3 минуты
+   const endTime = Date.now() + duration * 1000;
+
+   // Сохранение времени окончания в localStorage
+   localStorage.setItem('timerEndTime', endTime);
+
+   // Обновление оставшегося времени
+   updateRemainingTime(endTime);
+
+   timer = setInterval(() => {
+      updateRemainingTime(endTime);
+   }, 1000);
+};
+
+// Восстановление таймера при открытии модального окна или перезагрузке страницы
+const checkAndRestoreTimer = () => {
+   const endTime = parseInt(localStorage.getItem('timerEndTime'), 10);
+
+   if (endTime && endTime > Date.now()) {
+      updateRemainingTime(endTime);
+
+      timer = setInterval(() => {
+         updateRemainingTime(endTime);
+      }, 1000);
+   }
+};
+
+// Обновление оставшегося времени
+const updateRemainingTime = (endTime) => {
+   const remainingTime = Math.max(Math.floor((endTime - Date.now()) / 1000), 0);
+
+   timeLeft.value = remainingTime;
+
+   if (remainingTime === 0) {
+      clearInterval(timer);
+      localStorage.removeItem('timerEndTime');
+   }
+};
+
+// Очистка таймера при закрытии модального окна
+const clearTimer = () => {
+   clearInterval(timer);
+   timeLeft.value = 0;
+   localStorage.removeItem('timerEndTime');
+   localStorage.removeItem('firstTimeTimestamp');
+};
+
 const contactInfoError = ref('');
 const generalError = ref('');
 
@@ -163,11 +244,13 @@ const isBothSaved = computed(() => isPhoneSaved.value && isEmailSaved.value);
 const formattedPhoneNumber = computed(() =>
    phoneNumber.value.replace(/(\d{3})(\d{3})(\d{2})(\d{2})/, '7 ($1) $2 - $3 - $4')
 );
+
 const formattedTime = computed(() => {
    const minutes = Math.floor(timeLeft.value / 60);
    const seconds = timeLeft.value % 60;
    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 });
+
 const isContactInfoInvalid = computed(() => {
    const isInvalid = isPhoneTab.value
       ? !validatePhoneNumber(phoneNumber.value)
@@ -185,6 +268,7 @@ const isPhoneSaved = computed(() => {
    if (savedData.phoneNumber) phoneNumber.value = savedData.phoneNumber;
    return !!savedData.phoneNumber;
 });
+
 const isEmailSaved = computed(() => {
    const savedData = JSON.parse(getCookie('userData') || '{}');
    if (savedData.email) email.value = savedData.email;
@@ -257,7 +341,7 @@ const handleTabKeydown = (event) => {
             lastElement.focus();
             event.preventDefault();
          }
-      } else { 
+      } else {
          if (document.activeElement === lastElement) {
             firstElement.focus();
             event.preventDefault();
@@ -273,15 +357,6 @@ const switchTab = (index) => {
    setFocusOnInput();
 };
 
-// Таймер
-const startTimer = () => {
-   clearInterval(timer);
-   timeLeft.value = 180;
-   timer = setInterval(() => {
-      timeLeft.value > 0 ? timeLeft.value-- : clearInterval(timer);
-   }, 1000);
-};
-
 // Очистка формы
 const clearFormFields = () => {
    code.value = '';
@@ -294,7 +369,6 @@ const closeModal = () => {
    clearFormFields();
    loginModalStore.closeLoginModal();
    showCodeInput.value = false;
-   clearInterval(timer);
 };
 
 // Проверка и обработка входа
@@ -336,6 +410,50 @@ const submitForm = async () => {
    } finally {
       isLoading.value = false;
    }
+};
+
+const requestCode = async () => {
+   isLoading.value = true;
+
+   try {
+      const cleanedPhone = removePhoneFormatting(phoneNumber.value);
+      const requestData = isPhoneTab.value
+         ? { phone: cleanedPhone }
+         : { email: email.value };
+
+      if (loginWithTelegram.value) {
+         requestData.is_send_code_telegram = 1;
+      }
+
+      const response = await loginUserByPhone(requestData);
+      if (response.success) {
+         showCodeInput.value = true;
+         startTimer();
+         alert(`Код: ${response.code}`);
+      } else {
+         contactInfoError.value = response.message || 'Ошибка при отправке кода.';
+      }
+
+   } catch (error) {
+      contactInfoError.value = error.message;
+      console.error('Ошибка при отправке запроса:', contactInfoError);
+   } finally {
+      isLoading.value = false;
+   }
+}
+
+const loginWithEmail = () => {
+   activeTab.value = 1;
+   showCodeInput.value = false;
+   setFocusOnInput();
+   console.log('Login with Email');
+};
+
+const loginWithSMS = () => {
+   activeTab.value = 2;
+   showCodeInput.value = false;
+   setFocusOnInput();
+   console.log('Login with SMS');
 };
 
 // Успешный вход
@@ -525,14 +643,13 @@ const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
                font-size: 14px;
                line-height: 18px;
                color: #323232;
-               margin-bottom: 32px;
+               margin-bottom: 24px;
                margin-top: 0;
 
                &--link {
                   color: #3366ff;
                   cursor: pointer;
                   margin-top: 8px;
-                  margin-bottom: 8px;
                   font-size: 14px;
                   line-height: 18px;
                }
@@ -561,9 +678,16 @@ const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
                }
 
                span {
+                  display: flex;
+                  align-items: center;
                   font-size: 14px;
                   line-height: 18px;
                   color: #323232;
+
+                  img {
+                     margin-left: 8px;
+                     margin-right: 4px;
+                  }
                }
             }
 
@@ -636,6 +760,11 @@ const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
       height: auto;
    }
 
+   &--change {
+      padding-top: 24px;
+      border-top: 1px solid #EEEEEE;
+   }
+
    &.--disabled {
       background-color: #EEEEEE;
       color: #A8A8A8;
@@ -668,11 +797,15 @@ const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
       font-size: 14px;
       line-height: 18px;
       color: #323232;
-
-      .checkbox-wrapper--blue {
-         color: #3366FF;
-      }
    }
+
+   &--blue {
+      color: #3366FF;
+   }
+}
+
+.checkbox-wrapper--tg {
+   color: #31A8DF !important;
 }
 
 .loading-overlay {

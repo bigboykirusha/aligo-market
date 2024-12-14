@@ -14,7 +14,6 @@
                :place="car.ads_parameter.place_inspection || 'Не указано'" :id="car.id"
                :is_in_favorites="car.is_in_favorites" :latitude="car.ads_parameter.latitude"
                :longitude="car.ads_parameter.longitude" :photos="car.photos" />
-
          </div>
       </div>
       <div class="ads-wrapper">
@@ -109,7 +108,7 @@ onMounted(() => {
    margin-top: 134px;
 
    @media (max-width: 768px) {
-      margin-top: 82px;
+      margin-top: 67px;
    }
 }
 
