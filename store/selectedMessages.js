@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { deleteChats, markChatsAsRead } from '~/services/apiClient';
+import { useUserStore } from './user';
 
 export const useSelectedMessagesStore = defineStore('selectedMessages', {
    state: () => ({
@@ -21,11 +22,12 @@ export const useSelectedMessagesStore = defineStore('selectedMessages', {
          this.selectedMessages = [];
       },
       async deleteSelectedChats() {
+         const userStrore = useUserStore();
          try {
             const ids = this.selectedMessages.map(message => ({
                ads_id: message.ads_id,
                main_category_id: message.main_category_id,
-               user_id: message.user_id
+               user_id: message.user_id === userStrore.userId ? message.user_id_alt : message.user_id
             }));
             await deleteChats(ids);
             this.deselectAll();
@@ -34,11 +36,12 @@ export const useSelectedMessagesStore = defineStore('selectedMessages', {
          }
       },
       async markSelectedChatsAsRead() {
+         const userStrore = useUserStore();
          try {
             const ids = this.selectedMessages.map(message => ({
                ads_id: message.ads_id,
                main_category_id: message.main_category_id,
-               user_id: message.user_id
+               user_id: message.user_id === userStrore.userId ? message.user_id_alt : message.user_id
             }));
             await markChatsAsRead(ids);
          } catch (error) {

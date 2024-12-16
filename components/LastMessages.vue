@@ -90,6 +90,7 @@ const toggleMessage = (message) => {
       ads_id: message.ads_id,
       main_category_id: message.main_category_id,
       user_id: message.for_user.id,
+      user_id_alt: message.from_user.id,
    };
    selectedMessagesStore.toggleMessage(messageData);
 };
