@@ -75,7 +75,8 @@ const closePopup = () => {
 const submitReview = async () => {
    if (rating.value && reviewText.value.trim()) {
       try {
-         await sendReview(props.adsId, props.mainCategoryId, rating.value, reviewText.value, selectedFiles.value);
+         const response = await sendReview(props.adsId, props.mainCategoryId, rating.value, reviewText.value, selectedFiles.value);
+         console.log(response.data);
          closePopup();
       } catch (error) {
          console.error('Ошибка при отправке отзыва:', error);

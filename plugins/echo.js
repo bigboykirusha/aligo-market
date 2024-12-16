@@ -102,16 +102,16 @@ export default defineNuxtPlugin((nuxtApp) => {
          });
 
       // Подписка на канал
-      const notifyChannelName = `new_notify.${forWhomUserId}`;
+      const notifyChannelName = `App.Models.User.${forWhomUserId}`;
       window.Echo.private(notifyChannelName)
-         .listen('.new_notify', (res) => {
-            console.log('Получено уведомление на канале:', notifyChannelName, res);
+         .notification((notification) => {
+            console.log('Получено уведомление на канале:', notifyChannelName, notification);
 
             // Обработка уведомлений
-            if (res.new_notify) {
-               console.log('Новое уведомление:', res.new_notify);
+            if (notification.notify) {
+               console.log('Новое уведомление:', notification.notify);
             } else {
-               console.warn('Нет нового уведомления в ответе:', res);
+               console.warn('Нет нового уведомления в ответе:', notification);
             }
          })
          .error((error) => {

@@ -776,9 +776,9 @@ watch(
       text-wrap: wrap;
       max-width: 100%;
       gap: 16px;
-      border-radius: 4px;
       overflow-y: auto;
-      padding: 2px 0;
+      margin: -8px;
+      padding: 8px;
 
       @media (max-width: 768px) {
          box-shadow: none;
@@ -813,17 +813,17 @@ watch(
 
 .chat-wrapper {
    display: flex;
-   border-radius: 4px 4px 0 0;
+   border-radius: 12px;
    flex-direction: column;
    transition: height 0.3s ease;
+   
 
    @media (max-width: 768px) {
       width: 100%;
    }
 
    &.profile-page {
-      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.08), 0px 0px 6px rgba(0, 0, 0, 0.08);
-      border-radius: 4px;
+      box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
       height: 100%;
       max-height: 508px;
       min-height: 508px;
@@ -980,7 +980,7 @@ watch(
       z-index: 200;
       display: flex;
       bottom: 0;
-      border-radius: 0 0 4px 4px;
+      border-radius: 0 0 12px 12px;
       width: 100%;
       background: #fff;
       box-shadow: 0px -3px 10px rgba(0, 0, 0, 0.05);
@@ -1075,7 +1075,7 @@ watch(
    justify-content: space-between;
    align-items: center;
    padding: 10px 16px;
-   border-radius: 4px 4px 0 0;
+   border-radius: 12px 12px 0 0;
    box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.08);
    gap: 20px;
    color: #3366FF;
@@ -1100,6 +1100,7 @@ watch(
       align-items: center;
       gap: 10px;
       margin-right: auto;
+      width: calc(100% - 90px);
    }
 
    &__avatar {
@@ -1121,6 +1122,7 @@ watch(
       display: flex;
       flex-direction: column;
       gap: 2px;
+      width: 100%;
    }
 
    &__username {

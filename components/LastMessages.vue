@@ -189,19 +189,21 @@ onMounted(() => {
    display: flex;
    flex-direction: column;
    gap: 3px;
-   max-width: calc(100% - 70px);
+   width: 100%;
+   max-width: calc(100% - 140px);
 
    &__container {
       display: flex;
       align-items: center;
       gap: 16px;
+      width: 100%;
    }
 
    &__block {
       display: flex;
       flex-direction: column;
       gap: 3px;
-      max-width: calc(100% - 70px);
+      max-width: 100%;
    }
 }
 
@@ -217,6 +219,7 @@ onMounted(() => {
    font-weight: 700;
    color: #323232;
    font-size: 16px;
+   flex-grow: 1;
 }
 
 .ad-details {
@@ -241,8 +244,10 @@ onMounted(() => {
    color: #323232;
    font-size: 12px;
    align-self: flex-start;
+   text-align: right;
    line-height: 24px;
    margin-left: auto;
+   width: 100%;
 
    @media (max-width: 500px) {
       display: none;
