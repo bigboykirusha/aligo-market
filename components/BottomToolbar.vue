@@ -61,7 +61,6 @@
             </div>
          </li>
       </ul>
-      <UserMenuBurger v-model="showMenu" />
    </nav>
 </template>
 
@@ -71,11 +70,14 @@ import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/store/user';
 import { useDropdownStore } from '@/store/dropdown';
 import { useLoginModalStore } from '~/store/loginModal.js';
+import { useBurgerStore } from '~/store/burger';
 
 const loginModalStore = useLoginModalStore();
+const burgerStore = useBurgerStore();
 
 const dropdownStore = useDropdownStore();
 const showDropdown = computed(() => dropdownStore.showDropdown);
+const showMenu= computed(() => burgerStore.showMenu);
 
 const route = useRoute();
 const router = useRouter();
@@ -101,18 +103,17 @@ const isActive = (path, icon) => {
    }
    return route.path.startsWith(path);
 };
-const showMenu = ref(false);
 
 const toggleDropdown = () => {
    dropdownStore.toggleDropdown();
-   showMenu.value = false;
+   burgerStore.closeBurger();
 };
 
 const toggleMenu = () => {
    if (!loggedIn.value) {
       toggleLoginModal();
    } else {
-      showMenu.value = !showMenu.value;
+      burgerStore.toggleBurger();
       closeCategories();
    }
 };
@@ -123,7 +124,7 @@ const closeCategories = () => {
 
 const closeAllMenus = () => {
    closeCategories();
-   showMenu.value = false;
+   burgerStore.closeBurger();
 };
 
 const toggleLoginModal = () => {

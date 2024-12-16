@@ -256,7 +256,7 @@ onUnmounted(() => {
       transition: max-height 0.3s ease;
 
       @media (max-width: 768px) {
-         padding: 0 16px 16px;
+         padding: 0 16px 40px;
          overflow-y: auto;
          border: none;
          border-bottom: 1px solid #d6d6d6;

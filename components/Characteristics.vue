@@ -14,12 +14,12 @@
             :activeIndex="createStore.color_id" />
       </div>
       <div class="characteristics__content">
-         <BlockTitle text="Регистрационные данные*" />
+         <BlockTitle text="Регистрационные данные" />
          <AutosSelectCreateSkeleton v-if="loading" />
-         <AutosSelectCreate v-else label="Страна регистрации" :initialSelectedOption="createStore.country_id"
+         <AutosSelectCreate v-else label="Страна регистрации*" :initialSelectedOption="createStore.country_id"
             :options="countryOptions" @updateSort="handleCountryUpdate" />
          <TextSkeleton v-if="loading" />
-         <AutosTextTemplate v-else label="VIN или номер кузова" placeholder="Нажмите для ввода"
+         <AutosTextTemplate v-else label="VIN или номер кузова*" placeholder="Нажмите для ввода"
             :option="createStore.vin" @update:option="handleVinUpdate" validationType="vin" />
          <TextSkeleton v-if="loading" />
          <AutosTextTemplate v-else label="Государтсвенный номер" placeholder="Нажмите для ввода"

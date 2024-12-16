@@ -58,6 +58,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { getImageUrl } from '../services/imageUtils';
 import { useUserStore } from '~/store/user';
 import { useCityStore } from '~/store/city';
+import { useBurgerStore } from '~/store/burger';
 import { getUserCount } from '~/services/apiClient.js';
 import defaultLocationIcon from '../assets/icons/location.svg';
 import avatarRevers from '../assets/icons/avatar-revers.svg';
@@ -72,15 +73,9 @@ import busIcon from '../assets/icons/briefcase.svg';
 
 const userStore = useUserStore();
 const cityStore = useCityStore();
+const burgerStore = useBurgerStore();
 
-const props = defineProps({
-   modelValue: Boolean,
-   isRight: { type: Boolean, default: false },
-});
-
-const emit = defineEmits(['update:modelValue']);
-
-const isMenuOpen = ref(props.modelValue);
+const isMenuOpen = computed(() => burgerStore.isOpen);
 const modalOpen = ref(false);
 const userMenuRef = ref(null);
 
@@ -102,8 +97,7 @@ const menuItems = [
 ];
 
 const toggleMenu = () => {
-   isMenuOpen.value = !isMenuOpen.value;
-   emit('update:modelValue', isMenuOpen.value);
+   burgerStore.toggleBurger();
 };
 
 const toggleModal = () => (modalOpen.value = !modalOpen.value);
@@ -137,10 +131,6 @@ onMounted(async () => {
    }
 });
 
-watch(() => props.modelValue, (newValue) => {
-   isMenuOpen.value = newValue;
-});
-
 const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 </script>
 
@@ -154,7 +144,7 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
    background-color: #1a1a1a;
    z-index: 100;
    width: 100%;
-   height: calc(100vh - 70px);
+   height: 100vh;
    display: flex;
    justify-content: center;
    transform: translateX(100%);
