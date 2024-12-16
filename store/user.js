@@ -65,9 +65,8 @@ export const useUserStore = defineStore('user', {
          }
       },
       setCountNewMessages() {
-         this.count_new_messages += 1; 
+         this.count_new_messages += 1;
       },
-      
       setCountUnreadNotify() {
          this.countUnreadNotify += 1;
       },
