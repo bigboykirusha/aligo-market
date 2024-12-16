@@ -247,8 +247,10 @@ const isContactInfoInvalid = computed(() => {
    const isInvalid = isPhoneTab.value
       ? !validatePhoneNumber(phoneNumber.value)
       : !validateEmail(email.value);
+   console.log(phoneNumber.value)
    return isInvalid;
 });
+
 const isContactInfoRegInvalid = computed(
    () => isContactInfoInvalid.value || !checkbox1.value || !checkbox2.value
 );
@@ -365,7 +367,9 @@ const closeModal = () => {
 
 // Проверка и обработка входа
 const submitForm = async () => {
-   if (isCodeInvalid.value || isLoading.value) return;
+   if ( isLoading.value || isContactInfoInvalid.value) {
+      return;
+   }
 
    isLoading.value = true;
 
@@ -405,6 +409,11 @@ const submitForm = async () => {
 };
 
 const requestCode = async () => {
+
+   if (isContactInfoInvalid.value) {
+      return;
+   }
+
    isLoading.value = true;
 
    try {
