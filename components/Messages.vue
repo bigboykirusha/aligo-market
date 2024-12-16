@@ -1003,6 +1003,10 @@ watch(
       padding: 0 10px;
       box-sizing: border-box;
       outline: none;
+
+      &:focus {
+         border: 1px solid #3366FF;
+      }
    }
 
    &__send-button {

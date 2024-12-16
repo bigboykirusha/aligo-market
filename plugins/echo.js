@@ -3,10 +3,12 @@ import Pusher from 'pusher-js';
 import { getCookie } from '~/services/auth';
 import { useUserStore } from '~/store/user';
 import { useChatStore } from '../store/chatStore.js';
+import { usePopupStore } from '~/store/popup.js';
 
 export default defineNuxtPlugin((nuxtApp) => {
    const userStore = useUserStore();
    const chatStore = useChatStore();
+   const popupStore = usePopupStore();
 
    // Функция для инициализации Echo
    const initializeEcho = () => {
@@ -87,6 +89,11 @@ export default defineNuxtPlugin((nuxtApp) => {
          .listen('.store_message', (res) => {
             console.log('Получено сообщение на канале:', storeChannelName, res);
 
+            if (!chatStore.currentChat) {
+               popupStore.setAdSended(1, "Получено новое сообщение, проверьте чаты");
+               userStore.setCountNewMessages();
+               userStore.setCountUnreadNotify();
+            }
             if (res.new_message) {
                chatStore.addMessage({
                   ...res.new_message,
@@ -109,7 +116,8 @@ export default defineNuxtPlugin((nuxtApp) => {
 
             // Обработка уведомлений
             if (notification.notify) {
-               console.log('Новое уведомление:', notification.notify);
+               userStore.setCountUnreadNotify();
+               popupStore.setAdSended(1, notification.notify);
             } else {
                console.warn('Нет нового уведомления в ответе:', notification);
             }

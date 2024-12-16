@@ -64,6 +64,13 @@ export const useUserStore = defineStore('user', {
             console.error('Ошибка при обновлении имени пользователя: ', error);
          }
       },
+      setCountNewMessages() {
+         this.count_new_messages += 1; 
+      },
+      
+      setCountUnreadNotify() {
+         this.countUnreadNotify += 1;
+      },
       setCounts(countData) {
          if (countData.success) {
             this.countAds = countData.count_ads ?? this.countAds;

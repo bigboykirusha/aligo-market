@@ -93,7 +93,6 @@ const statusText = computed(() => {
 const router = useRouter();
 const createStore = useCreateStore();
 const store = useSelectedAdsStore();
-const popupStore = usePopupStore();
 
 const editAd = async () => {
    try {
@@ -109,7 +108,6 @@ const moveToArchive = () => {
       store.deleteAds([props.id]);
       isArchived.value = true;
       isPublished.value = false;
-      popupStore.setAdSended(4); // Перемещено в архив
    }
    console.log('Перемещено в архив');
 };
@@ -120,7 +118,6 @@ const togglePublication = async () => {
       store.takeOffPublication([props.id]);
       isPublished.value = false;
       isArchived.value = false;
-      popupStore.setAdSended(5); // Снято с публикации
    }
 };
 
@@ -130,14 +127,12 @@ const rePublishAdFromArchive = (id) => {
       store.republish([id]);
       isPublished.value = true;
       isArchived.value = false;
-      popupStore.setAdSended(3); // Снова опубликовано
    }
 };
 
 const deleteAdFromArchive = (id) => {
    console.log('Удалить из архива');
    deleteFromArchive(id);
-   popupStore.setAdSended(6); // Удалено из архива
    router.push('/');
 };
 </script>

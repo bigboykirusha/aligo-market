@@ -52,10 +52,8 @@ const handleSendAd = async () => {
    }
    if (createStore.is_draft === 1) {
       isAdSended.value = 1;
-      popupStore.setAdSended(1);
    } else if (createStore.is_draft === 0) {
       isAdSended.value = 2;
-      popupStore.setAdSended(2);
    }
    router.push('/');
    createStore.resetParams();
@@ -73,7 +71,6 @@ const saveAd = async () => {
    await userStore.fetchUserCounts();
    isPopupVisible.value = false;
    tabsStore.resetTabs();
-   popupStore.setAdSended(2);
    router.push('/');
 };
 

@@ -58,7 +58,7 @@ onBeforeUnmount(() => {
    background: #ffffff;
    border: 1px solid #3366ff;
    padding: 24px;
-   border-radius: 4px;
+   border-radius: 4px 12px 4px 4px;
    z-index: 10000;
 
    @media (max-width: 768px) {

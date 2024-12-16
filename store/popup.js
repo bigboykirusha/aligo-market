@@ -3,7 +3,8 @@ import { defineStore } from 'pinia';
 export const usePopupStore = defineStore('popup', {
    state: () => ({
       isPopupVisible: false,
-      isAdSended: 0,
+      isAdSended: 0,  
+      statusText: '', 
    }),
    actions: {
       showPopup() {
@@ -12,17 +13,20 @@ export const usePopupStore = defineStore('popup', {
       hidePopup() {
          this.isPopupVisible = false;
       },
-      setAdSended(status) {
+      setAdSended(status, statusMessage = '') {
          this.isAdSended = status;
+         this.statusText = statusMessage;  
 
-         if (status === 1 || status === 2 || status === 3 || status === 4 || status === 5) {
+         if (status) {
             this.showPopup();
             setTimeout(() => {
                this.hidePopup();
                this.isAdSended = 0;
+               this.statusText = '';  
             }, 5000);
          } else if (status === 0) {
             this.hidePopup();
+            this.statusText = '';  
          }
       },
    },

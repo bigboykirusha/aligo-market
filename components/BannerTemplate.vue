@@ -4,7 +4,7 @@
          <div class="banner__col banner__col--empty"></div>
          <div class="banner__col">
             <p class="banner__text" v-html="content.headerText"></p>
-            <a href="/?ref=id1" class="banner__button">{{$t('bannerRent.buttonText')}}</a>
+            <a href="/?ref=id1" class="banner__button">{{ $t('bannerRent.buttonText') }}</a>
          </div>
       </div>
       <div class="banner__bg">
@@ -64,7 +64,7 @@ defineProps({
       }
    }
 
-   @media screen and (max-width: 600px) {
+   @media (max-width: 600px) {
       height: 260px;
       border-radius: 6px;
    }
@@ -105,7 +105,7 @@ defineProps({
 
    &__row {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 2fr 1fr;
       gap: 30px;
       padding: 19px 40px;
       position: relative;
@@ -128,7 +128,6 @@ defineProps({
       display: flex;
       flex-direction: column;
       align-self: center;
-      align-items: center;
 
       @media (max-width: 600px) {
          align-self: start;
@@ -147,7 +146,7 @@ defineProps({
       color: #003BCE;
       margin-bottom: 0.69em;
       max-width: 290px;
-      
+
 
       @media (max-width: 600px) {
          text-align: center;
