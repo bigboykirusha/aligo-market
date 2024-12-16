@@ -73,7 +73,7 @@ const confirmLanguage = () => {
 <style lang="scss" scoped>
 .modal {
    position: fixed;
-   z-index: 14000;
+   z-index: 140000;
    top: 0;
    left: 0;
    width: 100%;

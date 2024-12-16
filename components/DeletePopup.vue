@@ -57,7 +57,7 @@ const confirmDeletion = async () => {
 <style scoped lang="scss">
 .modal {
    position: fixed;
-   z-index: 14000;
+   z-index: 140000;
    top: 0;
    left: 0;
    width: 100%;
