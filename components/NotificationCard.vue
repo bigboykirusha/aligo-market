@@ -4,33 +4,10 @@
          <div class="notification-card__header">
             <span class="notification-card__type">{{ notification.data.notify }}</span>
          </div>
-
-         <!-- Категория объявления -->
-         <p v-if="notification.data.ads">
-            <strong>Категория:</strong> {{ getCategoryName(notification.data.ads.main_category_id) }}
+         <p class="notification-card__text">
+            {{ getAdditionalText(notification.data.notify) }}
          </p>
 
-         <p v-if="notification.data.ads">
-            <span v-if="notification.data.ads.is_published">
-               Ваше объявление опубликовано, вы можете <a :href="getAdUrl(notification.data.ads.id)"
-                  class="link">перейти к
-                  объявлению</a>
-            </span>
-            <span v-else-if="notification.data.ads.is_in_archive">
-               Ваше объявление перемещено в архив, вы можете <a :href="getAdUrl(notification.data.ads.id)"
-                  class="link">перейти в
-                  архив</a>
-            </span>
-            <span v-else-if="notification.data.ads.is_draft">
-               Ваше объявление в черновиках, вы можете <a :href="getAdUrl(notification.data.ads.id)"
-                  class="link">редактировать объявление</a>
-            </span>
-         </p>
-
-         <!-- Отзыв -->
-         <p v-if="notification.data.review">
-            Спасибо за ваш отзыв! Мы ценим ваше мнение и обязательно примем его во внимание.
-         </p>
       </div>
       <div class="notification-card__footer">
          <span class="notification-card__date">{{ formatDate(notification.created_at) }}</span>
@@ -52,49 +29,43 @@ const props = defineProps({
       type: Object,
       required: true,
    },
-   isEven: {
-      type: Boolean,
-      default: false,
-   },
 });
 
 const emit = defineEmits(['mark-as-read', 'delete-notification']);
 
 /**
- * Получение названия категории по идентификатору
+ * Генерация дополнительного текста на основе уведомления
  */
-const getCategoryName = (categoryId) => {
-   const categories = {
-      1: 'Автомобили',
-   };
-   return categories[categoryId] || 'Неизвестная категория';
+const getAdditionalText = (notifyText) => {
+   switch (notifyText) {
+      case 'Объявление перенесено в архив':
+         return 'Ваше объявление было перемещено в архив. Вы можете вернуться к нему, если необходимо.';
+      case 'Создан черновик объявления':
+         return 'Ваше объявление сохранено как черновик. Вы можете продолжить редактировать его в любой момент.';
+      case 'Объявление повторно опубликовано':
+         return 'Ваше объявление было успешно повторно опубликовано. Оно снова доступно для просмотра.';
+      case 'Объявление снято с публикации':
+         return 'Ваше объявление было снято с публикации. Вы можете внести изменения и снова опубликовать его.';
+      case 'Создано новое объявление и отправлено на модерацию':
+         return 'Ваше новое объявление успешно создано и отправлено на модерацию. Ожидайте проверки.';
+      case 'Получено новое сообщение':
+         return 'У вас новое сообщение! Пожалуйста, проверьте ваши сообщения в личном кабинете.';
+      case 'Добавлен новый отзыв к объявлению':
+         return 'Ваше объявление получило новый отзыв. Вы можете ознакомиться с ним в личном кабинете.';
+      default:
+         return 'Уведомление не распознано. Пожалуйста, проверьте систему уведомлений.';
+   }
 };
 
-/**
- * Формирование URL для объявления
- */
-const getAdUrl = (adId) => {
-   return `/car/${adId}`;
-};
-
-/**
- * Форматирование даты для отображения
- */
 const formatDate = (dateString) => {
    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
    return new Date(dateString).toLocaleDateString('ru-RU', options);
 };
 
-/**
- * Обработка клика для пометки уведомления как прочитанного
- */
 const markAsRead = () => {
    emit('mark-as-read', props.notification.id);
 };
 
-/**
- * Обработка клика для удаления уведомления
- */
 const deleteNotification = () => {
    emit('delete-notification', props.notification.id);
 };
@@ -110,6 +81,7 @@ const deleteNotification = () => {
    font-size: 14px;
    color: #323232;
    background-color: #ffffff;
+   box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
    transition: background-color 0.3s;
 
    @media (max-width: 768px) {
@@ -120,22 +92,23 @@ const deleteNotification = () => {
       background-color: #EEF9FF;
    }
 
+   &--text {
+      color: #323232;
+      font-size: 14px;
+   }
+
+   &__type   {
+      font-weight: 700;
+      line-height: 1;
+      font-size: 20px;
+      color: #323232;
+   }
+
    &__header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 16px;
-
-      .notification-card__type {
-         font-weight: 700;
-         line-height: 1;
-         font-size: 20px;
-         color: #3366FF;
-
-         @media (max-width: 768px) {
-            font-size: 14px;
-         }
-      }
    }
 
    &__body {
@@ -148,11 +121,6 @@ const deleteNotification = () => {
          white-space: nowrap;
          overflow: hidden;
          text-overflow: ellipsis;
-
-         strong {
-            font-weight: 700;
-            color: #323232;
-         }
 
          .link {
             color: #3366FF;

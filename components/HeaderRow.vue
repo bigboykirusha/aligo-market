@@ -18,7 +18,8 @@
                   <img v-if="searchQuery" src="../assets/icons/close-blue.svg" class="clear-icon" alt="Clear Icon"
                      @click="clearSearch" />
                </div>
-               <button :class="{ 'header-row__search-btn--focused': isInputFocused }" class="header-row__search-btn" @click="handleSearch">
+               <button :class="{ 'header-row__search-btn--focused': isInputFocused }" class="header-row__search-btn"
+                  @click="handleSearch">
                   <img class="header-row__search-btn-icon header-row__search-btn-icon--white"
                      src="../assets/icons/search.svg" alt="">
                   <img class="header-row__search-btn-icon header-row__search-btn-icon--blue"
@@ -256,6 +257,7 @@ onUnmounted(() => {
    &__container {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       background-color: #FFFFFF;
       width: 100%;
       max-width: 1280px;
@@ -274,12 +276,18 @@ onUnmounted(() => {
 
       @media (max-width: 480px) {
          margin-right: 0;
+         height: 28px;
          margin-right: 12px;
       }
    }
 
    &__logo {
       height: 32px;
+
+      @media (max-width: 480px) {
+         margin-right: 0;
+         height: 28px;
+      }
    }
 
    &__controls {
@@ -372,6 +380,10 @@ onUnmounted(() => {
       border-radius: 6px 0 0 6px;
       transition: width 0.3s ease;
 
+      @media (max-width: 480px) {
+         height: 36px;
+      }
+
       input {
          width: 100%;
          transition: width 0.2s ease;
@@ -418,6 +430,7 @@ onUnmounted(() => {
       @media (max-width: 480px) {
          background-color: #fff;
          border: 2px solid #d6d6d6;
+         height: 36px;
          border-left: none;
       }
 

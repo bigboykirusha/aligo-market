@@ -67,6 +67,7 @@
             @click="selectMenuItem('reviews')">
             <nuxt-link to="/myself/reviews">
                <img src="../assets/icons/reviews.svg" /> Отзывы
+               <div v-show="countReviews" class="user-menu__count">{{ countReviews }}</div>
             </nuxt-link>
          </li>
          <li class="user-menu__item user-menu__item--logout" @click="logout">Выйти</li>
@@ -78,7 +79,6 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '~/store/user';
-import { getUserCount } from '~/services/apiClient.js';
 import { getImageUrl } from '../services/imageUtils';
 import avatarPhoto from '../assets/icons/avatar-revers.svg';
 
@@ -134,16 +134,6 @@ const handleAvatarChange = async (event) => {
 const triggerFileInput = () => {
    const fileInput = userMenuRef.value?.querySelector('#avatarUpload');
    fileInput?.click();
-};
-
-const fetchUserCounts = async () => {
-   try {
-      const data = await getUserCount();
-      console.log('Данные пользователя: ', data);
-      userStore.setCounts(data);
-   } catch (error) {
-      console.error('Ошибка при получении данных пользователя: ', error);
-   }
 };
 
 const isScrolled = ref(false);

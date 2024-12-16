@@ -15,16 +15,19 @@
       </div>
       <div class="notifications__content">
          <ul v-if="!loading && notifications.length">
-            <!-- Специальные уведомления -->
-            <SpecialNotificationCard v-for="(notification, index) in notifications_specials" :key="`special-${index}`"
-               :title="notification.title" :message="notification.message" :bgImage="notification.bgImage"
-               :bgColor="notification.bgColor" :buttonText="notification.buttonText"
-               @button-click="handleSpecialButtonClick(index)" />
+            <!-- Уведомления -->
+            <li v-for="(notification, index) in notifications" :key="notification.id">
+               <!-- Если специальное уведомление -->
+               <SpecialNotificationCard v-if="notification.type === 'App\\Notifications\\NotifyAuthNotification'"
+                  :title="notification.data.content.title" :message="notification.data.content.message"
+                  :bgImage="getImageUrl(notification.data.content.bgImage)" :bgColor="notification.data.content.bgColor"
+                  :buttonText="notification.data.content.buttonText" @button-click="handleSpecialButtonClick(index)" />
 
-            <!-- Обычные уведомления -->
-            <NotificationCard v-for="(notification, index) in notifications" :key="notification.id"
-               :notification="notification" :isEven="index % 2 === 0" @mark-as-read="handleMarkAsRead(notification.id)"
-               @delete-notification="handleDeleteNotification(notification.id)" />
+               <!-- Если обычное уведомление -->
+               <NotificationCard v-else :notification="notification" :isEven="index % 2 === 0"
+                  @mark-as-read="handleMarkAsRead(notification.id)"
+                  @delete-notification="handleDeleteNotification(notification.id)" />
+            </li>
          </ul>
 
          <!-- Скелетон загрузки -->
@@ -48,6 +51,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { getImageUrl } from '../services/imageUtils';
 import {
    getNotifications,
    markNotificationAsRead,
@@ -55,72 +59,23 @@ import {
    deleteAllNotifications,
    markAllNotificationsAsRead,
 } from '~/services/apiClient.js';
-import NotificationCard from './NotificationCard.vue';
-import NotificationCardSkeleton from './NotificationCardSkeleton.vue';
-import bg1 from '../assets/icons/illustration.svg';
-import bg2 from '../assets/icons/illustration-1.svg';
-import bg3 from '../assets/icons/illustration-2.svg';
-import bg4 from '../assets/icons/illustration-3.svg';
-import bg5 from '../assets/icons/illustration-4.svg';
 
 const notifications = ref([]);
 const loading = ref(true);
 
-const notifications_specials = [
-   {
-      title: 'Поздравляем! Вы зарегистрировались в Аligo!',
-      message:
-         'Здесь вы сможете безопасно разместить объявления или найти что-то для себя. Сохраняйте понравившиеся объявления в избранное, переписывайтесь с другими пользователями и оставайтесь с нами.',
-      bgColor: '#D6EFFF',
-      bgImage: bg1,
-      buttonText: 'Разместить объявление',
-   },
-   {
-      title: 'Заполните свой аккаунт',
-      message:
-         'Объявление от пользователей с полными данными вызывают больше доверия и шанс заключить сделку выше. Также, вам будет удобней размещать объявления, ведь мы заполним некоторые поля имеющимися данными.',
-      bgColor: '#B3FFD3',
-      bgImage: bg2,
-      buttonText: 'Настроить аккаунт',
-   },
-   {
-      title: 'Сделайте свой аккаунт безопасней',
-      message:
-         'Добавьте адрес электронной почты и сможете восстановить доступ через электронную почту в случае потери доступа к телефону. Так же вы сможете получать уведомления о ваших объявлениях и подписках.',
-      bgColor: '#D7C8FF',
-      bgImage: bg3,
-      buttonText: 'Добавить почту',
-   },
-   {
-      title: 'Добавьте номер телефона',
-      message:
-         'Объявление с номером телефона и возможностью прозвонить популярней других. Вход в профиль через проверочный СМС-код является наиболее безопасным и поможет в случае утери доступа к электронной почте.',
-      bgColor: '#FFE9B0',
-      bgImage: bg4,
-      buttonText: 'Добавить номер',
-   },
-   {
-      title: 'Спросите у нашего бота',
-      message:
-         'Получайте всю необходимую информацию по объявлениям прямо в Telegram. Новости по подпискам, новые объявления, которые могут вас заинтересовать и помощь в использовании сервиса, если это потребуется.',
-      bgColor: '#75CAFF',
-      bgImage: bg5,
-      buttonText: 'Перейти в Telegram',
-   },
-];
-
-const handleSpecialButtonClick = (index) => {
-   console.log(`Кнопка специального уведомления №${index + 1} была нажата.`);
-};
-
 const fetchNotifications = async () => {
    try {
-      notifications.value = await getNotifications();
+      const fetchedNotifications = await getNotifications(); 
+      notifications.value = fetchedNotifications;
    } catch (error) {
       console.error('Ошибка при получении оповещений: ', error);
    } finally {
-      loading.value = false;
+      loading.value = false; 
    }
+};
+
+const handleSpecialButtonClick = (index) => {
+   console.log(`Кнопка специального уведомления №${index + 1} была нажата.`);
 };
 
 const handleMarkAsRead = async (id) => {
@@ -173,15 +128,14 @@ onMounted(fetchNotifications);
 
    ul {
       list-style: none;
-      padding: 0;
-      margin: 0;
       display: flex;
       flex-direction: column;
       gap: 16px;
       height: auto;
       overflow-y: auto;
-      padding: 2px 0;
       margin-bottom: 24px;
+      padding: 8px;
+      margin: -8px;
 
       @media (max-width: 768px) {
          margin-bottom: 0;

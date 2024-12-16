@@ -50,6 +50,7 @@ const onButtonClick = () => {
    background-repeat: no-repeat;
    background-position: right;
    background-size: contain;
+   box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
 
    @media (max-width: 768px) {
       flex-direction: column;
