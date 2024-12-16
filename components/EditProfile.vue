@@ -227,12 +227,63 @@ const profile = computed(() => ({
 let timer = null;
 const timeLeft = ref(0);
 
+onMounted(() => {
+   checkAndRestoreTimer();
+});
+
 const startTimer = () => {
+   const firstTimeKey = 'firstTimeTimestamp2';
+   const firstTimeDuration = 24 * 60 * 60 * 1000; // 24 часа в миллисекундах
+
+   // Проверяем, если прошло меньше 24 часов с первого запуска
+   const firstTime = localStorage.getItem(firstTimeKey);
+   const isFirstTime = !firstTime || Date.now() - firstTime > firstTimeDuration;
+
+   // Если первый запуск, сохраняем метку времени
+   if (isFirstTime) {
+      localStorage.setItem(firstTimeKey, Date.now());
+   }
+
    clearInterval(timer);
-   timeLeft.value = 180;
+
+   // Устанавливаем время (1 минута при первом запуске, 3 минуты при повторных)
+   const duration = isFirstTime ? 60 : 180; // 1 минута или 3 минуты
+   const endTime = Date.now() + duration * 1000;
+
+   // Сохранение времени окончания в localStorage
+   localStorage.setItem('timerEndTime2', endTime);
+
+   // Обновление оставшегося времени
+   updateRemainingTime(endTime);
+
    timer = setInterval(() => {
-      timeLeft.value > 0 ? timeLeft.value-- : clearInterval(timer);
+      updateRemainingTime(endTime);
    }, 1000);
+};
+
+// Восстановление таймера при открытии модального окна или перезагрузке страницы
+const checkAndRestoreTimer = () => {
+   const endTime = parseInt(localStorage.getItem('timerEndTime2'), 10);
+
+   if (endTime && endTime > Date.now()) {
+      updateRemainingTime(endTime);
+
+      timer = setInterval(() => {
+         updateRemainingTime(endTime);
+      }, 1000);
+   }
+};
+
+// Обновление оставшегося времени
+const updateRemainingTime = (endTime) => {
+   const remainingTime = Math.max(Math.floor((endTime - Date.now()) / 1000), 0);
+
+   timeLeft.value = remainingTime;
+
+   if (remainingTime === 0) {
+      clearInterval(timer);
+      localStorage.removeItem('timerEndTime');
+   }
 };
 
 const formattedTime = computed(() => {
@@ -740,7 +791,7 @@ const handleSubmit = async () => {
          align-items: center;
          height: 34px;
          gap: 8px;
-         background-color: #D6EFFF;
+         background-color: #EEF9FF;
          color: #3366FF;
          border: none;
          border-radius: 6px;
@@ -763,7 +814,7 @@ const handleSubmit = async () => {
          gap: 8px;
          align-items: center;
          height: 34px;
-         background-color: #D6EFFF;
+         background-color: #EEF9FF;
          color: #3366FF;
          border: none;
          border-radius: 6px;

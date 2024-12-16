@@ -24,6 +24,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
+import { validateUsername } from '~/services/validation';
 
 const props = defineProps({
    option: {
@@ -93,6 +94,8 @@ const isValid = computed(() => {
          return validateVIN(optionValue.value);
       case 'licensePlate':
          return /^[A-Z]{1}\d{3}[A-Z]{2}\d{2,3}$/.test(optionValue.value);
+      case 'name':
+         return validateUsername(optionValue.value);
       default:
          return true;
    }
@@ -154,6 +157,8 @@ const errorMessage = computed(() => {
          return 'Проверьте правильность ввода VIN';
       case 'licensePlate':
          return 'Государственный номер может содержать только буквы (А, В, Е, К, М, Н, О, Р, С, Т, У, Х) и цифры (0-9) в определенном порядке, например Х123ХХ123.';
+      case 'name':
+         return 'Имя должно содержать только буквы одного алфавита и быть длиной от 2 до 20 символов';
       default:
          return 'Некорректное значение';
    }
@@ -216,7 +221,6 @@ const handleFocus = () => {
    isErrorDisplayed.value = false; // Ошибка скрывается, если фокус на инпуте
 };
 </script>
-
 
 <style scoped lang="scss">
 .simple-input {

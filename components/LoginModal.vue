@@ -221,14 +221,6 @@ const updateRemainingTime = (endTime) => {
    }
 };
 
-// Очистка таймера при закрытии модального окна
-const clearTimer = () => {
-   clearInterval(timer);
-   timeLeft.value = 0;
-   localStorage.removeItem('timerEndTime');
-   localStorage.removeItem('firstTimeTimestamp');
-};
-
 const contactInfoError = ref('');
 const generalError = ref('');
 

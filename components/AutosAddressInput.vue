@@ -2,8 +2,9 @@
    <div class="address-input">
       <label v-if="label" class="address-input__label">{{ label }}</label>
       <div class="address-input__wrapper">
-         <input type="text" class="address-input__field" :placeholder="placeholder" v-model="inputValue"
-            @input="handleInput" @keydown.enter.prevent="handleEnterKey" />
+         <input type="text" class="address-input__field" :class="{ 'address-input__field--error': shouldShowError }"
+            :placeholder="placeholder" v-model="inputValue" @input="handleInput" @keydown.enter.prevent="handleEnterKey"
+            @focus="handleFocus" @blur="handleBlur" />
          <img v-if="inputValue" src="../assets/icons/close-gray.svg" alt="Clear" class="address-input__clear"
             @click="clearInput" />
          <ul v-if="suggestions.length" class="address-input__suggestions">
@@ -17,7 +18,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useCreateStore } from '~/store/create';
 import { useCityStore } from '~/store/city';
 import { debounce } from 'lodash-es';
@@ -38,6 +39,8 @@ const emit = defineEmits(['update:address']);
 
 const inputValue = ref(props.option);
 const suggestions = ref([]);
+const isSuggestionSelected = ref(true);
+const isFocused = ref(false);
 
 const country = ref('');
 const city = ref('');
@@ -59,6 +62,8 @@ const fetchSuggestionsData = async (query) => {
 const debouncedFetchSuggestions = debounce(fetchSuggestionsData, 300);
 
 const handleInput = () => {
+   isSuggestionSelected.value = false;
+
    if (inputValue.value.length > 3) {
       const cityToSet = cityStore.selectedCity.name;
       createStore.setCity(cityToSet);
@@ -72,6 +77,7 @@ const handleInput = () => {
 const selectSuggestion = (suggestion) => {
    inputValue.value = suggestion.fullAddress;
    suggestions.value = [];
+   isSuggestionSelected.value = true;
 
    parseAddress(suggestion.geoObject);
 
@@ -85,6 +91,10 @@ const selectSuggestion = (suggestion) => {
 
    emit('update:address', inputValue.value);
 };
+
+const shouldShowError = computed(() => {
+   return !isSuggestionSelected.value && inputValue.value.length > 0 && !isFocused.value;
+});
 
 const confirmAddress = () => {
    const cityToSet = city.value || cityStore.selectedCity.name;
@@ -142,6 +152,14 @@ const clearInput = () => {
    emit('update:address', null);
 };
 
+const handleFocus = () => {
+   isFocused.value = true; 
+};
+
+const handleBlur = () => {
+   isFocused.value = false; 
+};
+
 const handleClickOutside = (event) => {
    const component = document.querySelector('.address-input');
    if (component && !component.contains(event.target)) {
@@ -163,7 +181,7 @@ onBeforeUnmount(() => {
    display: flex;
    align-items: center;
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       flex-direction: column;
    }
 
@@ -194,6 +212,10 @@ onBeforeUnmount(() => {
       border-radius: 6px;
       width: 100%;
       box-sizing: border-box;
+
+      &--error {
+         border-color: #FF5959;
+      }
 
       &:focus {
          outline: none;

@@ -12,7 +12,7 @@
       <div class="characteristics__content">
          <PhoneTextCreate label="Телефон" placeholder="Нажмите для ввода" :option="createStore.phone"
             @update:option="handlePhone" />
-         <AutosTextTemplate label="Имя пользователя" placeholder="Нажмите для ввода" :option="createStore.username"
+         <AutosTextTemplate label="Имя пользователя" placeholder="Нажмите для ввода" validationType="name" :option="createStore.username"
             @update:option="handleUsername" :isEmpty="checkIfEmpty(createStore.username)" />
          <AutosSelectCreateSkeleton v-if="loading" />
          <AutosSelectCreate v-else label="Метод коммуникации"
