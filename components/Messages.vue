@@ -35,7 +35,8 @@
                      <div class="chat-header__details">
                         <span class="chat-header__username">{{ relevantUserInfo(chatStore.currentChat) }}</span>
                         <nuxt-link :to="`/car/${chatStore.currentChat.ads_id}`" class="chat-header__ad-title">
-                           {{ chatStore.currentChat.ads_info }} <div class="chat-header__ad-amount">{{
+                           <span>{{ chatStore.currentChat.ads_info }}</span>
+                           <div class="chat-header__ad-amount">{{
                               formatNumberWithSpaces(chatStore.currentChat.ads_amount) }}<span
                                  class="chat-header__ad-amount-currency">₽</span>
                            </div>
@@ -49,7 +50,9 @@
                   <PopupChat :isVisible="showPopup" :items="items" @close="showPopup = false" />
                </div>
                <div v-if="showPopup" class="popup-overlay"></div>
-               <div v-if="chatStore.currentChat" class="chat-wrapper__chat-box">
+               <div v-if="chatStore.currentChat" class="chat-wrapper__chat-box" ref="chatContainer">
+                  <UsernamePopup v-if="!userStore.username" :isVisible="true" @close="closeNamePopup" />
+
                   <!-- Заглушка, когда нет сообщений -->
                   <div v-if="messages.length === 0" class="chat-wrapper__no-messages">
                      <div class="no-messages-container">
@@ -163,9 +166,14 @@
                      </button>
                   </div>
                   <input v-model="newMessage" @keyup.enter="handleSendMessage" placeholder="Напишите сообщение"
-                     class="chat-wrapper__message-input" />
-                  <button class="chat-wrapper__send-button" @click="handleSendMessage">
-                     <img src="../assets/icons/send.svg" alt="Send" />
+                     class="chat-wrapper__message-input" :disabled="isSending" />
+                  <button class="chat-wrapper__send-button" @click="handleSendMessage" :disabled="isSending">
+                     <template v-if="isSending">
+                        <div class="spinner"></div>
+                     </template>
+                     <template v-else>
+                        <img src="../assets/icons/send.svg" alt="Send" />
+                     </template>
                   </button>
                </div>
                <div v-show="!chatStore.currentChat" class="chat-wrapper__last-messages-container">
@@ -231,6 +239,11 @@ const selectAll = ref(false);
 const router = useRouter();
 const file = ref([]);
 const translateTo = ref(null);
+const chatContainer = ref(null);
+const isSending = ref(false);
+
+const showNamePopup = () => isNamePopupVisible.value = true;
+const closeNamePopup = () => isNamePopupVisible.value = false;
 
 import ruIcon from '../assets/icons/ru.svg';
 import personIcon from '../assets/icons/person.svg';
@@ -431,12 +444,31 @@ const loadMessages = async () => {
          console.error('Error loading messages:', error);
       } finally {
          loading.value = false;
+         scrollToBottom();
       }
    }
 };
 
+function scrollToBottom() {
+   nextTick(() => {
+      if (chatContainer.value) {
+         chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+         console.log(chatContainer.value.scrollHeight)
+      }
+   });
+}
+
 async function handleSendMessage() {
    if (newMessage.value.trim() === '' && file.value.length === 0) return;
+
+   if (!userStore.username) {
+      showNamePopup();
+      return;
+   }
+
+   if (isSending.value) return;
+
+   isSending.value = true;
 
    try {
       const response = await sendMessage(
@@ -456,9 +488,12 @@ async function handleSendMessage() {
          isSelf: true
       };
       chatStore.messages.push(sentMessage);
+      scrollToBottom();
       return sentMessage;
    } catch (error) {
       console.error('Ошибка при отправке сообщения:', error);
+   } finally {
+      isSending.value = false;
    }
 }
 
@@ -484,6 +519,14 @@ onBeforeUnmount(() => {
    window.removeEventListener('resize', checkScreenWidth);
    document.removeEventListener('click', handleClickOutside);
 });
+
+watch(
+   () => chatStore.messages,
+   async () => {
+      scrollToBottom();
+   },
+   { deep: true }
+);
 </script>
 
 <style scoped lang="scss">
@@ -733,7 +776,6 @@ onBeforeUnmount(() => {
       text-wrap: wrap;
       max-width: 100%;
       gap: 16px;
-      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15), 0px 0px 6px rgba(0, 0, 0, 0.1);
       border-radius: 4px;
       overflow-y: auto;
       padding: 2px 0;
@@ -816,6 +858,7 @@ onBeforeUnmount(() => {
    &__chat-box {
       display: flex;
       height: 100%;
+      scroll-behavior: smooth;
       flex-direction: column;
       flex-grow: 1;
       gap: 24px;
@@ -824,7 +867,7 @@ onBeforeUnmount(() => {
       overflow-y: auto;
       transition: opacity 0.3s ease;
 
-      @media screen and (max-width: 768px) {
+      @media(max-width: 768px) {
          padding: 16px;
       }
    }
@@ -945,7 +988,7 @@ onBeforeUnmount(() => {
       margin-top: auto;
       gap: 16px;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          padding: 16px;
       }
    }
@@ -988,8 +1031,6 @@ onBeforeUnmount(() => {
    &__message-icons-left {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-left: -8px;
    }
 
    &__message-icon-left {
@@ -1102,6 +1143,16 @@ onBeforeUnmount(() => {
       color: #666;
       outline: none;
       text-decoration: none;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: calc(100% - 70px);
+
+      span {
+         overflow: hidden;
+         text-overflow: ellipsis;
+         white-space: nowrap;
+      }
    }
 
    &__ad-image {
@@ -1216,6 +1267,26 @@ onBeforeUnmount(() => {
 
    100% {
       background-color: #e0e0e0;
+   }
+}
+
+.spinner {
+   width: 20px;
+   height: 20px;
+   border: 2px solid #ccc;
+   border-top: 2px solid #007bff;
+   border-radius: 50%;
+   animation: spin 1s linear infinite;
+   box-sizing: border-box;
+}
+
+@keyframes spin {
+   0% {
+      transform: rotate(0deg);
+   }
+
+   100% {
+      transform: rotate(360deg);
    }
 }
 </style>

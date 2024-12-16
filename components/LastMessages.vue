@@ -21,7 +21,7 @@
                      {{ relevantUserInfo(message) }}
                   </div>
                   <div class="ad-details">
-                     {{ message.ads_info }}
+                     <span>{{ message.ads_info }}</span>
                      <div class="chat-header__ad-amount">
                         {{ formatNumberWithSpaces(message.ads_amount) }}
                         <span class="chat-header__ad-amount-currency">₽</span>
@@ -132,8 +132,12 @@ onMounted(() => {
    overflow: hidden;
    box-sizing: border-box;
    background-color: #fff;
-   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+   box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
    transition: background-color 0.3s;
+
+   &.profile-page {
+      border-radius: 6px;
+   }
 
    &.unread-message {
       background-color: #EEF9FF;
@@ -185,7 +189,7 @@ onMounted(() => {
    display: flex;
    flex-direction: column;
    gap: 3px;
-   width: calc(100% - 70px);
+   max-width: calc(100% - 70px);
 
    &__container {
       display: flex;
@@ -197,6 +201,7 @@ onMounted(() => {
       display: flex;
       flex-direction: column;
       gap: 3px;
+      max-width: calc(100% - 70px);
    }
 }
 
@@ -221,6 +226,15 @@ onMounted(() => {
    font-size: 14px;
    line-height: 18px;
    margin-bottom: 3px;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+
+   span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+   }
 }
 
 .ad-date {

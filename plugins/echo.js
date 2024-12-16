@@ -1,8 +1,8 @@
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 import { getCookie } from '~/services/auth';
-import { useChatStore } from '../store/chatStore.js';
 import { useUserStore } from '~/store/user';
+import { useChatStore } from '../store/chatStore.js';
 
 export default defineNuxtPlugin((nuxtApp) => {
    const userStore = useUserStore();
@@ -12,7 +12,6 @@ export default defineNuxtPlugin((nuxtApp) => {
    const initializeEcho = () => {
       let token = '';
       const forWhomUserId = userStore.userId;
-      const channelName = `store_message.${forWhomUserId}`;
 
       try {
          const cookieData = getCookie('userData');
@@ -83,9 +82,10 @@ export default defineNuxtPlugin((nuxtApp) => {
       });
 
       // Подписка на канал
-      window.Echo.private(channelName)
+      const storeChannelName = `store_message.${forWhomUserId}`;
+      window.Echo.private(storeChannelName)
          .listen('.store_message', (res) => {
-            console.log('Получено сообщение на канале:', channelName, res);
+            console.log('Получено сообщение на канале:', storeChannelName, res);
 
             if (res.new_message) {
                chatStore.addMessage({
@@ -99,6 +99,23 @@ export default defineNuxtPlugin((nuxtApp) => {
          })
          .error((error) => {
             console.error('Ошибка при прослушивании канала:', error);
+         });
+
+      // Подписка на канал
+      const notifyChannelName = `new_notify.${forWhomUserId}`;
+      window.Echo.private(notifyChannelName)
+         .listen('.new_notify', (res) => {
+            console.log('Получено уведомление на канале:', notifyChannelName, res);
+
+            // Обработка уведомлений
+            if (res.new_notify) {
+               console.log('Новое уведомление:', res.new_notify);
+            } else {
+               console.warn('Нет нового уведомления в ответе:', res);
+            }
+         })
+         .error((error) => {
+            console.error('Ошибка при прослушивании канала уведомлений:', error);
          });
 
       nuxtApp.provide('echo', window.Echo);

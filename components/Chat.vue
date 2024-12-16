@@ -91,7 +91,7 @@
             </div>
 
             <!-- Отображение сообщений -->
-            <div v-else class="chat-wrapper__wrapper" >
+            <div v-else class="chat-wrapper__wrapper">
                <div v-for="(item, index) in groupedMessages" :key="index"
                   :class="{ 'chat-wrapper__date-divider': item.type === 'date' }">
                   <template v-if="item.type === 'date'">
@@ -159,9 +159,14 @@
             </button>
          </div>
          <input v-model="newMessage" @keyup.enter="handleSendMessage" placeholder="Напишите сообщение"
-            class="chat-wrapper__message-input" />
-         <button class="chat-wrapper__send-button" @click="handleSendMessage">
-            <img src="../assets/icons/send.svg" alt="Send" />
+            class="chat-wrapper__message-input" :disabled="isSending" />
+         <button class="chat-wrapper__send-button" @click="handleSendMessage" :disabled="isSending">
+            <template v-if="isSending">
+               <div class="spinner"></div>
+            </template>
+            <template v-else>
+               <img src="../assets/icons/send.svg" alt="Send" />
+            </template>
          </button>
       </div>
 
@@ -190,6 +195,7 @@ const total = ref(0);
 const loading = ref(true);
 const isPopupVisible = ref(false);
 const chatContainer = ref(null);
+const isSending = ref(false);
 
 const toUserId = computed(() => {
    return relevantUser(chatStore.currentChat).id;
@@ -288,13 +294,24 @@ async function handleSendMessage() {
       return;
    }
 
+   if (isSending.value) return; 
+
+   isSending.value = true;
    try {
-      const response = await sendMessage(newMessage.value, chatStore.currentChat.ads_id, chatStore.currentChat.main_category_id, toUserId.value, file.value);
+      const response = await sendMessage(
+         newMessage.value,
+         chatStore.currentChat.ads_id,
+         chatStore.currentChat.main_category_id,
+         toUserId.value,
+         file.value
+      );
       chatStore.messages.push({ ...response.data, isSelf: true });
       resetMessageInput();
-      scrollToBottom()
+      scrollToBottom();
    } catch (error) {
-      console.error('Ошибка при отправке сообщения:', error);
+      console.error("Ошибка при отправке сообщения:", error);
+   } finally {
+      isSending.value = false;
    }
 }
 
@@ -340,6 +357,14 @@ onMounted(async () => {
 });
 
 watch(() => chatStore.currentChat, loadMessages, { immediate: true });
+
+watch(
+   () => chatStore.messages,
+   async () => {
+      scrollToBottom();
+   },
+   { deep: true }
+);
 </script>
 
 <style lang="scss" scoped>
@@ -636,8 +661,6 @@ watch(() => chatStore.currentChat, loadMessages, { immediate: true });
    &__message-icons-left {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-left: -8px;
    }
 
    &__message-icon-left {
@@ -897,6 +920,26 @@ watch(() => chatStore.currentChat, loadMessages, { immediate: true });
    width: 100%;
    height: 100%;
    object-fit: cover;
+}
+
+.spinner {
+   width: 20px;
+   height: 20px;
+   border: 2px solid #ccc;
+   border-top: 2px solid #007bff;
+   border-radius: 50%;
+   animation: spin 1s linear infinite;
+   box-sizing: border-box;
+}
+
+@keyframes spin {
+   0% {
+      transform: rotate(0deg);
+   }
+
+   100% {
+      transform: rotate(360deg);
+   }
 }
 
 @keyframes pulse {
