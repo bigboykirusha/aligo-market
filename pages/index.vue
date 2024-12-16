@@ -14,7 +14,7 @@
 
     <BannerTemplate :content="bannerContent" />
 
-    <CardList v-if="isLoggedIn" :title="title2" :ads="adsHistory.slice(0, 10)"
+    <CardList v-if="isLoggedIn" :title="title2" :ads="adsHistory.slice(0, MAX_ADS_COUNT)"
       :isLoading="isLoadingHistory" />
   </div>
 </template>

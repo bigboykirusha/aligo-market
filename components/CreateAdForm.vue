@@ -95,7 +95,7 @@ const isSaveandExitEnabled = computed(() => {
 
    @media (max-width: 768px) {
       margin-top: calc(101px + 16px);
-      margin-bottom: calc(147px - 16px);
+      margin-bottom: calc(82px - 16px);
       border-radius: 0;
       border: none;
    }
@@ -140,7 +140,6 @@ const isSaveandExitEnabled = computed(() => {
       @media (max-width: 768px) {
          flex-direction: row;
          padding: 24px 16px 40px;
-         margin-bottom: 70px;
          box-shadow: none;
          padding: 16px;
          border: none;

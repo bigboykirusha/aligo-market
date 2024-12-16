@@ -2,7 +2,7 @@
    <div class="header-row"
       :class="{ 'header-row--expanded': showDropdown || !isWithMargin, 'header-row--with-margin': isWithMargin }">
       <div class="header-row__container">
-         <nuxt-link to="/" class="header-row__logo-section">
+         <nuxt-link v-show="!isInputFocused || isDesktop" to="/" class="header-row__logo-section">
             <img :src="logoMain" alt="Logo" class="header-row__logo" />
          </nuxt-link>
          <div class="header-row__controls">
@@ -13,11 +13,12 @@
             <div class="header-row__search-bar">
                <div class="header-row__search">
                   <input type="text" v-model="searchQuery" :placeholder="searchPlaceholder"
-                     class="header-row__search-input" @keydown.enter="handleSearch" ref="searchInput" />
+                     class="header-row__search-input" @keydown.enter="handleSearch" ref="searchInput"
+                     @focus="handleInputFocus(true)" @blur="handleInputFocus(false)" />
                   <img v-if="searchQuery" src="../assets/icons/close-blue.svg" class="clear-icon" alt="Clear Icon"
                      @click="clearSearch" />
                </div>
-               <button class="header-row__search-btn" @click="handleSearch">
+               <button :class="{ 'header-row__search-btn--focused': isInputFocused }" class="header-row__search-btn" @click="handleSearch">
                   <img class="header-row__search-btn-icon header-row__search-btn-icon--white"
                      src="../assets/icons/search.svg" alt="">
                   <img class="header-row__search-btn-icon header-row__search-btn-icon--blue"
@@ -46,7 +47,6 @@
          </div>
       </div>
       <DropdownMenu v-model="showDropdown" />
-      <UserMenuBurger v-model="isSideMenuOpen" />
    </div>
 </template>
 
@@ -58,9 +58,9 @@ import { useCityStore } from '../store/city.js';
 import { useRouter } from 'vue-router';
 import logoMain from '../assets/images/logo.svg';
 import { getImageUrl } from '~/services/imageUtils.js';
-import { useLoginModalStore } from '~/store/loginModal.js';  // Import the store
+import { useLoginModalStore } from '~/store/loginModal.js';
 
-const loginModalStore = useLoginModalStore();  // Initialize the store
+const loginModalStore = useLoginModalStore();
 
 const dropdownStore = useDropdownStore();
 const showDropdown = computed(() => dropdownStore.showDropdown);
@@ -69,6 +69,7 @@ const searchQuery = ref("");
 const searchInput = ref(null);
 const isUserMenuOpen = ref(false);
 const isDesktop = ref(false);
+const isInputFocused = ref(false);
 import avatarPhoto from '../assets/icons/avatar-revers.svg'
 
 const userStore = useUserStore();
@@ -81,17 +82,10 @@ const searchPlaceholder = computed(() => {
    return `Поиск в г. ${cityName}`;
 });
 
-const isSideMenuOpen = ref(false);
-
-const toggleSideMenu = () => {
-   isSideMenuOpen.value = !isSideMenuOpen.value;
-};
 
 const toggleUserMenu = () => {
    if (isDesktop.value) {
       isUserMenuOpen.value = !isUserMenuOpen.value;
-   } else {
-      toggleSideMenu();
    }
 };
 
@@ -129,6 +123,10 @@ const handleSearch = async () => {
    } catch (error) {
       console.error('Ошибка при поиске:', error);
    }
+};
+
+const handleInputFocus = (focused) => {
+   isInputFocused.value = focused;
 };
 
 const handleScroll = () => {
@@ -263,6 +261,7 @@ onUnmounted(() => {
       max-width: 1280px;
       margin: 0 auto;
       padding: 16px 0;
+      transition: width 0.2s ease;
    }
 
    &__logo-section {
@@ -289,7 +288,7 @@ onUnmounted(() => {
       width: 100%;
       align-items: center;
       gap: 16px;
-      transition: gap 0.2s ease;
+      transition: width 0.2s ease;
 
       @media (max-width: 768px) {
          gap: 12px;
@@ -371,13 +370,15 @@ onUnmounted(() => {
       border: 2px solid #d6d6d6;
       border-right: none;
       border-radius: 6px 0 0 6px;
+      transition: width 0.3s ease;
+
+      input {
+         width: 100%;
+         transition: width 0.2s ease;
+      }
 
       &:focus-within {
          border-color: #3366FF;
-
-         @media (max-width: 480px) {
-            border-color: #d6d6d6;
-         }
       }
    }
 
@@ -385,6 +386,10 @@ onUnmounted(() => {
       flex-grow: 1;
       margin-left: 16px;
       border: none;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      transition: width 0.3s ease;
 
       @media (max-width: 480px) {
          margin-left: 8px;
@@ -414,6 +419,10 @@ onUnmounted(() => {
          background-color: #fff;
          border: 2px solid #d6d6d6;
          border-left: none;
+      }
+
+      &--focused {
+         border-color: #3366FF;
       }
 
       &:hover {

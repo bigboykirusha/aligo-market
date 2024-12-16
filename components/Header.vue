@@ -167,7 +167,6 @@ const containerClasses = computed(() => ({
 const isMyselfRoute = computed(() => route.path.startsWith('/myself'));
 
 onMounted(() => {
-  if (userStore.isLoggedIn) userStore.fetchUserCounts();
   isClient.value = true;
   updateIsDesktop();
   window.addEventListener('resize', updateIsDesktop);

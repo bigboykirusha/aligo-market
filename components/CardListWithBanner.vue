@@ -101,7 +101,7 @@ const mapCardProps = (ad) => ({
    callNumber: ad.ads_parameter.phone,
    messageEmail: ad.ads_parameter.email,
    horizontal: activeIndex.value === 1,
-   brand: ad.auto_technical_specifications[0].brand.title,
+   brand: ad.auto_technical_specifications[0].brand.title || 'Не указан',
    model: ad.auto_technical_specifications[0].model.title,
    username: ad.ads_parameter.username,
    is_in_favorites: ad.is_in_favorites,

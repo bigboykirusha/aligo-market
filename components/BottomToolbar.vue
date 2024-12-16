@@ -1,5 +1,5 @@
 <template>
-   <nav class="bottom-toolbar" :class="{ 'bottom-toolbar--hidden': showDropdown }">
+   <nav class="bottom-toolbar" :class="{ 'bottom-toolbar--hidden': showDropdown || isCreatePage}">
       <ul class="bottom-toolbar__list">
          <li class="bottom-toolbar__item" v-for="item in menuItems" :key="item.title"
             :class="{ 'bottom-toolbar__item--active': isActive(item.path, item.icon) }">
@@ -77,7 +77,8 @@ const burgerStore = useBurgerStore();
 
 const dropdownStore = useDropdownStore();
 const showDropdown = computed(() => dropdownStore.showDropdown);
-const showMenu= computed(() => burgerStore.showMenu);
+const showMenu = computed(() => burgerStore.isOpen);
+const isCreatePage = computed(() => route.path.startsWith('/createAd'));
 
 const route = useRoute();
 const router = useRouter();

@@ -158,7 +158,6 @@ onUnmounted(() => {
 
 onMounted(() => {
    window.addEventListener('scroll', handleScroll);
-   fetchUserCounts();
 });
 
 const logout = () => {

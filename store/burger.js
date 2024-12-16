@@ -7,12 +7,22 @@ export const useBurgerStore = defineStore('burger', {
    actions: {
       toggleBurger() {
          this.isOpen = !this.isOpen;
+         this.updateBodyScroll();
       },
       openBurger() {
          this.isOpen = true;
+         this.updateBodyScroll();
       },
       closeBurger() {
          this.isOpen = false;
+         this.updateBodyScroll();
+      },
+      updateBodyScroll() {
+         if (this.isOpen) {
+            document.body.classList.add('no-scroll');
+         } else {
+            document.body.classList.remove('no-scroll');
+         }
       },
    },
 });
