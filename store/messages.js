@@ -8,14 +8,15 @@ export const useMessagesStore = defineStore('messages', {
       error: null,
    }),
    actions: {
-      async loadLastMessages(locale) {
+      async loadLastMessages(locale, unread_chats = false, read_chats = false, only_my_ads = false) {
          this.loading = true;
          this.error = null;
 
-         await new Promise(resolve => setTimeout(resolve, 1000));
+         await new Promise(resolve => setTimeout(resolve, 500));
 
          try {
-            const { data } = await fetchLastMessages(locale);
+            // Передаём дополнительные параметры в fetchLastMessages
+            const { data } = await fetchLastMessages(locale, unread_chats, read_chats, only_my_ads);
             this.lastMessages = data;
          } catch (err) {
             console.error('Ошибка при загрузке сообщений:', err);
@@ -23,6 +24,6 @@ export const useMessagesStore = defineStore('messages', {
          } finally {
             this.loading = false;
          }
-      },
+      }
    },
 });

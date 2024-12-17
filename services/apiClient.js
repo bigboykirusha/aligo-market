@@ -111,11 +111,19 @@ export const sendReview = async (adsId, mainCategoryId, grade, comment, photos =
    }
 };
 
-export const fetchLastMessages = async (translate_to) => {
+export const fetchLastMessages = async (translate_to, unread_chats = false, read_chats = false, only_my_ads = false) => {
    try {
-      const response = await apiClient.get('/chats/last_messages', {
-         params: { translate_to }
-      });
+      // Создаём объект параметров для запроса
+      const params = { translate_to };
+
+      // Добавляем дополнительные параметры, если они переданы как true
+      if (unread_chats) params.unread_chats = true;
+      if (read_chats) params.read_chats = true;
+      if (only_my_ads) params.only_my_ads = true;
+
+      // Выполняем GET-запрос с параметрами
+      const response = await apiClient.get('/chats/last_messages', { params });
+
       return { data: response.data.data, totalCount: response.data.total_count };
    } catch (error) {
       console.error('Ошибка при получении последних сообщений: ', error);

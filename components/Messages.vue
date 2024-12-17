@@ -166,7 +166,7 @@
                      </button>
                   </div>
                   <input v-model="newMessage" @keyup.enter="handleSendMessage" placeholder="Напишите сообщение"
-                     class="chat-wrapper__message-input" :disabled="isSending" ref="mesInput"/>
+                     class="chat-wrapper__message-input" :disabled="isSending" ref="mesInput" />
                   <button class="chat-wrapper__send-button" @click="handleSendMessage" :disabled="isSending">
                      <template v-if="isSending">
                         <div class="spinner"></div>
@@ -405,12 +405,35 @@ const items = [
 ];
 
 const sortOptions = [
+   { label: 'Все', value: '0' },
    { label: 'Прочитанные', value: '1' },
-   { label: 'Не прочитанные', value: '0' },
+   { label: 'Не прочитанные', value: '2' },
+   { label: 'Мои объявления', value: '3' }
 ];
 
 const handleSortUpdate = (order_by) => {
    console.log('Sorting by:', order_by);
+
+   // Определяем параметры на основе значения сортировки
+   let unread_chats = false;
+   let read_chats = false;
+   let only_my_ads = false;
+
+   if (order_by === '1') {
+      read_chats = true; // Прочитанные
+   } else if (order_by === '2') {
+      unread_chats = true; // Непрочитанные
+   } else if (order_by === '3') {
+      only_my_ads = true; // Мои объявления
+   }
+
+   // Если order_by = '0', передаём пустые параметры
+   if (order_by === '0') {
+      messagesStore.loadLastMessages();
+   } else {
+      // Передаём только параметры, которые соответствуют выбранному фильтру
+      messagesStore.loadLastMessages('ru', unread_chats, read_chats, only_my_ads);
+   }
 };
 
 const checkScreenWidth = () => {
@@ -464,7 +487,7 @@ function scrollToBottom() {
             console.log(chatContainer.value.scrollHeight);
          }
          setFocus();
-      }, 200); 
+      }, 200);
    });
 }
 
