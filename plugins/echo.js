@@ -4,11 +4,13 @@ import { getCookie } from '~/services/auth';
 import { useUserStore } from '~/store/user';
 import { useChatStore } from '../store/chatStore.js';
 import { usePopupStore } from '~/store/popup.js';
+import { useMessagesStore } from '~/store/messages.js';
 
 export default defineNuxtPlugin((nuxtApp) => {
    const userStore = useUserStore();
    const chatStore = useChatStore();
    const popupStore = usePopupStore();
+   const messagesStore = useMessagesStore();
 
    // Функция для инициализации Echo
    const initializeEcho = () => {
@@ -88,6 +90,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       window.Echo.private(storeChannelName)
          .listen('.store_message', (res) => {
             console.log('Получено сообщение на канале:', storeChannelName, res);
+            messagesStore.loadLastMessages();
 
             if (!chatStore.currentChat) {
                popupStore.setAdSended(1, "Получено новое сообщение, проверьте чаты");

@@ -6,7 +6,9 @@
          </button>
          <form class="modal__form" @submit.prevent="submitBlock">
             <div class="modal__header">
-               <h2 class="modal__title">Блокировать пользователя «{{ chatStore.currentChat.userInfo }}»</h2>
+               <h2 class="modal__title">Блокировать пользователя «{{ chatStore.currentChat.for_user.id ===
+                  userStore.userId ? chatStore.currentChat.from_user.username : chatStore.currentChat.for_user.username
+                  }}»</h2>
                <p class="modal__description">
                   Пользователь не сможет отправлять вам сообщения и оставлять комментарии. Укажите причину блокировки:
                </p>
@@ -52,7 +54,8 @@
 import { ref } from 'vue';
 import closeIcon from '@/assets/icons/close.svg';
 import { useChatStore } from '~/store/chatStore';
-import { blockUser } from '~/services/apiClient.js'; 
+import { useUserStore } from '~/store/user.js';
+import { blockUser } from '~/services/apiClient.js';
 
 const props = defineProps({
    isVisible: Boolean,
@@ -63,6 +66,8 @@ const props = defineProps({
 
 const emit = defineEmits(['close']);
 const chatStore = useChatStore();
+const userStore = useUserStore();
+
 const blockReasons = ref([]);
 const customReason = ref('');
 
@@ -84,8 +89,8 @@ const submitBlock = async () => {
       };
 
       try {
-         await blockUser(data); 
-         closePopup();  
+         await blockUser(data);
+         closePopup();
       } catch (error) {
          console.error('Ошибка при блокировке пользователя:', error);
       }

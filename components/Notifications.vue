@@ -3,7 +3,7 @@
       <div class="notifications__title">
          Оповещения
       </div>
-      <div class="notifications__actions">
+      <div v-show="!loading && notifications.length" class="notifications__actions">
          <button @click="handleMarkAllAsRead" class="notifications__action-button">
             <img src="../assets/icons/done.svg" alt="done" />
             <span> Пометить все как прочитанные</span>
@@ -65,12 +65,12 @@ const loading = ref(true);
 
 const fetchNotifications = async () => {
    try {
-      const fetchedNotifications = await getNotifications(); 
+      const fetchedNotifications = await getNotifications();
       notifications.value = fetchedNotifications;
    } catch (error) {
       console.error('Ошибка при получении оповещений: ', error);
    } finally {
-      loading.value = false; 
+      loading.value = false;
    }
 };
 
@@ -217,7 +217,7 @@ onMounted(fetchNotifications);
       justify-content: center;
       text-align: center;
       gap: 16px;
-      height: 300px;
+      height: 450px;
       width: 320px;
       margin: 0 auto;
       color: #636363;

@@ -6,7 +6,9 @@
          </button>
          <form class="modal__form" @submit.prevent="submitComplaintHandler">
             <div class="modal__header">
-               <h2 class="modal__title">Жалоба на пользователя «{{ chatStore.currentChat.userInfo }}»</h2>
+               <h2 class="modal__title">Жалоба на пользователя «{{ chatStore.currentChat.for_user.id ===
+                  userStore.userId ? chatStore.currentChat.from_user.username : chatStore.currentChat.for_user.username
+                  }}»</h2>
                <p class="modal__description">
                   Коротко опишите, в чем суть претензии, прикрепите изображения и документы при необходимости.
                </p>
@@ -62,6 +64,7 @@ import { ref } from 'vue';
 import closeIcon from '@/assets/icons/close.svg';
 import { useChatStore } from '~/store/chatStore';
 import { submitComplaint } from '../services/apiClient.js';
+import { useUserStore } from '~/store/user.js';
 
 const props = defineProps({
    isVisible: Boolean,
@@ -76,6 +79,7 @@ const complaintText = ref('');
 const blockUser = ref(false);
 const selectedFiles = ref([]);
 const chatStore = useChatStore();
+const userStore = useUserStore();
 
 const closePopup = () => {
    complaintText.value = '';

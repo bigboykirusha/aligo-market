@@ -165,6 +165,8 @@ onMounted(() => {
 .avatar {
    width: 34px;
    height: 34px;
+   min-width: 34px;
+      min-height: 34px;
    border-radius: 50%;
    border: 1px solid #fff;
    background-color: #3366FF;

@@ -63,7 +63,7 @@ onMounted(() => {
       justify-content: center;
       text-align: center;
       gap: 16px;
-      height: 300px;
+      height: 450px;
       width: 320px;
       margin: 0 auto;
       color: #636363;

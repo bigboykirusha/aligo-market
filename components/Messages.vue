@@ -816,7 +816,7 @@ watch(
    border-radius: 12px;
    flex-direction: column;
    transition: height 0.3s ease;
-   
+
 
    @media (max-width: 768px) {
       width: 100%;
@@ -825,8 +825,8 @@ watch(
    &.profile-page {
       box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
       height: 100%;
-      max-height: 508px;
-      min-height: 508px;
+      max-height: 550px;
+      min-height: 550px;
 
       @media (max-width: 768px) {
          position: absolute;
@@ -984,9 +984,9 @@ watch(
       width: 100%;
       background: #fff;
       box-shadow: 0px -3px 10px rgba(0, 0, 0, 0.05);
-      padding: 8px 24px;
+      padding: 8px;
       margin-top: auto;
-      gap: 16px;
+      gap: 8px;
 
       @media (max-width: 768px) {
          padding: 16px;
@@ -1035,16 +1035,18 @@ watch(
    &__message-icons-left {
       display: flex;
       align-items: center;
+      height: 34px;
+      width: 34px;
    }
 
    &__message-icon-left {
       display: flex;
       align-items: center;
       justify-content: center;
-      min-width: 30px;
+      height: 34px;
+      width: 34px;
       background: transparent;
-      border-radius: 50%;
-      height: 30px;
+      border-radius: 4px;
       outline: none;
       border: none;
       cursor: pointer;

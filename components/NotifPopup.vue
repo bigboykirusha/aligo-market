@@ -1,12 +1,14 @@
 <template>
-   <div v-if="isPopupVisible" class="popup" :class="{ 'popup--visible': isPopupVisible }">
-      <div class="popup__content">
-         <p v-if="popupStore.statusText" class="popup__text">
-            {{ popupStore.statusText }}
-         </p>
-         <img @click="hidePopup" class="popup__close-btn" src="../assets/icons/close-white.svg" alt="Close">
+   <transition name="popup-fade">
+      <div v-if="isPopupVisible" class="popup">
+         <div class="popup__content">
+            <p v-if="popupStore.statusText" class="popup__text">
+               {{ popupStore.statusText }}
+            </p>
+            <img @click="hidePopup" class="popup__close-btn" src="../assets/icons/close-white.svg" alt="Close">
+         </div>
       </div>
-   </div>
+   </transition>
 </template>
 
 <script setup>
@@ -32,15 +34,19 @@ onMounted(() => {
 .popup {
    position: fixed;
    right: 24px;
-   width: 324px;
+   bottom: 96px;
+   width: 420px;
+   height: 50px;
    color: white;
    z-index: 9999;
-   opacity: 0;
+   opacity: 1;
    transition: opacity 0.2s ease-in-out;
 
    &__content {
       display: flex;
-      border-radius: 6px;
+      justify-content: center;
+      border-radius: 12px;
+      height: 50px;
       background-color: #3366ff;
       padding: 16px;
       position: relative;
@@ -72,10 +78,6 @@ onMounted(() => {
       text-decoration: underline;
    }
 
-   &.popup--visible {
-      opacity: 1;
-   }
-
    @media (max-width: 768px) {
       left: 0;
       right: 0;
@@ -92,7 +94,23 @@ onMounted(() => {
    }
 
    @media (min-width: 769px) {
-      bottom: 24px;
+      bottom: 110px;
    }
+}
+
+/* Анимации для появления и исчезновения */
+.popup-fade-enter-active,
+.popup-fade-leave-active {
+   transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.popup-fade-enter-from {
+   opacity: 0;
+   transform: translateY(24px);
+}
+
+.popup-fade-leave-to {
+   opacity: 0;
+   transform: translateY(24px);
 }
 </style>

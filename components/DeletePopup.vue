@@ -5,7 +5,8 @@
             <img :src="closeIcon" alt="close icon" />
          </button>
          <div class="modal__body">
-            <h2 class="modal__title">Удалить чат с пользователем «{{ chatStore.currentChat.userInfo }}»?</h2>
+            <h2 class="modal__title">Удалить чат с пользователем «{{ chatStore.currentChat.for_user.id ===
+                  userStore.userId ? chatStore.currentChat.from_user.username : chatStore.currentChat.for_user.username }}»?</h2>
             <p class="modal__description">
                Внимание, переписка и все данные будут утеряны навсегда. Вы уверены?
             </p>
@@ -25,6 +26,8 @@
 <script setup>
 import closeIcon from '@/assets/icons/close.svg';
 import { useChatStore } from '~/store/chatStore';
+import { useUserStore } from '~/store/user';
+import { useMessagesStore } from '~/store/messages';
 import { deleteChats } from '~/services/apiClient';
 
 const props = defineProps({
@@ -36,6 +39,8 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'delete']);
 const chatStore = useChatStore();
+const userStore = useUserStore();
+const messagesStore = useMessagesStore();
 
 const closePopup = () => {
    emit('close');
@@ -45,9 +50,10 @@ const confirmDeletion = async () => {
    try {
       const ids = [{ ads_id: props.adsId, main_category_id: props.mainCategoryId, user_id: props.user_id }];
       await deleteChats(ids);
-
-      emit('delete');
+      chatStore.setCurrentChat(null);
+      messagesStore.loadLastMessages();
       closePopup();
+      emit('delete');
    } catch (error) {
       console.error('Ошибка при удалении чатов:', error);
    }

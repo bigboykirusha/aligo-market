@@ -294,7 +294,7 @@ async function handleSendMessage() {
       return;
    }
 
-   if (isSending.value) return; 
+   if (isSending.value) return;
 
    isSending.value = true;
    try {
@@ -459,14 +459,14 @@ watch(
 
 .chat-wrapper {
    position: fixed;
-   bottom: 0;
-   right: 100px;
+   bottom: 24px;
+   right: 24px;
    z-index: 40;
-   background-color: #f4f4f9;
    width: 420px;
    height: 600px;
    display: flex;
-   border-radius: 4px 4px 0 0;
+   border-radius: 12px;
+   background-color: #fff;
    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.08), 0px 0px 6px rgba(0, 0, 0, 0.08);
    flex-direction: column;
    transition: height 0.3s ease;
@@ -611,10 +611,11 @@ watch(
       background: #fff;
       box-shadow: 0px -3px 10px rgba(0, 0, 0, 0.05), 0px -3px 4px rgba(0, 0, 0, 0.02);
       padding: 18px 24px;
+      border-radius: 0 0 12px 12px;
       margin-top: auto;
       gap: 16px;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          padding: 16px;
       }
    }
@@ -712,7 +713,7 @@ watch(
    width: 420px;
    padding: 10px 16px;
    height: 70px;
-   border-radius: 4px 4px 0 0;
+   border-radius: 12px 12px 0 0;
    box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.05), 0px 3px 4px rgba(0, 0, 0, 0.02);
    gap: 6px;
    color: #3366FF;
@@ -830,6 +831,10 @@ watch(
 .chat-wrapper--collapsed {
    .chat-header__toggle-icon {
       transform: rotate(180deg);
+   }
+
+   .chat-header {
+      border-radius: 12px;
    }
 }
 
