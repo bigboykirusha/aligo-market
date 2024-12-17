@@ -166,7 +166,7 @@
                      </button>
                   </div>
                   <input v-model="newMessage" @keyup.enter="handleSendMessage" placeholder="Напишите сообщение"
-                     class="chat-wrapper__message-input" :disabled="isSending" />
+                     class="chat-wrapper__message-input" :disabled="isSending" ref="mesInput"/>
                   <button class="chat-wrapper__send-button" @click="handleSendMessage" :disabled="isSending">
                      <template v-if="isSending">
                         <div class="spinner"></div>
@@ -241,6 +241,14 @@ const file = ref([]);
 const translateTo = ref(null);
 const chatContainer = ref(null);
 const isSending = ref(false);
+
+const mesInput = ref(null);
+
+const setFocus = () => {
+   if (mesInput.value) {
+      mesInput.value.focus();
+   }
+};
 
 const showNamePopup = () => isNamePopupVisible.value = true;
 const closeNamePopup = () => isNamePopupVisible.value = false;
@@ -455,6 +463,7 @@ function scrollToBottom() {
             chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
             console.log(chatContainer.value.scrollHeight);
          }
+         setFocus();
       }, 200); 
    });
 }

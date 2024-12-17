@@ -159,8 +159,8 @@
                <img src="../assets/icons/photo.svg" alt="Upload Photo" />
             </button>
          </div>
-         <input v-model="newMessage" @keyup.enter="handleSendMessage" placeholder="Напишите сообщение"
-            class="chat-wrapper__message-input" :disabled="isSending" ref="mesInput" />
+         <input v-model="newMessage" @keyup.enter="handleSendMessage" ref="mesInput" placeholder="Напишите сообщение"
+            class="chat-wrapper__message-input" :disabled="isSending" />
          <button class="chat-wrapper__send-button" @click="handleSendMessage" :disabled="isSending">
             <template v-if="isSending">
                <div class="spinner"></div>
@@ -191,8 +191,8 @@ const userStore = useUserStore();
 const chatStore = useChatStore();
 
 const draggable = ref(null);
-let offsetX = 0; // Смещение по оси X
-let offsetY = 0; // Смещение по оси Y
+let offsetX = 0;
+let offsetY = 0;
 
 const mesInput = ref(null);
 

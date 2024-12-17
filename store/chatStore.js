@@ -4,7 +4,7 @@ export const useChatStore = defineStore('chatStore', {
    state: () => ({
       currentChat: null,
       isCollapsed: true,
-      isChatVisible: true, // Новый параметр для отображения чата
+      isChatVisible: true,
       messages: [],
       usersWithAvatars: []
    }),

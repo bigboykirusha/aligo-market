@@ -76,7 +76,9 @@ const characteristics = computed(() => {
       'Коробка передач': props.car.auto_technical_specifications[0].transmission.title || 'Не указано',
       'Привод': props.car.auto_technical_specifications[0].drive.title || 'Не указано',
       'Тип кузова': props.car.auto_technical_specifications[0].car_body_type.title || 'Не указано',
-      'Цвет': props.car.auto_appearances[0].color.title || 'Не указано',
+      'Цвет': props.car.auto_appearances?.[0]?.color
+         ?.map(c => c.title.charAt(0).toUpperCase() + c.title.slice(1))
+         .join(', ') || 'Не указано',
       'Руль': props.car.auto_technical_specifications[0].handlebar.title || 'Не указано',
       'VIN или номер кузова': maskedVin,
       'Усилитель руля': props.car.auto_additional_options[0]?.power_steering?.title || 'Не указано',

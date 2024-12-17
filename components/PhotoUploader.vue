@@ -3,10 +3,11 @@
       <label>{{ label }}</label>
       <div class="photo-uploader__photos">
          <!-- Отображаем как файлы с сервера, так и загруженные -->
-         <div v-for="(photo, index) in localPhotos" :key="index" class="photo-uploader__photo">
+         <div v-for="(photo, index) in localPhotos" :key="photo.id || index" class="photo-uploader__photo">
             <img :src="getImageUrl(photo)" alt="uploaded photo" />
-            <!-- Убираем кнопку удаления для серверных фото -->
-            <button v-if="photo.is_file === 1" @click="removePhoto(index)" class="photo-uploader__remove-btn">
+            <!-- Кнопка удаления для фото с сервера и для локальных фото -->
+            <button v-if="photo.is_file === 1 || photo.is_file === 0" @click="removePhoto(index, photo)"
+               class="photo-uploader__remove-btn">
                <img src="../assets/icons/close-white.svg" alt="" />
             </button>
          </div>
@@ -22,6 +23,7 @@
 
 <script setup>
 import { ref, watch, onMounted } from 'vue';
+import { useCreateStore } from '@/store/create'; // Импортируем store
 
 const props = defineProps({
    label: {
@@ -41,6 +43,7 @@ const props = defineProps({
 const emit = defineEmits(['updatePhotos']);
 const localPhotos = ref([...props.photos]);
 const baseUrl = 'https://dev.aligo.pro';
+const createStore = useCreateStore(); // Получаем store для работы с массивом idsDeletePhotos
 
 watch(
    () => props.photos,
@@ -63,7 +66,13 @@ const onPhotoSelected = (event) => {
    emit('updatePhotos', localPhotos.value);
 };
 
-const removePhoto = (index) => {
+const removePhoto = (index, photo) => {
+   // Если фото с сервера, добавляем его ID в список удаленных
+   if (photo.is_file === 0 && photo.id) {
+      createStore.setIdsDeletePhotos(photo.id); // Добавляем ID удаленной фотографии
+   }
+
+   // Удаляем фото из локального массива
    localPhotos.value.splice(index, 1);
    emit('updatePhotos', localPhotos.value);
 };

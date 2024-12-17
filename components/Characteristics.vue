@@ -11,7 +11,7 @@
          <PhotoUploader label="Фотографии (до 10 шт)" :photos="createStore.photos" @updatePhotos="updatePhotos" />
          <ColorPickerCreateSkeleton v-if="loading" />
          <ColorPickerCreate v-else :options="colorOptions" label="Цвет" @updateSelected="handleColorUpdate"
-            :activeIndex="createStore.color_id" />
+            :activeIndices="createStore.color_ids" />
       </div>
       <div class="characteristics__content">
          <BlockTitle text="Регистрационные данные" />

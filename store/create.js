@@ -13,7 +13,8 @@ export const useCreateStore = defineStore('create', {
 
       // Характеристики
       photos: [],
-      color_id: null,
+      ids_delete_photos: [],
+      color_ids: [],
       video: null,
 
       // Регистрационные данные 
@@ -128,7 +129,7 @@ export const useCreateStore = defineStore('create', {
       isCharacteristicFieldsFilled: (state) => {
          return [
             state.photos,
-            state.color_id,
+            state.color_ids.length > 0,
             state.country_id,
             state.vin,
             ...(state.country_id !== 1 ? [state.state_number] : []),
@@ -160,7 +161,7 @@ export const useCreateStore = defineStore('create', {
       isAnyFieldFilled: (state) => {
          return [
             state.photos.length > 0,
-            state.color_id !== null,
+            state.color_ids.length > 0,
             state.video !== null,
             state.country_id !== null,
             state.vin !== null,
@@ -219,13 +220,33 @@ export const useCreateStore = defineStore('create', {
       addPhoto(photo) {
          this.photos.push(photo);
       },
-
+      setIdsDeletePhotos(photoId) {
+         this.ids_delete_photos.push(photoId);
+      },
       removePhoto(index) {
          this.photos.splice(index, 1);
       },
-      setColorId(color_id) {
-         this.color_id = color_id;
+      setColorId(color_ids) {
+         this.color_ids = color_ids;
       },
+      addColorId(color_id) {
+         if (!this.color_ids.includes(color_id)) {
+            this.color_ids.push(color_id);
+         }
+      },
+      // Удаляет ID из массива
+      removeColorId(color_id) {
+         this.color_ids = this.color_ids.filter((id) => id !== color_id);
+      },
+      // Переключает состояние ID (добавляет или удаляет)
+      toggleColorId(color_id) {
+         if (this.color_ids.includes(color_id)) {
+            this.removeColorId(color_id);
+         } else {
+            this.addColorId(color_id);
+         }
+      },
+
       setVideo(video) {
          this.video = video;
       },
@@ -540,7 +561,18 @@ export const useCreateStore = defineStore('create', {
             }
          });
 
-         if (this.color_id !== null) formData.append('color_id', this.color_id);
+         if (this.ids_delete_photos.length > 0) {
+            this.ids_delete_photos.forEach((id, index) => {
+               formData.append(`ids_delete_photos[${index}]`, id);
+            });
+         }
+
+         if (this.color_ids.length > 0) {
+            this.color_ids.forEach((colorId, index) => {
+               formData.append(`color_ids[${index}]`, colorId);
+            });
+         }
+
          if (this.video !== null) formData.append('video', this.video);
 
          // Регистрационные данные
@@ -673,7 +705,18 @@ export const useCreateStore = defineStore('create', {
             }
          });
 
-         if (this.color_id !== null) formData.append('color_id', this.color_id);
+         if (this.ids_delete_photos.length > 0) {
+            this.ids_delete_photos.forEach((id, index) => {
+               formData.append(`ids_delete_photos[${index}]`, id);
+            });
+         }
+
+         if (this.color_ids.length > 0) {
+            this.color_ids.forEach((colorId, index) => {
+               formData.append(`color_ids[${index}]`, colorId);
+            });
+         }
+
          if (this.video !== null) formData.append('video', this.video);
 
          // Регистрационные данные
@@ -804,8 +847,8 @@ export const useCreateStore = defineStore('create', {
 
             // Характеристики
             this.photos = carData.photos || [];
-            this.color_id = carData.auto_appearances?.[0]?.color?.id || null;
-            this.video = carData.auto_appearances?.[0]?.video || null;
+            
+            this.color_ids = carData.auto_appearances?.[0]?.color?.map(color => color.id) || [];
 
             // Регистрационные данные 
             this.country_id = carData.auto_registration_data?.[0]?.country?.id || null;
@@ -952,7 +995,8 @@ export const useCreateStore = defineStore('create', {
          this.condition_id = null;
 
          this.photos = [];
-         this.color_id = null;
+         this.ids_delete_photos = [];
+         this.color_ids = [];
          this.video = null;
 
          this.country_id = null;

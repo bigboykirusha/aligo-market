@@ -3,7 +3,8 @@
       <div class="color-picker__title">{{ label }}</div>
       <div class="color-picker__options">
          <div v-for="color in options" :key="color.id" class="color-picker__option" :style="getStyle(color)"
-            :class="{ 'color-picker__option--selected': selectedColor === color.id }" @click="selectColor(color.id)">
+            :class="{ 'color-picker__option--selected': selectedColors.includes(color.id) }"
+            @click="toggleColorSelection(color.id)">
             <div class="color-picker__tooltip">
                {{ color.title }}
                <span class="color-picker__tooltip-arrow"></span>
@@ -26,28 +27,34 @@ const props = defineProps({
       type: String,
       default: '',
    },
-   activeIndex: {
-      type: Number,
-      default: null,
+   activeIndices: {
+      type: Array,
+      default: () => [],
    },
 });
 
-const selectedColor = ref(null);
+const selectedColors = ref([...props.activeIndices]);
 
 onMounted(() => {
-   selectedColor.value = props.activeIndex;
+   selectedColors.value = [...props.activeIndices];
 });
 
-watch(() => props.activeIndex, (newIndex) => {
-   selectedColor.value = newIndex;
+watch(() => props.activeIndices, (newIndices) => {
+   selectedColors.value = [...newIndices];
 });
 
-watch(selectedColor, (newColor) => {
-   emit('updateSelected', newColor);
+watch(selectedColors, (newColors) => {
+   emit('updateSelected', newColors);
 });
 
-const selectColor = (id) => {
-   selectedColor.value = id;
+const toggleColorSelection = (id) => {
+   if (selectedColors.value.includes(id)) {
+      // Убираем цвет из выбранных
+      selectedColors.value = selectedColors.value.filter(colorId => colorId !== id);
+   } else {
+      // Добавляем цвет в список выбранных
+      selectedColors.value.push(id);
+   }
 };
 
 const getStyle = (color) => {
