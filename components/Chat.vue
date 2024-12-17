@@ -1,6 +1,6 @@
 <template>
-   <div v-if="total > 0" class="chat-wrapper" :class="{ 'chat-wrapper--collapsed': chatStore.isCollapsed }"
-      ref="draggable">
+   <div v-if="total > 0 && chatStore.isChatVisible" class="chat-wrapper"
+      :class="{ 'chat-wrapper--collapsed': chatStore.isCollapsed }" ref="draggable">
       <!-- Заголовок чата -->
       <div class="chat-header" @mousedown="startDrag">
          <!-- Информация о текущем чате -->
@@ -47,7 +47,7 @@
             <img class="chat-header__toggle-icon" src="../assets/icons/down.svg" alt="Toggle" />
          </button>
          <button v-if="chatStore.isCollapsed" class="chat-header__close-button chat-header__close-button--remove"
-            @click="removeChat">
+            @click="chatStore.hideChat">
             <img src="../assets/icons/close.svg" alt="Close" />
          </button>
       </div>
@@ -160,7 +160,7 @@
             </button>
          </div>
          <input v-model="newMessage" @keyup.enter="handleSendMessage" placeholder="Напишите сообщение"
-            class="chat-wrapper__message-input" :disabled="isSending" />
+            class="chat-wrapper__message-input" :disabled="isSending" ref="mesInput" />
          <button class="chat-wrapper__send-button" @click="handleSendMessage" :disabled="isSending">
             <template v-if="isSending">
                <div class="spinner"></div>
@@ -193,6 +193,14 @@ const chatStore = useChatStore();
 const draggable = ref(null);
 let offsetX = 0; // Смещение по оси X
 let offsetY = 0; // Смещение по оси Y
+
+const mesInput = ref(null);
+
+const setFocus = () => {
+   if (mesInput.value) {
+      mesInput.value.focus();
+   }
+};
 
 const startDrag = (event) => {
    offsetX = event.clientX - draggable.value.offsetLeft;
@@ -246,6 +254,7 @@ function scrollToBottom() {
             chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
             console.log(chatContainer.value.scrollHeight);
          }
+         setFocus();
       }, 200);
    });
 }
