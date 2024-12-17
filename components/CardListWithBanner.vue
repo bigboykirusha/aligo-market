@@ -99,6 +99,7 @@ const mapCardProps = (ad) => ({
    price: ad.ads_parameter.amount,
    place: ad.ads_parameter.place_inspection || 'Адрес не указан',
    callNumber: ad.ads_parameter.phone,
+   year: ad.auto_technical_specifications[0].year_release.title,
    messageEmail: ad.ads_parameter.email,
    horizontal: activeIndex.value === 1,
    brand: ad.auto_technical_specifications[0].brand.title || 'Не указан',
