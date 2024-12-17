@@ -282,7 +282,9 @@ async function loadMessages() {
       console.error('Ошибка при загрузке сообщений:', error);
    } finally {
       loading.value = false;
-      scrollToBottom();
+      setTimeout(() => {
+         scrollToBottom();
+      }, 500);
    }
 }
 

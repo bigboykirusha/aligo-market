@@ -444,7 +444,9 @@ const loadMessages = async () => {
          console.error('Error loading messages:', error);
       } finally {
          loading.value = false;
-         scrollToBottom();
+         setTimeout(() => {
+            scrollToBottom();
+         }, 500);
       }
    }
 };
