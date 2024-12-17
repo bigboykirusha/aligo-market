@@ -393,7 +393,6 @@ const items = [
    { icon: adIcon, text: 'Перейти в объявление', action: goToAd },
    { icon: reviewsIcon, text: 'Оставить отзыв', action: leaveReview },
    { icon: blockIcon, text: 'Заблокировать', action: openBlockPopup },
-   { icon: alertIcon, text: 'Пожаловаться', action: openComplaintPopup },
    { icon: deleteIcon, text: 'Удалить чат', action: openDeletePopup },
 ];
 
@@ -444,19 +443,19 @@ const loadMessages = async () => {
          console.error('Error loading messages:', error);
       } finally {
          loading.value = false;
-         setTimeout(() => {
-            scrollToBottom();
-         }, 500);
+         scrollToBottom();
       }
    }
 };
 
 function scrollToBottom() {
    nextTick(() => {
-      if (chatContainer.value) {
-         chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
-         console.log(chatContainer.value.scrollHeight)
-      }
+      setTimeout(() => {
+         if (chatContainer.value) {
+            chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+            console.log(chatContainer.value.scrollHeight);
+         }
+      }, 200); 
    });
 }
 
@@ -678,27 +677,6 @@ watch(
       cursor: pointer;
       transition: all 0.3s ease;
 
-      &:last-child {
-         display: flex;
-         align-items: center;
-         justify-content: center;
-         margin-left: auto;
-         min-width: 34px;
-         padding: 0 9px;
-         background: #D6EFFF;
-         border-radius: 6px;
-         height: 34px;
-         transition: background-color 0.2s ease-in-out;
-
-         &:hover {
-            background-color: #A4DCFF;
-         }
-
-         img {
-            height: 16px;
-         }
-      }
-
       &:not(:last-child) {
          @media (max-width: 480px) {
             display: none;
@@ -776,7 +754,6 @@ watch(
       font-size: 14px;
       word-wrap: break-word;
       text-wrap: wrap;
-      max-width: 100%;
       gap: 16px;
       overflow-y: auto;
       margin: -8px;
@@ -1005,6 +982,7 @@ watch(
       padding: 0 10px;
       box-sizing: border-box;
       outline: none;
+      transition: border 0.2 ease;
 
       &:focus {
          border: 1px solid #3366FF;

@@ -1,7 +1,8 @@
 <template>
-   <div v-if="total > 0" class="chat-wrapper" :class="{ 'chat-wrapper--collapsed': chatStore.isCollapsed }">
+   <div v-if="total > 0" class="chat-wrapper" :class="{ 'chat-wrapper--collapsed': chatStore.isCollapsed }"
+      ref="draggable">
       <!-- Заголовок чата -->
-      <div class="chat-header">
+      <div class="chat-header" @mousedown="startDrag">
          <!-- Информация о текущем чате -->
          <div v-if="chatStore.currentChat" class="chat-header__info chat-header__info--active">
             <nuxt-link :to="`/user/${relevantUser(chatStore.currentChat).id}`" class="user-info__avatar">
@@ -189,6 +190,31 @@ import avatar from '../assets/icons/avatar-revers.svg';
 const userStore = useUserStore();
 const chatStore = useChatStore();
 
+const draggable = ref(null);
+let offsetX = 0; // Смещение по оси X
+let offsetY = 0; // Смещение по оси Y
+
+const startDrag = (event) => {
+   offsetX = event.clientX - draggable.value.offsetLeft;
+   offsetY = event.clientY - draggable.value.offsetTop;
+
+   // Добавляем обработчики событий на документ
+   document.addEventListener("mousemove", onDrag);
+   document.addEventListener("mouseup", stopDrag);
+};
+
+// Обновляем позицию элемента при движении мыши
+const onDrag = (event) => {
+   draggable.value.style.left = `${event.clientX - offsetX}px`;
+   draggable.value.style.top = `${event.clientY - offsetY}px`;
+};
+
+// Завершаем перетаскивание
+const stopDrag = () => {
+   document.removeEventListener("mousemove", onDrag);
+   document.removeEventListener("mouseup", stopDrag);
+};
+
 const newMessage = ref('');
 const file = ref([]);
 const total = ref(0);
@@ -215,10 +241,12 @@ const remainingCount = computed(() => {
 
 function scrollToBottom() {
    nextTick(() => {
-      if (chatContainer.value) {
-         chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
-         console.log(chatContainer.value.scrollHeight)
-      }
+      setTimeout(() => {
+         if (chatContainer.value) {
+            chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+            console.log(chatContainer.value.scrollHeight);
+         }
+      }, 200);
    });
 }
 
@@ -282,9 +310,7 @@ async function loadMessages() {
       console.error('Ошибка при загрузке сообщений:', error);
    } finally {
       loading.value = false;
-      setTimeout(() => {
-         scrollToBottom();
-      }, 500);
+      scrollToBottom();
    }
 }
 
@@ -469,10 +495,21 @@ watch(
    display: flex;
    border-radius: 12px;
    background-color: #fff;
-   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.08), 0px 0px 6px rgba(0, 0, 0, 0.08);
+   box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
    flex-direction: column;
    transition: height 0.3s ease;
-   overflow-y: auto;
+   overflow-y: scroll;
+
+   scrollbar-width: none;
+   -ms-overflow-style: none;
+
+   &::-webkit-scrollbar {
+      display: none;
+   }
+
+   &:active {
+      cursor: grabbing;
+   }
 
    @media (max-width: 768px) {
       display: none;
@@ -611,7 +648,7 @@ watch(
       bottom: 0;
       width: 100%;
       background: #fff;
-      box-shadow: 0px -3px 10px rgba(0, 0, 0, 0.05), 0px -3px 4px rgba(0, 0, 0, 0.02);
+      box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
       padding: 18px 24px;
       border-radius: 0 0 12px 12px;
       margin-top: auto;
@@ -632,6 +669,11 @@ watch(
       padding: 0 10px;
       box-sizing: border-box;
       outline: none;
+      transition: border 0.2 ease;
+
+      &:focus {
+         border: 1px solid #3366FF;
+      }
    }
 
    &__send-button {
@@ -716,14 +758,15 @@ watch(
    padding: 10px 16px;
    height: 70px;
    border-radius: 12px 12px 0 0;
-   box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.05), 0px 3px 4px rgba(0, 0, 0, 0.02);
+   box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
    gap: 6px;
+   user-select: none;
    color: #3366FF;
    background-color: #fff;
    position: fixed;
    z-index: 200;
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       width: 100%;
    }
 

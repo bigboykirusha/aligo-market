@@ -36,7 +36,8 @@
     "vue-carousel": "^0.18.0",
     "vue-the-mask": "^0.11.1",
     "vue3-carousel-nuxt": "^1.1.2",
-    "vue3-otp-input": "^0.5.21"
+    "vue3-otp-input": "^0.5.21",
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@mdi/font": "^7.4.47",

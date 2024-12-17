@@ -91,18 +91,19 @@ export default defineNuxtPlugin((nuxtApp) => {
          .listen('.store_message', (res) => {
             console.log('Получено сообщение на канале:', storeChannelName, res);
             messagesStore.loadLastMessages();
-
-            if (!chatStore.currentChat) {
-               popupStore.setAdSended(1, "Получено новое сообщение, проверьте чаты");
-               userStore.setCountNewMessages();
-               userStore.setCountUnreadNotify();
-            }
             if (res.new_message) {
-               chatStore.addMessage({
-                  ...res.new_message,
-                  isSelf: res.new_message.from_user_id === userStore.userId,
-               });
-               console.log('Новое сообщение добавлено в чат:', res.new_message);
+               // Проверяем, что currentChat не равен null и что id нового сообщения соответствует id текущего чата
+               if (chatStore.currentChat && res.new_message.id === chatStore.currentChat.id) {
+                  chatStore.addMessage({
+                     ...res.new_message,
+                     isSelf: res.new_message.from_user_id === userStore.userId,
+                  });
+                  console.log('Новое сообщение добавлено в чат:', res.new_message);
+               } else {
+                  popupStore.setAdSended(1, "Получено новое сообщение, проверьте чаты");
+                  userStore.setCountNewMessages();
+                  userStore.setCountUnreadNotify();
+               }
             } else {
                console.warn('Нет нового сообщения в ответе:', res);
             }

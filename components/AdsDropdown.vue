@@ -3,10 +3,11 @@
       <div class="dropdown-2__input" @click="toggleDropdown">
          <div class="input-text-2 input-text-2--with-clear input-wrapper --check-fill">
             <input class="input-text-2__input" type="text" v-model="selectedOptionLabel"
-               :class="{ 'placeholder-text': !selectedOption }" readonly />
+               :class="{ 'placeholder-text': !selectedOption, 'input-focused': isInputFocused }" readonly
+               @focus="handleFocus" @blur="handleBlur" />
          </div>
       </div>
-      <ul class="dropdown-2__list">
+      <ul class="dropdown-2__list" :class="{ 'input-focused': isInputFocused }">
          <li v-for="option in options" :key="option.value" class="dropdown-2__list-item"
             :class="{ 'dropdown-2__list-item--active': option.label === selectedOptionLabel }"
             @click="selectOption(option)">
@@ -45,6 +46,15 @@ const selectedOption = ref(null);
 const selectedOptionLabel = ref(props.placeholder || props.options[0].label);
 const isActive = ref(false);
 const dropdown = ref(null);
+const isInputFocused = ref(false);
+
+const handleFocus = () => {
+   isInputFocused.value = true;
+};
+
+const handleBlur = () => {
+   isInputFocused.value = false;
+};
 
 const toggleDropdown = () => {
    isActive.value = !isActive.value;
@@ -132,8 +142,9 @@ onUnmounted(() => {
             width: 100%;
          }
 
-         &:focus {
+         &.input-focused {
             outline: none;
+            border: 1px solid #3366FF;
          }
       }
 
@@ -158,6 +169,10 @@ onUnmounted(() => {
       background: #ffffff;
       border-radius: 6px;
       overflow-y: auto;
+
+      &.input-focused {
+         border-color: #3366FF;
+      }
    }
 
    &__list-item {
