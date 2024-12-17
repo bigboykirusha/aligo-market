@@ -255,7 +255,7 @@ function scrollToBottom() {
             console.log(chatContainer.value.scrollHeight);
          }
          setFocus();
-      }, 200);
+      }, 300);
    });
 }
 
