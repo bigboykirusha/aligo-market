@@ -20,165 +20,167 @@
             <span>Удалить</span>
          </button>
       </div>
-      <div class="messages__content">
-         <div>
-            <div class="chat-wrapper" :class="{ 'profile-page': chatStore.currentChat }">
-               <div v-if="chatStore.currentChat" class="chat-header">
-                  <button v-if="chatStore.currentChat" class="chat-header__close-button" @click="closeChat">
-                     <img src="../assets/icons/arrow-back.svg" alt="Toggle" />
-                  </button>
-                  <div class="chat-header__info chat-header__info--active">
-                     <img :src="getImageUrl(chatStore.currentChat.ads_photo[0]?.path)" alt="Ad Image"
-                        class="chat-header__ad-image" />
-                     <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.path, avatar)" alt="Avatar"
-                        class="chat-header__avatar" />
-                     <div class="chat-header__details">
-                        <span class="chat-header__username">{{ relevantUserInfo(chatStore.currentChat) }}</span>
-                        <nuxt-link :to="`/car/${chatStore.currentChat.ads_id}`" class="chat-header__ad-title">
-                           <span>{{ chatStore.currentChat.ads_info }}</span>
-                           <div class="chat-header__ad-amount">{{
-                              formatNumberWithSpaces(chatStore.currentChat.ads_amount) }}<span
-                                 class="chat-header__ad-amount-currency">₽</span>
-                           </div>
-                        </nuxt-link>
-                     </div>
+      <div class="messages__content" @drop="handleFileDrop">
+         <div class="chat-wrapper" :class="{ 'profile-page': chatStore.currentChat }">
+            <div v-if="chatStore.currentChat" class="chat-header">
+               <button v-if="chatStore.currentChat" class="chat-header__close-button" @click="closeChat">
+                  <img src="../assets/icons/arrow-back.svg" alt="Toggle" />
+               </button>
+               <div class="chat-header__info chat-header__info--active">
+                  <img :src="getImageUrl(chatStore.currentChat.ads_photo[0]?.path)" alt="Ad Image"
+                     class="chat-header__ad-image" />
+                  <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.path, avatar)" alt="Avatar"
+                     class="chat-header__avatar" />
+                  <div class="chat-header__details">
+                     <span class="chat-header__username">{{ relevantUserInfo(chatStore.currentChat) }}</span>
+                     <nuxt-link :to="`/car/${chatStore.currentChat.ads_id}`" class="chat-header__ad-title">
+                        <span>{{ chatStore.currentChat.ads_info }}</span>
+                        <div class="chat-header__ad-amount">{{
+                           formatNumberWithSpaces(chatStore.currentChat.ads_amount) }}<span
+                              class="chat-header__ad-amount-currency">₽</span>
+                        </div>
+                     </nuxt-link>
                   </div>
-                  <button @click.stop @click="togglePopup" class="messages__options-button">
-                     <img v-if="isMobile" src="../assets/icons/down.svg" alt="delete" />
-                     <img v-else src="../assets/icons/options.svg" alt="delete" />
-                  </button>
-                  <PopupChat :isVisible="showPopup" :items="items" @close="showPopup = false" />
                </div>
-               <div v-if="showPopup" class="popup-overlay"></div>
-               <div v-if="chatStore.currentChat" class="chat-wrapper__chat-box" ref="chatContainer">
-                  <UsernamePopup v-if="!userStore.username" :isVisible="true" @close="closeNamePopup" />
+               <button @click.stop @click="togglePopup" class="messages__options-button">
+                  <img v-if="isMobile" src="../assets/icons/down.svg" alt="delete" />
+                  <img v-else src="../assets/icons/options.svg" alt="delete" />
+               </button>
+               <PopupChat :isVisible="showPopup" :items="items" @close="showPopup = false" />
+            </div>
+            <div v-if="showPopup" class="popup-overlay"></div>
+            <div v-if="chatStore.currentChat" class="chat-wrapper__chat-box" ref="chatContainer">
+               <UsernamePopup v-if="!userStore.username" :isVisible="true" @close="closeNamePopup" />
 
-                  <!-- Заглушка, когда нет сообщений -->
-                  <div v-if="messages.length === 0" class="chat-wrapper__no-messages">
-                     <div class="no-messages-container">
-                        <h2>Нет сообщений
-                           <img src="../assets/icons/sad-smile.svg" alt="No messages" class="no-messages-image" />
-                        </h2>
-                        <p class="no-messages-text">
-                           Напишите сообщение пользователю или задайте интересующий вас вопрос. В чате запрещены
-                           оскорбления и информация, нарушающая законодательство.
-                        </p>
+               <!-- Заглушка, когда нет сообщений -->
+               <div v-if="messages.length === 0" class="chat-wrapper__no-messages">
+                  <div class="no-messages-container">
+                     <h2>Нет сообщений
+                        <img src="../assets/icons/sad-smile.svg" alt="No messages" class="no-messages-image" />
+                     </h2>
+                     <p class="no-messages-text">
+                        Напишите сообщение пользователю или задайте интересующий вас вопрос. В чате запрещены
+                        оскорбления и информация, нарушающая законодательство.
+                     </p>
+                  </div>
+               </div>
+               <div v-else>
+                  <div v-if="loading" class="chat-box">
+                     <div v-for="n in 6" :key="n"
+                        :class="['chat-wrapper__message-item', 'chat-wrapper__message-item--skeleton', { 'chat-wrapper__message-item--self': n % 2 == 1 }]">
+                        <template v-if="n % 2 !== 1">
+                           <div class="chat-wrapper__message-avatar-skeleton"></div>
+                           <div class="chat-wrapper__message-bubble-skeleton">
+                              <div class="chat-wrapper__message-content-skeleton"></div>
+                           </div>
+                           <div class="chat-wrapper__message-info-skeleton">
+                              <div class="chat-wrapper__message-time-skeleton"></div>
+                           </div>
+                        </template>
+                        <template v-else>
+                           <div class="chat-wrapper__message-info-skeleton">
+                              <div class="chat-wrapper__message-time-skeleton"></div>
+                           </div>
+                           <div class="chat-wrapper__message-bubble-skeleton">
+                              <div class="chat-wrapper__message-content-skeleton"></div>
+                           </div>
+                           <div class="chat-wrapper__message-avatar-skeleton"></div>
+                        </template>
                      </div>
                   </div>
-                  <div v-else>
-                     <div v-if="loading" class="chat-box">
-                        <div v-for="n in 6" :key="n"
-                           :class="['chat-wrapper__message-item', 'chat-wrapper__message-item--skeleton', { 'chat-wrapper__message-item--self': n % 2 == 1 }]">
-                           <template v-if="n % 2 !== 1">
-                              <div class="chat-wrapper__message-avatar-skeleton"></div>
-                              <div class="chat-wrapper__message-bubble-skeleton">
-                                 <div class="chat-wrapper__message-content-skeleton"></div>
-                              </div>
-                              <div class="chat-wrapper__message-info-skeleton">
-                                 <div class="chat-wrapper__message-time-skeleton"></div>
-                              </div>
-                           </template>
-                           <template v-else>
-                              <div class="chat-wrapper__message-info-skeleton">
-                                 <div class="chat-wrapper__message-time-skeleton"></div>
-                              </div>
-                              <div class="chat-wrapper__message-bubble-skeleton">
-                                 <div class="chat-wrapper__message-content-skeleton"></div>
-                              </div>
-                              <div class="chat-wrapper__message-avatar-skeleton"></div>
-                           </template>
-                        </div>
-                     </div>
-                     <div class="chat-wrapper__wrapper" v-else>
-                        <div v-for="(item, index) in groupedMessages" :key="index"
-                           :class="{ 'chat-wrapper__date-divider': item.type === 'date' }">
-                           <template v-if="item.type === 'date'">
-                              <div class="chat-wrapper__date">{{ item.date }}</div>
-                           </template>
-                           <template v-else>
-                              <div
-                                 :class="['chat-wrapper__message-item', { 'chat-wrapper__message-item--self': item.isSelf }]">
-                                 <template v-if="!item.isSelf">
-                                    <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.path, avatar)"
-                                       alt="Avatar" class="chat-wrapper__message-avatar">
-                                    <div class="chat-wrapper__message-bubble">
-                                       <MessagePhotos :photos="item.photos" />
-                                       <div class="chat-wrapper__message-content">{{ item.message }}</div>
-                                       <div v-if="item.message_translate" class="chat-wrapper__message-translate">
-                                          <div class="chat-wrapper__message-translate-title">
-                                             Translation ({{ capitalizeFirstLetter(translateTo) }}):
-                                          </div>
-                                          <div class="chat-wrapper__message-translate-content">
-                                             {{ item.message_translate }}
-                                          </div>
+                  <div class="chat-wrapper__wrapper" v-else>
+                     <div v-for="(item, index) in groupedMessages" :key="index"
+                        :class="{ 'chat-wrapper__date-divider': item.type === 'date' }">
+                        <template v-if="item.type === 'date'">
+                           <div class="chat-wrapper__date">{{ item.date }}</div>
+                        </template>
+                        <template v-else>
+                           <div
+                              :class="['chat-wrapper__message-item', { 'chat-wrapper__message-item--self': item.isSelf }]">
+                              <template v-if="!item.isSelf">
+                                 <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.path, avatar)"
+                                    alt="Avatar" class="chat-wrapper__message-avatar">
+                                 <div class="chat-wrapper__message-bubble">
+                                    <MessagePhotos :photos="item.photos" />
+                                    <div class="chat-wrapper__message-content">{{ item.message }}</div>
+                                    <div v-if="item.message_translate" class="chat-wrapper__message-translate">
+                                       <div class="chat-wrapper__message-translate-title">
+                                          Translation ({{ capitalizeFirstLetter(translateTo) }}):
+                                       </div>
+                                       <div class="chat-wrapper__message-translate-content">
+                                          {{ item.message_translate }}
                                        </div>
                                     </div>
-                                    <div class="chat-wrapper__message-info">
-                                       <span class="chat-wrapper__message-time">{{ formatTime(item.created_at) }}</span>
-                                    </div>
-                                 </template>
-                                 <template v-else>
-                                    <div class="chat-wrapper__message-info">
-                                       <img src="../assets/icons/checked.svg" class="chat-wrapper__message-icon" />
-                                       <span class="chat-wrapper__message-time">{{ formatTime(item.created_at) }}</span>
-                                    </div>
-                                    <div class="chat-wrapper__message-bubble chat-wrapper__message-bubble--self">
-                                       <MessagePhotos :photos="item.photos" />
-                                       <div class="chat-wrapper__message-content">{{ item.message }}</div>
-                                       <div v-if="item.message_translate" class="chat-wrapper__message-translate">
-                                          <div class="chat-wrapper__message-translate-title">
-                                             Translation ({{ capitalizeFirstLetter(translateTo) }}):
-                                          </div>
-                                          <div class="chat-wrapper__message-translate-content">
-                                             {{ item.message_translate }}
-                                          </div>
+                                 </div>
+                                 <div class="chat-wrapper__message-info">
+                                    <span class="chat-wrapper__message-time">{{ formatTime(item.created_at) }}</span>
+                                 </div>
+                              </template>
+                              <template v-else>
+                                 <div class="chat-wrapper__message-info">
+                                    <img src="../assets/icons/checked.svg" class="chat-wrapper__message-icon" />
+                                    <span class="chat-wrapper__message-time">{{ formatTime(item.created_at) }}</span>
+                                 </div>
+                                 <div class="chat-wrapper__message-bubble chat-wrapper__message-bubble--self">
+                                    <MessagePhotos :photos="item.photos" />
+                                    <div class="chat-wrapper__message-content">{{ item.message }}</div>
+                                    <div v-if="item.message_translate" class="chat-wrapper__message-translate">
+                                       <div class="chat-wrapper__message-translate-title">
+                                          Translation ({{ capitalizeFirstLetter(translateTo) }}):
+                                       </div>
+                                       <div class="chat-wrapper__message-translate-content">
+                                          {{ item.message_translate }}
                                        </div>
                                     </div>
-                                    <img :src="getImageUrl(userStore.photo?.path, avatar)" alt="Avatar"
-                                       class="chat-wrapper__message-avatar chat-wrapper__message-avatar--self">
-                                 </template>
-                              </div>
-                           </template>
-                        </div>
+                                 </div>
+                                 <img :src="getImageUrl(userStore.photo?.path, avatar)" alt="Avatar"
+                                    class="chat-wrapper__message-avatar chat-wrapper__message-avatar--self">
+                              </template>
+                           </div>
+                        </template>
                      </div>
                   </div>
                </div>
-               <div class="file-preview" v-if="file.length > 0">
-                  <div v-for="(file, index) in file" :key="index" class="file-preview__item">
-                     <template v-if="isImage(file)">
-                        <img :src="getFilePreview(file)" alt="preview" class="file-preview__image" />
-                     </template>
-                     <template v-else>
-                        <div class="file-preview__icon">
-                           <img src="../assets/icons/file-icon.svg" alt="file icon" />
-                        </div>
-                     </template>
-                     <button @click="removeFile(index)" class="file-preview__remove">
-                        <img src="../assets/icons/close-white.svg" alt="" />
-                     </button>
-                  </div>
-               </div>
-               <div v-if="chatStore.currentChat" class="chat-wrapper__message-input-container">
-                  <div class="chat-wrapper__message-icons-left">
-                     <input type="file" @change="handleFileChange" multiple class="chat-wrapper__file-input" />
-                     <button class="chat-wrapper__message-icon-left" @click="triggerFileInput">
-                        <img src="../assets/icons/photo.svg" alt="Upload Photo" />
-                     </button>
-                  </div>
-                  <input v-model="newMessage" @keyup.enter="handleSendMessage" placeholder="Напишите сообщение"
-                     class="chat-wrapper__message-input" :disabled="isSending" ref="mesInput" />
-                  <button class="chat-wrapper__send-button" @click="handleSendMessage" :disabled="isSending">
-                     <template v-if="isSending">
-                        <div class="spinner"></div>
-                     </template>
-                     <template v-else>
-                        <img src="../assets/icons/send.svg" alt="Send" />
-                     </template>
+            </div>
+            <div id="drag-drop-zone" class="drag-drop-zone" :class="{ 'dragging-over': isDragging }">
+               Перетащите сюда файлы <br> для добавления
+               <img src="../assets/icons/photo-icon.svg" alt="">
+            </div>
+            <div class="file-preview" v-if="file.length > 0 && chatStore.currentChat && !isDragging">
+               <div v-for="(file, index) in file" :key="index" class="file-preview__item">
+                  <template v-if="isImage(file)">
+                     <img :src="getFilePreview(file)" alt="preview" class="file-preview__image" />
+                  </template>
+                  <template v-else>
+                     <div class="file-preview__icon">
+                        <img src="../assets/icons/file-icon.svg" alt="file icon" />
+                     </div>
+                  </template>
+                  <button @click="removeFile(index)" class="file-preview__remove">
+                     <img src="../assets/icons/close-white.svg" alt="" />
                   </button>
                </div>
-               <div v-show="!chatStore.currentChat" class="chat-wrapper__last-messages-container">
-                  <LastMessages isProfilePage @open-chat="setCurrentChat" />
+            </div>
+            <div v-if="chatStore.currentChat" class="chat-wrapper__message-input-container">
+               <div class="chat-wrapper__message-icons-left">
+                  <input type="file" @change="handleFileChange" multiple class="chat-wrapper__file-input" />
+                  <button class="chat-wrapper__message-icon-left" @click="triggerFileInput">
+                     <img src="../assets/icons/photo.svg" alt="Upload Photo" />
+                  </button>
                </div>
+               <input v-model="newMessage" @keyup.enter="handleSendMessage" placeholder="Напишите сообщение"
+                  class="chat-wrapper__message-input" :disabled="isSending" ref="mesInput" />
+               <button class="chat-wrapper__send-button" @click="handleSendMessage" :disabled="isSending">
+                  <template v-if="isSending">
+                     <div class="spinner"></div>
+                  </template>
+                  <template v-else>
+                     <img src="../assets/icons/send.svg" alt="Send" />
+                  </template>
+               </button>
+            </div>
+            <div v-show="!chatStore.currentChat" class="chat-wrapper__last-messages-container">
+               <LastMessages isProfilePage @open-chat="setCurrentChat" />
             </div>
          </div>
       </div>
@@ -258,7 +260,6 @@ import personIcon from '../assets/icons/person.svg';
 import adIcon from '../assets/icons/ad.svg';
 import reviewsIcon from '../assets/icons/reviews.svg';
 import blockIcon from '../assets/icons/block.svg';
-import alertIcon from '../assets/icons/alert.svg';
 import deleteIcon from '../assets/icons/delete.svg';
 import avatar from '../assets/icons/avatar-revers.svg'
 
@@ -321,6 +322,53 @@ const groupedMessages = computed(() => {
    });
 
    return grouped;
+});
+
+////////////////////
+
+const isDragging = ref(false);
+
+const handleDragEnter = (event) => {
+   event.preventDefault();
+   isDragging.value = true;
+};
+
+const handleDragOver = (event) => {
+   event.preventDefault();
+   event.dataTransfer.dropEffect = "copy";
+};
+
+const handleFileDrop = (event) => {
+   event.preventDefault();
+   event.stopPropagation();
+
+   const files = event.dataTransfer.files;
+   if (files.length > 0) {
+      file.value = [...file.value, ...Array.from(files)];
+   }
+
+   isDragging.value = false;
+};
+
+const handleFileDropMiss = (event) => {
+   event.preventDefault();
+   event.stopPropagation();
+
+   isDragging.value = false;
+};
+
+onMounted(() => {
+   // Добавляем слушателей на весь документ
+   document.addEventListener('dragenter', handleDragEnter);
+   document.addEventListener('dragover', handleDragOver);
+   document.addEventListener('drop', handleFileDropMiss);
+});
+
+onBeforeUnmount(() => {
+   // Убираем слушателей, когда компонент уничтожается
+   document.removeEventListener('dragenter', handleDragEnter);
+   document.removeEventListener('dragover', handleDragOver);
+   document.removeEventListener('drop', handleFileDropMiss);
 });
 
 const formatTime = (dateString) => {
@@ -824,6 +872,7 @@ watch(
 
 .chat-wrapper {
    display: flex;
+   position: relative;
    border-radius: 12px;
    flex-direction: column;
    transition: height 0.3s ease;
@@ -862,6 +911,7 @@ watch(
 
    &__wrapper {
       display: flex;
+      position: relative;
       flex-direction: column;
       gap: 24px;
    }
@@ -988,6 +1038,8 @@ watch(
 
    &__message-input-container {
       position: sticky;
+      min-height: 70px;
+      align-items: center;
       z-index: 200;
       display: flex;
       bottom: 0;
@@ -1308,5 +1360,39 @@ watch(
    100% {
       transform: rotate(360deg);
    }
+}
+
+.drag-drop-zone {
+   display: flex;
+   width: 100%;
+   opacity: 0;
+   pointer-events: none;
+   height: calc(100% - 70px);
+   position: absolute;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   gap: 8px;
+   border: 2px dashed #A8A8A8;
+   border-radius: 12px 12px 0 0;
+   z-index: 20000;
+   text-align: center;
+   background-color: #EEEEEE;
+   font-size: 16px;
+   color: #A8A8A8;
+   cursor: pointer;
+   transition: opacity 0.2s ease;
+
+   @media (max-width: 768px) {
+      display: none;
+   }
+
+   img {
+      width: 22px
+   }
+}
+
+.dragging-over {
+   opacity: 1;
 }
 </style>

@@ -1,24 +1,24 @@
 <template>
-   <div v-if="total > 0 && chatStore.isChatVisible" class="chat-wrapper"
+   <div v-if="total > 0 && chatStore.isChatVisible" class="chat-wrapper" @drop="handleFileDrop"
       :class="{ 'chat-wrapper--collapsed': chatStore.isCollapsed }" ref="draggable">
       <!-- Заголовок чата -->
       <div class="chat-header" @mousedown="startDrag">
          <!-- Информация о текущем чате -->
          <div v-if="chatStore.currentChat" class="chat-header__info chat-header__info--active">
-            <nuxt-link :to="`/user/${relevantUser(chatStore.currentChat).id}`" class="user-info__avatar">
+            <div :to="`/user/${relevantUser(chatStore.currentChat).id}`" class="user-info__avatar">
                <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.path, avatar)" alt="Avatar"
                   class="chat-header__avatar" />
-            </nuxt-link>
+            </div>
 
             <img :src="getImageUrl(chatStore.currentChat.ads_photo[0]?.path)" alt="Ad Image"
                class="chat-header__ad-image" />
             <div class="chat-header__details">
-               <nuxt-link :to="`/user/${relevantUser(chatStore.currentChat).id}`" class="chat-header__username">
+               <div :to="`/user/${relevantUser(chatStore.currentChat).id}`" class="chat-header__username">
                   {{ relevantUserInfo(chatStore.currentChat) }}
-               </nuxt-link>
-               <nuxt-link :to="`/car/${chatStore.currentChat.ads_id}`" class="chat-header__ad-title">
+               </div>
+               <div :to="`/car/${chatStore.currentChat.ads_id}`" class="chat-header__ad-title">
                   {{ chatStore.currentChat.ads_info }}
-               </nuxt-link>
+               </div>
             </div>
          </div>
 
@@ -51,7 +51,10 @@
             <img src="../assets/icons/close.svg" alt="Close" />
          </button>
       </div>
-
+      <div id="drag-drop-zone" class="drag-drop-zone" :class="{ 'dragging-over': isDragging }">
+         Перетащите сюда файлы <br> для добавления
+         <img src="../assets/icons/photo-icon.svg" alt="">
+      </div>
       <!-- Содержимое чата -->
       <div v-if="chatStore.currentChat && !chatStore.isCollapsed" class="chat-wrapper__chat-box" ref="chatContainer">
          <!-- Всплывающее окно для имени пользователя -->
@@ -131,7 +134,7 @@
       </div>
 
       <!-- Предварительный просмотр файлов -->
-      <div v-if="file.length > 0">
+      <div v-if="file.length > 0 && !isDragging && chatStore.currentChat">
          <div class="file-preview__title">Прикрепленные файлы:</div>
          <div class="file-preview">
             <div v-for="(file, index) in file" :key="index" class="file-preview__item">
@@ -151,6 +154,7 @@
       </div>
 
       <!-- Поле ввода сообщения -->
+
       <div v-if="chatStore.currentChat && !chatStore.isCollapsed && userStore.username"
          class="chat-wrapper__message-input-container">
          <div class="chat-wrapper__message-icons-left">
@@ -190,17 +194,63 @@ import avatar from '../assets/icons/avatar-revers.svg';
 const userStore = useUserStore();
 const chatStore = useChatStore();
 
-const draggable = ref(null);
-let offsetX = 0;
-let offsetY = 0;
-
 const mesInput = ref(null);
+
+const isDragging = ref(false);
+
+const handleDragEnter = (event) => {
+   event.preventDefault();
+   isDragging.value = true;
+};
+
+const handleDragOver = (event) => {
+   event.preventDefault();
+   event.dataTransfer.dropEffect = "copy";
+};
+
+const handleFileDrop = (event) => {
+   event.preventDefault();
+   event.stopPropagation();
+
+   const files = event.dataTransfer.files;
+   if (files.length > 0) {
+      file.value = [...file.value, ...Array.from(files)];
+   }
+
+   isDragging.value = false;
+};
+
+const handleFileDropMiss = (event) => {
+   event.preventDefault();
+   event.stopPropagation();
+
+   isDragging.value = false;
+};
+
+onMounted(() => {
+   // Добавляем слушателей на весь документ
+   document.addEventListener('dragenter', handleDragEnter);
+   document.addEventListener('dragover', handleDragOver);
+   document.addEventListener('drop', handleFileDropMiss);
+});
+
+onBeforeUnmount(() => {
+   // Убираем слушателей, когда компонент уничтожается
+   document.removeEventListener('dragenter', handleDragEnter);
+   document.removeEventListener('dragover', handleDragOver);
+   document.removeEventListener('drop', handleFileDropMiss);
+});
 
 const setFocus = () => {
    if (mesInput.value) {
       mesInput.value.focus();
    }
 };
+
+const draggable = ref(null);
+let offsetX = 0;
+let offsetY = 0;
+let animationFrame = null;  // для хранения идентификатора анимации
 
 const startDrag = (event) => {
    offsetX = event.clientX - draggable.value.offsetLeft;
@@ -211,16 +261,29 @@ const startDrag = (event) => {
    document.addEventListener("mouseup", stopDrag);
 };
 
-// Обновляем позицию элемента при движении мыши
 const onDrag = (event) => {
-   draggable.value.style.left = `${event.clientX - offsetX}px`;
-   draggable.value.style.top = `${event.clientY - offsetY}px`;
+   // Отменяем предыдущую анимацию, если она есть
+   if (animationFrame) cancelAnimationFrame(animationFrame);
+
+   // Рассчитываем новые координаты
+   const currentX = event.clientX - offsetX;
+   const currentY = event.clientY - offsetY;
+
+   // Синхронизируем обновление с частотой обновления экрана для плавности
+   animationFrame = requestAnimationFrame(() => {
+      draggable.value.style.left = `${currentX}px`;
+      draggable.value.style.top = `${currentY}px`;
+   });
 };
 
 // Завершаем перетаскивание
 const stopDrag = () => {
+   // Убираем обработчики событий
    document.removeEventListener("mousemove", onDrag);
    document.removeEventListener("mouseup", stopDrag);
+
+   // Отменяем текущую анимацию
+   if (animationFrame) cancelAnimationFrame(animationFrame);
 };
 
 const newMessage = ref('');
@@ -496,6 +559,8 @@ watch(
 
 .chat-wrapper {
    position: fixed;
+   user-select: none;
+   touch-action: none;
    bottom: 24px;
    right: 24px;
    z-index: 40;
@@ -506,7 +571,7 @@ watch(
    background-color: #fff;
    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
    flex-direction: column;
-   transition: height 0.3s ease;
+   transition: height 0.3s ease-in-out;
    overflow-y: scroll;
 
    scrollbar-width: none;
@@ -554,6 +619,7 @@ watch(
 
    &__chat-box {
       display: flex;
+      position: relative;
       flex-direction: column;
       scroll-behavior: smooth;
       flex-grow: 1;
@@ -1013,5 +1079,36 @@ watch(
    100% {
       background-color: #e0e0e0;
    }
+}
+
+.drag-drop-zone {
+   display: flex;
+   width: 100%;
+   opacity: 0;
+   pointer-events: none;
+   height: calc(100% - 70px);
+   z-index: 200;
+   position: absolute;
+   top: 0;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   gap: 8px;
+   border: 2px dashed #A8A8A8;
+   border-radius: 12px 12px 0 0;
+   text-align: center;
+   background-color: #EEEEEE;
+   font-size: 16px;
+   color: #A8A8A8;
+   cursor: pointer;
+   transition: opacity 0.2s ease;
+
+   img {
+      width: 22px
+   }
+}
+
+.dragging-over {
+   opacity: 1;
 }
 </style>
