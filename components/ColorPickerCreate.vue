@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { computed } from 'vue';
 
 const emit = defineEmits(['updateSelected']);
 const props = defineProps({
@@ -33,28 +33,30 @@ const props = defineProps({
    },
 });
 
-const selectedColors = ref([...props.activeIndices]);
-
-onMounted(() => {
-   selectedColors.value = [...props.activeIndices];
-});
-
-watch(() => props.activeIndices, (newIndices) => {
-   selectedColors.value = [...newIndices];
-});
-
-watch(selectedColors, (newColors) => {
-   emit('updateSelected', newColors);
+// Используем computed для отслеживания изменений activeIndices
+const selectedColors = computed({
+   get() {
+      return props.activeIndices;
+   },
+   set(newColors) {
+      emit('updateSelected', newColors); // Отправляем изменения обратно родительскому компоненту
+   }
 });
 
 const toggleColorSelection = (id) => {
-   if (selectedColors.value.includes(id)) {
+   // Обновляем выбранные цвета
+   const newSelection = [...selectedColors.value];
+   const index = newSelection.indexOf(id);
+
+   if (index > -1) {
       // Убираем цвет из выбранных
-      selectedColors.value = selectedColors.value.filter(colorId => colorId !== id);
+      newSelection.splice(index, 1);
    } else {
       // Добавляем цвет в список выбранных
-      selectedColors.value.push(id);
+      newSelection.push(id);
    }
+
+   selectedColors.value = newSelection; // Это автоматически вызовет set() и обновит родительский компонент
 };
 
 const getStyle = (color) => {

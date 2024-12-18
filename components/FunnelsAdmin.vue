@@ -58,7 +58,6 @@
 </template>
 
 <script setup>
-import { defineProps } from 'vue';
 import { getImageUrl } from '~/services/imageUtils';
 import avatarPhoto from "../assets/icons/avatar-revers.svg";
 import editIcon from "../assets/icons/edit.svg";

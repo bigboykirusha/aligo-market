@@ -362,7 +362,6 @@ const handleServicedDealerUpdate = (selectedOptions) => createStore.setIsService
 const handleUnderWarrantyUpdate = (selectedOptions) => createStore.setIsUnderWarranty(selectedOptions);
 const handleConditionIdUpdate = (selectedOptions) => createStore.setConditionId(selectedOptions);
 
-
 onMounted(() => {
    fetchOptions();
 

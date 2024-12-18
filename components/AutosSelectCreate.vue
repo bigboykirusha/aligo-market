@@ -215,9 +215,9 @@ watch(selectedOption, (newOption) => {
       }
 
       .dropdown-2__input::before {
-            background: url('/assets/icons/arrow-gray.svg') center center / contain no-repeat;
-            transform: translate(0, -50%);
-         }
+         background: url('/assets/icons/arrow-gray.svg') center center / contain no-repeat;
+         transform: translate(0, -50%);
+      }
 
       &::placeholder {
          color: #787878;
