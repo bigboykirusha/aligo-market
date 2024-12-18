@@ -540,7 +540,7 @@ function scrollToBottom() {
 }
 
 async function handleSendMessage() {
-   if (newMessage.value.trim() === '' && file.value.length === 0) return;
+   if (!newMessage.value.trim() && !file.value.length) return;
 
    if (!userStore.username) {
       showNamePopup();

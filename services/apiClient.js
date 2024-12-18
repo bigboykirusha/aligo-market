@@ -62,7 +62,12 @@ export const fetchMessages = async (adsId, mainCategoryId, userId, params = {}) 
 
 export const sendMessage = async (message, adsId, mainCategoryId, forUserId, photos) => {
    const formData = new FormData();
-   formData.append('message', message);
+
+   // Добавляем только непустое сообщение
+   if (message && message.trim()) {
+      formData.append('message', message.trim());
+   }
+
    formData.append('ads_id', adsId);
    formData.append('main_category_id', mainCategoryId);
    formData.append('for_user_id', forUserId);

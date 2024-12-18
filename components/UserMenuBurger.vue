@@ -26,9 +26,10 @@
                   <a v-else class="user-menu__profile-button">
                      <div class="user-menu__rating">
                         <div class="user-menu__rating-text">{{ rating }}</div>
-                        <NuxtRating :rating-value="Number(rating)" :rating-count="5" :rating-size="10"
+                        <NuxtRating :rating-value="Number(rating)" :rating-count="5" :rating-size="9"
                            :rating-spacing="6" :active-color="'#FFFFFF'" :inactive-color="'#3366FF'"
                            :border-color="'#FFFFFF'" :border-width="2" :rounded-corners="true" :read-only="true" />
+                        {{ countReviews }} {{ pluralizeReview(countReviews) }}
                      </div>
                   </a>
 
@@ -40,6 +41,11 @@
          </div>
 
          <ul class="user-menu__list">
+            <li class="user-menu__item user-menu__item--search">
+               <nuxt-link to="/">
+                  <img :src="searchIcon" />Все объявления
+               </nuxt-link>
+            </li>
             <li v-for="(item, index) in menuItems" :key="index" class="user-menu__item" @click="toggleMenu">
                <nuxt-link :to="item.link">
                   <img :src="item.icon" />{{ item.text }}
@@ -65,10 +71,10 @@ import avatarRevers from '../assets/icons/avatar-revers.svg';
 
 import searchIcon from '../assets/icons/search-blue.svg';
 import adIcon from '../assets/icons/ad.svg';
-import favIcon from '../assets/icons/fav.svg';
+import favIcon from '../assets/icons/favorites-menu.svg';
 import reviewsIcon from '../assets/icons/reviews.svg';
 import notifIcon from '../assets/icons/notif-blue.svg';
-import mailMenuIcon from '../assets/icons/mail-menu.svg';
+import mailMenuIcon from '../assets/icons/message-menu.svg';
 import busIcon from '../assets/icons/briefcase.svg';
 
 const userStore = useUserStore();
@@ -78,6 +84,8 @@ const burgerStore = useBurgerStore();
 const isMenuOpen = computed(() => burgerStore.isOpen);
 const modalOpen = ref(false);
 const userMenuRef = ref(null);
+
+const countReviews = computed(() => userStore.countReviews);
 
 const userName = computed(() => userStore.username || userStore.login);
 const avatarUrl = computed(() => getImageUrl(userStore.photo?.path, avatarRevers));
@@ -91,9 +99,10 @@ const displayName = computed(() => userName.value ? capitalize(userName.value) :
 const menuItems = [
    { text: 'Мои объявления', link: '/myself/ads', icon: adIcon, count: userStore.countAds },
    { text: 'Избранное', link: '/myself/favorites', icon: favIcon, count: userStore.countFavorites },
-   { text: 'Отзывы', link: '/myself/reviews', icon: reviewsIcon },
-   { text: 'Оповещения', link: '/myself/notifications', icon: notifIcon, count: userStore.countUnreadNotify },
    { text: 'Сообщения', link: '/myself/messages', icon: mailMenuIcon, count: userStore.count_new_messages },
+   { text: 'Оповещения', link: '/myself/notifications', icon: notifIcon, count: userStore.countUnreadNotify },
+   { text: 'Отзывы', link: '/myself/reviews', icon: reviewsIcon, count: userStore.countReviews},
+   { text: 'Для бизнеса', link: '/business', icon: busIcon}
 ];
 
 const toggleMenu = () => {
@@ -106,6 +115,25 @@ const logout = () => {
    userStore.clearUserdata();
    toggleMenu();
 };
+
+function pluralizeReview(count) {
+   const lastDigit = count % 10;
+   const lastTwoDigits = count % 100;
+
+   if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
+      return 'отзывов';
+   }
+
+   if (lastDigit === 1) {
+      return 'отзыв';
+   }
+
+   if (lastDigit >= 2 && lastDigit <= 4) {
+      return 'отзыва';
+   }
+
+   return 'отзывов';
+}
 
 const handleAvatarChange = async (event) => {
    const file = event.target.files[0];
@@ -142,7 +170,7 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
    right: 0;
    bottom: 0;
    background-color: #1a1a1a;
-   z-index: 100;
+   z-index: 10000;
    width: 100%;
    height: 100vh;
    display: flex;
@@ -183,8 +211,7 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
       list-style: none;
       gap: 40px;
       width: 100%;
-      height: 56px;
-      margin: 0;
+      margin-bottom: 16px;
    }
 
    &__nav-item {
@@ -197,13 +224,12 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
    }
 
    &__rating-text {
       font-size: 14px;
       color: #ffffff;
-      margin-right: 6px;
    }
 
    &__nav-link {
@@ -227,8 +253,7 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      padding: 0 40px 24px;
-      gap: 8px;
+      padding: 24px 40px 32px;
       background-color: #3366FF;
       width: 100%;
    }
@@ -250,6 +275,7 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
       font-size: 18px;
       font-weight: 600;
       color: white;
+      margin-bottom: 4px;
    }
 
    &__profile-button {
@@ -272,6 +298,7 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
       width: 64px;
       height: 64px;
       border-radius: 50%;
+      margin-bottom: 16px;
    }
 
    &__icon-change {
@@ -296,25 +323,15 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 16px;
       background-color: white;
-      border-radius: 0 0 4px 4px;
       width: 100%;
       height: 100%;
       margin: 0;
-      padding: 24px 40px;
+      padding: 32px 40px;
    }
 
    &__item {
-      &--search {
-         border-bottom: 1px solid #EEEEEE;
-         padding-bottom: 24px;
-      }
-
-      img {
-         width: 14px;
-         max-height: 14px;
-      }
 
       a {
          display: flex;
@@ -352,11 +369,11 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
    }
 
    &__item--logout {
-      color: #323232;
+      color: #787878;
       padding-top: 16px;
+      margin-top: 8px;
       font-size: 14px;
       cursor: pointer;
-      border-radius: 0 0 4px 4px;
       border-top: 1px solid #EEEEEE;
       transition: all 0.2s;
 
@@ -364,6 +381,14 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
          color: red;
          text-decoration: underline;
       }
+   }
+
+   &__item--search {
+      padding-bottom: 24px;
+      margin-bottom: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      border-bottom: 1px solid #EEEEEE;
    }
 }
 
