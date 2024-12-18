@@ -32,7 +32,6 @@
                <div v-if="remainingCount > 0" class="chat-header__more">+{{ remainingCount }}</div>
             </div>
             <span class="chat-header__title">Сообщения</span>
-            <span class="chat-header__count">{{ total }}</span>
          </div>
 
          <!-- Кнопки в заголовке -->

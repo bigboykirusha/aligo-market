@@ -692,7 +692,7 @@ watch(
    width: 16px;
    height: 16px;
    margin: auto 0;
-   margin-left: 24px;
+   margin-left: 16px;
    accent-color: #3366FF;
 
    @media (max-width: 991px) {
@@ -841,6 +841,8 @@ watch(
       @media (max-width: 768px) {
          box-shadow: none;
          border-radius: 0;
+         margin: 0 -16px;
+         padding: 0;
       }
    }
 

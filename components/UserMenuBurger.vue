@@ -1,43 +1,46 @@
 <template>
    <div :class="['side-menu', { 'side-menu--open': isMenuOpen }]" ref="userMenuRef">
       <div class="user-menu">
+         <img class="close-icon" src="../assets/icons/close-white.svg" alt="" @click="toggleMenu">
          <div class="user-menu__header">
-            <client-only>
-               <div class="user-menu__block">
-                  <ul class="user-menu__nav-list">
-                     <li class="user-menu__nav-item">
-                        <button class="user-menu__nav-link" @click="toggleModal">
-                           <img :src="defaultLocationIcon" alt="location icon" />
-                           <span class="user-menu__text user-menu__text--hidden">{{ translatedCityName }}</span>
-                        </button>
-                        <LocationPopup @open-modal="toggleModal" />
-                     </li>
-                  </ul>
+            <div class="user-menu__block">
+               <ul class="user-menu__nav-list">
+                  <li class="user-menu__nav-item">
+                     <button class="user-menu__nav-link" @click="toggleModal">
+                        <img :src="defaultLocationIcon" alt="location icon" />
+                        <span class="user-menu__text user-menu__text--hidden">{{ translatedCityName }}</span>
+                     </button>
+                     <LocationPopup @open-modal="toggleModal" />
+                  </li>
+               </ul>
 
-                  <img :src="avatarUrl" alt="login icon" class="user-menu__icon" />
-                  <input type="file" id="avatarUpload" ref="avatarUpload" @change="handleAvatarChange"
-                     class="hidden-input" />
-                  <img src="../assets/icons/change-ava.svg" alt="change avatar icon" class="user-menu__icon-change"
-                     @click="triggerFileInput" />
+               <img :src="avatarUrl" alt="login icon" class="user-menu__icon" />
+               <input type="file" id="avatarUpload" ref="avatarUpload" @change="handleAvatarChange"
+                  class="hidden-input" />
+               <img src="../assets/icons/change-ava.svg" alt="change avatar icon" class="user-menu__icon-change"
+                  @click="triggerFileInput" />
 
-                  <a class="user-menu__user-name">{{ displayName }}</a>
+               <a class="user-menu__user-name">{{ displayName }}</a>
 
-                  <div v-if="rating === null" class="user-menu__rating-text">О вас нет отзывов</div>
-                  <a v-else class="user-menu__profile-button">
-                     <div class="user-menu__rating">
-                        <div class="user-menu__rating-text">{{ rating }}</div>
-                        <NuxtRating :rating-value="Number(rating)" :rating-count="5" :rating-size="9"
-                           :rating-spacing="6" :active-color="'#FFFFFF'" :inactive-color="'#3366FF'"
-                           :border-color="'#FFFFFF'" :border-width="2" :rounded-corners="true" :read-only="true" />
-                        {{ countReviews }} {{ pluralizeReview(countReviews) }}
-                     </div>
-                  </a>
+               <div v-if="rating === null" class="user-menu__rating-text">О вас нет отзывов</div>
+               <a v-else class="user-menu__profile-button">
+                  <div class="user-menu__rating">
+                     <div class="user-menu__rating-text">{{ rating }}</div>
+                     <NuxtRating :rating-value="Number(rating)" :rating-count="5" :rating-size="9" :rating-spacing="6"
+                        :active-color="'#FFFFFF'" :inactive-color="'#3366FF'" :border-color="'#FFFFFF'"
+                        :border-width="2" :rounded-corners="true" :read-only="true" />
+                     {{ countReviews }} {{ pluralizeReview(countReviews) }}
+                  </div>
+               </a>
 
-                  <nuxt-link @click="toggleMenu" to="/myself/editProfile" class="user-menu__profile-button">
-                     Управление профилем
-                  </nuxt-link>
-               </div>
-            </client-only>
+               <nuxt-link @click="toggleMenu" to="/myself/editProfile" class="user-menu__profile-button">
+                  Управление профилем
+               </nuxt-link>
+
+               <nuxt-link @click="toggleMenu" class="user-menu__item--post" to="/createAd">
+                  <img :src="postIcon" />Разместить объявление
+               </nuxt-link>
+            </div>
          </div>
 
          <ul class="user-menu__list">
@@ -76,6 +79,8 @@ import reviewsIcon from '../assets/icons/reviews.svg';
 import notifIcon from '../assets/icons/notif-blue.svg';
 import mailMenuIcon from '../assets/icons/message-menu.svg';
 import busIcon from '../assets/icons/briefcase.svg';
+import postIcon from '../assets/icons/add.svg';
+
 
 const userStore = useUserStore();
 const cityStore = useCityStore();
@@ -101,8 +106,8 @@ const menuItems = [
    { text: 'Избранное', link: '/myself/favorites', icon: favIcon, count: userStore.countFavorites },
    { text: 'Сообщения', link: '/myself/messages', icon: mailMenuIcon, count: userStore.count_new_messages },
    { text: 'Оповещения', link: '/myself/notifications', icon: notifIcon, count: userStore.countUnreadNotify },
-   { text: 'Отзывы', link: '/myself/reviews', icon: reviewsIcon, count: userStore.countReviews},
-   { text: 'Для бизнеса', link: '/business', icon: busIcon}
+   { text: 'Отзывы', link: '/myself/reviews', icon: reviewsIcon, count: userStore.countReviews },
+   { text: 'Для бизнеса', link: '/business', icon: busIcon }
 ];
 
 const toggleMenu = () => {
@@ -390,9 +395,33 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
       cursor: pointer;
       border-bottom: 1px solid #EEEEEE;
    }
+
+   &__item--post {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #ffffff;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 16px;
+
+      img {
+         width: 16px;
+         height: 16px;
+      }
+   }
 }
 
 .hidden-input {
    display: none;
+}
+
+.close-icon {
+   position: absolute;
+   z-index: 14;
+   top: 24px;
+   right: 24px;
+   width: 16px;
+   height: 16px;
 }
 </style>

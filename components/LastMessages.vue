@@ -34,7 +34,13 @@
                </div>
             </div>
             <div class="message-text">
-               {{ messageContent(message) }}
+               <div v-if="message.message && message.message.trim()">
+                  {{ messageContent(message) }}
+               </div>
+               <div class="attachment-placeholder" v-else>
+                  <img src="../assets/icons/paperclip.svg" alt="Attachment" class="attachment-placeholder" />
+                  <span>Вложение</span>
+               </div>
             </div>
          </div>
       </div>
@@ -117,6 +123,10 @@ onMounted(() => {
    &.profile-page {
       gap: 16px;
       padding-top: 0;
+
+      @media (max-width: 768px) {
+         gap: 0;
+      }
    }
 }
 
@@ -132,7 +142,7 @@ onMounted(() => {
    position: relative;
    display: flex;
    width: 100%;
-   padding: 16px 24px;
+   padding: 16px 24px 16px 16px;
    background: #fff;
    cursor: pointer;
    transition: background-color 0.3s, transform 0.3s;
@@ -142,8 +152,19 @@ onMounted(() => {
    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
    transition: background-color 0.3s;
 
+   @media (max-width: 991px) {
+      padding: 16px;
+      padding-left: 24px;
+   }
+
    &.profile-page {
       border-radius: 6px;
+
+      @media (max-width: 991px) {
+         border-radius: 0;
+         box-shadow: none;
+
+      }
    }
 
    &.unread-message {
@@ -184,6 +205,14 @@ onMounted(() => {
    &.profile-page {
       position: static;
       border: none;
+
+      @media (max-width: 991px) {
+         position: absolute;
+         border: 1px solid #fff;
+         background-color: #3366FF;
+         top: 6px;
+         left: 11px;
+      }
    }
 }
 
@@ -270,5 +299,18 @@ onMounted(() => {
    font-weight: 400;
    overflow: hidden;
    text-overflow: ellipsis;
+}
+
+.attachment-placeholder {
+   display: flex;
+   gap: 4px;
+   color: #3366FF;
+   line-height: 18px;
+   font-size: 14px;
+   font-weight: 400;
+
+   img {
+      height: 16px;
+   }
 }
 </style>
