@@ -57,12 +57,6 @@
                <div v-show="countMessage" class="user-menu__count">{{ countMessage }}</div>
             </nuxt-link>
          </li>
-         <li class="user-menu__item" :class="{ 'user-menu__item--active': isActive('support') }"
-            @click="selectMenuItem('support')">
-            <nuxt-link to="/myself/support">
-               <img src="../assets/icons/send.svg" /> Поддержка
-            </nuxt-link>
-         </li>
          <li class="user-menu__item" :class="{ 'user-menu__item--active': isActive('reviews') }"
             @click="selectMenuItem('reviews')">
             <nuxt-link to="/myself/reviews">
@@ -139,7 +133,7 @@ const triggerFileInput = () => {
 const isScrolled = ref(false);
 
 const handleScroll = () => {
-   isScrolled.value = window.scrollY > 0; 
+   isScrolled.value = window.scrollY > 0;
 };
 
 onUnmounted(() => {
@@ -180,8 +174,8 @@ function pluralizeReview(count) {
    top: 0;
    z-index: 1000;
    background-color: white;
-   border: 1px solid #eeeeee;
-   border-radius: 4px;
+   box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
+   border-radius: 6px;
    padding: 24px;
    display: flex;
    flex-direction: column;
