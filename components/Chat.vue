@@ -562,7 +562,7 @@ watch(
    position: fixed;
    user-select: none;
    touch-action: none;
-   bottom: 554px;
+   bottom: 24px;
    right: 24px;
    z-index: 40;
    width: 420px;
@@ -597,7 +597,6 @@ watch(
 
    &--collapsed {
       height: 70px;
-      transform: translateY(530px);
    }
 
    &__toggle-button {
