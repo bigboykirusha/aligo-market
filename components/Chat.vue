@@ -29,7 +29,7 @@
                   :style="{ zIndex: 1 + index }">
                   <img :src="avatar" alt="User Avatar" class="avatar-round" />
                </div>
-               <div v-if="remainingCount > 0" class="chat-header__more">+{{ remainingCount }}</div>
+               <div v-if="remainingCount > 0" class="chat-header__more">+{{ total - displayedUsers.length }}</div>
             </div>
             <span class="chat-header__title">Сообщения</span>
          </div>
@@ -51,7 +51,8 @@
          </button>
       </div>
       <div id="drag-drop-zone" class="drag-drop-zone" :class="{ 'dragging-over': isDragging && chatStore.currentChat }">
-         <img src="../assets/icons/photo-icon.svg" alt="">
+         <img src="../assets/icons/photo-drop.svg" alt="">
+         <span>Перетащите сюда <br /> изображения до 10 мб</span>
       </div>
       <!-- Содержимое чата -->
       <div v-if="chatStore.currentChat && !chatStore.isCollapsed" class="chat-wrapper__chat-box" ref="chatContainer">
@@ -298,17 +299,8 @@ const toUserId = computed(() => {
    return relevantUser(chatStore.currentChat).id;
 });
 
-const displayedUsers = computed(() => {
-   const uniqueAvatars = [...new Set(chatStore.usersWithAvatars
-      .filter(user => user.avatarUrl !== avatar)
-      .map(user => user.avatarUrl))];
-   return uniqueAvatars.slice(0, 2);
-});
-
-const remainingCount = computed(() => {
-   const uniqueUsers = [...new Set(chatStore.usersWithAvatars)];
-   return Math.max(uniqueUsers.length - 2, 0);
-});
+const displayedUsers = computed(() => chatStore.displayedUsers);
+const remainingCount = computed(() => chatStore.remainingCount);
 
 function scrollToBottom() {
    nextTick(() => {
@@ -440,21 +432,23 @@ function isOdd(n) {
    return n % 2 === 1;
 }
 
-onMounted(async () => {
-   try {
-      await messagesStore.loadLastMessages();
+watch(
+   () => messagesStore.lastMessages,
+   async (newMessages) => {
+      if (newMessages && newMessages.length > 0) {
+         const usersWithAvatars = await Promise.all(
+            newMessages.map(async (message) => {
+               const userId = relevantUser(message).id;
+               const avatarUrl = getImageUrl(relevantUser(message).photo?.path, avatar);
+               return { userId, avatarUrl };
+            })
+         );
 
-      const usersWithAvatars = await Promise.all(messagesStore.lastMessages.map(async (message) => {
-         const userId = relevantUser(message);
-         const avatarUrl = getImageUrl(relevantUser(message).photo?.path, avatar);
-         return { userId, avatarUrl };
-      }));
-
-      chatStore.setUsersWithAvatars(usersWithAvatars);
-   } catch (error) {
-      console.error('Ошибка при загрузке сообщений:', error);
-   }
-});
+         chatStore.setUsersWithAvatars(usersWithAvatars);
+      }
+   },
+   { immediate: true, deep: true }
+);
 
 watch(() => chatStore.currentChat, loadMessages, { immediate: true });
 
@@ -1087,28 +1081,28 @@ watch(
    width: 100%;
    opacity: 0;
    pointer-events: none;
-   height: calc(100% - 140px);
+   height: calc(100% - 70px);
    z-index: 200;
    position: absolute;
    top: 70px;
    flex-direction: column;
    align-items: center;
    justify-content: center;
-   gap: 8px;
-   border: 2px dashed #A8A8A8;
+   gap: 16px;
    text-align: center;
-   background-color: #EEEEEE;
+   background-color: #EEF9FF;
    font-size: 16px;
-   color: #A8A8A8;
+   line-height: 20px;
+   color: #787878;
    cursor: pointer;
    transition: opacity 0.2s ease;
 
    img {
-      width: 36px
+      width: 56px
    }
 }
 
 .dragging-over {
-   opacity: 0.8;
+   opacity: 1;
 }
 </style>

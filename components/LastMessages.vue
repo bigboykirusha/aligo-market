@@ -90,6 +90,7 @@ const messageContent = (message) => {
 
 const openChat = (message) => {
    emit('open-chat', message);
+   messagesStore.loadLastMessages();
 };
 
 const isMessageSelected = (message) => {

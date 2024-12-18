@@ -185,8 +185,8 @@ onMounted(() => {
    flex-direction: column;
    align-items: flex-start;
    padding: 24px;
-   border: 1px solid #00000024;
-   border-radius: 4px;
+   box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
+   border-radius: 6px;
    text-align: center;
 
    &__block {

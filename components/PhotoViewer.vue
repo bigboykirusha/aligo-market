@@ -205,10 +205,13 @@ onUnmounted(() => {
 
    @media (max-width: 768px) {
       padding: 48px 16px;
+      height: calc(100% - 70px);
+      padding-bottom: 0;
    }
 
    @media (max-width: 480px) {
       padding: 24px 16px;
+      padding-bottom: 0;
    }
 
    .info-block {
@@ -222,6 +225,10 @@ onUnmounted(() => {
       padding: 0;
       height: 100vh;
 
+      @media (max-width: 768px) {
+         height: calc(100vh - 70px);
+      }
+
       .info-block {
          opacity: 0;
          transform: translateX(100%);
@@ -232,6 +239,7 @@ onUnmounted(() => {
          width: 100%;
          height: 100%;
          transition: width 0.3s ease;
+         border-radius: 0;
       }
 
       .thumbnails {
@@ -242,6 +250,15 @@ onUnmounted(() => {
 
       .main-slide {
          height: 100%;
+         border-radius: 0;
+
+         .main-image-container {
+            border-radius: 0;
+         }
+
+         .swiper {
+            border-radius: 0;
+         }
 
          .clickable-area {
             background-color: #323232;

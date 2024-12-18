@@ -92,7 +92,20 @@ export default defineNuxtPlugin((nuxtApp) => {
             console.log('Получено сообщение на канале:', storeChannelName, res);
             messagesStore.loadLastMessages();
             if (res.new_message) {
-               if (chatStore.currentChat && chatStore.currentChat.ads_id === res.new_message.ads_id) {
+               if (
+                  chatStore.currentChat &&
+                  chatStore.currentChat.ads_id === res.new_message.ads_id &&
+                  (
+                     (
+                        chatStore.currentChat.from_user.id === res.new_message.from_user.id &&
+                        chatStore.currentChat.for_user.id === res.new_message.for_user.id
+                     ) ||
+                     (
+                        chatStore.currentChat.from_user.id === res.new_message.for_user.id &&
+                        chatStore.currentChat.for_user.id === res.new_message.from_user.id
+                     )
+                  )
+               ) {
                   chatStore.addMessage({
                      ...res.new_message,
                      isSelf: res.new_message.from_user_id === userStore.userId,

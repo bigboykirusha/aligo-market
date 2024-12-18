@@ -8,6 +8,20 @@ export const useChatStore = defineStore('chatStore', {
       messages: [],
       usersWithAvatars: []
    }),
+   getters: {
+      displayedUsers(state) {
+         const uniqueAvatars = [...new Set(
+            state.usersWithAvatars
+               .filter(user => user.avatarUrl !== null) // фильтруем пустые аватары
+               .map(user => user.avatarUrl)
+         )];
+         return uniqueAvatars.slice(0, 2);
+      },
+      remainingCount(state) {
+         const uniqueUsers = [...new Set(state.usersWithAvatars)];
+         return Math.max(uniqueUsers.length - 2, 0);
+      }
+   },
    actions: {
       setCurrentChat(chat) {
          this.currentChat = chat;
@@ -35,10 +49,10 @@ export const useChatStore = defineStore('chatStore', {
          this.usersWithAvatars.push(user);
       },
       hideChat() {
-         this.isChatVisible = false; 
+         this.isChatVisible = false;
       },
       showChat() {
-         this.isChatVisible = true; 
+         this.isChatVisible = true;
       }
    }
 });

@@ -144,7 +144,8 @@
             </div>
             <div id="drag-drop-zone" class="drag-drop-zone"
                :class="{ 'dragging-over': isDragging && chatStore.currentChat }">
-               <img src="../assets/icons/photo-icon.svg" alt="">
+               <img src="../assets/icons/photo-drop.svg" alt="">
+               <span>Перетащите сюда <br /> изображения до 10 мб</span>
             </div>
             <div class="file-preview" v-if="file.length > 0 && chatStore.currentChat && !isDragging">
                <div v-for="(file, index) in file" :key="index" class="file-preview__item">
@@ -382,14 +383,18 @@ const togglePopup = () => {
 };
 
 const handleSelectAllChange = () => {
-   if (selectedMessagesStore.selectedMessages.length === lastMessages.length) {
+   const messages = lastMessages.value;
+
+   if (selectedMessagesStore.selectedMessages.length === messages.length) {
       selectedMessagesStore.deselectAll();
    } else {
-      const allMessages = lastMessages.map(message => ({
+      const allMessages = messages.map(message => ({
          id: message.id,
          ads_id: message.ads_id,
          main_category_id: message.main_category_id,
          user_id: message.for_user.id,
+         user_id: message.for_user.id,
+         user_id_alt: message.from_user.id,
       }));
       selectedMessagesStore.selectAll(allMessages);
    }
@@ -1376,26 +1381,21 @@ watch(
    flex-direction: column;
    align-items: center;
    justify-content: center;
-   gap: 8px;
-   border: 2px dashed #A8A8A8;
-   z-index: 20000;
+   gap: 16px;
    text-align: center;
-   background-color: #EEEEEE;
+   background-color: #EEF9FF;
    font-size: 16px;
-   color: #A8A8A8;
+   line-height: 20px;
+   color: #787878;
    cursor: pointer;
    transition: opacity 0.2s ease;
 
-   @media (max-width: 768px) {
-      display: none;
-   }
-
    img {
-      width: 36px
+      width: 56px
    }
 }
 
 .dragging-over {
-   opacity: 0.8;
+   opacity: 1;
 }
 </style>

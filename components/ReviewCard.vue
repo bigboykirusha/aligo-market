@@ -237,11 +237,10 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .review-card {
-   border: 1px solid #ddd;
    border-radius: 6px;
    padding: 24px;
    background-color: #fff;
-   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+   box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
 
    &__header {
       display: flex;

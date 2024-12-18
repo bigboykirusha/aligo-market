@@ -43,18 +43,18 @@
                <div v-show="countFavorites" class="user-menu__count">{{ countFavorites }}</div>
             </nuxt-link>
          </li>
-         <li class="user-menu__item" :class="{ 'user-menu__item--active': isActive('notifications') }"
-            @click="selectMenuItem('notifications')">
-            <nuxt-link to="/myself/notifications">
-               <img src="../assets/icons/support.svg" /> Оповещения
-               <div v-show="countUnreadNotify" class="user-menu__count">{{ countUnreadNotify }}</div>
-            </nuxt-link>
-         </li>
          <li class="user-menu__item" :class="{ 'user-menu__item--active': isActive('messages') }"
             @click="selectMenuItem('messages')">
             <nuxt-link to="/myself/messages">
-               <img src="../assets/icons/mail-menu.svg" /> Сообщения
+               <img src="../assets/icons/support.svg" /> Сообщения
                <div v-show="countMessage" class="user-menu__count">{{ countMessage }}</div>
+            </nuxt-link>
+         </li>
+         <li class="user-menu__item" :class="{ 'user-menu__item--active': isActive('notifications') }"
+            @click="selectMenuItem('notifications')">
+            <nuxt-link to="/myself/notifications">
+               <img src="../assets/icons/mail-menu.svg" /> Оповещения
+               <div v-show="countUnreadNotify" class="user-menu__count">{{ countUnreadNotify }}</div>
             </nuxt-link>
          </li>
          <li class="user-menu__item" :class="{ 'user-menu__item--active': isActive('reviews') }"
@@ -344,7 +344,7 @@ function pluralizeReview(count) {
    }
 
    &__item--logout {
-      color: #323232;
+      color: #787878;
       padding-top: 24px;
       font-size: 14px;
       cursor: pointer;

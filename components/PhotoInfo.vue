@@ -403,15 +403,9 @@ onMounted(() => {
       .user-info__actions-button--write {
          background-color: #5F2EEA;
          color: white;
-         max-width: 108px;
 
          @media (max-width: 1024px) {
             max-width: 50%;
-         }
-
-         @media (max-width: 768px) {
-            max-width: 60%;
-            width: 60%;
          }
 
          &:hover {
