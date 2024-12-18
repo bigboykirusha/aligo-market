@@ -9,9 +9,9 @@
       <Footer v-if="showFooter" />
       <FooterAlternative v-else />
       <Chat
-         v-show="userStore.isLoggedIn && !route.path.startsWith('/myself') && !route.path.startsWith('/autos') && !route.path.startsWith('/createAd')" />
+         v-if="userStore.isLoggedIn && !route.path.startsWith('/myself') && !route.path.startsWith('/autos') && !route.path.startsWith('/createAd')" />
       <NotifPopup />
-      <UserMenuBurger/>
+      <UserMenuBurger />
       <BottomToolbar />
    </div>
 </template>
