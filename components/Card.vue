@@ -261,6 +261,7 @@ const prepareChatData = async () => {
          username: formattedUsername.value,
       },
       ads_id: props.id,
+      ads_amount: props.price,
       main_category_id: 1,
       from_user: {
          id: null,

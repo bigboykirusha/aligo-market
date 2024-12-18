@@ -23,7 +23,7 @@
       <div class="messages__content" @drop="handleFileDrop">
          <div class="chat-wrapper" :class="{ 'profile-page': chatStore.currentChat }">
             <div v-if="chatStore.currentChat" class="chat-header">
-               <button v-if="chatStore.currentChat" class="chat-header__close-button" @click="closeChat">
+               <button v-if="chatStore.currentChat && total !== 0" class="chat-header__close-button" @click="closeChat">
                   <img src="../assets/icons/arrow-back.svg" alt="Toggle" />
                </button>
                <div class="chat-header__info chat-header__info--active">
@@ -142,8 +142,8 @@
                   </div>
                </div>
             </div>
-            <div id="drag-drop-zone" class="drag-drop-zone" :class="{ 'dragging-over': isDragging }">
-               Перетащите сюда файлы <br> для добавления
+            <div id="drag-drop-zone" class="drag-drop-zone"
+               :class="{ 'dragging-over': isDragging && chatStore.currentChat }">
                <img src="../assets/icons/photo-icon.svg" alt="">
             </div>
             <div class="file-preview" v-if="file.length > 0 && chatStore.currentChat && !isDragging">
@@ -210,7 +210,7 @@ import { getImageUrl } from '../services/imageUtils';
 import { useSelectedMessagesStore } from '~/store/selectedMessages';
 import { formatNumberWithSpaces } from '../services/amountUtils.js';
 import { relevantUser, relevantUserInfo } from '../services/userUtils.js'
-import { fetchMessages, sendMessage, fetchLastMessages } from '~/services/apiClient';
+import { fetchMessages, sendMessage } from '~/services/apiClient';
 import { useUserStore } from '~/store/user';
 import { useMessagesStore } from '~/store/messages';
 import { useRouter } from 'vue-router';
@@ -226,8 +226,8 @@ const toUserId = computed(() => {
       : chatStore.currentChat.for_user.id;
 });
 const newMessage = ref('');
-const total = ref(0);
-const lastMessages = ref([]);
+const total = computed(() => messagesStore.totalCount);
+const lastMessages = computed(() => messagesStore.lastMessages);
 const loading = ref(false);
 const isMobile = ref(false);
 const showPopup = ref(false);
@@ -382,10 +382,10 @@ const togglePopup = () => {
 };
 
 const handleSelectAllChange = () => {
-   if (selectedMessagesStore.selectedMessages.length === lastMessages.value.length) {
+   if (selectedMessagesStore.selectedMessages.length === lastMessages.length) {
       selectedMessagesStore.deselectAll();
    } else {
-      const allMessages = lastMessages.value.map(message => ({
+      const allMessages = lastMessages.map(message => ({
          id: message.id,
          ads_id: message.ads_id,
          main_category_id: message.main_category_id,
@@ -575,6 +575,7 @@ async function handleSendMessage() {
       console.error('Ошибка при отправке сообщения:', error);
    } finally {
       isSending.value = false;
+      messagesStore.loadLastMessages();
    }
 }
 
@@ -588,9 +589,7 @@ onMounted(async () => {
    window.addEventListener('resize', checkScreenWidth);
    document.addEventListener('click', handleClickOutside);
    try {
-      const { data, totalCount } = await fetchLastMessages();
-      total.value = totalCount;
-      lastMessages.value = data;
+      await messagesStore.loadLastMessages();
    } catch (error) {
       console.error('Error loading messages count:', error);
    }
@@ -1129,7 +1128,8 @@ watch(
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100%;
+      height: auto;
+      min-height: 350px;
       padding: 20px;
       border-radius: 8px;
    }
@@ -1272,6 +1272,7 @@ watch(
 .no-messages-container {
    text-align: center;
    max-width: 400px;
+   height: 100%;
 
    h2 {
       font-size: 16px;
@@ -1367,14 +1368,14 @@ watch(
    width: 100%;
    opacity: 0;
    pointer-events: none;
-   height: calc(100% - 70px);
+   bottom: 70px;
+   height: calc(100% - 143px);
    position: absolute;
    flex-direction: column;
    align-items: center;
    justify-content: center;
    gap: 8px;
    border: 2px dashed #A8A8A8;
-   border-radius: 12px 12px 0 0;
    z-index: 20000;
    text-align: center;
    background-color: #EEEEEE;
@@ -1388,11 +1389,11 @@ watch(
    }
 
    img {
-      width: 22px
+      width: 36px
    }
 }
 
 .dragging-over {
-   opacity: 1;
+   opacity: 0.8;
 }
 </style>

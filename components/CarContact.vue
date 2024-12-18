@@ -198,6 +198,7 @@ const prepareChatData = async () => {
       },
       ads_id: props.id,
       main_category_id: 1,
+      ads_amount: props.amount,
    };
 
    currentChatStore.setCurrentChat(chatData);

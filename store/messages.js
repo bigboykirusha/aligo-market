@@ -4,6 +4,7 @@ import { fetchLastMessages } from '~/services/apiClient';
 export const useMessagesStore = defineStore('messages', {
    state: () => ({
       lastMessages: [],
+      totalCount: 0, // Новый параметр для общего количества сообщений
       loading: true,
       error: null,
    }),
@@ -15,9 +16,9 @@ export const useMessagesStore = defineStore('messages', {
          await new Promise(resolve => setTimeout(resolve, 500));
 
          try {
-            // Передаём дополнительные параметры в fetchLastMessages
-            const { data } = await fetchLastMessages(locale, unread_chats, read_chats, only_my_ads);
+            const { data, totalCount } = await fetchLastMessages(locale, unread_chats, read_chats, only_my_ads);
             this.lastMessages = data;
+            this.totalCount = totalCount; 
          } catch (err) {
             console.error('Ошибка при загрузке сообщений:', err);
             this.error = err;
@@ -27,3 +28,4 @@ export const useMessagesStore = defineStore('messages', {
       }
    },
 });
+

@@ -1,9 +1,10 @@
 <template>
    <div :class="['messages-container', { 'profile-page': isProfilePage }]">
-      <SkeletonMessage v-if="messagesStore.loading" v-for="index in 3" :key="index" />
-      <div v-else v-for="message in messagesStore.lastMessages" :key="message.id"
-         :class="['message-item', { 'unread-message': !message.read_at, 'profile-page': isProfilePage }]"
-         @click="openChat(message)">
+      <SkeletonMessage v-if="isLoading" v-for="index in 4" :key="index" />
+      <div v-else v-for="message in lastMessages" :key="message.id"
+         :class="[
+            'message-item',
+            { 'unread-message': message.from_user.id !== userStore.userId && !message.read_at, 'profile-page': isProfilePage }]" @click="openChat(message)">
          <input v-if="isProfilePage" @click.stop type="checkbox" class="message-checkbox" :value="message.id"
             :checked="isMessageSelected(message)" @change="toggleMessage(message)" />
          <div class="image-container">
@@ -45,6 +46,7 @@ import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useMessagesStore } from '~/store/messages';
 import { useSelectedMessagesStore } from '~/store/selectedMessages';
+import { useUserStore } from '~/store/user.js';
 import { relevantUser, relevantUserInfo } from '../services/userUtils.js';
 import { formatNumberWithSpaces } from '../services/amountUtils.js';
 import { getImageUrl } from '../services/imageUtils.js';
@@ -53,8 +55,12 @@ import avatar from '../assets/icons/avatar-revers.svg';
 const emit = defineEmits(['open-chat']);
 
 const messagesStore = useMessagesStore();
+const userStore = useUserStore();
 const selectedMessagesStore = useSelectedMessagesStore();
 const { locale } = useI18n();
+
+const lastMessages = computed(() => messagesStore.lastMessages)
+const isLoading = computed(() => messagesStore.loading);
 
 const props = defineProps({
    isProfilePage: {

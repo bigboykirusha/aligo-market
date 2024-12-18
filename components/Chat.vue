@@ -1,6 +1,6 @@
 <template>
-   <div v-if="total > 0 && chatStore.isChatVisible" class="chat-wrapper" @drop="handleFileDrop"
-      :class="{ 'chat-wrapper--collapsed': chatStore.isCollapsed }" ref="draggable">
+   <div v-if="chatStore.isChatVisible && (chatStore.currentChat || total !== 0)" class="chat-wrapper"
+      @drop="handleFileDrop" :class="{ 'chat-wrapper--collapsed': chatStore.isCollapsed }" ref="draggable">
       <!-- Заголовок чата -->
       <div class="chat-header" @mousedown="startDrag">
          <!-- Информация о текущем чате -->
@@ -36,7 +36,7 @@
          </div>
 
          <!-- Кнопки в заголовке -->
-         <button v-if="chatStore.currentChat && !chatStore.isCollapsed" class="chat-header__close-button"
+         <button v-if="chatStore.currentChat && !chatStore.isCollapsed && total !== 0" class="chat-header__close-button"
             @click="closeChat">
             <img src="../assets/icons/arrow-back.svg" alt="Toggle" />
          </button>
@@ -51,8 +51,7 @@
             <img src="../assets/icons/close.svg" alt="Close" />
          </button>
       </div>
-      <div id="drag-drop-zone" class="drag-drop-zone" :class="{ 'dragging-over': isDragging }">
-         Перетащите сюда файлы <br> для добавления
+      <div id="drag-drop-zone" class="drag-drop-zone" :class="{ 'dragging-over': isDragging && chatStore.currentChat }">
          <img src="../assets/icons/photo-icon.svg" alt="">
       </div>
       <!-- Содержимое чата -->
@@ -186,13 +185,15 @@
 import { ref, onMounted, watch, computed } from 'vue';
 import { useChatStore } from '~/store/chatStore';
 import { useUserStore } from '~/store/user';
+import { useMessagesStore } from '~/store/messages';
 import { relevantUser, relevantUserInfo } from '../services/userUtils.js'
 import { getImageUrl } from '../services/imageUtils';
-import { fetchMessages, sendMessage, fetchLastMessages } from '~/services/apiClient';
+import { fetchMessages, sendMessage } from '~/services/apiClient';
 import avatar from '../assets/icons/avatar-revers.svg';
 
 const userStore = useUserStore();
 const chatStore = useChatStore();
+const messagesStore = useMessagesStore();
 
 const mesInput = ref(null);
 
@@ -288,7 +289,7 @@ const stopDrag = () => {
 
 const newMessage = ref('');
 const file = ref([]);
-const total = ref(0);
+const total = computed(() => messagesStore.totalCount);
 const loading = ref(true);
 const isPopupVisible = ref(false);
 const chatContainer = ref(null);
@@ -412,6 +413,7 @@ async function handleSendMessage() {
       console.error("Ошибка при отправке сообщения:", error);
    } finally {
       isSending.value = false;
+      messagesStore.loadLastMessages();
    }
 }
 
@@ -441,10 +443,9 @@ function isOdd(n) {
 
 onMounted(async () => {
    try {
-      const { totalCount, data } = await fetchLastMessages();
-      total.value = totalCount;
+      await messagesStore.loadLastMessages();
 
-      const usersWithAvatars = await Promise.all(data.map(async (message) => {
+      const usersWithAvatars = await Promise.all(messagesStore.lastMessages.map(async (message) => {
          const userId = relevantUser(message);
          const avatarUrl = getImageUrl(relevantUser(message).photo?.path, avatar);
          return { userId, avatarUrl };
@@ -1086,16 +1087,15 @@ watch(
    width: 100%;
    opacity: 0;
    pointer-events: none;
-   height: calc(100% - 70px);
+   height: calc(100% - 140px);
    z-index: 200;
    position: absolute;
-   top: 0;
+   top: 70px;
    flex-direction: column;
    align-items: center;
    justify-content: center;
    gap: 8px;
    border: 2px dashed #A8A8A8;
-   border-radius: 12px 12px 0 0;
    text-align: center;
    background-color: #EEEEEE;
    font-size: 16px;
@@ -1104,11 +1104,11 @@ watch(
    transition: opacity 0.2s ease;
 
    img {
-      width: 22px
+      width: 36px
    }
 }
 
 .dragging-over {
-   opacity: 1;
+   opacity: 0.8;
 }
 </style>
