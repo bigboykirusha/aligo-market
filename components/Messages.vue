@@ -142,6 +142,10 @@
                   </div>
                </div>
             </div>
+
+            <div v-show="!chatStore.currentChat" class="chat-wrapper__last-messages-container">
+               <LastMessages isProfilePage @open-chat="setCurrentChat" />
+            </div>
             <div id="drag-drop-zone" class="drag-drop-zone"
                :class="{ 'dragging-over': isDragging && chatStore.currentChat }">
                <img src="../assets/icons/photo-drop.svg" alt="">
@@ -179,9 +183,6 @@
                      <img src="../assets/icons/send.svg" alt="Send" />
                   </template>
                </button>
-            </div>
-            <div v-show="!chatStore.currentChat" class="chat-wrapper__last-messages-container">
-               <LastMessages isProfilePage @open-chat="setCurrentChat" />
             </div>
          </div>
       </div>
@@ -920,6 +921,7 @@ watch(
       position: relative;
       flex-direction: column;
       gap: 24px;
+      height: calc(100% - 70px);
    }
 
    &__chat-box {
@@ -1043,7 +1045,6 @@ watch(
    }
 
    &__message-input-container {
-      position: absolute;
       min-height: 70px;
       align-items: center;
       z-index: 200;
