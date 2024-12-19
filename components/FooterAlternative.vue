@@ -34,6 +34,7 @@ isCreateAdPage.value = route.name === 'createAd';
 .footer {
    position: relative;
    width: 100%;
+   z-index: 10000;
 
    &__row {
       background: #3366FF;

@@ -1,28 +1,28 @@
 <template>
    <div class="user-menu" :class="{ 'user-menu--scrolled': isScrolled }" ref="userMenuRef">
       <div class="user-menu__header">
-            <div class="user-menu__block">
-               <img :src="avatarUrl" alt="login icon" class="user-menu__icon">
-               <input type="file" id="avatarUpload" ref="avatarUpload" @change="handleAvatarChange"
-                  style="display: none" />
-               <img src="../assets/icons/change-ava.svg" alt="change avatar" class="user-menu__icon-change"
-                  @click="triggerFileInput">
+         <div class="user-menu__block">
+            <img :src="avatarUrl" alt="login icon" class="user-menu__icon">
+            <input type="file" id="avatarUpload" ref="avatarUpload" @change="handleAvatarChange"
+               style="display: none" />
+            <img src="../assets/icons/change-ava.svg" alt="change avatar" class="user-menu__icon-change"
+               @click="triggerFileInput">
 
-               <a class="user-menu__user-name">{{ displayName }}</a>
+            <a class="user-menu__user-name">{{ displayName }}</a>
 
-               <div v-if="!rating" class="user-menu__rating-text--empty">О вас нет отзывов</div>
-               <nuxt-link to="/myself/reviews" v-else class="user-menu__rating">
-                  <div class="user-menu__rating-text">{{ rating }}</div>
-                  <NuxtRating :rating-value="Number(rating)" :rating-count="5" :rating-size="10" :rating-spacing="6"
-                     :active-color="'#3366FF'" :inactive-color="'#FFFFFF'" :border-color="'#3366FF'" :border-width="2"
-                     :rounded-corners="true" :read-only="true" />
-                  {{ countReviews }} {{ pluralizeReview(countReviews) }}
-               </nuxt-link>
+            <div v-if="!rating" class="user-menu__rating-text--empty">О вас нет отзывов</div>
+            <nuxt-link to="/myself/reviews" v-else class="user-menu__rating">
+               <div class="user-menu__rating-text">{{ rating }}</div>
+               <NuxtRating :rating-value="Number(rating)" :rating-count="5" :rating-size="10" :rating-spacing="6"
+                  :active-color="'#3366FF'" :inactive-color="'#FFFFFF'" :border-color="'#3366FF'" :border-width="2"
+                  :rounded-corners="true" :read-only="true" />
+               {{ countReviews }} {{ pluralizeReview(countReviews) }}
+            </nuxt-link>
 
-               <nuxt-link to="/myself/editProfile" class="user-menu__profile-button">
-                  Управление профилем
-               </nuxt-link>
-            </div>
+            <nuxt-link to="/myself/editProfile" class="user-menu__profile-button">
+               Управление профилем
+            </nuxt-link>
+         </div>
       </div>
 
       <!-- Список меню -->
@@ -181,10 +181,10 @@ function pluralizeReview(count) {
    width: 270px;
    height: fit-content;
    margin-top: 134px;
-   transition: margin-top 0.3s ease;
+   transition: transform 0.3s ease-in-out;
 
    &--scrolled {
-      margin-top: 90px;
+      transform: translateY(-44px);
    }
 
    @media (max-width: 991px) {

@@ -92,6 +92,7 @@ const photoClass = (count) => {
    display: flex;
    flex-direction: column;
    gap: 8px;
+   max-width: 300px;
 }
 
 .chat-photo {

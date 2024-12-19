@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { useRouter } from 'vue-router';
 
 export const useChatStore = defineStore('chatStore', {
    state: () => ({
@@ -36,8 +37,12 @@ export const useChatStore = defineStore('chatStore', {
          this.isCollapsed = !this.isCollapsed;
       },
       openChat() {
+         const router = useRouter(); 
          this.isCollapsed = false;
          this.isChatVisible = true;
+         if (this.windowWidth < 768) {
+            router.push('/myself/messages');
+         }
       },
       closeChat() {
          this.isCollapsed = true;

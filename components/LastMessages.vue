@@ -33,14 +33,12 @@
                   {{ formatDate(message.created_at) }}
                </div>
             </div>
-            <div class="message-text">
-               <div v-if="message.message && message.message.trim()">
-                  {{ messageContent(message) }}
-               </div>
-               <div class="attachment-placeholder" v-else>
-                  <img src="../assets/icons/paperclip.svg" alt="Attachment" class="attachment-placeholder" />
-                  <span>Вложение</span>
-               </div>
+            <div class="message-text" v-if="message.message && message.message.trim()">
+               {{ messageContent(message) }}
+            </div>
+            <div class="attachment-placeholder" v-else>
+               <img src="../assets/icons/paperclip.svg" alt="Attachment" class="attachment-placeholder" />
+               <span>Вложение</span>
             </div>
          </div>
       </div>

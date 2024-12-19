@@ -44,7 +44,7 @@
 
          <ul class="user-menu__list">
             <li class="user-menu__item user-menu__item--search">
-               <nuxt-link to="/">
+               <nuxt-link @click="toggleMenu" to="/">
                   <img :src="searchIcon" />Все объявления
                </nuxt-link>
             </li>

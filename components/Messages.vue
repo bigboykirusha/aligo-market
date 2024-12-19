@@ -884,9 +884,8 @@ watch(
 
    &.profile-page {
       box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
-      height: 100%;
-      max-height: 550px;
-      min-height: 550px;
+      height: calc(100vh - 134px - 70px - 40px);
+      min-height: 513px;
 
       @media (max-width: 768px) {
          position: fixed;
@@ -958,11 +957,10 @@ watch(
    &__message-bubble {
       background-color: #EEEEEE;
       color: #323232;
-      border-radius: 12px;
+      border-radius: 16px;
       padding: 16px;
       position: relative;
       display: flex;
-      max-width: 500px;
       gap: 8px;
       flex-direction: column;
 
@@ -1152,7 +1150,7 @@ watch(
    display: flex;
    justify-content: space-between;
    align-items: center;
-   padding: 10px 16px;
+   padding: 10.5px 16px;
    border-radius: 12px 12px 0 0;
    box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.08);
    gap: 20px;
@@ -1162,7 +1160,7 @@ watch(
    z-index: 10002;
 
    @media (max-width: 768px) {
-      padding: 16px;
+      padding: 10.5px 16px;
       border-radius: 0;
    }
 
@@ -1240,6 +1238,11 @@ watch(
       height: 53px;
       border-radius: 4px;
       object-fit: cover;
+
+      @media (max-width: 768px) {
+         width: 49px;
+         height: 49px;;
+      }
    }
 
    &__close-button {
