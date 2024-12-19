@@ -1,5 +1,5 @@
 <template>
-   <nav class="bottom-toolbar" :class="{ 'bottom-toolbar--hidden': showDropdown || isCreatePage}">
+   <nav class="bottom-toolbar" :class="{ 'bottom-toolbar--hidden': showDropdown || isCreatePage || isChat }">
       <ul class="bottom-toolbar__list">
          <li class="bottom-toolbar__item" v-for="item in menuItems" :key="item.title"
             :class="{ 'bottom-toolbar__item--active': isActive(item.path, item.icon) }">
@@ -71,14 +71,17 @@ import { useUserStore } from '@/store/user';
 import { useDropdownStore } from '@/store/dropdown';
 import { useLoginModalStore } from '~/store/loginModal.js';
 import { useBurgerStore } from '~/store/burger';
+import { useChatStore } from '~/store/chatStore';
 
 const loginModalStore = useLoginModalStore();
 const burgerStore = useBurgerStore();
+const chatStore = useChatStore();
 
 const dropdownStore = useDropdownStore();
 const showDropdown = computed(() => dropdownStore.showDropdown);
 const showMenu = computed(() => burgerStore.isOpen);
 const isCreatePage = computed(() => route.path.startsWith('/createAd'));
+const isChat = computed(() => route.path.startsWith('/myself/messages') && chatStore.currentChat);
 
 const route = useRoute();
 const router = useRouter();
