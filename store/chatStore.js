@@ -35,15 +35,9 @@ export const useChatStore = defineStore('chatStore', {
       toggleChat() {
          this.isCollapsed = !this.isCollapsed;
       },
-      openChat(router) {
+      openChat() {
          this.isCollapsed = false;
          this.isChatVisible = true;
-
-         if (this.windowWidth < 768) {
-            setTimeout(() => {
-               router.push('/myself/messages');
-            }, 500);
-         }
       },
       closeChat() {
          this.isCollapsed = true;

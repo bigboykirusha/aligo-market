@@ -269,9 +269,9 @@ const prepareChatData = async () => {
          id: null,
       },
    };
-
+   router.push('/myself/messages');
    currentChatStore.setCurrentChat(chatData);
-   currentChatStore.openChat(router);
+   currentChatStore.openChat();
 };
 
 const fetchPhoneNumber = async () => {
