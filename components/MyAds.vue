@@ -176,7 +176,7 @@ const indicatorStyle = computed(() => {
       margin-bottom: 24px;
 
       @media (max-width: 480px) {
-         margin-bottom: 0;
+         margin-bottom: 56px;
       }
    }
 
