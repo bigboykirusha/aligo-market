@@ -5,6 +5,10 @@
       <div class="chat-header" @mousedown="startDrag">
          <!-- Информация о текущем чате -->
          <div v-if="chatStore.currentChat" class="chat-header__info chat-header__info--active">
+            <button v-if="chatStore.currentChat && !chatStore.isCollapsed && total !== 0"
+               class="chat-header__close-button" @click="closeChat">
+               <img src="../assets/icons/arrow-back.svg" alt="Toggle" />
+            </button>
             <div :to="`/user/${relevantUser(chatStore.currentChat).id}`" class="user-info__avatar">
                <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.path, avatar)" alt="Avatar"
                   class="chat-header__avatar" />
@@ -35,10 +39,6 @@
          </div>
 
          <!-- Кнопки в заголовке -->
-         <button v-if="chatStore.currentChat && !chatStore.isCollapsed && total !== 0" class="chat-header__close-button"
-            @click="closeChat">
-            <img src="../assets/icons/arrow-back.svg" alt="Toggle" />
-         </button>
          <nuxt-link to="/myself/messages" class="chat-header__close-button" @click="toggleChat">
             <img src="../assets/icons/out.svg" alt="Toggle" />
          </nuxt-link>
@@ -857,7 +857,7 @@ watch(
       width: 34px;
       position: absolute;
       top: -8px;
-      left: -11px;
+      left: 28px;
       height: 34px;
       object-fit: cover;
       border-radius: 50%;
