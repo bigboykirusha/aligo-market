@@ -884,11 +884,6 @@ watch(
    flex-direction: column;
    transition: height 0.3s ease;
 
-   @media (max-width: 768px) {
-      width: 100%;
-      position: absolute;
-   }
-
    &.profile-page {
       box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
       height: 100%;
@@ -897,9 +892,10 @@ watch(
 
       @media (max-width: 768px) {
          position: absolute;
+         box-shadow: none;
+         border-radius: 0;
          z-index: 20000;
-         top: 0;
-         left: 0;
+         bottom: 0;
          max-height: none;
          height: 100%;
          width: 100%;
