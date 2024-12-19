@@ -420,7 +420,6 @@ onUnmounted(() => {
    flex-direction: column;
    gap: 8px;
    z-index: 1001;
-   opacity: 0;
    transform: scale(0);
    transform-origin: top right;
    transition: opacity 0.3s ease, transform 0.3s ease;

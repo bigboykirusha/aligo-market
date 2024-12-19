@@ -1,12 +1,10 @@
 <template>
-   <transition name="popup-slide">
-      <div v-if="isVisible" class="popup" ref="popupRef">
-         <div class="popup-item" v-for="item in items" :key="item.text" @click="handleAction(item.action)">
-            <img :src="item.icon" alt="icon" class="popup-item__icon" />
-            <span class="popup-item__text">{{ item.text }}</span>
-         </div>
+   <div :class="['popup', { 'popup--active': props.isVisible }]" ref="popupRef">
+      <div class="popup-item" v-for="item in items" :key="item.text" @click="handleAction(item.action)">
+         <img :src="item.icon" alt="icon" class="popup-item__icon" />
+         <span class="popup-item__text">{{ item.text }}</span>
       </div>
-   </transition>
+   </div>
 </template>
 
 <script setup>
@@ -58,16 +56,29 @@ onBeforeUnmount(() => {
    background: #ffffff;
    border: 1px solid #3366ff;
    padding: 24px;
-   border-radius: 4px 12px 4px 4px;
+   border-radius: 6px 12px 6px 6px;
    z-index: 10000;
+   transform: scale(0);
+   transform-origin: top right;
+   transition: opacity 0.3s ease, transform 0.3s ease;
+
+   &.popup--active {
+      opacity: 1;
+      transform: scale(1);
+   }
 
    @media (max-width: 768px) {
       top: 100%;
+      transform: scaleY(0);
+      transform-origin: top;
       border: none;
       border-radius: 0;
       border-top: 1px solid #eeeeee;
       width: 100%;
-      height: 325px;
+
+      &.popup--active {
+         transform: scaleY(1);
+      }
    }
 }
 

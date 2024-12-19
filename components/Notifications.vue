@@ -125,6 +125,7 @@ onMounted(fetchNotifications);
 <style scoped lang="scss">
 .notifications {
    width: 100%;
+   margin-bottom: 40px;
 
    ul {
       list-style: none;

@@ -42,7 +42,7 @@ export const useChatStore = defineStore('chatStore', {
          if (this.windowWidth < 768) {
             setTimeout(() => {
                router.push('/myself/messages');
-            }, 1000);
+            }, 500);
          }
       },
       closeChat() {
