@@ -656,6 +656,26 @@ export const blockUser = async (data) => {
    }
 };
 
+export const getBlockedUsers = async () => {
+   try {
+      const response = await apiClient.get('/blocked_users');
+      return response.data;
+   } catch (error) {
+      console.error('Ошибка при получении списка заблокированных пользователей:', error);
+      throw error;
+   }
+};
+
+export const unblockUser = async (userId) => {
+   try {
+      await apiClient.delete(`/blocked_users/${userId}`);
+   } catch (error) {
+      console.error(`Ошибка при разблокировке пользователя с ID ${userId}:`, error);
+      throw error;
+   }
+};
+
+
 export const submitComplaint = async (formData) => {
    try {
       await apiClient.post('/claim_users', formData);

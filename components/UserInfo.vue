@@ -141,7 +141,7 @@ const writeMessage = () => {
       toggleLoginModal();
       return;
    }
-   chatStore.openChat();
+   chatStore.openChat(router);
 };
 
 const handleWriteMessage = () => {

@@ -5,9 +5,6 @@
          <input class="message-checkbox" type="checkbox" id="select-all" v-model="selectAll"
             @change="handleSelectAllChange" />
          <AdsDropdown :options="sortOptions" @updateSort="handleSortUpdate" placeholder="Выбрать чаты" />
-         <button class="messages__action-button--bloked">
-            <img src="../assets/icons/block.svg" alt="block" />
-         </button>
          <button v-if="selectedMessagesStore.selectedMessages.length > 0" @click="handleMarkAllAsRead"
             class="messages__action-button">
             <img src="../assets/icons/done.svg" alt="done" />
@@ -22,6 +19,12 @@
             <img src="../assets/icons/delete.svg" alt="delete" />
             <span>Удалить</span>
          </button>
+         <div class="bloked-container">
+            <button class="messages__action-button--bloked" @click="openBlokedUsersPopup">
+               <img src="../assets/icons/block.svg" alt="block" />
+            </button>
+            <BlokedUsers :isVisible="isBlokedUsersVisible" @close="isBlokedUsersVisible = false" />
+         </div>
       </div>
       <div class="messages__content" @drop="handleFileDrop">
          <div class="chat-wrapper" :class="{ 'profile-page': chatStore.currentChat }">
@@ -246,6 +249,7 @@ const file = ref([]);
 const translateTo = ref(null);
 const chatContainer = ref(null);
 const isSending = ref(false);
+const isBlokedUsersVisible = ref(false);
 
 const mesInput = ref(null);
 
@@ -253,6 +257,10 @@ const setFocus = () => {
    if (mesInput.value) {
       mesInput.value.focus();
    }
+};
+
+const openBlokedUsersPopup = () => {
+   isBlokedUsersVisible.value = true;
 };
 
 const showNamePopup = () => isNamePopupVisible.value = true;
@@ -1428,5 +1436,10 @@ watch(
 
 .dragging-over {
    opacity: 1;
+}
+
+.bloked-container {
+   position: relative;
+   margin-left: auto;
 }
 </style>

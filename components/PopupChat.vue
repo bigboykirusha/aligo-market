@@ -68,13 +68,14 @@ onBeforeUnmount(() => {
    }
 
    @media (max-width: 768px) {
-      top: 100%;
-      transform: scaleY(0);
-      transform-origin: top;
       border: none;
       border-radius: 0;
       border-top: 1px solid #eeeeee;
       width: 100%;
+      top: 100%;
+      transform: scaleY(0);
+      transform-origin: top;
+      transition: transform 0.3s ease;
 
       &.popup--active {
          transform: scaleY(1);
