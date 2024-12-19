@@ -879,10 +879,10 @@ watch(
 .chat-wrapper {
    display: flex;
    position: relative;
+   overflow: visible;
    border-radius: 12px;
    flex-direction: column;
    transition: height 0.3s ease;
-
 
    @media (max-width: 768px) {
       width: 100%;
@@ -1043,10 +1043,7 @@ watch(
    }
 
    &__message-input-container {
-      position: -webkit-sticky;
-      /* Префикс для Safari */
-      position: sticky;
-      /* Базовое свойство */
+      position: absolute;
       min-height: 70px;
       align-items: center;
       z-index: 200;
