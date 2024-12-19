@@ -5,6 +5,9 @@
          <input class="message-checkbox" type="checkbox" id="select-all" v-model="selectAll"
             @change="handleSelectAllChange" />
          <AdsDropdown :options="sortOptions" @updateSort="handleSortUpdate" placeholder="Выбрать чаты" />
+         <button class="messages__action-button--bloked">
+            <img src="../assets/icons/block.svg" alt="block" />
+         </button>
          <button v-if="selectedMessagesStore.selectedMessages.length > 0" @click="handleMarkAllAsRead"
             class="messages__action-button">
             <img src="../assets/icons/done.svg" alt="done" />
@@ -789,6 +792,28 @@ watch(
             display: none;
          }
       }
+   }
+
+   &__action-button--bloked {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 34px;
+      padding: 0 9px;
+      background: #D6EFFF;
+      border-radius: 6px;
+      height: 34px;
+      transition: background-color 0.3s ease-in-out;
+
+      &:hover {
+         background-color: #A4DCFF;
+      }
+
    }
 
    &__options-button {
