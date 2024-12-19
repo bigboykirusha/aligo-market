@@ -886,7 +886,7 @@ watch(
 
    @media (max-width: 768px) {
       width: 100%;
-      bottom: 0;
+      position: absolute;
    }
 
    &.profile-page {
