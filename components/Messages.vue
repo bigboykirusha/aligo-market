@@ -880,7 +880,6 @@ watch(
 .chat-wrapper {
    display: flex;
    position: relative;
-   overflow: visible;
    border-radius: 12px;
    flex-direction: column;
    transition: height 0.3s ease;
@@ -901,7 +900,7 @@ watch(
          top: 0;
          left: 0;
          max-height: none;
-         height: 100vh;
+         height: 100%;
          width: 100%;
       }
    }
