@@ -4,7 +4,7 @@ import { fetchLastMessages } from '~/services/apiClient';
 export const useMessagesStore = defineStore('messages', {
    state: () => ({
       lastMessages: [],
-      totalCount: 0, // Новый параметр для общего количества сообщений
+      totalCount: 0, 
       loading: true,
       error: null,
    }),

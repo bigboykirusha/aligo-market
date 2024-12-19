@@ -48,7 +48,6 @@ watch(() => route.params.title, updateComponent, { immediate: true });
 
    @media (max-width: 768px) {
       margin-top: 66px;
-      margin-bottom: 70px;
       flex-grow: 1;
    }
 }
