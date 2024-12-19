@@ -1241,7 +1241,9 @@ watch(
 
       @media (max-width: 768px) {
          width: 49px;
-         height: 49px;;
+         height: 49px;
+         min-height: 49px;
+         min-width: 49px;
       }
    }
 

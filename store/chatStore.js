@@ -38,8 +38,11 @@ export const useChatStore = defineStore('chatStore', {
       openChat(router) {
          this.isCollapsed = false;
          this.isChatVisible = true;
+
          if (this.windowWidth < 768) {
-            router.push('/myself/messages');
+            setTimeout(() => {
+               router.push('/myself/messages');
+            }, 200); 
          }
       },
       closeChat() {
