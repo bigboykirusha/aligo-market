@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import { useRouter } from 'vue-router';
 
 export const useChatStore = defineStore('chatStore', {
    state: () => ({
@@ -36,8 +35,7 @@ export const useChatStore = defineStore('chatStore', {
       toggleChat() {
          this.isCollapsed = !this.isCollapsed;
       },
-      openChat() {
-         const router = useRouter(); 
+      openChat(router) {
          this.isCollapsed = false;
          this.isChatVisible = true;
          if (this.windowWidth < 768) {

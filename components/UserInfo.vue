@@ -54,6 +54,9 @@ import avatar from '../assets/icons/avatar-revers.svg';
 import { useChatStore } from '~/store/chatStore';
 import { useUserStore } from '~/store/user';
 import { useLoginModalStore } from '~/store/loginModal.js';
+import { useRouter } from '#vue-router';
+
+const router = useRouter();
 
 const loginModalStore = useLoginModalStore();
 
@@ -138,7 +141,7 @@ const writeMessage = () => {
       toggleLoginModal();
       return;
    }
-   chatStore.openChat();
+   chatStore.openChat(router);
 };
 
 const handleWriteMessage = () => {

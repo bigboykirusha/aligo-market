@@ -79,6 +79,7 @@ import { useUserStore } from '~/store/user';
 import { getImageUrl } from '../services/imageUtils'
 import { useChatStore } from '~/store/chatStore';
 import { useLoginModalStore } from '~/store/loginModal.js';
+import { useRouter } from '#vue-router';
 
 const loginModalStore = useLoginModalStore();
 
@@ -110,6 +111,7 @@ const isMapVisible = ref(true);
 const userStore = useUserStore();
 const userPhotoUrl = ref('');
 const isDesktop = ref(false);
+const router = useRouter();
 
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 
@@ -173,7 +175,7 @@ const makeCall = () => {
 };
 
 const openChat = () => {
-   currentChatStore.openChat();
+   currentChatStore.openChat(router);
 };
 
 const toggleMap = () => {

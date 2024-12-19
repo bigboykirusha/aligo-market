@@ -65,7 +65,7 @@ import { useUserStore } from '~/store/user';
 import avatar from '../assets/icons/avatar-revers.svg';
 import { useChatStore } from '~/store/chatStore';
 import { formatNumberWithSpaces } from '~/services/amountUtils';
-
+import { useRouter } from '#vue-router';
 import { useLoginModalStore } from '~/store/loginModal.js';
 
 const loginModalStore = useLoginModalStore();
@@ -99,6 +99,7 @@ const model = ref('');
 const year = ref('');
 const inFavorite = ref(false);
 const showPhoneText = ref('Показать номер');
+const router = useRouter();
 
 const fetchUserData = async () => {
    try {
@@ -178,7 +179,7 @@ const handleWriteMessage = () => {
 };
 
 const writeMessage = () => {
-   chatStore.openChat();
+   chatStore.openChat(router);
 };
 
 const showPhoneNumber = async () => {

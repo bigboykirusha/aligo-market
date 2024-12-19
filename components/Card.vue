@@ -111,6 +111,8 @@ import { useFavoritesStore } from '~/store/favorites';
 import { seeContact, getUser } from '~/services/apiClient';
 import { useChatStore } from '~/store/chatStore';
 import { useLoginModalStore } from '~/store/loginModal.js';
+import { useRouter } from 'vue-router';
+const router = useRouter();
 
 const loginModalStore = useLoginModalStore();
 
@@ -269,7 +271,7 @@ const prepareChatData = async () => {
    };
 
    currentChatStore.setCurrentChat(chatData);
-   currentChatStore.openChat();
+   currentChatStore.openChat(router);
 };
 
 const fetchPhoneNumber = async () => {
