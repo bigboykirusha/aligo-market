@@ -6,6 +6,7 @@
       <NuxtPage />
       <CookiePopup />
       <LoginModal />
+      <LocationPopupMobile />
       <Footer v-if="showFooter" />
       <FooterAlternative v-else />
       <Chat
@@ -16,7 +17,7 @@
    </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '~/store/user';

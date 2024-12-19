@@ -13,7 +13,7 @@
                 <img :src="defaultLocationIcon" alt="Location icon" class="header__icon">
                 <span class="header__text header__text--hidden">{{ translatedCityName }}</span>
               </button>
-              <LocationPopup v-if="modalOpen" @open-modal="toggleModal" />
+              <LocationPopup @open-modal="toggleModal" />
             </li>
             <li class="header__nav-item">
               <nuxt-link to="/business" class="header__nav-link">
@@ -72,9 +72,9 @@ import { useRoute } from 'vue-router';
 import { getImageUrl } from '../services/imageUtils';
 import { useCityStore } from '~/store/city';
 import { useUserStore } from '~/store/user';
-import { useLoginModalStore } from '~/store/loginModal.js';  // Import the store
+import { useLoginModalStore } from '~/store/loginModal.js'; 
 
-const loginModalStore = useLoginModalStore();  // Initialize the store
+const loginModalStore = useLoginModalStore();  
 
 import HeaderRow from './HeaderRow.vue';
 import HeaderRowNew from './HeaderRowNew.vue';
@@ -87,7 +87,6 @@ import mailIcon from '../assets/icons/mail.svg';
 import messageIcon from '../assets/icons/message.svg';
 
 const modalOpen = ref(false);
-const modalLoginOpen = ref(false);
 const isUserMenuOpen = ref(false);
 const isHeaderHidden = ref(false);
 const route = useRoute();

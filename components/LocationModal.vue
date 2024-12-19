@@ -256,7 +256,7 @@ const closeModal = () => {
 <style scoped lang="scss">
 .modal {
   position: fixed;
-  z-index: 40;
+  z-index: 40000;
   top: 0;
   left: 0;
   width: 100%;

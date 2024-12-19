@@ -1,13 +1,17 @@
 <template>
-   <div v-if="isVisible" class="popup">
-      <div class="popup__content">
-         <p>Это ваш город?</p>
+   <div v-if="isVisible" class="overlay">
+      <div class="popup" @click="chooseCity">
+         <img src="../assets/icons/close-blue.svg" alt="">
+         <div class="popup__header">
+            <p><span>{{ cityStore.selectedCity.name }}</span> – это ваш город?</p>
+         </div>
          <div class="popup__buttons">
             <button @click="confirmCity">Да</button>
             <button @click="chooseCity">Выбрать другой</button>
          </div>
       </div>
    </div>
+   <LocationModal v-show="modalOpen" @close-modal="closeModal" />
 </template>
 
 <script setup>
@@ -16,7 +20,15 @@ import { getCookie } from '~/services/auth';
 import { useCityStore } from '~/store/city';
 import { fetchLocation, fetchCity } from '~/services/apiLocation';
 
-const emit = defineEmits(['open-modal']);
+const modalOpen = ref(false);
+
+const toggleModal = () => {
+   modalOpen.value = true;
+};
+
+const closeModal = () => {
+   modalOpen.value = false;
+};
 
 const cityStore = useCityStore();
 
@@ -40,7 +52,7 @@ const confirmCity = () => {
 
 const chooseCity = () => {
    isVisible.value = false;
-   emit('open-modal');
+   toggleModal();
 };
 
 onMounted(() => {
@@ -56,66 +68,75 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.popup {
-   position: absolute;
-   top: 26px;
+.overlay {
+   position: fixed;
+   display: none;
+   top: 0;
    left: 0;
-   background-color: #fff;
-   border: 1px solid #3366FF;
-   border-radius: 8px;
-   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-   padding: 16px;
-   z-index: 100000;
-   width: 250px;
-   font-size: 16px;
-   color: #333;
+   width: 100%;
+   height: 100%;
+   background-color: rgba(0, 0, 0, 0.3);
+   justify-content: center;
+   align-items: flex-start;
+   z-index: 1000;
 
    @media (max-width: 768px) {
-      display: none;
+      display: flex;
    }
+}
 
-   &::before {
-      content: '';
-      position: absolute;
-      background-color: transparent;
-      top: -8px;
-      left: 30px;
-      width: 0;
-      height: 0;
-      border-left: 8px solid #3366FF;
-      border-right: 8px solid #3366FF;
-      border-bottom: 8px solid #fff;
-   }
+.popup {
+   width: 100%;
+   background-color: #ffffff;
+   border-radius: 0 0 6px 6px;
+   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+   padding: 40px 34px;
+   padding-top: 44px;
+   text-align: center;
 
-   &__content {
-      p {
-         font-weight: 700;
-         color: #323232;
-         font-size: 14px;
-         padding-bottom: 16px;
-         border-bottom: 1px solid #EEEEEE;
+   p {
+      span {
+         color: #3366ff;
       }
+   }
+
+   img {
+      position: absolute;
+      right: 24px;
+      top: 28px;
+      width: 16px;
+      height: 16px;
+   }
+
+   &__header {
+      font-size: 16px;
+      line-height: 20px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #eeeeee;
+      color: #323232;
+      text-align: left;
    }
 
    &__buttons {
       display: flex;
-      justify-content: space-between;
-      margin-top: 16px;
-      gap: 16px;
+      justify-content: space-around;
+      gap: 12px;
 
       button {
+         flex: 1;
          border: none;
          border-radius: 6px;
-         font-size: 14px;
-         padding: 6px 16px;
+         padding: 8px 12px;
+         font-size: 16px;
          cursor: pointer;
-         transition: background-color 0.3s ease, color 0.3s ease;
          font-weight: 400;
+         transition: background-color 0.3s ease;
 
          &:first-child {
             background-color: #3366ff;
             color: #ffffff;
-            width: 26%;
 
             &:hover {
                background-color: #0044cc;

@@ -10,7 +10,6 @@
                         <img :src="defaultLocationIcon" alt="location icon" />
                         <span class="user-menu__text user-menu__text--hidden">{{ translatedCityName }}</span>
                      </button>
-                     <LocationPopup @open-modal="toggleModal" />
                   </li>
                </ul>
 

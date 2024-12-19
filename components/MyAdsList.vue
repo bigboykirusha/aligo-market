@@ -228,16 +228,10 @@ const mapAdProps = (ad) => ({
       width: 100%;
       background-color: #ffffff;
       align-items: center;
-      gap: 40px;
+      gap: 16px;
       z-index: 5;
       padding-bottom: 16px;
       padding-left: 16px;
-      padding-right: 24px;
-
-      @media (max-width: 991px) {
-         gap: 10px;
-         justify-content: space-between;
-      }
    }
 
    &__main {
@@ -246,8 +240,8 @@ const mapAdProps = (ad) => ({
       gap: 24px;
       height: auto;
       overflow-y: auto;
-      padding: 2px 0;
-
+      margin: -8px;
+      padding: 8px;
    }
 
    &__check {
@@ -255,8 +249,8 @@ const mapAdProps = (ad) => ({
       gap: 16px;
       align-items: center;
 
-      @media (max-width: 991px) {
-         margin-right: auto;
+      @media (max-width: 480px) {
+         width: 100%;
       }
    }
 

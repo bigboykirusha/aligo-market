@@ -1,7 +1,6 @@
 <template>
    <div class="user-menu" :class="{ 'user-menu--scrolled': isScrolled }" ref="userMenuRef">
       <div class="user-menu__header">
-         <client-only>
             <div class="user-menu__block">
                <img :src="avatarUrl" alt="login icon" class="user-menu__icon">
                <input type="file" id="avatarUpload" ref="avatarUpload" @change="handleAvatarChange"
@@ -24,7 +23,6 @@
                   Управление профилем
                </nuxt-link>
             </div>
-         </client-only>
       </div>
 
       <!-- Список меню -->
@@ -172,7 +170,7 @@ function pluralizeReview(count) {
 .user-menu {
    position: fixed;
    top: 0;
-   z-index: 1000;
+   z-index: 10;
    background-color: white;
    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
    border-radius: 6px;

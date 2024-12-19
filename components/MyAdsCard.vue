@@ -12,6 +12,14 @@
          <img v-else src='../assets/icons/placeholder.png' alt="Placeholder image" class="card__placeholder" />
       </div>
       <div class="card__section">
+         <div ref="popupRef" class="popup-main" :class="{ 'popup-main--active': showPopup }" @pointerdown.stop>
+            <ul class="popup-main__list">
+               <li class="popup-main__item" v-for="(option, index) in popupOptions" :key="index" @click="option.action">
+                  <img :src="option.icon" :alt="option.text" class="popup-main__icon" />
+                  {{ option.text }}
+               </li>
+            </ul>
+         </div>
          <div class="card__body">
             <div class="card__container">
                <nuxt-link :to="`/car/${id}`" class="card__title">{{ displayTitle }}</nuxt-link>
@@ -59,14 +67,6 @@
                </div>
             </div>
          </div>
-      </div>
-      <div v-if="showPopup" ref="popupRef" class="popup-main" @pointerdown.stop>
-         <ul class="popup-main__list">
-            <li class="popup-main__item" v-for="(option, index) in popupOptions" :key="index" @click="option.action">
-               <img :src="option.icon" :alt="option.text" class="popup-main__icon" />
-               {{ option.text }}
-            </li>
-         </ul>
       </div>
    </div>
    <PopupDialog v-if="showPopup2" :message="'Вы уверены, что хотите снова опубликовать это объявление?'"
@@ -385,7 +385,6 @@ onBeforeUnmount(() => {
    background: #ffffff;
    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
    border-radius: 6px;
-   overflow: hidden;
    transition: transform 0.3s, box-shadow 0.3s;
 
    @media (max-width: 1200px) {
@@ -495,6 +494,7 @@ onBeforeUnmount(() => {
    &__body {
       display: flex;
       flex-direction: column;
+      position: relative;
       gap: 10px;
       width: 100%;
       max-width: 320px;
@@ -729,41 +729,61 @@ onBeforeUnmount(() => {
 
 .popup-main {
    position: absolute;
-   bottom: 0;
-   right: 0;
-   height: fit-content;
-   background: white;
+   background-color: #fff;
+   top: 16px;
+   right: 16px;
    border: 1px solid #3366FF;
    border-radius: 6px;
-   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-   z-index: 20;
-}
-
-.popup-main__list {
-   list-style: none;
+   padding: 16px;
    display: flex;
    flex-direction: column;
-   gap: 16px;
-   padding: 24px;
-   margin: 0;
+   z-index: 9;
+   opacity: 0;
+   transform: scale(0);
+   transform-origin: top right;
+   transition: opacity 0.3s ease, transform 0.3s ease;
 
-   @media (max-width: 1200px) {
-      gap: 16px;
-      padding: 16px;
+   @media (max-width: 768px) {
+      top: 0;
+      right: 0;
+      padding: 8px;
+      height: 145px;
    }
-}
 
-.popup-main__item {
-   cursor: pointer;
-   display: flex;
-   align-items: center;
-   gap: 8px;
-   font-size: 14px;
-   color: #323232;
-   white-space: nowrap;
+   &.popup-main--active {
+      opacity: 1;
+      transform: scale(1);
+   }
 
-   img {
-      width: 15px;
+   &__list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 0;
+   }
+
+   &__item {
+      border: none;
+      padding: 8px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      text-align: left;
+      font-size: 14px;
+      border-radius: 12px;
+      color: #323232;
+      background-color: #fff;
+      transition: background-color 0.2s;
+
+      &:hover {
+         background-color: #D6EFFF;
+      }
+   }
+
+   &__icon {
+      height: 14px;
+      margin-right: 8px;
    }
 }
 </style>
