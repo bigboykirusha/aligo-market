@@ -891,7 +891,7 @@ watch(
       min-height: 550px;
 
       @media (max-width: 768px) {
-         position: absolute;
+         position: fixed;
          box-shadow: none;
          border-radius: 0;
          z-index: 20000;
