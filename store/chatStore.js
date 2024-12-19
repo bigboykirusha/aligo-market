@@ -6,8 +6,7 @@ export const useChatStore = defineStore('chatStore', {
       isCollapsed: true,
       isChatVisible: true,
       messages: [],
-      usersWithAvatars: [],
-      windowWidth: window.innerWidth // добавляем для отслеживания ширины экрана
+      usersWithAvatars: []
    }),
    getters: {
       displayedUsers(state) {
@@ -21,15 +20,11 @@ export const useChatStore = defineStore('chatStore', {
       remainingCount(state) {
          const uniqueUsers = [...new Set(state.usersWithAvatars)];
          return Math.max(uniqueUsers.length - 2, 0);
-      },
-      shouldDisableScroll(state) {
-         return state.currentChat !== null && state.windowWidth < 768;
       }
    },
    actions: {
       setCurrentChat(chat) {
          this.currentChat = chat;
-         this.toggleScroll();
       },
       toggleChat() {
          this.isCollapsed = !this.isCollapsed;
@@ -58,17 +53,6 @@ export const useChatStore = defineStore('chatStore', {
       },
       showChat() {
          this.isChatVisible = true;
-      },
-      toggleScroll() {
-         if (this.shouldDisableScroll) {
-            document.body.classList.add('no-scroll');
-         } else {
-            document.body.classList.remove('no-scroll');
-         }
-      },
-      setWindowWidth(width) {
-         this.windowWidth = width;
-         this.toggleScroll(); // обновляем состояние scroll при изменении ширины
       }
    }
 });
