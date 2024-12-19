@@ -1,5 +1,5 @@
 <template>
-   <nav class="bottom-toolbar" :class="{ 'bottom-toolbar--hidden': showDropdown || isCreatePage || isChat }">
+   <nav v-show="isChat" class="bottom-toolbar" :class="{ 'bottom-toolbar--hidden': showDropdown || isCreatePage }">
       <ul class="bottom-toolbar__list">
          <li class="bottom-toolbar__item" v-for="item in menuItems" :key="item.title"
             :class="{ 'bottom-toolbar__item--active': isActive(item.path, item.icon) }">
