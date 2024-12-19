@@ -45,6 +45,7 @@ watch(() => route.params.title, updateComponent, { immediate: true });
    display: flex;
    flex-direction: column;
    justify-content: flex-start;
+   min-height: calc(100vh - 134px);
 
    @media (max-width: 768px) {
       margin-top: 66px;

@@ -279,11 +279,9 @@ const onDrag = (event) => {
 
 // Завершаем перетаскивание
 const stopDrag = () => {
-   // Убираем обработчики событий
    document.removeEventListener("mousemove", onDrag);
    document.removeEventListener("mouseup", stopDrag);
 
-   // Отменяем текущую анимацию
    if (animationFrame) cancelAnimationFrame(animationFrame);
 };
 
@@ -310,7 +308,7 @@ function scrollToBottom() {
             console.log(chatContainer.value.scrollHeight);
          }
          setFocus();
-      }, 300);
+      }, 350);
    });
 }
 

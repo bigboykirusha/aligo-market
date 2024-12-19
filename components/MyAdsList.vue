@@ -203,7 +203,7 @@ const mapAdProps = (ad) => ({
    id: ad.id,
    images: ad.photos || ['../assets/icons/placeholder.png'],
    description: ad.ads_parameter.ads_description || undefined,
-   price: ad.ads_parameter.amount || "Цена не указана",
+   price: ad.ads_parameter.amount,
    place: ad.ads_parameter.place_inspection || undefined,
    brand: ad.auto_technical_specifications[0]?.brand?.title || undefined,
    model: ad.auto_technical_specifications[0]?.model?.title || undefined,

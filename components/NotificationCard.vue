@@ -33,9 +33,6 @@ const props = defineProps({
 
 const emit = defineEmits(['mark-as-read', 'delete-notification']);
 
-/**
- * Генерация дополнительного текста на основе уведомления
- */
 const getAdditionalText = (notifyText) => {
    switch (notifyText) {
       case 'Объявление перенесено в архив':
@@ -52,6 +49,8 @@ const getAdditionalText = (notifyText) => {
          return 'У вас новое сообщение! Пожалуйста, проверьте ваши сообщения в личном кабинете.';
       case 'Добавлен новый отзыв к объявлению':
          return 'Ваше объявление получило новый отзыв. Вы можете ознакомиться с ним в личном кабинете.';
+      case 'Объявление опубликовано':
+         return 'Ваше объявление было успешно опубликовано. Оно теперь доступно для просмотра'
       default:
          return 'Уведомление не распознано. Пожалуйста, проверьте систему уведомлений.';
    }
@@ -97,7 +96,7 @@ const deleteNotification = () => {
       font-size: 14px;
    }
 
-   &__type   {
+   &__type {
       font-weight: 700;
       line-height: 1;
       font-size: 20px;

@@ -24,8 +24,7 @@
             <div class="card__container">
                <nuxt-link :to="`/car/${id}`" class="card__title">{{ displayTitle }}</nuxt-link>
                <div class="card__block">
-                  <span class="card__price">{{ formatNumberWithSpaces(price) !== 'Цена не указана' ?
-                     formatNumberWithSpaces(price) : 'Цена не указана' }}</span>
+                  <span class="card__price">{{formatNumberWithSpaces(Number(price)) }}</span>
                   <span v-if="price !== 'Цена не указана'" class="card__currency">₽</span>
                </div>
                <div class="card__description">{{ description || 'Описание не указано' }}</div>

@@ -7,13 +7,13 @@ export const useChatStore = defineStore('chatStore', {
       isChatVisible: true,
       messages: [],
       usersWithAvatars: [],
-      windowWidth: window.innerWidth // добавляем для отслеживания ширины экрана
+      windowWidth: window.innerWidth
    }),
    getters: {
       displayedUsers(state) {
          const uniqueAvatars = [...new Set(
             state.usersWithAvatars
-               .filter(user => user.avatarUrl !== null) // фильтруем пустые аватары
+               .filter(user => user.avatarUrl !== null)
                .map(user => user.avatarUrl)
          )];
          return uniqueAvatars.slice(0, 2);
@@ -23,7 +23,8 @@ export const useChatStore = defineStore('chatStore', {
          return Math.max(uniqueUsers.length - 2, 0);
       },
       shouldDisableScroll(state) {
-         return state.currentChat !== null && state.windowWidth < 768;
+         const isOnMessagesPage = window.location.pathname === '/myself/messages';
+         return state.currentChat !== null && state.windowWidth < 768 && isOnMessagesPage;
       }
    },
    actions: {

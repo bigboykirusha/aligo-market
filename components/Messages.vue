@@ -1,6 +1,6 @@
 <template>
    <div class="messages">
-      <div class="messages__title">Сообщения</div>
+      <div v-show="!chatStore.currentChat" class="messages__title">Сообщения</div>
       <div v-if="!chatStore.currentChat" class="messages__actions">
          <input class="message-checkbox" type="checkbox" id="select-all" v-model="selectAll"
             @change="handleSelectAllChange" />
@@ -120,7 +120,8 @@
                                  </div>
                                  <div class="chat-wrapper__message-bubble chat-wrapper__message-bubble--self">
                                     <MessagePhotos :photos="item.photos" />
-                                    <div v-if="item.message" class="chat-wrapper__message-content">{{ item.message }}</div>
+                                    <div v-if="item.message" class="chat-wrapper__message-content">{{ item.message }}
+                                    </div>
                                     <div v-if="item.message_translate" class="chat-wrapper__message-translate">
                                        <div class="chat-wrapper__message-translate-title">
                                           Translation ({{ capitalizeFirstLetter(translateTo) }}):
@@ -538,7 +539,7 @@ function scrollToBottom() {
             console.log(chatContainer.value.scrollHeight);
          }
          setFocus();
-      }, 300);
+      }, 350);
    });
 }
 

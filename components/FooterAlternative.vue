@@ -32,7 +32,6 @@ isCreateAdPage.value = route.name === 'createAd';
 
 <style scoped lang="scss">
 .footer {
-   margin-top: 40px;
    position: relative;
    width: 100%;
 
@@ -51,6 +50,7 @@ isCreateAdPage.value = route.name === 'createAd';
       padding: 0 16px;
 
       @media (max-width: 768px) {
+         display: none;
          align-items: flex-start;
          padding: 0 12px;
          margin-bottom: 70px;

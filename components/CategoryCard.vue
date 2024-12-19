@@ -8,7 +8,7 @@
                <li v-for="(subcategory, index) in category.subcategories" :key="index" class="card__list-item"
                   @click.stop="handleSubcategoryClick(subcategory)">
                   <nuxt-link :to="subcategory.href" class="card__list-item-link">
-                     {{ subcategory.title }}<span v-if="index === category.subcategories.length - 1">...</span>
+                     {{ subcategory.title }}<span v-if="index === category.subcategories.length - 1"> ...</span>
                   </nuxt-link>
                </li>
             </ul>
