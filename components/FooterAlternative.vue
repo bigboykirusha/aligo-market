@@ -1,6 +1,5 @@
 <template>
-   <footer class="footer" :class="{ 'footer--visible': isVisible }" @mouseenter="cancelAutoHide"
-      @mouseleave="startAutoHide" v-if="!isCreateAdPage">
+   <footer class="footer" v-if="!isCreateAdPage">
       <div class="footer__row">
          <div class="footer__container">
             <div class="footer__bottom">
@@ -10,7 +9,7 @@
                   <li><nuxt-link to="/autos">Конфиденциальность</nuxt-link></li>
                </ul>
                <div class="footer__text">
-                  Aligo corporate co ltd. 2024г. Мы делаем Грузию мобильнее.
+                  Aligo corporate co ltd. 2024г. Мы делаем Россию мобильнее.
                </div>
             </div>
             <nuxt-link to="/" class="footer__logo">
@@ -22,69 +21,20 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 
-const isVisible = ref(false);
 const isCreateAdPage = ref(false);
-let lastScrollTop = 0;
-let autoHideTimeout = null;
-
 const route = useRoute();
 
-const handleScroll = () => {
-   const currentScrollTop = window.scrollY;
-   if (currentScrollTop < lastScrollTop) {
-      isVisible.value = true;
-      startAutoHide();
-   } else {
-      isVisible.value = false;
-      cancelAutoHide();
-   }
-   lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop;
-};
-
-const startAutoHide = () => {
-   cancelAutoHide();
-   autoHideTimeout = setTimeout(() => {
-      isVisible.value = false;
-   }, 3000);
-};
-
-const cancelAutoHide = () => {
-   clearTimeout(autoHideTimeout);
-};
-
-onMounted(() => {
-   window.addEventListener('scroll', handleScroll);
-   isCreateAdPage.value = route.name === 'createAd';
-});
-
-onUnmounted(() => {
-   window.removeEventListener('scroll', handleScroll);
-   cancelAutoHide();
-});
+isCreateAdPage.value = route.name === 'createAd';
 </script>
 
 <style scoped lang="scss">
 .footer {
    margin-top: 40px;
-   position: fixed;
-   display: none;
-   bottom: 0;
-   left: 0;
+   position: relative;
    width: 100%;
-   transform: translateY(100%);
-   transition: transform 0.3s ease-in-out;
-   z-index: 1000;
-
-   @media (max-width: 768px) {
-      display: none;
-   }
-
-   &--visible {
-      transform: translateY(0);
-   }
 
    &__row {
       background: #3366FF;
@@ -102,11 +52,12 @@ onUnmounted(() => {
 
       @media (max-width: 768px) {
          align-items: flex-start;
+         padding: 0 12px;
+         margin-bottom: 70px;
       }
    }
 
    &__logo {
-      transition: $transition-1;
       outline: none;
       height: 24px;
       margin: 16px 0;
@@ -158,7 +109,6 @@ onUnmounted(() => {
          font-weight: 400;
          font-size: 12px;
          text-decoration: underline;
-         transition: $transition-1;
          line-height: 1;
          vertical-align: middle;
 

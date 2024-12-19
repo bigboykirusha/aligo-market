@@ -35,10 +35,6 @@
                      <span class="chat-header__username">{{ relevantUserInfo(chatStore.currentChat) }}</span>
                      <nuxt-link :to="`/car/${chatStore.currentChat.ads_id}`" class="chat-header__ad-title">
                         <span>{{ chatStore.currentChat.ads_info }}</span>
-                        <div class="chat-header__ad-amount">{{
-                           formatNumberWithSpaces(chatStore.currentChat.ads_amount) }}<span
-                              class="chat-header__ad-amount-currency">₽</span>
-                        </div>
                      </nuxt-link>
                   </div>
                </div>
@@ -102,7 +98,8 @@
                                     alt="Avatar" class="chat-wrapper__message-avatar">
                                  <div class="chat-wrapper__message-bubble">
                                     <MessagePhotos :photos="item.photos" />
-                                    <div class="chat-wrapper__message-content">{{ item.message }}</div>
+                                    <div v-if="item.message" class="chat-wrapper__message-content">{{ item.message }}
+                                    </div>
                                     <div v-if="item.message_translate" class="chat-wrapper__message-translate">
                                        <div class="chat-wrapper__message-translate-title">
                                           Translation ({{ capitalizeFirstLetter(translateTo) }}):
@@ -123,7 +120,7 @@
                                  </div>
                                  <div class="chat-wrapper__message-bubble chat-wrapper__message-bubble--self">
                                     <MessagePhotos :photos="item.photos" />
-                                    <div class="chat-wrapper__message-content">{{ item.message }}</div>
+                                    <div v-if="item.message" class="chat-wrapper__message-content">{{ item.message }}</div>
                                     <div v-if="item.message_translate" class="chat-wrapper__message-translate">
                                        <div class="chat-wrapper__message-translate-title">
                                           Translation ({{ capitalizeFirstLetter(translateTo) }}):
@@ -968,6 +965,10 @@ watch(
       gap: 8px;
       flex-direction: column;
 
+      @media (max-width: 768px) {
+         padding: 8px;
+      }
+
       .chat-wrapper__message-translate {
          border-top: 1px solid #D6D6D6;
          color: #787878;
@@ -1029,6 +1030,7 @@ watch(
 
    &__message-content {
       font-size: 14px;
+      padding: 0 4px;
       word-wrap: break-word;
    }
 
@@ -1056,6 +1058,7 @@ watch(
 
       @media (max-width: 768px) {
          padding: 16px;
+         border-radius: 0;
       }
    }
 
@@ -1159,6 +1162,7 @@ watch(
 
    @media (max-width: 768px) {
       padding: 16px;
+      border-radius: 0;
    }
 
    &__info--active {
@@ -1222,7 +1226,6 @@ watch(
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      max-width: calc(100% - 70px);
 
       span {
          overflow: hidden;
