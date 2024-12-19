@@ -14,8 +14,7 @@
             <div class="modal__header">
                <!-- Логотип и иконка в заголовке -->
                <div class="modal__header-image">
-                  <img src="../assets/images/logo.svg" alt="header image" />
-                  <img src="../assets/icons/ID.svg" alt="header image" />
+                  <img src="../assets/icons/a-id.svg" alt="header image" />
                </div>
                <!-- Разделительная линия -->
                <div class="modal__header-bar"></div>
@@ -367,7 +366,7 @@ const closeModal = () => {
 
 // Проверка и обработка входа
 const submitForm = async () => {
-   if ( isLoading.value || isContactInfoInvalid.value) {
+   if (isLoading.value || isContactInfoInvalid.value) {
       return;
    }
 
@@ -551,12 +550,7 @@ const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
 
          img {
             width: 100%;
-            height: 32px;
-
-            &:last-child {
-               height: 20px;
-               margin-top: auto;
-            }
+            min-height: 32px;
          }
       }
 
