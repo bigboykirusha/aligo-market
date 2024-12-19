@@ -901,7 +901,7 @@ watch(
          top: 0;
          left: 0;
          max-height: none;
-         height: 100%;
+         height: 100vh;
          width: 100%;
       }
    }
