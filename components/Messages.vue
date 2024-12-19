@@ -1043,7 +1043,10 @@ watch(
    }
 
    &__message-input-container {
+      position: -webkit-sticky;
+      /* Префикс для Safari */
       position: sticky;
+      /* Базовое свойство */
       min-height: 70px;
       align-items: center;
       z-index: 200;
