@@ -1,7 +1,7 @@
 <template>
    <div v-if="isVisible" class="overlay">
-      <div class="popup" @click="chooseCity">
-         <img src="../assets/icons/close-blue.svg" alt="">
+      <div class="popup">
+         <img @click="chooseCity" src="../assets/icons/close-blue.svg" alt="">
          <div class="popup__header">
             <p><span>{{ cityStore.selectedCity.name }}</span> – это ваш город?</p>
          </div>
