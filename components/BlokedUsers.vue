@@ -7,7 +7,9 @@
       </button>
       <div class="modal__body">
          <div class="modal__title">Заблокированные пользователи</div>
-         <ul class="blocked-users__list">
+
+         <!-- Check if there are blocked users -->
+         <ul v-if="blockedUsers.length > 0" class="blocked-users__list">
             <li v-for="user in blockedUsers" :key="user.id" class="blocked-users__item">
                <div class="blocked-users__info">
                   <img v-if="user.blocked_user.photo" :src="getImageUrl(user.blocked_user.photo.path, avatarRevers)"
@@ -22,6 +24,10 @@
                </button>
             </li>
          </ul>
+
+         <!-- Show this message when no users are blocked -->
+         <p v-else>Вы пока никого не заблокировали.</p>
+
       </div>
    </div>
 </template>
