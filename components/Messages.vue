@@ -33,13 +33,18 @@
                   <img src="../assets/icons/arrow-back.svg" alt="Toggle" />
                </button>
                <div class="chat-header__info chat-header__info--active">
-                  <img :src="getImageUrl(chatStore.currentChat.ads_photo[0]?.path)" alt="Ad Image"
+                  <img v-if="!chatStore.currentChat.is_support"
+                     :src="getImageUrl(chatStore.currentChat.ads_photo[0]?.path)" alt="Ad Image"
                      class="chat-header__ad-image" />
-                  <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.path, avatar)" alt="Avatar"
+                  <img v-if="chatStore.currentChat.is_support" :src="chatStore.currentChat.sup_photo.path"
+                     alt="Ad Image" class="chat-header__supp-image" />
+                  <img v-if="!chatStore.currentChat.is_support"
+                     :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.path, avatar)" alt="Avatar"
                      class="chat-header__avatar" />
                   <div class="chat-header__details">
                      <span class="chat-header__username">{{ relevantUserInfo(chatStore.currentChat) }}</span>
-                     <nuxt-link :to="`/car/${chatStore.currentChat.ads_id}`" class="chat-header__ad-title">
+                     <nuxt-link v-if="!chatStore.currentChat.is_support" :to="`/car/${chatStore.currentChat.ads_id}`"
+                        class="chat-header__ad-title">
                         <span>{{ chatStore.currentChat.ads_info }}</span>
                      </nuxt-link>
                   </div>
@@ -53,9 +58,9 @@
             <div v-if="showPopup" class="popup-overlay"></div>
             <div v-if="chatStore.currentChat" class="chat-wrapper__chat-box" ref="chatContainer">
                <UsernamePopup v-if="!userStore.username" :isVisible="true" @close="closeNamePopup" />
-
+               <SupportTopics v-else-if="chatStore.currentChat.is_support && messages.length === 0" />
                <!-- Заглушка, когда нет сообщений -->
-               <div v-if="messages.length === 0" class="chat-wrapper__no-messages">
+               <div v-if="messages.length === 0 && !chatStore.currentChat.is_support" class="chat-wrapper__no-messages">
                   <div class="no-messages-container">
                      <h2>Нет сообщений
                         <img src="../assets/icons/sad-smile.svg" alt="No messages" class="no-messages-image" />
@@ -512,6 +517,11 @@ const getFilePreview = (file) => {
 };
 
 const loadMessages = async () => {
+   if (chatStore.currentChat.is_support) {
+      chatStore.setMessages([])
+      return;
+   };
+
    if (chatStore.currentChat) {
       loading.value = true;
       try {
@@ -1231,6 +1241,7 @@ watch(
       height: 49px;
       display: flex;
       flex-direction: column;
+      justify-content: center;
       gap: 2px;
       width: 100%;
    }
@@ -1267,6 +1278,20 @@ watch(
    }
 
    &__ad-image {
+      width: 53px;
+      height: 53px;
+      border-radius: 4px;
+      object-fit: cover;
+
+      @media (max-width: 768px) {
+         width: 49px;
+         height: 49px;
+         min-height: 49px;
+         min-width: 49px;
+      }
+   }
+
+   &__supp-image {
       width: 53px;
       height: 53px;
       border-radius: 4px;

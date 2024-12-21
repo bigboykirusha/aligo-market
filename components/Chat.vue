@@ -9,18 +9,21 @@
                class="chat-header__close-button" @click="closeChat">
                <img src="../assets/icons/arrow-back.svg" alt="Toggle" />
             </button>
-            <div :to="`/user/${relevantUser(chatStore.currentChat).id}`" class="user-info__avatar">
+            <div v-if="!chatStore.currentChat.is_support" :to="`/user/${relevantUser(chatStore.currentChat).id}`"
+               class="user-info__avatar">
                <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.path, avatar)" alt="Avatar"
                   class="chat-header__avatar" />
             </div>
-
-            <img :src="getImageUrl(chatStore.currentChat.ads_photo[0]?.path)" alt="Ad Image"
-               class="chat-header__ad-image" />
+            <img v-if="chatStore.currentChat.is_support" :src="chatStore.currentChat.sup_photo.path" alt="Ad Image"
+               class="chat-header__supp-image" />
+            <img v-if="!chatStore.currentChat.is_support" :src="getImageUrl(chatStore.currentChat.ads_photo[0]?.path)"
+               alt="Ad Image" class="chat-header__ad-image" />
             <div class="chat-header__details">
                <div :to="`/user/${relevantUser(chatStore.currentChat).id}`" class="chat-header__username">
                   {{ relevantUserInfo(chatStore.currentChat) }}
                </div>
-               <div :to="`/car/${chatStore.currentChat.ads_id}`" class="chat-header__ad-title">
+               <div v-if="!chatStore.currentChat.is_support" :to="`/car/${chatStore.currentChat.ads_id}`"
+                  class="chat-header__ad-title">
                   {{ chatStore.currentChat.ads_info }}
                </div>
             </div>
@@ -60,13 +63,13 @@
          <UsernamePopup v-if="!userStore.username" :isVisible="true" @close="closePopup" />
 
          <!-- Блок, если сообщений нет -->
-         <div v-else-if="!hasMessages" class="chat-wrapper__no-messages">
+         <div v-else-if="!hasMessages && !chatStore.currentChat.is_support" class="chat-wrapper__no-messages">
             <div class="no-messages-container">
                <img src="../assets/icons/mail-smile.svg" alt="No messages" class="no-messages-image" />
                <p class="no-messages-text">Задайте пользователю свой вопрос</p>
             </div>
          </div>
-
+         <SupportTopics v-else-if="chatStore.currentChat.is_support && !hasMessages" />
          <!-- Сообщения чата -->
          <div v-else>
             <div v-if="loading" class="chat-box">
@@ -356,6 +359,11 @@ function formatTime(dateString) {
 
 async function loadMessages() {
    if (!chatStore.currentChat) return;
+
+   if (chatStore.currentChat.is_support) {
+      chatStore.setMessages([])
+      return;
+   };
 
    loading.value = true;
    try {
@@ -868,6 +876,7 @@ watch(
    &__details {
       height: 49px;
       display: flex;
+      justify-content: center;
       flex-direction: column;
       gap: 2px;
    }
@@ -889,6 +898,12 @@ watch(
       width: 49px;
       height: 49px;
       border-radius: 4px;
+      object-fit: cover;
+   }
+
+   &__supp-image {
+      width: 49px;
+      height: 49px;
       object-fit: cover;
    }
 

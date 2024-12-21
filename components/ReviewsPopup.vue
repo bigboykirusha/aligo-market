@@ -75,7 +75,7 @@ const closePopup = () => {
 .reviews-popup__content {
    position: relative;
    background: white;
-   padding: 40px;
+   padding: 24px 40px;
    border-radius: 8px;
    max-width: 850px;
    max-height: 80vh;
@@ -89,7 +89,7 @@ const closePopup = () => {
       max-height: calc(100% - 70px);
       margin-bottom: auto;
       border-radius: 0;
-      padding: 24px;
+      padding: 24px 16px;
    }
 }
 
@@ -110,9 +110,16 @@ const closePopup = () => {
 
 .reviews-popup__reviews {
    flex-grow: 1;
-   margin-top: 24px;
    overflow-y: auto;
-   padding-right: 10px;
+   padding: 8px;
+   margin: -8px;
+   margin-top: 16px;
+   scrollbar-width: none;
+   -ms-overflow-style: none;
+}
+
+.reviews-popup__reviews::-webkit-scrollbar {
+   display: none;
 }
 
 .reviews-popup__header {
