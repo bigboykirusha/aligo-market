@@ -4,9 +4,21 @@
          <div class="footer__container">
             <div class="footer__bottom">
                <ul class="footer__links">
-                  <li><a @click.prevent="downloadDocument(1)">{{ $t('footer.links.rules') }}</a></li>
-                  <li><a @click.prevent="downloadDocument(2)">{{ $t('footer.links.agreement') }}</a></li>
-                  <li><a @click.prevent="downloadDocument(3)">{{ $t('footer.links.privacy') }}</a></li>
+                  <li>
+                     <a v-if="documents[1]" :href="documents[1].url" download>
+                        {{ $t('footer.links.rules') }}
+                     </a>
+                  </li>
+                  <li>
+                     <a v-if="documents[2]" :href="documents[2].url" download>
+                        {{ $t('footer.links.agreement') }}
+                     </a>
+                  </li>
+                  <li>
+                     <a v-if="documents[3]" :href="documents[3].url" download>
+                        {{ $t('footer.links.privacy') }}
+                     </a>
+                  </li>
                </ul>
                <div class="footer__text">
                   Aligo corporate co ltd. 2024г. Мы делаем Россию мобильнее.
@@ -21,31 +33,33 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { getSiteDocumentById } from '@/services/apiClient';
 
 const isCreateAdPage = ref(false);
 const route = useRoute();
+const documents = ref({});
 
 isCreateAdPage.value = route.name === 'createAd';
 
-const downloadDocument = async (id) => {
+const fetchDocuments = async () => {
    try {
-      const { success, data } = await getSiteDocumentById(id);
-
-      if (success && data.is_file) {
-         const link = document.createElement('a');
-         link.href = `${process.env.API_BASE_URL}/${data.path}`;
-         link.download = data.title;
-         link.click();
-      } else {
-         console.error('Файл не найден или не является документом.');
+      for (let id = 1; id <= 3; id++) {
+         const { success, data } = await getSiteDocumentById(id);
+         if (success && data.is_file) {
+            documents.value[id] = {
+               url: `https://dev.aligo.pro/${data.path}`,
+               title: data.title,
+            };
+         }
       }
    } catch (error) {
-      console.error('Ошибка при загрузке документа:', error);
+      console.error('Ошибка при загрузке документов:', error);
    }
 };
+
+onMounted(fetchDocuments);
 </script>
 
 <style scoped lang="scss">
