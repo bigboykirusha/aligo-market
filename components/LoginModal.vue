@@ -74,7 +74,7 @@
                      </p>
 
                      <!-- Компонент ввода кода (VueOtpInput) -->
-                     <VueOtpInput input-classes="otp-input" inputType="numeric" :num-inputs="6" v-model:value="code"
+                     <VueOtpInput input-classes="otp-input" inputType="numeric" :num-inputs="4" v-model:value="code"
                         :should-auto-focus="true" @on-complete="submitForm" />
                      <!-- Таймер до получения нового кода -->
                      <p class="timer-message" v-if="timeLeft > 0">

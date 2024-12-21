@@ -3,7 +3,7 @@
       <div class="search__title">
          <div class="search__block" v-if="query">
             <div class="search__text">
-               «{{ query }}»: объявления в г. {{ cityStore.selectedCity.name }}
+               «{{ query }}»: объявления в г. {{ savedCity }}
             </div>
             <span v-if="totalItems > 0" class="search__count">{{ totalItems }}</span>
          </div>
@@ -52,6 +52,8 @@ const pageSize = ref(getAdsCount());
 const isLoading = ref(true);
 
 const cityStore = useCityStore();
+
+const savedCity = computed(() => cityStore.selectedCity.name);
 
 function getAdsCount() {
    const width = typeof window !== 'undefined' ? window.innerWidth : 1200;

@@ -65,7 +65,7 @@ const bannerContent = computed(() => ({
   mobileImage,
   altText: t('bannerRent.altText'),
   titleText: t('bannerRent.titleText'),
-  isMoscow: cityStore.selectedCity.name === 'Moscow',
+  isMoscow: false,
 }));
 
 const handleError = (error, message) => {

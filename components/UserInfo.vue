@@ -192,6 +192,13 @@ onMounted(() => {
    border-radius: 6px;
    text-align: center;
 
+   @media (max-width: 768px) {
+      box-shadow: none;
+      border-radius: 0;
+      padding: 0;
+      padding-top: 24px;
+   }
+
    &__block {
       display: flex;
       gap: 8px;
@@ -212,7 +219,6 @@ onMounted(() => {
    }
 
    &__avatar {
-      margin: auto 0;
       margin-right: auto;
 
       img {
@@ -284,6 +290,10 @@ onMounted(() => {
 
    &__registered-date {
       padding-bottom: 16px;
+
+      @media (max-width: 768px) {
+         padding-bottom: 0;
+      }
    }
 
    &__actions {
@@ -296,6 +306,15 @@ onMounted(() => {
 
       @media (max-width: 768px) {
          flex-direction: row;
+         position: fixed;
+         border-top: none;
+         bottom: 70px;
+         padding: 16px;
+         left: 0;
+         z-index: 23;
+         background-color: rgba(#EEF9FF, 0.3);
+         backdrop-filter: blur(8px);
+         border-radius: 24px 24px 0 0;
       }
 
       button,

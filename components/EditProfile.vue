@@ -81,7 +81,7 @@
                            src="..//assets/icons/cancel.svg" alt="">Отменить</button>
                   </div>
                   <div v-if="codeInputVisible" class="simple-input__code-block">
-                     <VueOtpInput input-classes="otp-input" inputType="numeric" :num-inputs="6" v-model:value="code"
+                     <VueOtpInput input-classes="otp-input" inputType="numeric" :num-inputs="4" v-model:value="code"
                         :should-auto-focus="true" @on-complete="submitCode" />
                      <p class="timer-message" v-if="timeLeft > 0">
                         Получить новый можно через {{ formattedTime }}
@@ -127,7 +127,7 @@
                   </div>
                   <div v-if="emailCodeInputVisible" class="simple-input__code-block">
                      <!-- Используем VueOtpInput для email -->
-                     <VueOtpInput input-classes="otp-input" inputType="numeric" :num-inputs="6"
+                     <VueOtpInput input-classes="otp-input" inputType="numeric" :num-inputs="4"
                         v-model:value="emailCode" :should-auto-focus="true" @on-complete="submitEmailCode" />
                      <p class="timer-message" v-if="timeLeft > 0">
                         Получить новый можно через {{ formattedTime }}

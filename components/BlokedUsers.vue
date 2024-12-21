@@ -6,7 +6,7 @@
          <img :src="closeIcon" alt="close icon" />
       </button>
       <div class="modal__body">
-         <div class="modal__title">Заблокированные пользователи</div>
+         <div class="modal__title">Черный список</div>
 
          <!-- Check if there are blocked users -->
          <ul v-if="blockedUsers.length > 0" class="blocked-users__list">
@@ -16,11 +16,11 @@
                      alt="user photo" class="blocked-users__photo" />
                   <div class="blocked-users__details">
                      <span class="blocked-users__name">{{ user.blocked_user.username }}</span>
-                     <span class="blocked-users__login">@{{ user.blocked_user.login }}</span>
+                     <span class="blocked-users__login">ВАЗ (LADA) 4x4 (Нива), 2019</span>
                   </div>
                </div>
                <button class="blocked-users__unblock-button" @click="handleUnblockUser(user.blocked_user.id)">
-                  <img src="../assets/icons/unblock.svg" alt="">Разблокировать
+                  Разблокировать
                </button>
             </li>
          </ul>
@@ -98,8 +98,8 @@ onMounted(() => {
    }
 
    &__title {
-      color: #323232;
-      font-size: 18px;
+      color: #3366FF;
+      font-size: 20px;
       font-weight: 700;
       padding-bottom: 24px;
       border-bottom: 1px solid #D6D6D6;
@@ -117,7 +117,7 @@ onMounted(() => {
       width: 100%;
       max-width: 450px;
       min-width: 450px;
-      padding: 28px 24px;
+      padding: 32px 40px;
       box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
       transform: scale(0);
       transform-origin: top right;
@@ -174,18 +174,18 @@ onMounted(() => {
 
    &__item {
       display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
+      flex-direction: column;
    }
 
    &__info {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
    }
 
    &__photo {
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       object-fit: cover;
       margin-right: 12px;
@@ -199,30 +199,25 @@ onMounted(() => {
    &__name {
       font-weight: bold;
       font-size: 14px;
+      color: #323232;
    }
 
    &__login {
-      color: #888;
-      font-size: 12px;
+      color: #323232;
+      font-size: 14px;
    }
 
    &__unblock-button {
-      background-color: #ff4d4f;
-      color: #fff;
+      color: #3366FF;
       border: none;
+      background-color: #fff;
       height: 34px;
-      padding: 0 8px;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      justify-content: center;
-      border-radius: 12px;
       cursor: pointer;
       font-size: 14px;
-      transition: background-color 0.3s ease;
+      text-align: left;
 
       &:hover {
-         background-color: #ff7875;
+         text-decoration: underline;
       }
    }
 }
