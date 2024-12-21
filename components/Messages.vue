@@ -613,6 +613,7 @@ onMounted(async () => {
    checkScreenWidth();
    window.addEventListener('resize', checkScreenWidth);
    document.addEventListener('click', handleClickOutside);
+
    try {
       await messagesStore.loadLastMessages();
    } catch (error) {

@@ -1,7 +1,7 @@
 <template>
    <div class="support-chat">
       <!-- Приветственное сообщение -->
-      <div class="welcome-message">
+      <div v-if="!selectedTopic" class="welcome-message">
          <div class="avatar">
             <img src="@/assets/icons/supp.svg" alt="Support Avatar" />
          </div>
@@ -13,25 +13,43 @@
       </div>
 
       <!-- Кнопки с темами обращения -->
-      <div class="topics">
+      <div v-if="!selectedTopic" class="topics">
          <button v-for="topic in topics" :key="topic.id" class="topic-button" @click="selectTopic(topic)">
             {{ topic.title }}
          </button>
+      </div>
+
+      <!-- Отображение выбранной темы -->
+      <div v-if="selectedTopic" class="selected-topic">
+         <span>{{ selectedTopic.title }}</span>
       </div>
    </div>
 </template>
 
 <script setup>
-const topics = [
-   { id: 1, title: "Безопасность и нарушения" },
-   { id: 2, title: "Профиль и отзывы" },
-   { id: 3, title: "Сообщить о мошенничестве" },
-   { id: 4, title: "Вход и регистрация" },
-   { id: 5, title: "Объявления" },
-];
+import { ref, onMounted } from 'vue';
+import { getTechSupportThemes } from '@/services/apiClient'; // Импортируйте функцию для получения тем
 
+// Объявление переменных
+const topics = ref([]);
+const selectedTopic = ref(null); // Для хранения выбранной темы
+
+// Получаем темы при монтировании компонента
+onMounted(async () => {
+   try {
+      const response = await getTechSupportThemes(); // Получаем данные через API
+      if (response.success) {
+         topics.value = response.data; // Присваиваем полученные темы в переменную
+      }
+   } catch (error) {
+      console.error('Ошибка при получении тем:', error);
+   }
+});
+
+// Функция для обработки выбора темы и эмита события
 const selectTopic = (topic) => {
-   console.log("Выбрана тема:", topic.title);
+   console.log('Выбрана тема:', topic.title);
+   selectedTopic.value = topic; // Сохраняем выбранную тему
 };
 </script>
 
@@ -62,9 +80,7 @@ const selectTopic = (topic) => {
    max-height: 32px;
    border-radius: 50%;
    background-color: #3366ff;
-   /* Синий фон аватарки */
    overflow: hidden;
-   /* Если иконка больше, обрезаем */
    flex-shrink: 0;
 }
 
@@ -108,13 +124,11 @@ const selectTopic = (topic) => {
 
 .topic-button {
    background-color: #dceeff;
-   /* Цвет кнопки */
    border: none;
    border-radius: 8px;
    padding: 8px 16px;
    font-size: 14px;
    color: #3366ff;
-   /* Синий текст */
    cursor: pointer;
    transition: background-color 0.3s ease;
    white-space: nowrap;
@@ -122,6 +136,18 @@ const selectTopic = (topic) => {
 
 .topic-button:hover {
    background-color: #b5d7ff;
-   /* Цвет кнопки при наведении */
+}
+
+.selected-topic {
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+}
+
+.selected-topic span {
+   font-size: 16px;
+   font-weight: bold;
+   color: #323232;
 }
 </style>

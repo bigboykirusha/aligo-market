@@ -232,6 +232,7 @@ const handleFileDropMiss = (event) => {
 };
 
 onMounted(() => {
+
    // Добавляем слушателей на весь документ
    document.addEventListener('dragenter', handleDragEnter);
    document.addEventListener('dragover', handleDragOver);

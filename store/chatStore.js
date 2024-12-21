@@ -7,7 +7,8 @@ export const useChatStore = defineStore('chatStore', {
       isChatVisible: true,
       messages: [],
       usersWithAvatars: [],
-      windowWidth: window.innerWidth
+      windowWidth: window.innerWidth,
+      is_support: false
    }),
    getters: {
       displayedUsers(state) {

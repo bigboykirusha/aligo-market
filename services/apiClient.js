@@ -116,6 +116,38 @@ export const sendReview = async (adsId, mainCategoryId, grade, comment, photos =
    }
 };
 
+export const sendSupport = async (themeId, comment, photos = []) => {
+   const formData = new FormData();
+   formData.append('comment', comment);
+   formData.append('theme_id', themeId);
+
+   // Если есть фотографии, добавляем их
+   if (photos.length > 0) {
+      formData.append('photos[0]', photos[0]); // Только первое фото, если оно есть
+   }
+
+   try {
+      await apiClient.post('/tech_support', formData, {
+         headers: {
+            'Content-Type': 'multipart/form-data',
+         },
+      });
+   } catch (error) {
+      console.error('Ошибка при отправке отзыва: ', error);
+      throw error;
+   }
+};
+
+export const getTechSupportThemes = async () => {
+   try {
+      const response = await apiClient.get('/tech_support_themes');
+      return response.data; // Возвращаем полученные данные
+   } catch (error) {
+      console.error('Ошибка при получении тем поддержки: ', error);
+      throw error;
+   }
+};
+
 export const fetchLastMessages = async (translate_to, unread_chats = false, read_chats = false, only_my_ads = false) => {
    try {
       // Создаём объект параметров для запроса
