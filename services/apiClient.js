@@ -675,7 +675,6 @@ export const unblockUser = async (userId) => {
    }
 };
 
-
 export const submitComplaint = async (formData) => {
    try {
       await apiClient.post('/claim_users', formData);
@@ -852,6 +851,16 @@ export const getUserPhoneEmail = async (user_id) => {
       return response.data;
    } catch (error) {
       console.error('Ошибка при получении телефона и email пользователя:', error);
+      throw error;
+   }
+};
+
+export const getSiteDocumentById = async (id) => {
+   try {
+      const response = await apiClient.get(`/site_documents/${id}`);
+      return response.data;
+   } catch (error) {
+      console.error('Ошибка при получении документа сайта:', error);
       throw error;
    }
 };

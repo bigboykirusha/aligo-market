@@ -4,9 +4,9 @@
          <div class="footer__container">
             <div class="footer__bottom">
                <ul class="footer__links">
-                  <li><nuxt-link to="/autos">Правила</nuxt-link></li>
-                  <li><nuxt-link to="/autos">Соглашение</nuxt-link></li>
-                  <li><nuxt-link to="/autos">Конфиденциальность</nuxt-link></li>
+                  <li><a @click.prevent="downloadDocument(1)">{{ $t('footer.links.rules') }}</a></li>
+                  <li><a @click.prevent="downloadDocument(2)">{{ $t('footer.links.agreement') }}</a></li>
+                  <li><a @click.prevent="downloadDocument(3)">{{ $t('footer.links.privacy') }}</a></li>
                </ul>
                <div class="footer__text">
                   Aligo corporate co ltd. 2024г. Мы делаем Россию мобильнее.
@@ -23,11 +23,29 @@
 <script setup>
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
+import { getSiteDocumentById } from '@/services/apiClient';
 
 const isCreateAdPage = ref(false);
 const route = useRoute();
 
 isCreateAdPage.value = route.name === 'createAd';
+
+const downloadDocument = async (id) => {
+   try {
+      const { success, data } = await getSiteDocumentById(id);
+
+      if (success && data.is_file) {
+         const link = document.createElement('a');
+         link.href = `${process.env.API_BASE_URL}/${data.path}`;
+         link.download = data.title;
+         link.click();
+      } else {
+         console.error('Файл не найден или не является документом.');
+      }
+   } catch (error) {
+      console.error('Ошибка при загрузке документа:', error);
+   }
+};
 </script>
 
 <style scoped lang="scss">
@@ -107,6 +125,7 @@ isCreateAdPage.value = route.name === 'createAd';
 
       li a {
          color: $white;
+         cursor: pointer;
          font-weight: 400;
          font-size: 12px;
          text-decoration: underline;

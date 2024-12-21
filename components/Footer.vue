@@ -18,9 +18,9 @@
          <div class="footer__container">
             <div class="footer__bottom">
                <ul class="footer__links">
-                  <li><nuxt-link to="/rules">{{ $t('footer.links.rules') }}</nuxt-link></li>
-                  <li><nuxt-link to="/privacy">{{ $t('footer.links.privacy') }}</nuxt-link></li>
-                  <li><nuxt-link to="/agreement">{{ $t('footer.links.agreement') }}</nuxt-link></li>
+                  <li><a @click.prevent="downloadDocument(1)">{{ $t('footer.links.rules') }}</a></li>
+                  <li><a @click.prevent="downloadDocument(2)">{{ $t('footer.links.privacy') }}</a></li>
+                  <li><a @click.prevent="downloadDocument(3)">{{ $t('footer.links.agreement') }}</a></li>
                </ul>
                <span class="footer__copyright">
                   {{ $t('footer.copyright') }}
@@ -30,6 +30,27 @@
       </div>
    </footer>
 </template>
+
+<script setup>
+import { getSiteDocumentById } from '@/services/apiClient';
+
+const downloadDocument = async (id) => {
+   try {
+      const { success, data } = await getSiteDocumentById(id);
+
+      if (success && data.is_file) {
+         const link = document.createElement('a');
+         link.href = `${process.env.API_BASE_URL}/${data.path}`;
+         link.download = data.title;
+         link.click();
+      } else {
+         console.error('Файл не найден или не является документом.');
+      }
+   } catch (error) {
+      console.error('Ошибка при загрузке документа:', error);
+   }
+};
+</script>
 
 <style scoped lang="scss">
 .footer {
@@ -115,14 +136,14 @@
       }
 
       li {
+         cursor: pointer;
 
-         a,
-         nuxt-link {
+         a {
             color: $white;
-            text-decoration: none;
             font-size: 14px;
             line-height: 18px;
             transition: $transition-1;
+            cursor: pointer;
 
             &:hover {
                text-decoration: underline;
@@ -147,6 +168,7 @@
             font-size: 12px;
             line-height: 16px;
             text-decoration: underline;
+            cursor: pointer;
 
             &:hover {
                text-decoration: underline;

@@ -5,7 +5,8 @@
             <img :src="closeIcon" alt="close icon" />
          </button>
          <p class="cookie-popup__message">
-            Мы используем <span class="cookie-popup__message--underline">файлы cookie</span>, чтобы сайт был удобней и
+            Мы используем <span class="cookie-popup__message--underline" @click="downloadCookiePolicy">файлы
+               cookie</span>, чтобы сайт был удобней и
             лучше для Вас.
          </p>
          <button class="cookie-popup__button" @click="acceptCookies">Ок, понятно</button>
@@ -16,12 +17,31 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import closeIcon from '../assets/icons/close-white.svg';
+import { getSiteDocumentById } from '@/services/apiClient'; // Добавьте импорт для работы с API
 
 const showPopup = ref(false)
 
 const acceptCookies = () => {
    localStorage.setItem('cookiesAccepted', 'true')
    showPopup.value = false
+}
+
+// Функция для скачивания файла политики cookies
+const downloadCookiePolicy = async () => {
+   try {
+      const { success, data } = await getSiteDocumentById(4); // Предполагается, что ID для файла с политикой cookie = 4
+
+      if (success && data.is_file) {
+         const link = document.createElement('a');
+         link.href = `${process.env.API_BASE_URL}/${data.path}`;
+         link.download = data.title;
+         link.click();
+      } else {
+         console.error('Файл не найден или не является документом.');
+      }
+   } catch (error) {
+      console.error('Ошибка при загрузке документа:', error);
+   }
 }
 
 onMounted(() => {
