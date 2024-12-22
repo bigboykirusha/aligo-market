@@ -1,14 +1,18 @@
 <template>
    <div class="support-chat">
+      <div v-if="selectedTopic" class="selected-topic">
+         <span>{{ selectedTopic.title }}</span>
+      </div>
       <!-- Приветственное сообщение -->
-      <div v-if="!selectedTopic" class="welcome-message">
+      <div class="welcome-message">
          <div class="avatar">
             <img src="@/assets/icons/supp.svg" alt="Support Avatar" />
          </div>
          <div class="text-block">
             <p>Здравствуйте!</p>
             <span>Вас приветствует служба поддержки Aligo.</span>
-            <span>Выберите тему обращения, чтобы начать диалог:</span>
+            <span v-if="!selectedTopic">Выберите тему обращения, чтобы начать диалог:</span>
+            <span v-if="selectedTopic">Выберите тему обращения, чтобы начать диалог.</span>
          </div>
       </div>
 
@@ -17,11 +21,6 @@
          <button v-for="topic in topics" :key="topic.id" class="topic-button" @click="selectTopic(topic)">
             {{ topic.title }}
          </button>
-      </div>
-
-      <!-- Отображение выбранной темы -->
-      <div v-if="selectedTopic" class="selected-topic">
-         <span>{{ selectedTopic.title }}</span>
       </div>
    </div>
 </template>
