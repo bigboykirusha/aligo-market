@@ -69,7 +69,8 @@
                <p class="no-messages-text">Задайте пользователю свой вопрос</p>
             </div>
          </div>
-         <SupportTopics v-else-if="chatStore.currentChat.is_support && !hasMessages" />
+         <SupportTopics v-else-if="chatStore.currentChat.is_support && !hasMessages"
+            @topicSelected="handleTopicSelected" />
          <!-- Сообщения чата -->
          <div v-else>
             <div v-if="loading" class="chat-box">
@@ -191,12 +192,19 @@ import { useUserStore } from '~/store/user';
 import { useMessagesStore } from '~/store/messages';
 import { relevantUser, relevantUserInfo } from '../services/userUtils.js'
 import { getImageUrl } from '../services/imageUtils';
-import { fetchMessages, sendMessage } from '~/services/apiClient';
+import { fetchMessages, sendMessage, sendSupport } from '~/services/apiClient';
 import avatar from '../assets/icons/avatar-revers.svg';
 
 const userStore = useUserStore();
 const chatStore = useChatStore();
 const messagesStore = useMessagesStore();
+
+const selectedTopic = ref(null);
+
+const handleTopicSelected = (topic) => {
+   console.log('Выбранная тема из дочернего компонента:', topic);
+   selectedTopic.value = topic;
+};
 
 const mesInput = ref(null);
 
@@ -397,14 +405,25 @@ async function handleSendMessage() {
 
    isSending.value = true;
    try {
-      const response = await sendMessage(
-         newMessage.value,
-         chatStore.currentChat.ads_id,
-         chatStore.currentChat.main_category_id,
-         toUserId.value,
-         file.value
-      );
-      chatStore.messages.push({ ...response.data, isSelf: true });
+      if (chatStore.currentChat.is_support) {
+         // Если это техническая поддержка, отправляем запрос через sendSupport
+         await sendSupport(
+            selectedTopic.value.id, // Используем ID темы
+            newMessage.value,      // Комментарий
+            file.value             // Фотографии
+         );
+      } else {
+         // Отправляем обычное сообщение
+         const response = await sendMessage(
+            newMessage.value,
+            chatStore.currentChat.ads_id,
+            chatStore.currentChat.main_category_id,
+            toUserId.value,
+            file.value
+         );
+         chatStore.messages.push({ ...response.data, isSelf: true });
+      }
+
       resetMessageInput();
       scrollToBottom();
    } catch (error) {

@@ -27,8 +27,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { getTechSupportThemes } from '@/services/apiClient'; // Импортируйте функцию для получения тем
+import { ref, onMounted, defineEmits } from 'vue';
+import { getTechSupportThemes } from '@/services/apiClient';
+
+// Определяем emits
+const emit = defineEmits(['topicSelected']);
 
 // Объявление переменных
 const topics = ref([]);
@@ -50,6 +53,7 @@ onMounted(async () => {
 const selectTopic = (topic) => {
    console.log('Выбрана тема:', topic.title);
    selectedTopic.value = topic; // Сохраняем выбранную тему
+   emit('topicSelected', topic); // Передаём выбранную тему наверх
 };
 </script>
 
