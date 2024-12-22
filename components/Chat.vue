@@ -58,8 +58,10 @@
          <span>Перетащите сюда <br /> изображения до 10 мб</span>
       </div>
       <!-- Содержимое чата -->
+
       <div v-if="chatStore.currentChat && !chatStore.isCollapsed" class="chat-wrapper__chat-box" ref="chatContainer">
          <!-- Всплывающее окно для имени пользователя -->
+         <SupportTopics v-if="chatStore.currentChat.is_support" @topicSelected="handleTopicSelected" />
          <UsernamePopup v-if="!userStore.username" :isVisible="true" @close="closePopup" />
 
          <!-- Блок, если сообщений нет -->
@@ -69,12 +71,10 @@
                <p class="no-messages-text">Задайте пользователю свой вопрос</p>
             </div>
          </div>
-         <SupportTopics v-else-if="chatStore.currentChat.is_support && !hasMessages"
-            @topicSelected="handleTopicSelected" />
          <!-- Сообщения чата -->
          <div v-else>
             <div v-if="loading" class="chat-box">
-               <div v-for="n in 6" :key="n"
+               <div v-for="n in 2" :key="n"
                   :class="['chat-wrapper__message-item', 'chat-wrapper__message-item--skeleton', { 'chat-wrapper__message-item--self': isOdd(n) }]">
                   <template v-if="!isOdd(n)">
                      <div class="chat-wrapper__message-avatar-skeleton"></div>
@@ -192,7 +192,7 @@ import { useUserStore } from '~/store/user';
 import { useMessagesStore } from '~/store/messages';
 import { relevantUser, relevantUserInfo } from '../services/userUtils.js'
 import { getImageUrl } from '../services/imageUtils';
-import { fetchMessages, sendMessage, sendSupport } from '~/services/apiClient';
+import { fetchMessages, sendMessage, sendSupport, getTechSupport } from '~/services/apiClient';
 import avatar from '../assets/icons/avatar-revers.svg';
 
 const userStore = useUserStore();
@@ -369,22 +369,43 @@ function formatTime(dateString) {
 async function loadMessages() {
    if (!chatStore.currentChat) return;
 
-   if (chatStore.currentChat.is_support) {
-      chatStore.setMessages([])
-      return;
-   };
-
    loading.value = true;
+
    try {
       const targetUserId = toUserId.value;
-      const data = await fetchMessages(chatStore.currentChat.ads_id, chatStore.currentChat.main_category_id, targetUserId);
+      let data;
 
-      const formattedMessages = data.map(message => ({
-         ...message,
-         isSelf: message.from_user_id === userStore.userId,
-      }));
+      if (chatStore.currentChat.is_support) {
+         data = await getTechSupport();
+         console.log(data);
 
-      chatStore.setMessages(formattedMessages);
+         const formattedMessages = data.map(message => ({
+            id: Date.now(), // Временный ID для сообщения
+            ads_id: chatStore.currentChat.ads_id || null, // ID объявления, если есть
+            ads_model: "App\\Models\\Auto", // Замените на нужную модель
+            created_at: message.created_at, // Используем дату из ответа
+            for_user_id: chatStore.currentChat.for_user_id || null, // ID получателя
+            from_user_id: message.user_id, // ID пользователя из ответа
+            main_category_id: chatStore.currentChat.main_category_id || null, // ID категории
+            message: message.comment, // Сообщение из поля comment
+            message_translate: null, // Можно добавить перевод, если нужно
+            photos: message.photos || null, // Формируем массив фотографий
+            read_at: null, // Прочитано ли сообщение
+            updated_at: message.updated_at, // Дата обновления
+            isSelf: message.user_id === userStore.userId, // Проверка, от текущего ли пользователя
+         }));
+
+         chatStore.setMessages(formattedMessages);
+      } else {
+         data = await fetchMessages(chatStore.currentChat.ads_id, chatStore.currentChat.main_category_id, targetUserId);
+
+         const formattedMessages = data.map(message => ({
+            ...message,
+            isSelf: message.from_user_id === userStore.userId,
+         }));
+
+         chatStore.setMessages(formattedMessages);
+      }
    } catch (error) {
       console.error('Ошибка при загрузке сообщений:', error);
    } finally {
@@ -412,6 +433,34 @@ async function handleSendMessage() {
             newMessage.value,      // Комментарий
             file.value             // Фотографии
          );
+         const formatDate = (isoDate) => {
+            const date = new Date(isoDate);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+         };
+
+         const supportMessage = {
+            id: Date.now(), // Временный ID для сообщения
+            ads_id: chatStore.currentChat.ads_id || null, // ID объявления, если есть
+            ads_model: "App\\Models\\Auto", // Замените на нужную модель, если требуется
+            created_at: formatDate(new Date().toISOString()), // Форматируем текущую дату
+            for_user_id: chatStore.currentChat.for_user_id || null, // ID получателя
+            from_user_id: userStore.id, // ID текущего пользователя
+            main_category_id: chatStore.currentChat.main_category_id || null,
+            message: newMessage.value,
+            message_translate: null,
+            photos: file.value.map(photo => ({ path: photo })), // Формируем массив фотографий
+            read_at: null, // Прочитано ли сообщение
+            updated_at: formatDate(new Date().toISOString()), // Форматируем текущую дату
+            isSelf: true,
+         };
+
+         chatStore.messages.push(supportMessage);
       } else {
          // Отправляем обычное сообщение
          const response = await sendMessage(

@@ -2,36 +2,36 @@
    <div v-if="photos.length" :class="containerClass">
       <div v-if="imagePhotos.length" :class="containerClass">
          <template v-if="imagePhotos.length === 1">
-            <img :src="getImageUrl(imagePhotos[0].path)" :class="photoClass(1)" loading="lazy" />
+            <img :src="getPhotoPath(imagePhotos[0])" :class="photoClass(1)" loading="lazy" />
          </template>
 
          <template v-else-if="imagePhotos.length === 2">
             <div class="chat-photo-group">
-               <img v-for="(photo, index) in imagePhotos" :key="index" :src="getImageUrl(photo.path)" loading="lazy"
+               <img v-for="(photo, index) in imagePhotos" :key="index" :src="getPhotoPath(photo)" loading="lazy"
                   :class="photoClass(2)" />
             </div>
          </template>
 
          <template v-else-if="imagePhotos.length === 3">
-            <img :src="getImageUrl(imagePhotos[0].path)" :class="photoClass(1)" />
+            <img :src="getPhotoPath(imagePhotos[0])" :class="photoClass(1)" />
             <div class="chat-photo-group">
-               <img v-for="(photo, index) in imagePhotos.slice(1)" :key="index" :src="getImageUrl(photo.path)"
+               <img v-for="(photo, index) in imagePhotos.slice(1)" :key="index" :src="getPhotoPath(photo)"
                   loading="lazy" :class="photoClass(2)" />
             </div>
          </template>
 
          <template v-else-if="imagePhotos.length === 4">
-            <img :src="getImageUrl(imagePhotos[0].path)" :class="photoClass(1)" />
+            <img :src="getPhotoPath(imagePhotos[0])" :class="photoClass(1)" />
             <div class="chat-photo-grid chat-photo-grid--three">
-               <img v-for="(photo, index) in imagePhotos.slice(1)" :key="index" :src="getImageUrl(photo.path)"
+               <img v-for="(photo, index) in imagePhotos.slice(1)" :key="index" :src="getPhotoPath(photo)"
                   loading="lazy" :class="photoClass(3)" />
             </div>
          </template>
 
          <template v-else-if="imagePhotos.length === 5">
-            <img :src="getImageUrl(imagePhotos[0].path)" :class="photoClass(1)" />
+            <img :src="getPhotoPath(imagePhotos[0])" :class="photoClass(1)" />
             <div class="chat-photo-grid chat-photo-grid--four">
-               <img v-for="(photo, index) in imagePhotos.slice(1)" :key="index" :src="getImageUrl(photo.path)"
+               <img v-for="(photo, index) in imagePhotos.slice(1)" :key="index" :src="getPhotoPath(photo)"
                   loading="lazy" :class="photoClass(2)" />
             </div>
          </template>
@@ -40,8 +40,7 @@
       <div v-if="filePhotos.length" class="chat-file-container">
          <div v-for="(file, index) in filePhotos" :key="index" class="chat-file">
             <img src="../assets/icons/file-icon.svg" alt="File Icon" class="chat-file-icon" />
-            <span class="chat-file-name">{{ file.title }} <span class="chat-file-size">4.2 МБ</span></span>
-
+            <span class="chat-file-name">{{ file.title || 'Файл' }} <span class="chat-file-size">4.2 МБ</span></span>
          </div>
       </div>
    </div>
@@ -49,7 +48,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import { getImageUrl } from '../services/imageUtils'
+import { getImageUrl } from '../services/imageUtils';
 
 const props = defineProps({
    photos: {
@@ -60,12 +59,28 @@ const props = defineProps({
 
 const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
 
+// Определение пути фотографии
+const getPhotoPath = (photo) => {
+   if (photo.path instanceof File) {
+      return URL.createObjectURL(photo.path); // Создаёт URL для объекта File
+   }
+   return getImageUrl(photo.path); // Применяем getImageUrl для строк
+};
+
+// Фильтрация фотографий
 const imagePhotos = computed(() =>
-   props.photos.filter(photo => imageExtensions.includes(photo.path.split('.').pop().toLowerCase()))
+   props.photos.filter(photo => {
+      const path = photo.path instanceof File ? photo.path.name : photo.path;
+      return imageExtensions.includes(path.split('.').pop().toLowerCase());
+   })
 );
 
+// Фильтрация файлов (не фотографии)
 const filePhotos = computed(() =>
-   props.photos.filter(photo => !imageExtensions.includes(photo.path.split('.').pop().toLowerCase()))
+   props.photos.filter(photo => {
+      const path = photo.path instanceof File ? photo.path.name : photo.path;
+      return !imageExtensions.includes(path.split('.').pop().toLowerCase());
+   })
 );
 
 const containerClass = computed(() => ({

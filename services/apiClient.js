@@ -148,6 +148,16 @@ export const getTechSupportThemes = async () => {
    }
 };
 
+export const getTechSupport = async () => {
+   try {
+      const response = await apiClient.get('/tech_support');
+      return response.data.data; // Возвращаем полученные данные
+   } catch (error) {
+      console.error('Ошибка при получении тем поддержки: ', error);
+      throw error;
+   }
+};
+
 export const fetchLastMessages = async (translate_to, unread_chats = false, read_chats = false, only_my_ads = false) => {
    try {
       // Создаём объект параметров для запроса

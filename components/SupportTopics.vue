@@ -13,7 +13,7 @@
       </div>
 
       <!-- Кнопки с темами обращения -->
-      <div v-if="!selectedTopic" class="topics">
+      <div v-if="!selectedTopic && chatStore.messages.length === 0" class="topics">
          <button v-for="topic in topics" :key="topic.id" class="topic-button" @click="selectTopic(topic)">
             {{ topic.title }}
          </button>
@@ -29,6 +29,7 @@
 <script setup>
 import { ref, onMounted, defineEmits } from 'vue';
 import { getTechSupportThemes } from '@/services/apiClient';
+import { useChatStore } from '~/store/chatStore';
 
 // Определяем emits
 const emit = defineEmits(['topicSelected']);
@@ -36,6 +37,7 @@ const emit = defineEmits(['topicSelected']);
 // Объявление переменных
 const topics = ref([]);
 const selectedTopic = ref(null); // Для хранения выбранной темы
+const chatStore = useChatStore();
 
 // Получаем темы при монтировании компонента
 onMounted(async () => {
@@ -62,7 +64,7 @@ const selectTopic = (topic) => {
    display: flex;
    flex-direction: column;
    align-items: center;
-   width: 100%;
+   width: calc(100% - 16px);
    max-width: 500px;
 }
 
