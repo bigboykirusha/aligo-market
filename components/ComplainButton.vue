@@ -1,14 +1,27 @@
 <template>
-   <button class="complain-button">
+   <button class="complain-button" @click="showComplaintPopup = true">
       <img class="complain-button__icon" src="../assets/icons/alert.svg" alt="Иконка" />
       <span class="complain-button__text">Пожаловаться на объявление</span>
    </button>
+   <Complaint :isVisible="showComplaintPopup" :adsId="adsId" :mainCategoryId="1"
+      @close="showComplaintPopup = false" :user_id="userId" />
 </template>
 
-<script>
-export default {
-   name: "ComplainButton"
-};
+<script setup>
+import { ref } from 'vue';
+
+defineProps({
+   userId: {
+      type: [String, Number],
+      required: true,
+   },
+   adsId: {
+      type: [String, Number],
+      required: true,
+   },
+});
+
+const showComplaintPopup = ref(false);
 </script>
 
 <style scoped lang="scss">

@@ -44,7 +44,7 @@
                </ul>
             </div>
          </div>
-         <ComplainButton />
+         <ComplainButton v-if="!car.id_user_owner_ads !== userStore.userId" :userId="car.id_user_owner_ads" :adsId="car.id"/>
       </section>
 
    </div>
@@ -52,6 +52,7 @@
 
 <script setup>
 import { computed } from 'vue';
+import { useUserStore } from '~/store/user';
 
 const props = defineProps({
    car: {
@@ -59,6 +60,8 @@ const props = defineProps({
       required: true
    }
 });
+
+const userStore = useUserStore();
 
 const characteristics = computed(() => {
    const vin = props.car.auto_registration_data[0].vin || 'Не указано';

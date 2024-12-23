@@ -232,7 +232,7 @@ onBeforeUnmount(() => {
 .slider-mobile {
    display: none;
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       display: block;
       margin-bottom: 32px;
       height: 320px;
@@ -245,13 +245,13 @@ onBeforeUnmount(() => {
    max-width: 416px;
    width: 100%;
 
-   @media screen and (max-width: 1280px) {
+   @media (max-width: 1280px) {
       display: flex;
       max-width: 100%;
       column-gap: 52px;
    }
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       flex-direction: column;
    }
 
@@ -261,7 +261,7 @@ onBeforeUnmount(() => {
       border-bottom: 1px solid #d6d6d6;
       margin-bottom: 32px;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          display: flex;
          justify-content: space-between;
          align-items: center;
@@ -279,12 +279,12 @@ onBeforeUnmount(() => {
    }
 
    &__content {
-      @media screen and (max-width: 1280px) {
+      @media (max-width: 1280px) {
          width: 50%;
          margin-top: 32px;
       }
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          width: 100%;
       }
    }

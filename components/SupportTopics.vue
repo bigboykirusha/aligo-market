@@ -1,6 +1,5 @@
 <template>
    <div class="support-chat">
-      <!-- Приветственное сообщение -->
       <div class="welcome-message">
          <div class="avatar">
             <img src="@/assets/icons/supp.svg" alt="Support Avatar" />
@@ -12,10 +11,6 @@
             <span v-if="selectedTopic">Выберите тему обращения, чтобы начать диалог.</span>
          </div>
       </div>
-      <div v-if="selectedTopic" class="selected-topic">
-         <span>{{ selectedTopic.title }}</span>
-      </div>
-      <!-- Кнопки с темами обращения -->
       <div v-if="!selectedTopic && chatStore.messages.length === 0" class="topics">
          <button v-for="topic in topics" :key="topic.id" class="topic-button" @click="selectTopic(topic)">
             {{ topic.title }}
@@ -29,31 +24,27 @@ import { ref, onMounted, defineEmits } from 'vue';
 import { getTechSupportThemes } from '@/services/apiClient';
 import { useChatStore } from '~/store/chatStore';
 
-// Определяем emits
 const emit = defineEmits(['topicSelected']);
 
-// Объявление переменных
 const topics = ref([]);
-const selectedTopic = ref(null); // Для хранения выбранной темы
+const selectedTopic = ref(null); 
 const chatStore = useChatStore();
 
-// Получаем темы при монтировании компонента
 onMounted(async () => {
    try {
-      const response = await getTechSupportThemes(); // Получаем данные через API
+      const response = await getTechSupportThemes(); 
       if (response.success) {
-         topics.value = response.data; // Присваиваем полученные темы в переменную
+         topics.value = response.data; 
       }
    } catch (error) {
       console.error('Ошибка при получении тем:', error);
    }
 });
 
-// Функция для обработки выбора темы и эмита события
 const selectTopic = (topic) => {
    console.log('Выбрана тема:', topic.title);
-   selectedTopic.value = topic; // Сохраняем выбранную тему
-   emit('topicSelected', topic); // Передаём выбранную тему наверх
+   selectedTopic.value = topic; 
+   emit('topicSelected', topic);
 };
 </script>
 

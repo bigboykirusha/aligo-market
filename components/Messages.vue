@@ -49,7 +49,8 @@
                      </nuxt-link>
                   </div>
                </div>
-               <button @click.stop @click="togglePopup" class="messages__options-button">
+               <button v-if="!chatStore.currentChat.is_support" @click.stop @click="togglePopup"
+                  class="messages__options-button">
                   <img v-if="isMobile" src="../assets/icons/down.svg" alt="delete" />
                   <img v-else src="../assets/icons/options.svg" alt="delete" />
                </button>
@@ -221,7 +222,7 @@ import { getImageUrl } from '../services/imageUtils';
 import { useSelectedMessagesStore } from '~/store/selectedMessages';
 import { formatNumberWithSpaces } from '../services/amountUtils.js';
 import { relevantUser, relevantUserInfo } from '../services/userUtils.js'
-import { fetchMessages, sendMessage } from '~/services/apiClient';
+import { fetchMessages, sendMessage, getTechSupport, sendSupport } from '~/services/apiClient';
 import { useUserStore } from '~/store/user';
 import { useMessagesStore } from '~/store/messages';
 import { useRouter } from 'vue-router';
@@ -482,7 +483,6 @@ const sortOptions = [
 const handleSortUpdate = (order_by) => {
    console.log('Sorting by:', order_by);
 
-   // Определяем параметры на основе значения сортировки
    let unread_chats = false;
    let read_chats = false;
    let only_my_ads = false;
@@ -499,7 +499,6 @@ const handleSortUpdate = (order_by) => {
    if (order_by === '0') {
       messagesStore.loadLastMessages();
    } else {
-      // Передаём только параметры, которые соответствуют выбранному фильтру
       messagesStore.loadLastMessages('ru', unread_chats, read_chats, only_my_ads);
    }
 };
@@ -533,19 +532,19 @@ const loadMessages = async () => {
             console.log(data);
 
             const formattedMessages = data.map(message => ({
-               id: Date.now(), // Временный ID для сообщения
-               ads_id: chatStore.currentChat.ads_id || null, // ID объявления, если есть
-               ads_model: "App\\Models\\Auto", // Замените на нужную модель
-               created_at: message.created_at, // Используем дату из ответа
-               for_user_id: chatStore.currentChat.for_user_id || null, // ID получателя
-               from_user_id: message.user_id, // ID пользователя из ответа
-               main_category_id: chatStore.currentChat.main_category_id || null, // ID категории
-               message: message.comment, // Сообщение из поля comment
-               message_translate: null, // Можно добавить перевод, если нужно
-               photos: message.photos || null, // Формируем массив фотографий
-               read_at: null, // Прочитано ли сообщение
-               updated_at: message.updated_at, // Дата обновления
-               isSelf: message.user_id === userStore.userId, // Проверка, от текущего ли пользователя
+               id: Date.now(),
+               ads_id: chatStore.currentChat.ads_id || null,
+               ads_model: "App\\Models\\Auto",
+               created_at: message.created_at,
+               for_user_id: chatStore.currentChat.for_user_id || null,
+               from_user_id: message.user_id,
+               main_category_id: chatStore.currentChat.main_category_id || null,
+               message: message.comment,
+               message_translate: null,
+               photos: message.photos || null,
+               read_at: null,
+               updated_at: message.updated_at,
+               isSelf: message.user_id === userStore.userId,
             }));
 
             chatStore.setMessages(formattedMessages);
@@ -594,11 +593,10 @@ async function handleSendMessage() {
 
    try {
       if (chatStore.currentChat.is_support) {
-         // Если это техническая поддержка, отправляем запрос через sendSupport
          await sendSupport(
-            selectedTopic.value.id, // Используем ID темы
-            newMessage.value,      // Комментарий
-            file.value             // Фотографии
+            selectedTopic.value.id,
+            newMessage.value,
+            file.value
          );
          const formatDate = (isoDate) => {
             const date = new Date(isoDate);
@@ -612,24 +610,23 @@ async function handleSendMessage() {
          };
 
          const supportMessage = {
-            id: Date.now(), // Временный ID для сообщения
-            ads_id: chatStore.currentChat.ads_id || null, // ID объявления, если есть
-            ads_model: "App\\Models\\Auto", // Замените на нужную модель, если требуется
-            created_at: formatDate(new Date().toISOString()), // Форматируем текущую дату
-            for_user_id: chatStore.currentChat.for_user_id || null, // ID получателя
-            from_user_id: userStore.id, // ID текущего пользователя
+            id: Date.now(),
+            ads_id: chatStore.currentChat.ads_id || null,
+            ads_model: "App\\Models\\Auto",
+            created_at: formatDate(new Date().toISOString()),
+            for_user_id: chatStore.currentChat.for_user_id || null,
+            from_user_id: userStore.id,
             main_category_id: chatStore.currentChat.main_category_id || null,
             message: newMessage.value,
             message_translate: null,
-            photos: file.value.map(photo => ({ path: photo })), // Формируем массив фотографий
-            read_at: null, // Прочитано ли сообщение
-            updated_at: formatDate(new Date().toISOString()), // Форматируем текущую дату
+            photos: file.value.map(photo => ({ path: photo })),
+            read_at: null,
+            updated_at: formatDate(new Date().toISOString()),
             isSelf: true,
          };
 
          chatStore.messages.push(supportMessage);
       } else {
-         // Отправляем обычное сообщение
          const response = await sendMessage(
             newMessage.value,
             chatStore.currentChat.ads_id,

@@ -48,6 +48,17 @@
             </div>
          </div>
       </div>
+      <div v-if="lastMessages.length === 0 && isProfilePage && !isLoading" class="chat-wrapper__no-messages">
+         <div class="no-messages-container">
+            <h2>Cообщений пока нет
+               <img src="../assets/icons/sad-smile.svg" alt="No messages" class="no-messages-image" />
+            </h2>
+            <p class="no-messages-text">
+               Вы можете безопасно переписываться с потенциальными продавцами и покупателями, обмениваться изображениями
+               и необходимыми документами на сайте
+            </p>
+         </div>
+      </div>
    </div>
 </template>
 
@@ -371,5 +382,42 @@ onMounted(() => {
       width: 40px;
       height: 40px;
    }
+}
+
+.chat-wrapper__no-messages {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   height: auto;
+   min-height: 350px;
+   padding: 20px;
+   border-radius: 8px;
+}
+
+.no-messages-container {
+   text-align: center;
+   max-width: 400px;
+   height: 100%;
+
+   h2 {
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      color: #323232;
+      margin-bottom: 10px;
+      justify-content: center;
+      gap: 10px;
+   }
+}
+
+.no-messages-text {
+   font-size: 14px;
+   margin-bottom: 16px;
+   color: #666666;
+}
+
+.no-messages-image {
+   width: 18px;
+   height: auto;
 }
 </style>

@@ -156,9 +156,19 @@ onMounted(() => {
       margin-bottom: 24px;
       overflow: hidden;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          padding: 0;
          margin-bottom: 16px;
+         border: none;
+         border-radius: 0;
+         height: 34px;
+         overflow-x: auto;
+         gap: 16px;
+         scrollbar-width: none;
+
+         &::-webkit-scrollbar {
+            display: none;
+         }
       }
    }
 
@@ -170,7 +180,15 @@ onMounted(() => {
       color: #323232;
       font-size: 14px;
       cursor: pointer;
-      transition: color 0.3s ease;
+      transition: color 0.3s ease, font-weight 0.3s ease;
+      height: 100%;
+
+      @media (max-width: 768px) {
+         border-radius: 24px;
+         min-width: none;
+         padding: 0 16px;
+         background-color: #EEF9FF;
+      }
 
       &--active {
          color: #3366ff;
@@ -179,6 +197,18 @@ onMounted(() => {
 
       &:hover {
          color: #003bce;
+      }
+   }
+
+   &__indicator {
+      position: absolute;
+      bottom: 0;
+      height: 4px;
+      background-color: #3366ff;
+      transition: transform 0.3s ease;
+
+      @media (max-width: 768px) {
+         display: none;
       }
    }
 }

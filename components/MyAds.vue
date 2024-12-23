@@ -150,12 +150,12 @@ const indicatorStyle = computed(() => {
          border: none;
          border-radius: 0;
          height: 34px;
-         overflow-x: auto; // добавляем горизонтальную прокрутку
-         gap: 16px; // убираем пробелы между элементами
-         scrollbar-width: none; // скрываем скроллбар в Firefox
+         overflow-x: auto; 
+         gap: 16px; 
+         scrollbar-width: none; 
 
          &::-webkit-scrollbar {
-            display: none; // скрываем скроллбар в Webkit-браузерах
+            display: none; 
          }
       }
    }

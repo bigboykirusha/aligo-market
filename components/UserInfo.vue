@@ -26,7 +26,7 @@
             </div>
             <div class="user-info__completed-ads">ID: {{ formatUniqueCode(userData.unique_code) }}</div>
             <div class="user-info__completed-ads">Частное лицо</div>
-            <div class="user-info__completed-ads">Завершено 5 объявлений</div>
+            <div class="user-info__completed-ads">Завершено 0 объявлений</div>
             <div class="user-info__registered-date">{{ registeredDate }}</div>
          </div>
       </div>
