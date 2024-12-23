@@ -5,7 +5,7 @@
       <div class="chat-header" @mousedown="startDrag">
          <!-- Информация о текущем чате -->
          <div v-if="chatStore.currentChat" class="chat-header__info chat-header__info--active">
-            <button v-if="chatStore.currentChat && !chatStore.isCollapsed && total !== 0"
+            <button v-if="chatStore.currentChat && !chatStore.isCollapsed"
                class="chat-header__close-button" @click="closeChat">
                <img src="../assets/icons/arrow-back.svg" alt="Toggle" />
             </button>

@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, defineEmits } from 'vue';
+import { ref, onMounted } from 'vue';
 import { getTechSupportThemes } from '@/services/apiClient';
 import { useChatStore } from '~/store/chatStore';
 

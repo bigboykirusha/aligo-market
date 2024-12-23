@@ -8,7 +8,6 @@
       <div class="modal__body">
          <div class="modal__title">Черный список</div>
 
-         <!-- Check if there are blocked users -->
          <ul v-if="blockedUsers.length > 0" class="blocked-users__list">
             <li v-for="user in blockedUsers" :key="user.id" class="blocked-users__item">
                <div class="blocked-users__info">
@@ -25,7 +24,6 @@
             </li>
          </ul>
 
-         <!-- Show this message when no users are blocked -->
          <p v-else>Вы пока никого не заблокировали.</p>
 
       </div>

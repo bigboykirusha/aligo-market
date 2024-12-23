@@ -1,5 +1,5 @@
 <template>
-   <div class="cards">
+   <div v-show="shouldRender" class="cards">
       <h2 v-show="showTitle" class="cards__title">{{ props.title }}</h2>
       <div v-show="!showTitle" class="cards__block">
          <AdsDropdown :options="sortOptions" @updateSort="handleSortUpdate" :defaultValue="'desc'" />
@@ -48,8 +48,9 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useFiltersStore } from '~/store/filters';
+import { useRoute } from 'vue-router';
 import list from '../assets/icons/list.svg';
 import listNone from '../assets/icons/list-none.svg';
 import tile from '../assets/icons/tile.svg';
@@ -66,6 +67,7 @@ const props = defineProps({
 const emit = defineEmits(['updateSort']);
 const activeIndex = ref(0);
 const filtersStore = useFiltersStore();
+const route = useRoute();
 
 const sortOptions = [
    { label: 'Сначала свежие', value: 'desc' },
@@ -110,6 +112,8 @@ const mapCardProps = (ad) => ({
    created_at: ad.created_at,
    id_user_owner_ads: ad.id_user_owner_ads
 });
+
+const shouldRender = computed(() => route.path !== '/' || props.adsMain.length > 0);
 </script>
 
 <style scoped lang="scss">

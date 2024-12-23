@@ -29,7 +29,7 @@
       <div class="messages__content" @drop="handleFileDrop">
          <div class="chat-wrapper" :class="{ 'profile-page': chatStore.currentChat }">
             <div v-if="chatStore.currentChat" class="chat-header">
-               <button v-if="chatStore.currentChat && total !== 0" class="chat-header__close-button" @click="closeChat">
+               <button v-if="chatStore.currentChat" class="chat-header__close-button" @click="closeChat">
                   <img src="../assets/icons/arrow-back.svg" alt="Toggle" />
                </button>
                <div class="chat-header__info chat-header__info--active">
