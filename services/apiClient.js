@@ -897,9 +897,10 @@ export const getUserPhoneEmail = async (user_id) => {
    }
 };
 
-export const getSiteDocumentById = async (id) => {
+export const getSiteDocumentById = async (id = null) => {
    try {
-      const response = await apiClient.get(`/site_documents/${id}`);
+      const endpoint = id ? `/site_documents/${id}` : `/site_documents`;
+      const response = await apiClient.get(endpoint);
       return response.data;
    } catch (error) {
       console.error('Ошибка при получении документа сайта:', error);

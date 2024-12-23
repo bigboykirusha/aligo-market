@@ -15,21 +15,20 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from 'vue';
 import closeIcon from '../assets/icons/close-white.svg';
-import { getSiteDocumentById } from '@/services/apiClient'; // Добавьте импорт для работы с API
+import { getSiteDocumentById } from '@/services/apiClient';
 
-const showPopup = ref(false)
+const showPopup = ref(false);
 
 const acceptCookies = () => {
-   localStorage.setItem('cookiesAccepted', 'true')
-   showPopup.value = false
-}
+   localStorage.setItem('cookiesAccepted', 'true');
+   showPopup.value = false;
+};
 
-// Функция для скачивания файла политики cookies
 const downloadCookiePolicy = async () => {
    try {
-      const { success, data } = await getSiteDocumentById(4); // Предполагается, что ID для файла с политикой cookie = 4
+      const { success, data } = await getSiteDocumentById(4);
 
       if (success && data.is_file) {
          const link = document.createElement('a');
@@ -42,13 +41,13 @@ const downloadCookiePolicy = async () => {
    } catch (error) {
       console.error('Ошибка при загрузке документа:', error);
    }
-}
+};
 
 onMounted(() => {
    if (!localStorage.getItem('cookiesAccepted')) {
-      showPopup.value = true
+      showPopup.value = true;
    }
-})
+});
 </script>
 
 <style scoped lang="scss">
@@ -64,7 +63,7 @@ onMounted(() => {
    padding-right: 36px;
    font-size: 14px;
    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-   z-index: 1000;
+   z-index: 100000;
 
    @media (max-width: 768px) {
       width: calc(100% - 32px);
@@ -84,6 +83,7 @@ onMounted(() => {
 
       &--underline {
          text-decoration: underline;
+         cursor: pointer;
       }
 
       margin-bottom: 16px;

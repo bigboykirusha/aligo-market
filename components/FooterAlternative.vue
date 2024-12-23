@@ -4,19 +4,9 @@
          <div class="footer__container">
             <div class="footer__bottom">
                <ul class="footer__links">
-                  <li>
-                     <a v-if="documents[1]" :href="documents[1].url" download>
-                        {{ $t('footer.links.rules') }}
-                     </a>
-                  </li>
-                  <li>
-                     <a v-if="documents[2]" :href="documents[2].url" download>
-                        {{ $t('footer.links.agreement') }}
-                     </a>
-                  </li>
-                  <li>
-                     <a v-if="documents[3]" :href="documents[3].url" download>
-                        {{ $t('footer.links.privacy') }}
+                  <li v-for="document in footerDocuments" :key="document.id">
+                     <a :href="`https://dev.aligo.pro/${document.path}`" :download="document.title">
+                        {{ document.title }}
                      </a>
                   </li>
                </ul>
@@ -25,7 +15,7 @@
                </div>
             </div>
             <nuxt-link to="/" class="footer__logo">
-               <img src="../assets/icons/white-logo.svg" alt="Логотип">
+               <img src="../assets/icons/white-logo.svg" alt="Логотип" />
             </nuxt-link>
          </div>
       </div>
@@ -39,27 +29,20 @@ import { getSiteDocumentById } from '@/services/apiClient';
 
 const isCreateAdPage = ref(false);
 const route = useRoute();
-const documents = ref({});
+const footerDocuments = ref([]);
 
 isCreateAdPage.value = route.name === 'createAd';
 
-const fetchDocuments = async () => {
+const loadFooterDocuments = async () => {
    try {
-      for (let id = 1; id <= 3; id++) {
-         const { success, data } = await getSiteDocumentById(id);
-         if (success && data.is_file) {
-            documents.value[id] = {
-               url: `https://dev.aligo.pro/${data.path}`,
-               title: data.title,
-            };
-         }
-      }
+      const { data } = await getSiteDocumentById();
+      footerDocuments.value = data.slice(0, 3); 
    } catch (error) {
       console.error('Ошибка при загрузке документов:', error);
    }
 };
 
-onMounted(fetchDocuments);
+onMounted(loadFooterDocuments);
 </script>
 
 <style scoped lang="scss">

@@ -18,9 +18,11 @@
          <div class="footer__container">
             <div class="footer__bottom">
                <ul class="footer__links">
-                  <li><a @click.prevent="downloadDocument(1)">{{ $t('footer.links.rules') }}</a></li>
-                  <li><a @click.prevent="downloadDocument(2)">{{ $t('footer.links.privacy') }}</a></li>
-                  <li><a @click.prevent="downloadDocument(3)">{{ $t('footer.links.agreement') }}</a></li>
+                  <li v-for="document in footerDocuments" :key="document.id">
+                     <a :href="`https://dev.aligo.pro/${document.path}`" :download="document.title">
+                        {{ document.title }}
+                     </a>
+                  </li>
                </ul>
                <span class="footer__copyright">
                   {{ $t('footer.copyright') }}
@@ -32,24 +34,21 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
 import { getSiteDocumentById } from '@/services/apiClient';
 
-const downloadDocument = async (id) => {
-   try {
-      const { success, data } = await getSiteDocumentById(id);
+const footerDocuments = ref([]);
 
-      if (success && data.is_file) {
-         const link = document.createElement('a');
-         link.href = `https://dev.aligo.pro/${data.path}`;
-         link.download = data.title;
-         link.click();
-      } else {
-         console.error('Файл не найден или не является документом.');
-      }
+const loadFooterDocuments = async () => {
+   try {
+      const { data } = await getSiteDocumentById();
+      footerDocuments.value = data.slice(0, 3); 
    } catch (error) {
-      console.error('Ошибка при загрузке документа:', error);
+      console.error('Ошибка при загрузке документов:', error);
    }
 };
+
+onMounted(loadFooterDocuments);
 </script>
 
 <style scoped lang="scss">
@@ -167,6 +166,8 @@ const downloadDocument = async (id) => {
             color: $white;
             font-size: 12px;
             line-height: 16px;
+            outline: none;
+            border: none;
             text-decoration: underline;
             cursor: pointer;
 

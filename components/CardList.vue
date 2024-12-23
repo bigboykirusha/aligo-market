@@ -1,6 +1,6 @@
 <template>
    <div class="cards">
-      <h2 v-show="isLoading || uniqueAds.value.length > 0" class="cards__title">{{ title }}</h2>
+      <h2 v-show="isLoading || ads.length > 0" class="cards__title">{{ title }}</h2>
       <div class="cards__main" :class="{ 'cards__main--four': isFour }">
          <CardSkeleton v-if="isLoading" v-for="index in 5" :key="index" />
          <Card v-else v-for="ad in uniqueAds" :key="ad.id" :id="ad.id" :description="ad.ads_parameter?.ads_description"
