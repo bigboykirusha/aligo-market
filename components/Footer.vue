@@ -40,7 +40,7 @@ const downloadDocument = async (id) => {
 
       if (success && data.is_file) {
          const link = document.createElement('a');
-         link.href = `${process.env.API_BASE_URL}/${data.path}`;
+         link.href = `https://dev.aligo.pro/${data.path}`;
          link.download = data.title;
          link.click();
       } else {

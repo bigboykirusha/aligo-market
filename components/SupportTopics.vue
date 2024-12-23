@@ -1,8 +1,5 @@
 <template>
    <div class="support-chat">
-      <div v-if="selectedTopic" class="selected-topic">
-         <span>{{ selectedTopic.title }}</span>
-      </div>
       <!-- Приветственное сообщение -->
       <div class="welcome-message">
          <div class="avatar">
@@ -15,7 +12,9 @@
             <span v-if="selectedTopic">Выберите тему обращения, чтобы начать диалог.</span>
          </div>
       </div>
-
+      <div v-if="selectedTopic" class="selected-topic">
+         <span>{{ selectedTopic.title }}</span>
+      </div>
       <!-- Кнопки с темами обращения -->
       <div v-if="!selectedTopic && chatStore.messages.length === 0" class="topics">
          <button v-for="topic in topics" :key="topic.id" class="topic-button" @click="selectTopic(topic)">

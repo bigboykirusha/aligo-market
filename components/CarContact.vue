@@ -299,7 +299,14 @@ onBeforeUnmount(() => {
       width: 100%;
       gap: 24px;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
+         position: fixed;
+         z-index: 23;
+         background-color: rgba(#EEF9FF, 0.3);
+         backdrop-filter: blur(8px);
+         border-radius: 24px 24px 0 0;
+         padding: 16px;
+         bottom: 70px;
          flex-direction: row;
          gap: 16px;
       }

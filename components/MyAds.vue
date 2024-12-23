@@ -98,6 +98,11 @@ const handleSwitch = (item) => {
    nextTick(() => {
       setTimeout(() => {
          router.push(`/myself/${item === 'Все' ? 'ads' : item === 'Черновики' ? 'drafts' : item === 'Архив' ? 'archive' : 'canceled'}`);
+
+         const activeItem = document.querySelector('.my-ads__item--active');
+         if (activeItem) {
+            activeItem.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+         }
       }, 300);
    });
 };
@@ -121,6 +126,10 @@ const indicatorStyle = computed(() => {
       font-size: 20px;
       font-weight: 700;
       margin-bottom: 24px;
+
+      @media (max-width: 768px) {
+         margin-bottom: 16px;
+      }
    }
 
    &__switcher {
@@ -135,9 +144,19 @@ const indicatorStyle = computed(() => {
       margin-bottom: 24px;
       overflow: hidden;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          padding: 0;
          margin-bottom: 16px;
+         border: none;
+         border-radius: 0;
+         height: 34px;
+         overflow-x: auto; // добавляем горизонтальную прокрутку
+         gap: 16px; // убираем пробелы между элементами
+         scrollbar-width: none; // скрываем скроллбар в Firefox
+
+         &::-webkit-scrollbar {
+            display: none; // скрываем скроллбар в Webkit-браузерах
+         }
       }
    }
 
@@ -150,6 +169,14 @@ const indicatorStyle = computed(() => {
       font-size: 14px;
       cursor: pointer;
       transition: color 0.3s ease, font-weight 0.3s ease;
+      height: 100%;
+
+      @media (max-width: 768px) {
+         border-radius: 24px;
+         min-width: none;
+         padding: 0 16px;
+         background-color: #EEF9FF;
+      }
 
       &--active {
          color: #3366ff;
@@ -167,6 +194,10 @@ const indicatorStyle = computed(() => {
       height: 4px;
       background-color: #3366ff;
       transition: transform 0.3s ease;
+
+      @media (max-width: 768px) {
+         display: none;
+      }
    }
 
    &__content {
