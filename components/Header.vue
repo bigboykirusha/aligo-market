@@ -143,16 +143,16 @@ const capitalizedUserName = computed(() => userName.value.charAt(0).toUpperCase(
 const formattedPhoneNumber = computed(() => userStore.phoneNumber || userStore.email);
 
 const userIcons = computed(() => [
-  { to: '/myself/favorites', src: favoritesIcon, count: userStore.countFavorites },
-  { to: '/myself/notifications', src: mailIcon, count: userStore.countUnreadNotify },
-  { to: '/myself/messages', src: messageIcon, count: userStore.count_new_messages },
+  { to: '/profile/favorites', src: favoritesIcon, count: userStore.countFavorites },
+  { to: '/profile/notifications', src: mailIcon, count: userStore.countUnreadNotify },
+  { to: '/profile/messages', src: messageIcon, count: userStore.count_new_messages },
 ]);
 
 const currentPageComponent = computed(() => {
   if (route.path.startsWith('/createAd')) {
     return HeaderRowNew;
   }
-  if (route.path.startsWith('/myself')) {
+  if (route.path.startsWith('/profile')) {
     return isDesktop.value ? HeaderRowMyself : HeaderRow;
   }
   return HeaderRow;
@@ -163,7 +163,7 @@ const containerClasses = computed(() => ({
   'header__container--small': isMyselfRoute.value && !isDesktop.value,
 }));
 
-const isMyselfRoute = computed(() => route.path.startsWith('/myself'));
+const isMyselfRoute = computed(() => route.path.startsWith('/profile'));
 
 onMounted(() => {
   isClient.value = true;

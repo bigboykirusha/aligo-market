@@ -1,24 +1,22 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
-
 export default defineNuxtConfig({
   ssr: false,
   app: {
     head: {
-      title: 'Aligo — доска объявлений',
+      title: 'Aligo | Доска объявлений',
       link: [
         {
           rel: 'stylesheet',
           href: 'https://fonts.googleapis.com/css2?family=Noto+Sans:wght@100;200;300;400;500;600;700;800;900&display=swap',
         },
-        {
-          rel: 'icon',
-          type: 'image/ico',
-          href: '/favicon.ico',
-        },
-        { rel: 'icon', type: 'image/png', href: '/favicon.png' },
+        { rel: 'icon', type: 'image/png', href: '/favicons/favicon-96x96.png', sizes: '96x96' },
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicons/favicon.svg' },
+        { rel: 'shortcut icon', href: '/favicons/favicon.ico' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/favicons/apple-touch-icon.png' },
+        { rel: 'manifest', href: '/favicons/site.webmanifest' },
       ],
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' },
+        { name: 'apple-mobile-web-app-title', content: 'Aligo' },
       ],
     },
   },
@@ -37,14 +35,21 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     'vue3-carousel-nuxt',
     "nuxt-rating",
-    '@nuxt/image'
+    '@nuxt/image',
+    '@nuxtjs/robots',
   ],
+  robots: {
+    rules: [
+      { UserAgent: '*' },
+      { Disallow: '/*' },
+      { Allow: '/$' },
+    ]
+  },
   plugins: [
     '~/plugins/vue-the-mask',
     '~/plugins/v-tooltip',
     '~/plugins/user-init',
     { src: '~/plugins/echo.js', mode: 'client' },
-
   ],
   css: ['~/assets/scss/main.scss', '~/assets/scss/_reset.scss'],
   vite: {

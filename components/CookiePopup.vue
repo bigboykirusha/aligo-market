@@ -32,7 +32,7 @@ const downloadCookiePolicy = async () => {
 
       if (success && data.is_file) {
          const link = document.createElement('a');
-         link.href = `https://dev.aligo.pro/${data.path}`;
+         link.href = `https://api.aligo.ru/${data.path}`;
          link.download = data.title;
          link.click();
       } else {

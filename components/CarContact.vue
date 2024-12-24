@@ -175,7 +175,7 @@ const makeCall = () => {
 };
 
 const openChat = () => {
-   router.push('/myself/messages');
+   router.push('/profile/messages');
    currentChatStore.openChat(router);
 };
 

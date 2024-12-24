@@ -67,8 +67,8 @@ import archiveIcon from "../assets/icons/archive.svg";
 import closeIcon from '../assets/icons/close.svg';
 
 const route = useRoute();
-const isArchivePage = computed(() => route.path.includes('/myself/archive'));
-const isAdsPage = computed(() => route.path.includes('/myself/ads'));
+const isArchivePage = computed(() => route.path.includes('/profile/archive'));
+const isAdsPage = computed(() => route.path.includes('/profile/ads'));
 
 const showArchiveConfirm = ref(false);
 const showUnpublishConfirm = ref(false);
@@ -117,7 +117,7 @@ const userStore = useUserStore();
 watchEffect(() => {
    if (isAdsPage.value) {
       store.value = useSelectedAdsStore();
-   } else if (route.path.includes('/myself/drafts')) {
+   } else if (route.path.includes('/profile/drafts')) {
       store.value = useSelectedDraftsStore();
    }
 });

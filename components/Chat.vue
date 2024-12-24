@@ -42,7 +42,7 @@
          </div>
 
          <!-- Кнопки в заголовке -->
-         <nuxt-link to="/myself/messages" class="chat-header__close-button" @click="toggleChat">
+         <nuxt-link to="/profile/messages" class="chat-header__close-button" @click="toggleChat">
             <img src="../assets/icons/out.svg" alt="Toggle" />
          </nuxt-link>
          <button class="chat-header__close-button" @click="toggleChat">

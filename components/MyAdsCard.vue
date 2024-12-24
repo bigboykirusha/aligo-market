@@ -138,9 +138,9 @@ const createStore = useCreateStore();
 let store = ref(null);
 
 watchEffect(() => {
-   if (route.path.includes('/myself/ads')) {
+   if (route.path.includes('/profile/ads')) {
       store.value = useSelectedAdsStore();
-   } else if (route.path.includes('/myself/drafts')) {
+   } else if (route.path.includes('/profile/drafts')) {
       store.value = useSelectedDraftsStore();
    }
 });
@@ -197,8 +197,8 @@ const handleClickOutside = (event) => {
 };
 
 const isSelected = computed(() => store.value?.selectedAdIds.includes(props.id));
-const isDraft = computed(() => route.path === '/myself/drafts');
-const isArchivePage = computed(() => route.path === '/myself/archive');
+const isDraft = computed(() => route.path === '/profile/drafts');
+const isArchivePage = computed(() => route.path === '/profile/archive');
 const isPublished = computed(() => props.is_published === 1);
 
 const buttonIcon = computed(() => (isArchivePage.value ? againIcon : (isDraft.value ? editIcon : rocketIcon)));
@@ -322,7 +322,7 @@ const toggleSelection = () => {
 const handleButtonClick = async () => {
    if (isDraft.value) {
       showDeleteConfirm.value = true;
-   } else if (route.path.includes('/myself/ads')) {
+   } else if (route.path.includes('/profile/ads')) {
       togglePopup();
    } else if (isArchivePage.value) {
       showDeleteConfirm.value = true;

@@ -32,7 +32,7 @@
                   </div>
                </a>
 
-               <nuxt-link @click="toggleMenu" to="/myself/editProfile" class="user-menu__profile-button">
+               <nuxt-link @click="toggleMenu" to="/profile/edit" class="user-menu__profile-button">
                   Управление профилем
                </nuxt-link>
 
@@ -101,11 +101,11 @@ const formattedPhoneNumber = computed(() => phoneNumber.value || userStore.email
 const displayName = computed(() => userName.value ? capitalize(userName.value) : formattedPhoneNumber.value);
 
 const menuItems = [
-   { text: 'Мои объявления', link: '/myself/ads', icon: adIcon, count: userStore.countAds },
-   { text: 'Избранное', link: '/myself/favorites', icon: favIcon, count: userStore.countFavorites },
-   { text: 'Сообщения', link: '/myself/messages', icon: mailMenuIcon, count: userStore.count_new_messages },
-   { text: 'Оповещения', link: '/myself/notifications', icon: notifIcon, count: userStore.countUnreadNotify },
-   { text: 'Отзывы', link: '/myself/reviews', icon: reviewsIcon, count: userStore.countReviews },
+   { text: 'Мои объявления', link: '/profile/ads', icon: adIcon, count: userStore.countAds },
+   { text: 'Избранное', link: '/profile/favorites', icon: favIcon, count: userStore.countFavorites },
+   { text: 'Сообщения', link: '/profile/messages', icon: mailMenuIcon, count: userStore.count_new_messages },
+   { text: 'Оповещения', link: '/profile/notifications', icon: notifIcon, count: userStore.countUnreadNotify },
+   { text: 'Отзывы', link: '/profile/reviews', icon: reviewsIcon, count: userStore.countReviews },
    { text: 'Для бизнеса', link: '/business', icon: busIcon }
 ];
 

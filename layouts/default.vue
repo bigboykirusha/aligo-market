@@ -10,7 +10,7 @@
       <Footer v-if="showFooter" />
       <FooterAlternative v-else />
       <Chat
-         v-if="userStore.isLoggedIn && !route.path.startsWith('/myself') && !route.path.startsWith('/autos') && !route.path.startsWith('/createAd')" />
+         v-if="userStore.isLoggedIn && !route.path.startsWith('/profile') && !route.path.startsWith('/autos') && !route.path.startsWith('/createAd')" />
       <NotifPopup />
       <UserMenuBurger />
       <BottomToolbar />
@@ -26,7 +26,7 @@ const route = useRoute();
 const userStore = useUserStore();
 
 const showFooter = computed(() => {
-   return !route.path.startsWith('/createAd') && !route.path.startsWith('/myself');
+   return !route.path.startsWith('/createAd') && !route.path.startsWith('/profile');
 });
 </script>
 

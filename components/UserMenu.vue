@@ -11,7 +11,7 @@
             <a class="user-menu__user-name">{{ displayName }}</a>
 
             <div v-if="!rating" class="user-menu__rating-text--empty">О вас нет отзывов</div>
-            <nuxt-link to="/myself/reviews" v-else class="user-menu__rating">
+            <nuxt-link to="/profile/reviews" v-else class="user-menu__rating">
                <div class="user-menu__rating-text">{{ rating }}</div>
                <NuxtRating :rating-value="Number(rating)" :rating-count="5" :rating-size="10" :rating-spacing="6"
                   :active-color="'#3366FF'" :inactive-color="'#FFFFFF'" :border-color="'#3366FF'" :border-width="2"
@@ -19,7 +19,7 @@
                {{ countReviews }} {{ pluralizeReview(countReviews) }}
             </nuxt-link>
 
-            <nuxt-link to="/myself/editProfile" class="user-menu__profile-button">
+            <nuxt-link to="/profile/edit" class="user-menu__profile-button">
                Управление профилем
             </nuxt-link>
          </div>
@@ -29,35 +29,35 @@
       <ul class="user-menu__list">
          <li class="user-menu__item" :class="{ 'user-menu__item--active': isActive('ads') }"
             @click="selectMenuItem('ads')">
-            <nuxt-link to="/myself/ads">
+            <nuxt-link to="/profile/ads">
                <img src="../assets/icons/ad.svg" /> Мои объявления
                <div v-show="countAds" class="user-menu__count">{{ countAds }}</div>
             </nuxt-link>
          </li>
          <li class="user-menu__item" :class="{ 'user-menu__item--active': isActive('favorites') }"
             @click="selectMenuItem('favorites')">
-            <nuxt-link to="/myself/favorites">
+            <nuxt-link to="/profile/favorites">
                <img src="../assets/icons/fav.svg" /> Избранное
                <div v-show="countFavorites" class="user-menu__count">{{ countFavorites }}</div>
             </nuxt-link>
          </li>
          <li class="user-menu__item" :class="{ 'user-menu__item--active': isActive('messages') }"
             @click="selectMenuItem('messages')">
-            <nuxt-link to="/myself/messages">
+            <nuxt-link to="/profile/messages">
                <img src="../assets/icons/support.svg" /> Сообщения
                <div v-show="countMessage" class="user-menu__count">{{ countMessage }}</div>
             </nuxt-link>
          </li>
          <li class="user-menu__item" :class="{ 'user-menu__item--active': isActive('notifications') }"
             @click="selectMenuItem('notifications')">
-            <nuxt-link to="/myself/notifications">
+            <nuxt-link to="/profile/notifications">
                <img src="../assets/icons/mail-menu.svg" /> Оповещения
                <div v-show="countUnreadNotify" class="user-menu__count">{{ countUnreadNotify }}</div>
             </nuxt-link>
          </li>
          <li class="user-menu__item" :class="{ 'user-menu__item--active': isActive('reviews') }"
             @click="selectMenuItem('reviews')">
-            <nuxt-link to="/myself/reviews">
+            <nuxt-link to="/profile/reviews">
                <img src="../assets/icons/reviews.svg" /> Отзывы
                <div v-show="countReviews" class="user-menu__count">{{ countReviews }}</div>
             </nuxt-link>

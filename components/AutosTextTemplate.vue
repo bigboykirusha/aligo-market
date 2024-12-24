@@ -93,7 +93,7 @@ const isValid = computed(() => {
       case 'vin':
          return validateVIN(optionValue.value);
       case 'licensePlate':
-         return /^[A-Z]{1}\d{3}[A-Z]{2}\d{2,3}$/.test(optionValue.value);
+         return /^[A-Z]{2}\d{3}[A-Z]{2}\d{2,3}$/.test(optionValue.value);
       case 'name':
          return validateUsername(optionValue.value);
       default:
@@ -209,7 +209,7 @@ const clearInput = () => {
 
 const handleBlur = () => {
    hasBlurred.value = true;
-   isErrorDisplayed.value = true; // Показываем ошибку после потери фокуса
+   isErrorDisplayed.value = true; 
    if (isValid.value) {
       emit('update:option', optionValue.value.trim());
    } else {
@@ -218,7 +218,7 @@ const handleBlur = () => {
 };
 
 const handleFocus = () => {
-   isErrorDisplayed.value = false; // Ошибка скрывается, если фокус на инпуте
+   isErrorDisplayed.value = false; 
 };
 </script>
 

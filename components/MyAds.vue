@@ -96,14 +96,12 @@ watch(() => route.params.title, updateSelectedItem);
 const handleSwitch = (item) => {
    selectedItem.value = item;
    nextTick(() => {
-      setTimeout(() => {
-         router.push(`/myself/${item === 'Все' ? 'ads' : item === 'Черновики' ? 'drafts' : item === 'Архив' ? 'archive' : 'canceled'}`);
+      router.push(`/profile/${item === 'Все' ? 'ads' : item === 'Черновики' ? 'drafts' : item === 'Архив' ? 'archive' : 'canceled'}`);
 
-         const activeItem = document.querySelector('.my-ads__item--active');
-         if (activeItem) {
-            activeItem.scrollIntoView({ behavior: 'smooth', inline: 'center' });
-         }
-      }, 300);
+      const activeItem = document.querySelector('.my-ads__item--active');
+      if (activeItem) {
+         activeItem.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+      }
    });
 };
 
@@ -150,12 +148,12 @@ const indicatorStyle = computed(() => {
          border: none;
          border-radius: 0;
          height: 34px;
-         overflow-x: auto; 
-         gap: 16px; 
-         scrollbar-width: none; 
+         overflow-x: auto;
+         gap: 16px;
+         scrollbar-width: none;
 
          &::-webkit-scrollbar {
-            display: none; 
+            display: none;
          }
       }
    }

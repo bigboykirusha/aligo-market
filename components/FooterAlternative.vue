@@ -5,7 +5,7 @@
             <div class="footer__bottom">
                <ul class="footer__links">
                   <li v-for="document in footerDocuments" :key="document.id">
-                     <a :href="`https://dev.aligo.pro/${document.path}`" :download="document.title">
+                     <a :href="`https://api.aligo.ru/${document.path}`" :download="document.title">
                         {{ document.title }}
                      </a>
                   </li>
@@ -36,7 +36,7 @@ isCreateAdPage.value = route.name === 'createAd';
 const loadFooterDocuments = async () => {
    try {
       const { data } = await getSiteDocumentById();
-      footerDocuments.value = data.slice(0, 3); 
+      footerDocuments.value = data.slice(0, 3);
    } catch (error) {
       console.error('Ошибка при загрузке документов:', error);
    }

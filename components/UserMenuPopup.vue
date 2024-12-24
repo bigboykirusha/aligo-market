@@ -9,10 +9,10 @@
                <img v-else :src="userAvatar" alt="user avatar" class="user-menu__user-avatar" />
 
                <div class="user-menu__block">
-                  <nuxt-link to="/myself/editProfile" class="user-menu__user-name">
+                  <nuxt-link to="/profile/edit" class="user-menu__user-name">
                      {{ capitalizedUserName || formattedPhoneNumber }}
                   </nuxt-link>
-                  <nuxt-link :to="'/myself/editProfile'" class="user-menu__profile-button">
+                  <nuxt-link :to="'/profile/edit'" class="user-menu__profile-button">
                      {{ isProfileComplete ? 'Редактировать профиль' : 'Заполнить профиль' }}
                   </nuxt-link>
                </div>
@@ -20,7 +20,7 @@
 
             <template v-else>
                <div class="user-menu__block">
-                  <nuxt-link to="/myself/editProfile" class="user-menu__profile-button">
+                  <nuxt-link to="/profile/edit" class="user-menu__profile-button">
                      Заполнить профиль
                   </nuxt-link>
                </div>
@@ -30,37 +30,37 @@
 
       <ul class="user-menu__list">
          <li class="user-menu__item">
-            <nuxt-link to="/myself/ads">
+            <nuxt-link to="/profile/ads">
                Мои объявления
                <div v-if="countAds" class="user-menu__count">{{ countAds }}</div>
             </nuxt-link>
          </li>
          <li class="user-menu__item">
-            <nuxt-link to="/myself/drafts">
+            <nuxt-link to="/profile/drafts">
                Черновики
                <div v-if="countDrafts" class="user-menu__count">{{ countDrafts }}</div>
             </nuxt-link>
          </li>
          <li class="user-menu__item">
-            <nuxt-link to="/myself/favorites">
+            <nuxt-link to="/profile/favorites">
                Избранное
                <div v-if="countFavorites" class="user-menu__count">{{ countFavorites }}</div>
             </nuxt-link>
          </li>
          <li class="user-menu__item">
-            <nuxt-link to="/myself/messages">
+            <nuxt-link to="/profile/messages">
                Сообщения
                <div v-if="countMessage" class="user-menu__count">{{ countMessage }}</div>
             </nuxt-link>
          </li>
          <li class="user-menu__item">
-            <nuxt-link to="/myself/notifications">
+            <nuxt-link to="/profile/notifications">
                Оповещения
                <div v-if="countUnreadNotify" class="user-menu__count">{{ countUnreadNotify }}</div>
             </nuxt-link>
          </li>
          <li class="user-menu__item">
-            <nuxt-link to="/myself/reviews">Отзывы</nuxt-link>
+            <nuxt-link to="/profile/reviews">Отзывы</nuxt-link>
          </li>
          <li class="user-menu__item user-menu__item--logout" @click="logout">
             Выйти

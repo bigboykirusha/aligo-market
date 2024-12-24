@@ -81,7 +81,7 @@ const dropdownStore = useDropdownStore();
 const showDropdown = computed(() => dropdownStore.showDropdown);
 const showMenu = computed(() => burgerStore.isOpen);
 const isCreatePage = computed(() => route.path.startsWith('/createAd'));
-const isChat = computed(() => route.path.startsWith('/myself/messages') && chatStore.currentChat);
+const isChat = computed(() => route.path.startsWith('/profile/messages') && chatStore.currentChat);
 
 const route = useRoute();
 const router = useRouter();
@@ -92,9 +92,9 @@ const menuItems = computed(() =>
    [
       { title: 'Каталог', path: '/autos', icon: 'catalog' },
       { title: 'Разместить', path: '/createAd', icon: 'post' },
-      { title: 'Чаты', path: '/myself/messages', icon: 'chats' },
-      { title: 'Избранное', path: '/myself/favorites', icon: 'favorites' },
-      { title: loggedIn.value ? 'Профиль' : 'Вход', path: '/myself/editProfile', icon: 'profile' },
+      { title: 'Чаты', path: '/profile/messages', icon: 'chats' },
+      { title: 'Избранное', path: '/profile/favorites', icon: 'favorites' },
+      { title: loggedIn.value ? 'Профиль' : 'Вход', path: '/profile/edit', icon: 'profile' },
    ]
 );
 

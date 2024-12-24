@@ -24,7 +24,7 @@ export const useChatStore = defineStore('chatStore', {
          return Math.max(uniqueUsers.length - 2, 0);
       },
       shouldDisableScroll(state) {
-         const isOnMessagesPage = window.location.pathname === '/myself/messages';
+         const isOnMessagesPage = window.location.pathname === '/profile/messages';
          return state.currentChat !== null && state.windowWidth < 768 && isOnMessagesPage;
       }
    },
@@ -40,7 +40,7 @@ export const useChatStore = defineStore('chatStore', {
          this.isCollapsed = false;
          this.isChatVisible = true;
          if (this.windowWidth < 768) {
-            router.push('/myself/messages');
+            router.push('/profile/messages');
          }
       },
       closeChat() {
