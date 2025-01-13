@@ -13,7 +13,7 @@ const props = defineProps({
    backgroundColor: String,
 });
 
-const link = '/autos';
+const link = '/auto';
 </script>
 
 <style lang="scss" scoped>

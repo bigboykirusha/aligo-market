@@ -9,6 +9,8 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router';
+
 const props = defineProps({
    title: {
       type: String,
@@ -33,9 +35,26 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['button-click']);
+const router = useRouter();
 
 const onButtonClick = () => {
    emit('button-click');
+
+   switch (props.buttonText) {
+      case 'Настроить аккаунт':
+      case 'Добавить почту':
+      case 'Добавить номер':
+         router.push('/profile/edit');
+         break;
+      case 'Разместить объявление':
+         router.push('/create');
+         break;
+      case 'Перейти в Telegram':
+         window.open('https://t.me/freebigboykirusha', '_blank'); 
+         break;
+      default:
+         console.log('Неизвестная кнопка');
+   }
 };
 </script>
 
@@ -57,7 +76,7 @@ const onButtonClick = () => {
       align-items: flex-start;
       gap: 16px;
       padding: 24px;
-      background-position: right bottom; 
+      background-position: right bottom;
       background-size: 120px auto;
    }
 }

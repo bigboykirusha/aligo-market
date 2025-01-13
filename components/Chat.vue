@@ -5,8 +5,8 @@
       <div class="chat-header" @mousedown="startDrag">
          <!-- Информация о текущем чате -->
          <div v-if="chatStore.currentChat" class="chat-header__info chat-header__info--active">
-            <button v-if="chatStore.currentChat && !chatStore.isCollapsed"
-               class="chat-header__close-button" @click="closeChat">
+            <button v-if="chatStore.currentChat && !chatStore.isCollapsed" class="chat-header__close-button"
+               @click="closeChat">
                <img src="../assets/icons/arrow-back.svg" alt="Toggle" />
             </button>
             <div v-if="!chatStore.currentChat.is_support" :to="`/user/${relevantUser(chatStore.currentChat).id}`"
@@ -22,8 +22,7 @@
                <div :to="`/user/${relevantUser(chatStore.currentChat).id}`" class="chat-header__username">
                   {{ relevantUserInfo(chatStore.currentChat) }}
                </div>
-               <div v-if="!chatStore.currentChat.is_support" :to="`/car/${chatStore.currentChat.ads_id}`"
-                  class="chat-header__ad-title">
+               <div v-if="!chatStore.currentChat.is_support" :to="`/car/${url}`" class="chat-header__ad-title">
                   {{ chatStore.currentChat.ads_info }}
                </div>
             </div>
@@ -206,6 +205,15 @@ const handleTopicSelected = (topic) => {
    selectedTopic.value = topic;
 };
 
+const url = computed(() => {
+   const adsInfo = chatStore.currentChat.ads_info
+      .toLowerCase()
+      .replace(/,/g, '') 
+      .replace(/\s+/g, '-');
+   const adsId = chatStore.currentChat.ads_id;
+   return `${adsInfo}-${adsId}`;
+});
+
 const mesInput = ref(null);
 
 const isDragging = ref(false);
@@ -240,7 +248,6 @@ const handleFileDropMiss = (event) => {
 };
 
 onMounted(() => {
-
    // Добавляем слушателей на весь документ
    document.addEventListener('dragenter', handleDragEnter);
    document.addEventListener('dragover', handleDragOver);

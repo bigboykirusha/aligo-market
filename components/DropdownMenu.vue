@@ -74,20 +74,20 @@ const toggleModal = () => {
 
 const detailedGroups = ref([
    {
-      target: 'autos',
+      target: 'auto',
       title: 'Автомобили',
-      link: '/autos',
+      link: '/auto',
       icon: carIcon,
       count: adsCount,
       items: [
-         { title: 'С пробегом', link: '/autos?condition=used', type: 'used' },
-         { title: 'Новые', link: '/autos?condition=new', type: 'new' },
-         { title: 'Седаны', link: '/autos?condition=new&type=sedans', type: 'sedans' },
-         { title: 'Хетчбеки', link: '/autos?condition=new&type=hatchbacks', type: 'hatchbacks' },
-         { title: 'Универсалы', link: '/autos?condition=new&type=wagons', type: 'wagons' },
-         { title: 'Внедорожники', link: '/autos?condition=new&type=suvs', type: 'suvs' },
-         { title: 'Электромобили', link: '/autos?condition=electric', type: 'electric' },
-         { title: 'Коммерческий транспорт', link: '/autos?condition=commercial', type: 'commercial' },
+         { title: 'С пробегом', link: '/auto', type: 'used' },
+         { title: 'Новые', link: '/auto', type: 'new' },
+         { title: 'Седаны', link: '/auto', type: 'sedans' },
+         { title: 'Хетчбеки', link: '/auto', type: 'hatchbacks' },
+         { title: 'Универсалы', link: '/auto', type: 'wagons' },
+         { title: 'Внедорожники', link: '/auto', type: 'suvs' },
+         { title: 'Электромобили', link: '/auto', type: 'electric' },
+         { title: 'Коммерческий транспорт', link: '/auto', type: 'commercial' },
       ],
    },
    {
@@ -180,7 +180,7 @@ const handleSubCategoryClick = (item) => {
 };
 
 const handleMenuItemClick = (item) => {
-   if (item.target === 'autos') {
+   if (item.target === 'auto') {
       filtersStore.setSelectedCondition(null);
    }
    dropdownStore.setDropdownState(false);
@@ -192,7 +192,7 @@ const fetchAdsCount = async () => {
       const { totalCount } = await getCars({ page: 1 });
       adsCount.value = totalCount;
    } catch (error) {
-      adsCount.value = 'N/A';
+      adsCount.value = '0';
       console.error('Ошибка при получении данных: ', error);
    }
 };

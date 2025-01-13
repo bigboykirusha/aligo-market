@@ -4,7 +4,7 @@
          Оповещения
       </div>
       <div v-show="!loading && notifications.length" class="notifications__actions">
-         <button @click="handleMarkAllAsRead" class="notifications__action-button">
+         <button v-if="hasUnreadNotifications" @click="handleMarkAllAsRead" class="notifications__action-button">
             <img src="../assets/icons/done.svg" alt="done" />
             <span> Пометить все как прочитанные</span>
          </button>
@@ -73,6 +73,10 @@ const fetchNotifications = async () => {
       loading.value = false;
    }
 };
+
+const hasUnreadNotifications = computed(() => {
+   return notifications.value.some((notif) => !notif.read_at);
+});
 
 const handleSpecialButtonClick = (index) => {
    console.log(`Кнопка специального уведомления №${index + 1} была нажата.`);

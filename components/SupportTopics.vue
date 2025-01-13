@@ -115,6 +115,10 @@ const selectTopic = (topic) => {
    width: 100%;
    padding: 0 48px;
    justify-content: flex-start;
+
+   @media (max-width: 768px) {
+      padding-right: 0;
+   }
 }
 
 .topic-button {
@@ -127,6 +131,10 @@ const selectTopic = (topic) => {
    cursor: pointer;
    transition: background-color 0.3s ease;
    white-space: nowrap;
+
+   @media (max-width: 768px) {
+      width: 100%;
+   }
 }
 
 .topic-button:hover {

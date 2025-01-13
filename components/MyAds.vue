@@ -24,7 +24,7 @@
             <p class="my-ads__placeholder-text">Объявлений пока нет</p>
             <p class="my-ads__placeholder-description">
                У вас пока нет объявлений в этой категории. Вы можете создать новое объявление, нажав на кнопку
-               <nuxt-link to="/createAd" class="clickable" style="color: #3366FF; cursor: pointer;">«Разместить
+               <nuxt-link to="/create" class="clickable" style="color: #3366FF; cursor: pointer;">«Разместить
                   объявление»</nuxt-link>.
             </p>
          </div>

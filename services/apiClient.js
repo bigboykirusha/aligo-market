@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getCookie } from './auth';
 
-const API_BASE_URL = 'https://dev.aligo.pro/api';
+const API_BASE_URL = 'https://api.aligo.ru/api';
 
 const apiClient = axios.create({
    baseURL: API_BASE_URL,
@@ -387,9 +387,10 @@ export const logoutEverywhere = async () => {
    }
 };
 
-export const getCarBrands = async () => {
+export const getCarBrands = async (translate_to = null) => {
    try {
-      const response = await apiClient.get('/auto_brand');
+      const params = translate_to ? { translate_to } : {};
+      const response = await apiClient.get('/auto_brand', { params });
       return response.data.data;
    } catch (error) {
       console.error('Ошибка при получении брендов автомобилей:', error);
@@ -397,62 +398,68 @@ export const getCarBrands = async () => {
    }
 };
 
-export const getCarTransmission = async () => {
+export const getCarTransmission = async (translate_to = null) => {
    try {
-      const response = await apiClient.get('/auto_transmission');
+      const params = translate_to ? { translate_to } : {};
+      const response = await apiClient.get('/auto_transmission', { params });
       return response.data.data;
    } catch (error) {
-      console.error('Ошибка при получении брендов автомобилей:', error);
+      console.error('Ошибка при получении трансмиссий автомобилей:', error);
       throw error;
    }
 };
 
-export const getCarBodyType = async () => {
+export const getCarBodyType = async (translate_to = null) => {
    try {
-      const response = await apiClient.get('/auto_car_body_type');
+      const params = translate_to ? { translate_to } : {};
+      const response = await apiClient.get('/auto_car_body_type', { params });
       return response.data.data;
    } catch (error) {
-      console.error('Ошибка при получении брендов автомобилей:', error);
+      console.error('Ошибка при получении типов кузовов автомобилей:', error);
       throw error;
    }
 };
 
-export const getCarEngineType = async () => {
+export const getCarEngineType = async (translate_to = null) => {
    try {
-      const response = await apiClient.get('/auto_engine_type');
+      const params = translate_to ? { translate_to } : {};
+      const response = await apiClient.get('/auto_engine_type', { params });
       return response.data.data;
    } catch (error) {
-      console.error('Ошибка при получении брендов автомобилей:', error);
+      console.error('Ошибка при получении типов двигателей автомобилей:', error);
       throw error;
    }
 };
 
-export const getCarState = async () => {
+export const getCarState = async (translate_to = null) => {
    try {
-      const response = await apiClient.get('/auto_state');
+      const params = translate_to ? { translate_to } : {};
+      const response = await apiClient.get('/auto_state', { params });
       return response.data.data;
    } catch (error) {
-      console.error('Ошибка при получении брендов автомобилей:', error);
+      console.error('Ошибка при получении состояния автомобилей:', error);
       throw error;
    }
 };
 
-export const getCarCondition = async () => {
+export const getCarCondition = async (translate_to = null) => {
    try {
-      const response = await apiClient.get('/auto_condition');
+      const params = translate_to ? { translate_to } : {};
+      const response = await apiClient.get('/auto_condition', { params });
       return response.data.data;
    } catch (error) {
-      console.error('Ошибка при получении брендов автомобилей:', error);
+      console.error('Ошибка при получении состояния автомобилей:', error);
       throw error;
    }
 };
 
-export const getCarDrive = async () => {
+export const getCarDrive = async (translate_to = null) => {
    try {
-      const response = await apiClient.get('/auto_drive');
+      const params = translate_to ? { translate_to } : {};
+      const response = await apiClient.get('/auto_drive', { params });
       return response.data.data;
    } catch (error) {
-      console.error('Ошибка при получении брендов автомобилей:', error);
+      console.error('Ошибка при получении типа привода автомобилей:', error);
       throw error;
    }
 };
@@ -517,12 +524,13 @@ export const getCarCountry = async () => {
    }
 };
 
-export const getColors = async () => {
+export const getColors = async (translate_to = null) => {
    try {
-      const response = await apiClient.get(`/colors`);
+      const params = translate_to ? { translate_to } : {};
+      const response = await apiClient.get('/colors', { params });
       return response.data.data;
    } catch (error) {
-      console.error('Ошибка при получении colors:', error);
+      console.error('Ошибка при получении цветов:', error);
       throw error;
    }
 };

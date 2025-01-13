@@ -22,9 +22,8 @@
          <AutosTextTemplate v-else label="VIN или номер кузова*" placeholder="Нажмите для ввода"
             :option="createStore.vin" @update:option="handleVinUpdate" validationType="vin" />
          <TextSkeleton v-if="loading" />
-         <AutosTextTemplate v-else label="Государтсвенный номер" placeholder="Нажмите для ввода"
-            :option="createStore.state_number" @update:option="handleStateNumberUpdate" v-if="showStateNumber"
-            validationType="licensePlate" />
+         <AutosStateNumber v-if="showStateNumber" label="Государственный номер" placeholder="Нажмите для ввода"
+            :option="createStore.state_number" @update:option="handleStateNumberUpdate" />
       </div>
       <div class="characteristics__content">
          <BlockTitle text="Технические характеристики*" />

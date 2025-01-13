@@ -42,9 +42,8 @@ const props = defineProps({
 
 const emit = defineEmits(['updatePhotos']);
 const localPhotos = ref([...props.photos]);
-const baseUrl = 'https://dev.aligo.pro';
-const createStore = useCreateStore(); // Получаем store для работы с массивом idsDeletePhotos
-
+const baseUrl = 'https://api.aligo.ru';
+const createStore = useCreateStore(); 
 watch(
    () => props.photos,
    (newPhotos) => {

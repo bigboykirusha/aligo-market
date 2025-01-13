@@ -15,6 +15,7 @@ export const useCreateStore = defineStore('create', {
       photos: [],
       ids_delete_photos: [],
       color_ids: [],
+      color_custom: null,
       video: null,
 
       // Регистрационные данные 
@@ -129,7 +130,7 @@ export const useCreateStore = defineStore('create', {
       isCharacteristicFieldsFilled: (state) => {
          return [
             state.photos,
-            state.color_ids.length > 0,
+            (state.color_ids.length > 0 || state.color_custom !== null),
             state.country_id,
             state.vin,
             ...(state.country_id !== 1 ? [state.state_number] : []),
@@ -161,7 +162,7 @@ export const useCreateStore = defineStore('create', {
       isAnyFieldFilled: (state) => {
          return [
             state.photos.length > 0,
-            state.color_ids.length > 0,
+            (state.color_ids.length > 0 || state.color_custom !== null),
             state.video !== null,
             state.country_id !== null,
             state.vin !== null,
@@ -228,6 +229,9 @@ export const useCreateStore = defineStore('create', {
       },
       setColorId(color_ids) {
          this.color_ids = color_ids;
+      },
+      setColorCustom(color_custom) {
+         this.color_custom = color_custom;
       },
       addColorId(color_id) {
          if (!this.color_ids.includes(color_id)) {
@@ -573,6 +577,8 @@ export const useCreateStore = defineStore('create', {
             });
          }
 
+         if (this.color_custom !== null) formData.append('color_custom', this.color_custom);
+
          if (this.video !== null) formData.append('video', this.video);
 
          // Регистрационные данные
@@ -717,6 +723,8 @@ export const useCreateStore = defineStore('create', {
             });
          }
 
+         if (this.color_custom !== null) formData.append('color_custom', this.color_custom);
+
          if (this.video !== null) formData.append('video', this.video);
 
          // Регистрационные данные
@@ -847,8 +855,10 @@ export const useCreateStore = defineStore('create', {
 
             // Характеристики
             this.photos = carData.photos || [];
-            
+
             this.color_ids = carData.auto_appearances?.[0]?.color?.map(color => color.id) || [];
+
+            this.color_custom = carData.auto_appearances?.[0]?.color_custom || null;
 
             // Регистрационные данные 
             this.country_id = carData.auto_registration_data?.[0]?.country?.id || null;
@@ -997,6 +1007,7 @@ export const useCreateStore = defineStore('create', {
          this.photos = [];
          this.ids_delete_photos = [];
          this.color_ids = [];
+         this.color_custom = null;
          this.video = null;
 
          this.country_id = null;

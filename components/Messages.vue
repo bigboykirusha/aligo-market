@@ -1,7 +1,7 @@
 <template>
    <div class="messages">
       <div v-show="!chatStore.currentChat" class="messages__title">Сообщения</div>
-      <div v-if="!chatStore.currentChat" class="messages__actions">
+      <div v-if="!chatStore.currentChat && messagesStore.totalCount" class="messages__actions">
          <input class="message-checkbox" type="checkbox" id="select-all" v-model="selectAll"
             @change="handleSelectAllChange" />
          <AdsDropdown :options="sortOptions" @updateSort="handleSortUpdate" placeholder="Выбрать чаты" />
@@ -43,7 +43,7 @@
                      class="chat-header__avatar" />
                   <div class="chat-header__details">
                      <span class="chat-header__username">{{ relevantUserInfo(chatStore.currentChat) }}</span>
-                     <nuxt-link v-if="!chatStore.currentChat.is_support" :to="`/car/${chatStore.currentChat.ads_id}`"
+                     <nuxt-link v-if="!chatStore.currentChat.is_support" :to="`/car/${url}`"
                         class="chat-header__ad-title">
                         <span>{{ chatStore.currentChat.ads_info }}</span>
                      </nuxt-link>
@@ -269,6 +269,15 @@ const openBlokedUsersPopup = () => {
    isBlokedUsersVisible.value = true;
 };
 
+const url = computed(() => {
+   const adsInfo = chatStore.currentChat.ads_info
+      .toLowerCase()
+      .replace(/,/g, '')
+      .replace(/\s+/g, '-');
+   const adsId = chatStore.currentChat.ads_id;
+   return `${adsInfo}-${adsId}`;
+});
+
 const showNamePopup = () => isNamePopupVisible.value = true;
 const closeNamePopup = () => isNamePopupVisible.value = false;
 
@@ -453,7 +462,7 @@ const setTranslateLanguage = (language) => {
 };
 
 const goToAd = () => {
-   router.push(`/car/${chatStore.currentChat.ads_id}`);
+   router.push(`/car/${url}`);
 };
 
 const goToProfile = () => {

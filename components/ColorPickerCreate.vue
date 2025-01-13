@@ -13,9 +13,9 @@
       </div>
    </div>
    <div class="color-picker__custom-color">
-      <label for="colorCustom">Пользовательский цвет</label>
+      <label for="colorCustom"></label>
       <input type="text" id="colorCustom" v-model="colorCustom" @input="setColorCustom"
-         placeholder="Не нашли цвет в списке? Введите свой цвет" class="color-picker__text-input" />
+         placeholder="Укажите цвет по ПТС" class="color-picker__text-input" />
    </div>
 </template>
 

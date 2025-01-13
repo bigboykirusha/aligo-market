@@ -22,14 +22,14 @@ import motoIcon from '../assets/images/svg/moto.svg';
 
 const categories = ref([
    {
-      href: '/autos',
+      href: '/auto',
       imgSrc: carImage,
       imgAlt: 'Автомобили',
       title: 'Автомобили',
       icon: carIcon,
       subcategories: [
-         { href: '/autos', title: 'Подержанные авто' },
-         { href: '/autos', title: 'Новые авто' }
+         { href: '/auto', title: 'Подержанные авто' },
+         { href: '/auto', title: 'Новые авто' }
       ]
    },
    {

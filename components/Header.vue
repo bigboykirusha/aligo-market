@@ -28,7 +28,7 @@
           <img src="@/assets/icons/white-logo.svg" alt="Logo">
         </div>
         <!-- Кнопка добавления объявления -->
-        <nuxt-link to="/createAd" v-show="isMyselfRoute" class="header__actions">
+        <nuxt-link to="/create" v-show="isMyselfRoute" class="header__actions">
           <button class="header__nav-link header__nav-link--add">
             <img src="@/assets/icons/add.svg" alt="Add icon" class="header__icon">
             <span class="header__text header__text--add">Разместить объявление</span>
@@ -72,9 +72,9 @@ import { useRoute } from 'vue-router';
 import { getImageUrl } from '../services/imageUtils';
 import { useCityStore } from '~/store/city';
 import { useUserStore } from '~/store/user';
-import { useLoginModalStore } from '~/store/loginModal.js'; 
+import { useLoginModalStore } from '~/store/loginModal.js';
 
-const loginModalStore = useLoginModalStore();  
+const loginModalStore = useLoginModalStore();
 
 import HeaderRow from './HeaderRow.vue';
 import HeaderRowNew from './HeaderRowNew.vue';
@@ -149,7 +149,7 @@ const userIcons = computed(() => [
 ]);
 
 const currentPageComponent = computed(() => {
-  if (route.path.startsWith('/createAd')) {
+  if (route.path.startsWith('/create')) {
     return HeaderRowNew;
   }
   if (route.path.startsWith('/profile')) {

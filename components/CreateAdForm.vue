@@ -135,7 +135,7 @@ const isSaveandExitEnabled = computed(() => {
       justify-content: center;
       background-color: white;
       box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-      z-index: 100;
+      z-index: 100000;
 
       @media (max-width: 768px) {
          flex-direction: row;

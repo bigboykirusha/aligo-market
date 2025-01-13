@@ -54,7 +54,7 @@ const closePopup = () => {
    align-items: center;
    background: rgba(0, 0, 0, 0.5);
    backdrop-filter: blur(3px);
-   z-index: 300;
+   z-index: 3000000;
 }
 
 .popup-content {

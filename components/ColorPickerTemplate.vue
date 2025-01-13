@@ -3,7 +3,7 @@
       <div class="color-picker__title">{{ label }}</div>
       <div class="color-picker__options">
          <div v-for="color in options" :key="color.id" class="color-picker__option"
-            :style="{ backgroundColor: color.code }"
+            :style="[getStyle(color), { backgroundColor: color.code }]"
             :class="{ 'color-picker__option--selected': selectedOptions.includes(color.id) }"
             @click="toggleColor(color.id)">
             <div class="color-picker__tooltip">
@@ -35,6 +35,21 @@ const props = defineProps({
 });
 
 const selectedOptions = ref([]);
+
+const getStyle = (color) => {
+   if (color.is_gradient) {
+      if (color.id === 5) {
+         return { background: 'linear-gradient(149.74deg, #D9D9D9 13.83%, #F5F5F5 48.22%, #CECECE 64.1%)' };
+      }
+      if (color.id === 13) {
+         return { background: 'linear-gradient(149.74deg, #E3D2B8 13.83%, #FCF4E9 48.22%, #D6BB93 64.1%)' };
+      }
+      if (color.id === 17) {
+         return { background: 'linear-gradient(149.74deg, #C8A381 13.83%, #F2DED2 48.22%, #B08C6E 64.1%)' };
+      }
+   }
+   return { backgroundColor: color.code };
+};
 
 onMounted(() => {
    selectedOptions.value = props.activeIndexes;

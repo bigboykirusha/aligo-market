@@ -44,7 +44,7 @@
                </ul>
             </div>
          </div>
-         <ComplainButton v-if="!car.id_user_owner_ads !== userStore.userId" :userId="car.id_user_owner_ads" :adsId="car.id"/>
+         <ComplainButton v-if="car.id_user_owner_ads !== userStore.userId" :userId="car.id_user_owner_ads" :adsId="car.id"/>
       </section>
 
    </div>

@@ -9,7 +9,7 @@
          </nuxt-link>
          <div class="header-row__controls">
             <div class="header-row__buttons">
-               <nuxt-link to="/autos" class="header-row__button">
+               <nuxt-link to="/auto" class="header-row__button">
                   <img :src="carIcon" alt="Автомобили" />
                   <span>Автомобили</span>
                </nuxt-link>

@@ -12,7 +12,6 @@ export default defineNuxtPlugin((nuxtApp) => {
    const popupStore = usePopupStore();
    const messagesStore = useMessagesStore();
 
-   // Функция для инициализации Echo
    const initializeEcho = () => {
       let token = '';
       const forWhomUserId = userStore.userId;
@@ -41,14 +40,14 @@ export default defineNuxtPlugin((nuxtApp) => {
          broadcaster: 'pusher',
          key: 'keyForWSAligo20052012***!!!',
          cluster: 'eu',
-         wsHost: 'dev.aligo.pro',
+         wsHost: 'api.aligo.ru',
          wsPort: 6001,
          wssPort: 6001,
          encrypted: true,
          forceTLS: true,
          disableStats: false,
          enabledTransports: ['ws', 'wss'],
-         authEndpoint: 'https://dev.aligo.pro/api/broadcasting/auth',
+         authEndpoint: 'https://api.aligo.ru/api/broadcasting/auth',
          auth: {
             headers: {
                Authorization: `Bearer ${token}`,
@@ -56,7 +55,6 @@ export default defineNuxtPlugin((nuxtApp) => {
          },
       });
 
-      // Обработчики событий соединения
       window.Echo.connector.pusher.connection.bind('connecting_in', () => {
          console.log('Попытка соединения...');
       });

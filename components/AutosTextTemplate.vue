@@ -93,7 +93,7 @@ const isValid = computed(() => {
       case 'vin':
          return validateVIN(optionValue.value);
       case 'licensePlate':
-         return /^[A-Z]{2}\d{3}[A-Z]{2}\d{2,3}$/.test(optionValue.value);
+         return /^[АВЕКМНОРСТУХABEKMHOPCTYX]{1}\d{3}[АВЕКМНОРСТУХABEKMHOPCTYX]{2}\d{2,3}$/.test(optionValue.value);
       case 'name':
          return validateUsername(optionValue.value);
       default:
@@ -178,7 +178,27 @@ watch(() => optionValue.value, (newValue) => {
    hasInput.value = trimmedValue !== '';
    optionValue.value = trimmedValue;
    if (['vin', 'licensePlate'].includes(props.validationType)) {
-      optionValue.value = trimmedValue.toUpperCase();
+      const translitMap = {
+         А: 'A',
+         В: 'B',
+         Е: 'E',
+         К: 'K',
+         М: 'M',
+         Н: 'H',
+         О: 'O',
+         Р: 'P',
+         С: 'C',
+         Т: 'T',
+         У: 'Y',
+         Х: 'X'
+      };
+
+      function convertToLatin(input) {
+         return input.replace(/[АВЕКМНОРСТУХ]/g, (char) => translitMap[char] || char);
+      }
+
+      const trimmedValue = optionValue.value.trim();
+      optionValue.value = convertToLatin(trimmedValue.toUpperCase());
    }
    if (hasInput.value && props.validationType) {
       if (isValid.value) {
@@ -209,7 +229,7 @@ const clearInput = () => {
 
 const handleBlur = () => {
    hasBlurred.value = true;
-   isErrorDisplayed.value = true; 
+   isErrorDisplayed.value = true;
    if (isValid.value) {
       emit('update:option', optionValue.value.trim());
    } else {
@@ -218,7 +238,7 @@ const handleBlur = () => {
 };
 
 const handleFocus = () => {
-   isErrorDisplayed.value = false; 
+   isErrorDisplayed.value = false;
 };
 </script>
 

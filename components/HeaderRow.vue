@@ -27,7 +27,7 @@
                </button>
             </div>
             <client-only>
-               <nuxt-link v-if="isLoggedIn" to="/createAd" class="header-row__btn header-row__btn--post-ad">
+               <nuxt-link v-if="isLoggedIn" to="/create" class="header-row__btn header-row__btn--post-ad">
                   <span>{{ $t('header.postAd') }}</span>
                </nuxt-link>
                <button v-else class="header-row__btn header-row__btn--post-ad" @click="toggleLoginModal">

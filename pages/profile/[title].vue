@@ -25,7 +25,7 @@ const componentsMap = {
    favorites: Favorites,
    reviews: Reviews,
    notifications: Notifications,
-   editProfile: EditProfile,
+   edit: EditProfile,
    messages: Messages,
 };
 

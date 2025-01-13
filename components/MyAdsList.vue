@@ -270,7 +270,7 @@ const mapAdProps = (ad) => ({
       display: flex;
       align-items: center;
       border-radius: 6px;
-      border: 1px solid #ccc;
+      box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
       padding: 16px;
       gap: 40px;
       margin: 16px 0;

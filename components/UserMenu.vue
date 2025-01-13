@@ -96,7 +96,6 @@ watch(() => route.params.title, (newTitle) => {
    activeItem.value = newTitle;
 });
 
-
 watch(
    () => userStore.$state,
    () => {

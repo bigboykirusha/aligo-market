@@ -85,10 +85,10 @@ const detailedGroups = ref([
    {
       target: 'auto',
       title: 'auto',
-      link: '/autos',
+      link: '/auto',
       items: [
-         { title: 'used', link: '/autos' },
-         { title: 'new', link: '/autos' },
+         { title: 'used', link: '/auto' },
+         { title: 'new', link: '/auto' },
       ],
    },
    {

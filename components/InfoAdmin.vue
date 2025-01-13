@@ -59,7 +59,6 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { defineProps } from 'vue';
 import { getUserOtherInfo } from '~/services/apiClient';
 import { getImageUrl } from '~/services/imageUtils';
 import avatarPhoto from "../assets/icons/avatar-revers.svg";

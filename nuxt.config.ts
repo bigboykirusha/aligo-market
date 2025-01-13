@@ -17,6 +17,19 @@ export default defineNuxtConfig({
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' },
         { name: 'apple-mobile-web-app-title', content: 'Aligo' },
+        { name: 'description', content: 'Aligo — удобная доска объявлений для поиска и размещения товаров.' },
+        { name: 'keywords', content: 'Aligo, объявления, товары, услуги' },
+        { property: 'og:title', content: 'Aligo | Доска объявлений' },
+        { property: 'og:description', content: 'Aligo — удобная доска объявлений для поиска и размещения товаров.' },
+        { property: 'og:image', content: '/favicons/favicon.png' },
+        { property: 'og:url', content: 'https://aligo.ru' },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:locale', content: 'ru_RU' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'Aligo | Доска объявлений' },
+        { name: 'twitter:description', content: 'Aligo — удобная доска объявлений для поиска и размещения товаров.' },
+        { name: 'twitter:image', content: '/favicons/favicon.png' },
+        { name: 'author', content: 'Aligo Team' },
       ],
     },
   },
@@ -27,7 +40,6 @@ export default defineNuxtConfig({
       geonamesApiKey: process.env.GEONAMES_API_KEY,
     },
   },
-
   devtools: { enabled: true },
   modules: [
     '@nuxtjs/i18n',

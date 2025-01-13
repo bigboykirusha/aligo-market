@@ -97,7 +97,8 @@ watch(car, (newCar) => {
 });
 
 onMounted(() => {
-   const carId = route.params.id;
+   const routePath = route.path;
+   const carId = routePath.split('-').pop();
    fetchCarDetails(carId);
    fetchAdsSimilar('Тбилиси');
 });

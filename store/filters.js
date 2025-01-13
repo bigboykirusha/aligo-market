@@ -8,6 +8,7 @@ export const useFiltersStore = defineStore('filters', {
       selectedModel: [],
       priceRange: { min: null, max: null },
       mileageRange: { min: null, max: null },
+      yearRange: { min: null, max: null },
       engineVolumeRange: { min: null, max: null },
       powerRange: { min: null, max: null },
       selectedBodyTypes: [],
@@ -18,6 +19,16 @@ export const useFiltersStore = defineStore('filters', {
       selectedState: null,
       orderBy: 'desc'
    }),
+   getters: {
+      get conditionUrl() {
+         if (this.selectedCondition === 1) {
+            return 'auto/new';
+         } else if (this.selectedCondition === 2) {
+            return 'auto/used';
+         }
+         return 'auto';
+      }
+   },
    actions: {
       setSelectedMark(mark) {
          this.selectedMark = mark;
@@ -30,6 +41,9 @@ export const useFiltersStore = defineStore('filters', {
       },
       setMileageRange(range) {
          this.mileageRange = range;
+      },
+      setYearRange(range) {
+         this.yearRange = range;
       },
       setEngineVolumeRange(range) {
          this.engineVolumeRange = range;
@@ -61,6 +75,7 @@ export const useFiltersStore = defineStore('filters', {
       setOrderBy(order) {
          this.orderBy = order;
       },
+
       async fetchFilteredCars({ page = 1, count = 20 }) {
          const filters = {
             condition_id: [this.selectedCondition],
@@ -100,6 +115,7 @@ export const useFiltersStore = defineStore('filters', {
          this.mileageRange = { min: null, max: null };
          this.engineVolumeRange = { min: null, max: null };
          this.powerRange = { min: null, max: null };
+         this.yearRange = { min: null, max: null };
          this.selectedBodyTypes = [];
          this.selectedTransmission = [];
          this.selectedEngineTypes = [];

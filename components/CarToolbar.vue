@@ -97,7 +97,7 @@ const store = useSelectedAdsStore();
 const editAd = async () => {
    try {
       await createStore.setStoreFromApi(props.id);
-      router.push('/createAd');
+      router.push('/create');
    } catch (error) {
       console.error('Ошибка при загрузке черновика: ', error);
    }

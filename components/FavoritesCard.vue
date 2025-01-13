@@ -12,7 +12,7 @@
          <img v-else src='../assets/icons/placeholder.png' alt="Placeholder image" class="card__placeholder" />
       </div>
       <div class="card__body">
-         <nuxt-link :to="`/car/${id}`" class="card__title">
+         <nuxt-link :to="`/car/${url}`" class="card__title">
             {{ brand }} {{ model }}, {{ year }}
          </nuxt-link>
          <div class="card__block">
@@ -125,6 +125,7 @@ const props = defineProps({
    isAdmin: Boolean,
 });
 
+const url = `${props.brand.toLowerCase()}-${props.model.toLowerCase()}-${props.year.toLowerCase()}-${props.id}`;
 const userStore = useUserStore();
 const favoritesStore = useFavoritesStore();
 const isLoggedIn = computed(() => userStore.isLoggedIn);

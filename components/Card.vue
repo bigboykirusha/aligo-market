@@ -1,6 +1,6 @@
 <template>
    <div :class="['card', { 'card--horizontal': horizontal }]">
-      <nuxt-link :to="`/car/${id}`" class="card__image">
+      <nuxt-link :to="`/car/${url}`" class="card__image">
          <Swiper v-if="images.length" :modules="[SwiperAutoplay, SwiperPagination]" :slides-per-view="1"
             :pagination="{ clickable: true }" :navigation="false" :loop="true" :autoplay="false">>
             <SwiperSlide v-for="(image, index) in images" :key="index">
@@ -25,7 +25,7 @@
                <img :src="fav" alt="Избранное" class="icon-heart" />
             </button>
          </div>
-         <nuxt-link :to="`/car/${id}`" class="card__title">
+         <nuxt-link :to="`/car/${url}`" class="card__title">
             {{ brand }} {{ model }}, {{ year }}
             <div v-if="horizontal" class="card__horizontal">
                <button v-if="!(id_user_owner_ads === userStore.userId) && isLoggedIn" class="card__wishlist-button"
@@ -222,6 +222,8 @@ const props = defineProps({
       default: 0
    },
 });
+
+const url = `${props.brand.toLowerCase()}-${props.model.toLowerCase()}-${props.year.toLowerCase()}-${props.id}`;
 
 const isWishlisted = computed(() => favoritesStore.items.includes(props.id))
 const userStore = useUserStore();

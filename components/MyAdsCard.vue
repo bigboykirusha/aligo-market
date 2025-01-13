@@ -22,9 +22,9 @@
          </div>
          <div class="card__body">
             <div class="card__container">
-               <nuxt-link :to="`/car/${id}`" class="card__title">{{ displayTitle }}</nuxt-link>
+               <nuxt-link :to="`/car/${url}`" class="card__title">{{ displayTitle }}</nuxt-link>
                <div class="card__block">
-                  <span class="card__price">{{formatNumberWithSpaces(Number(price)) }}</span>
+                  <span class="card__price">{{ formatNumberWithSpaces(Number(price)) }}</span>
                   <span v-if="price !== 'Цена не указана'" class="card__currency">₽</span>
                </div>
                <div class="card__description">{{ description || 'Описание не указано' }}</div>
@@ -132,6 +132,7 @@ const props = defineProps({
    created_at: String,
 });
 
+const url = `${props.brand.toLowerCase()}-${props.model.toLowerCase()}-${props.year.toLowerCase()}-${props.id}`;
 const route = useRoute();
 const router = useRouter();
 const createStore = useCreateStore();
@@ -278,7 +279,7 @@ const editAd = async () => {
 
       if (subValue) {
          router.push({
-            path: '/createAd',
+            path: '/create',
             query: {
                main: 'auto',
                sub: subValue
@@ -348,7 +349,7 @@ const handleButtonMainClick = async () => {
 
          if (subValue) {
             router.push({
-               path: '/createAd',
+               path: '/create',
                query: {
                   main: 'auto',
                   sub: subValue
@@ -700,6 +701,7 @@ onBeforeUnmount(() => {
 .swiper {
    height: 200px;
    width: 200px;
+   border-radius: 6px 0 0 6px;
 
    @media (max-width: 1200px) {
       height: 160px;

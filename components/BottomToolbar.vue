@@ -80,7 +80,7 @@ const chatStore = useChatStore();
 const dropdownStore = useDropdownStore();
 const showDropdown = computed(() => dropdownStore.showDropdown);
 const showMenu = computed(() => burgerStore.isOpen);
-const isCreatePage = computed(() => route.path.startsWith('/createAd'));
+const isCreatePage = computed(() => route.path.startsWith('/create'));
 const isChat = computed(() => route.path.startsWith('/profile/messages') && chatStore.currentChat);
 
 const route = useRoute();
@@ -90,8 +90,8 @@ const { count_new_messages, countFavorites, isLoggedIn: loggedIn } = storeToRefs
 
 const menuItems = computed(() =>
    [
-      { title: 'Каталог', path: '/autos', icon: 'catalog' },
-      { title: 'Разместить', path: '/createAd', icon: 'post' },
+      { title: 'Каталог', path: '/auto', icon: 'catalog' },
+      { title: 'Разместить', path: '/create', icon: 'post' },
       { title: 'Чаты', path: '/profile/messages', icon: 'chats' },
       { title: 'Избранное', path: '/profile/favorites', icon: 'favorites' },
       { title: loggedIn.value ? 'Профиль' : 'Вход', path: '/profile/edit', icon: 'profile' },

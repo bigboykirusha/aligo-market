@@ -32,7 +32,7 @@
       <div v-if="showFilters || !isMobile" class="filters__block" :key="filtersComponentKey">
          <div class="filters__title">Поиск автомобиля</div>
          <SwitcherSkeleton v-if="loading" />
-         <AutosSwitcherTemplate v-else :options="switcherConditionOptions" label="Категория"
+         <AutosButtonsTemplate v-else :options="switcherConditionOptions" label="Категория"
             @updateSelected="handleConditionUpdate" :activeIndex="selectedCondition" />
 
          <SwitcherSkeleton v-if="loading" />
@@ -51,6 +51,10 @@
          <FromToSkeleton v-if="loading" />
          <AutosFromToTemplate v-else label="Цена" @updateRange="handlePriceRangeUpdate"
             :initialMinValue="priceRange.min" :initialMaxValue="priceRange.max" />
+
+         <FromToSkeleton v-if="loading" />
+         <AutosFromToTemplate v-else label="Год выпуска" @updateRange="handleYearRangeUpdate"
+            :initialMinValue="yearRange.min" :initialMaxValue="yearRange.max" />
 
          <CheckboxSkeleton v-if="loading" />
          <AutosCheckboxTemplate v-else :options="checkboxBodyTypeOptions" label="Тип кузова"
@@ -99,6 +103,7 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useFiltersStore } from '../store/filters';
 import { useRoute } from 'vue-router';
 import { getCarBrands, getCarModels, getCarTransmission, getCarBodyType, getCarEngineType, getCarDrive, getCarState, getColors, getCarCondition } from '../services/apiClient';
+import AutosButtonsTemplate from './AutosButtonsTemplate.vue';
 
 const searchCars = () => {
    fetchCars();
@@ -145,6 +150,7 @@ const selectedCondition = computed(() => filtersStore.selectedCondition);
 const selectedMarkI = computed(() => filtersStore.selectedMark);
 const selectedModelI = computed(() => filtersStore.selectedModel);
 const priceRange = computed(() => filtersStore.priceRange);
+const yearRange = computed(() => filtersStore.yearRange);
 const selectedBodyTypes = computed(() => filtersStore.selectedBodyTypes);
 const selectedTransmission = computed(() => filtersStore.selectedTransmission);
 const selectedEngineTypes = computed(() => filtersStore.selectedEngineTypes);
@@ -537,6 +543,7 @@ const resetFilters = () => {
 };
 
 const handlePriceRangeUpdate = (range) => filtersStore.setPriceRange(range);
+const handleYearRangeUpdate = (range) => filtersStore.setYearRange(range);
 const handleMileageRangeUpdate = (range) => filtersStore.setMileageRange(range);
 const handleEngineVolumeRangeUpdate = (range) => filtersStore.setEngineVolumeRange(range);
 const handlePowerRangeUpdate = (range) => filtersStore.setPowerRange(range);

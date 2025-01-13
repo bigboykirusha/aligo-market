@@ -36,7 +36,7 @@
                   Управление профилем
                </nuxt-link>
 
-               <nuxt-link @click="toggleMenu" class="user-menu__item--post" to="/createAd">
+               <nuxt-link @click="toggleMenu" class="user-menu__item--post" to="/create">
                   <img :src="postIcon" />Разместить объявление
                </nuxt-link>
             </div>

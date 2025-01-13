@@ -4,7 +4,7 @@
          <div class="footer__container">
             <div class="footer__top">
                <ul class="footer__menu">
-                  <li><nuxt-link to="/autos">Автомобили</nuxt-link></li>
+                  <li><nuxt-link to="/auto">Автомобили</nuxt-link></li>
                   <li><nuxt-link to="/parts">Автотовары</nuxt-link></li>
                   <li><nuxt-link to="/moto">Мототехника</nuxt-link></li>
                </ul>
