@@ -12,7 +12,6 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/svg+xml', href: '/favicons/favicon.svg' },
         { rel: 'shortcut icon', href: '/favicons/favicon.ico' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/favicons/apple-touch-icon.png' },
-        { rel: 'manifest', href: '/favicons/site.webmanifest' },
       ],
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' },
