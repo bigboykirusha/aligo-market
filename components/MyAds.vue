@@ -143,13 +143,11 @@ const indicatorStyle = computed(() => {
       overflow: hidden;
 
       @media (max-width: 768px) {
-         padding: 0;
          margin-bottom: 16px;
-         border: none;
-         border-radius: 0;
+         padding: 0;
          height: 34px;
          overflow-x: auto;
-         gap: 16px;
+         gap: 0;
          scrollbar-width: none;
 
          &::-webkit-scrollbar {
@@ -170,10 +168,7 @@ const indicatorStyle = computed(() => {
       height: 100%;
 
       @media (max-width: 768px) {
-         border-radius: 24px;
-         min-width: none;
          padding: 0 16px;
-         background-color: #EEF9FF;
       }
 
       &--active {

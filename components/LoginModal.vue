@@ -118,12 +118,12 @@
                   <div v-if="!isBothSaved && !showCodeInput" class="checkbox-wrapper">
                      <label>
                         <input type="checkbox" v-model="checkbox1" />
-                        <span>Согласен с <span class="checkbox-wrapper--blue">условиями пользования
-                              сервисом</span></span>
+                        <span>Согласен с <span class="checkbox-wrapper--blue">правилами Aligo</span></span>
                      </label>
                      <label>
                         <input type="checkbox" v-model="checkbox2" />
-                        <span>Принимаю <span class="checkbox-wrapper--blue">политику конфиденциальности</span></span>
+                        <span>Принимаю <span class="checkbox-wrapper--blue">политику обработки персональных
+                              данных</span></span>
                      </label>
                   </div>
                </div>
@@ -665,7 +665,7 @@ const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
                display: flex;
                align-items: center;
                margin-top: 8px;
-               gap: 6px;
+               gap: 8px;
 
                input {
                   height: 14px;
@@ -795,7 +795,7 @@ const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
    }
 
    &--blue {
-      color: #3366FF !important;
+      color: #3366FF;
    }
 }
 

@@ -5,8 +5,11 @@
             <div class="car-details__title">{{ brand }} {{ model }}, {{ year }}</div>
             <div class="car-details__price">{{ formatNumberWithSpaces(amount) }} ₽</div>
          </header>
-         <WishlistButton v-if="!(id_user_owner_ads === userStore.userId)" mobile @toggle-login-modal="toggleLoginModal"
-            :id="props.id" :is_in_favorites="props.is_in_favorites" />
+         <div class="car-details__actions">
+            <WishlistButton v-if="!(id_user_owner_ads === userStore.userId)" mobile
+               @toggle-login-modal="toggleLoginModal" :id="props.id" :is_in_favorites="props.is_in_favorites" />
+            <ShareButton />
+         </div>
          <div class="car-details__contact">
             <div v-if="isLoggedIn" class="car-details__contact-buttons">
                <a v-if="showPhone && !(id_user_owner_ads === userStore.userId)" :href="'tel:' + phone"
@@ -276,6 +279,11 @@ onBeforeUnmount(() => {
             height: 14px;
          }
       }
+   }
+
+   &__actions {
+      display: flex;
+      gap: 24px;
    }
 
    &__content {

@@ -2,7 +2,7 @@
    <div class="card">
       <input type="checkbox" v-if="!isArchivePage" :id="`checkbox-${id}`" class="card__checkbox" :checked="isSelected"
          @change="toggleSelection" />
-      <div :class="['card__image', { 'card__image--dimmed': isArchivePage }]">
+      <div :class="['card__image', { 'card__image--dimmed': isArchivePage || isModeration }]">
          <Swiper v-if="images.length" :modules="[SwiperAutoplay, SwiperPagination]" :slides-per-view="1"
             :pagination="{ clickable: true }" :loop="true">
             <SwiperSlide v-for="(image, index) in images" :key="index">
@@ -22,7 +22,12 @@
          </div>
          <div class="card__body">
             <div class="card__container">
-               <nuxt-link :to="`/car/${url}`" class="card__title">{{ displayTitle }}</nuxt-link>
+               <nuxt-link v-if="!isModeration && !isDraft && !isArchivePage" :to="`/car/${url}`" class="card__title">
+                  {{ displayTitle }}
+               </nuxt-link>
+               <span v-else class="card__title card__title--inactive">
+                  {{ displayTitle }}
+               </span>
                <div class="card__block">
                   <span class="card__price">{{ formatNumberWithSpaces(Number(price)) }}</span>
                   <span v-if="price !== 'Цена не указана'" class="card__currency">₽</span>
@@ -46,7 +51,13 @@
          <div class="card__more">
             <div v-if="!isDraft && !isArchivePage" class="card__more-column">
                <div class="button">
-                  <span class="button__text">{{ isPublished ? 'Опубликовано' : 'Снято с публикации' }}</span>
+                  <span class="button__text">
+                     {{
+                        isModeration
+                           ? 'На модерации'
+                           : (isPublished ? 'Опубликовано' : 'Снято с публикации')
+                     }}
+                  </span>
                </div>
                <div class="button__block">
                   <div class="button" v-for="(icon, idx) in statsIcons" :key="idx">
@@ -55,7 +66,7 @@
                   </div>
                </div>
             </div>
-            <div class="card__more-row">
+            <div v-show="!isModeration" class="card__more-row">
                <div class="button-2" @click="handleButtonMainClick">
                   <img :src="buttonIcon" alt="Action icon" class="button-2__icon" />
                   <span class="button-2__text">{{ buttonText }}</span>
@@ -116,6 +127,7 @@ const props = defineProps({
    model: String,
    year: String,
    is_published: Number,
+   is_moderation: Number,
    count_who_view_seller_contact: {
       type: Number,
       default: 0
@@ -132,7 +144,14 @@ const props = defineProps({
    created_at: String,
 });
 
-const url = `${props.brand.toLowerCase()}-${props.model.toLowerCase()}-${props.year.toLowerCase()}-${props.id}`;
+const url = [
+   props.brand?.toLowerCase(),
+   props.model?.toLowerCase(),
+   props.year?.toLowerCase(),
+   props.id
+]
+   .filter(Boolean)
+   .join('-');
 const route = useRoute();
 const router = useRouter();
 const createStore = useCreateStore();
@@ -201,6 +220,7 @@ const isSelected = computed(() => store.value?.selectedAdIds.includes(props.id))
 const isDraft = computed(() => route.path === '/profile/drafts');
 const isArchivePage = computed(() => route.path === '/profile/archive');
 const isPublished = computed(() => props.is_published === 1);
+const isModeration = computed(() => props.is_moderation === 1);
 
 const buttonIcon = computed(() => (isArchivePage.value ? againIcon : (isDraft.value ? editIcon : rocketIcon)));
 const buttonText = computed(() => (isArchivePage.value ? 'Опубликовать снова' : (isDraft.value ? 'Продолжить' : 'Продвигать')));
@@ -445,6 +465,7 @@ onBeforeUnmount(() => {
       font-weight: bold;
       font-size: 16px;
       color: #3366ff;
+      cursor: pointer;
       text-decoration: none;
       display: -webkit-box;
       -webkit-line-clamp: 1;

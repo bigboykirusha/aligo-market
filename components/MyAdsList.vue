@@ -1,6 +1,6 @@
 <template>
    <div class="cards">
-      <div v-if="!isArchivePage && adsCount > 4" class="cards__header">
+      <div v-if="!isArchivePage && adsCount > 0" class="cards__header">
          <div class="cards__check">
             <input type="checkbox" id="select-all" class="cards__select-all" :checked="areAllSelected"
                @change="toggleSelectAll" />
@@ -26,27 +26,6 @@
          <MyAdsCardSkeleton v-if="loading" v-for="index in 2" :key="index" />
          <MyAdsCard v-else v-for="ad in adsMain" :key="ad.id" v-bind="mapAdProps(ad)"
             @updateData="emit('refreshAds')" />
-      </div>
-      <div v-if="!isArchivePage && adsCount < 5" class="cards__selection">
-         <div class="cards__popup">
-            <input type="checkbox" id="select-all-items" class="cards__selection-checkbox" :checked="areAllSelected"
-               @change="toggleSelectAll" />
-            <span class="cards__selection-count">{{ selectedCount }} выбранных</span>
-         </div>
-         <template v-if="isAdsPage">
-            <button v-if="showTakeOffPublication" class="cards__selection-button" @click="handleUnpublishClick">
-               <img src="@/assets/icons/stop.svg" alt="Снять с публикации" />
-               <span>Снять с публикации</span>
-            </button>
-            <button v-if="showRepublish" class="cards__selection-button" @click="handleRepublish">
-               <img src="@/assets/icons/again.svg" alt="Опубликовать снова" />
-               <span>Опубликовать снова</span>
-            </button>
-         </template>
-         <button class="cards__selection-button" @click="handleArchiveClick">
-            <img :src="archiveIcon" alt="Удалить" />
-            <span>Переместить в архив</span>
-         </button>
       </div>
       <PopupDialog v-if="showArchiveConfirm" :message="'Вы уверены, что хотите перенести объявление в архив?'"
          :confirmText="'Перенести'" :cancelText="'Отменить'" :closeIcon="closeIcon" @confirm="confirmArchive"
@@ -101,6 +80,7 @@ const emit = defineEmits(['updateSort', 'refreshAds']);
 const sortOptions = [
    { label: 'Опубликованные', value: '1' },
    { label: 'Снятые с публикации', value: '0' },
+   { label: 'На модерации', value: '2' },
 ];
 
 const handleSortUpdate = (order_by) => {
@@ -209,6 +189,7 @@ const mapAdProps = (ad) => ({
    model: ad.auto_technical_specifications[0]?.model?.title || undefined,
    year: ad.auto_technical_specifications[0]?.year_release?.title || undefined,
    is_published: ad.is_published || undefined,
+   is_moderation: ad.is_moderation || undefined,
    count_go_ad_page: ad.statistic_view.count_go_ad_page || undefined,
    count_add_to_favorite: ad.statistic_view.count_add_to_favorite || undefined,
    count_who_view_seller_contact: ad.statistic_view.count_who_view_seller_contact || undefined,

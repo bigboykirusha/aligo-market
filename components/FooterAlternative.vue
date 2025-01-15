@@ -31,7 +31,7 @@ const isCreateAdPage = ref(false);
 const route = useRoute();
 const footerDocuments = ref([]);
 
-isCreateAdPage.value = route.name === 'createAd';
+isCreateAdPage.value = route.name === 'create';
 
 const loadFooterDocuments = async () => {
    try {

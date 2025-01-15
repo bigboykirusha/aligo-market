@@ -810,7 +810,7 @@ watch(
    }
 
    &__title {
-      color: #003BCE;
+      color: #3366FF;
       font-size: 20px;
       font-weight: 700;
       margin-bottom: 24px;

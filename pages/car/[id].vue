@@ -27,8 +27,10 @@
 import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '~/store/user';
+import { getImageUrl } from '~/services/imageUtils';
 import { useI18n } from 'vue-i18n';
 import { getCarById, getAdsSimilar } from '../../services/apiClient';
+import { useHead } from '@vueuse/head';
 import desktopImage from '../assets/images/bg/banner-2-auto.png';
 import mobileImage from '../assets/images/bg/baner-mob-5.png';
 
@@ -65,28 +67,40 @@ const isOwner = computed(() => car.value && car.value.id_user_owner_ads === user
 const setLoadingWithDelay = () => {
    setTimeout(() => {
       isLoading.value = false;
-   }, 1000); 
+   }, 1000);
 };
 
 const fetchCarDetails = async (id) => {
    try {
       isLoading.value = true;
       car.value = await getCarById(id);
+
+      useHead({
+         title: car.value.auto_technical_specifications[0].brand.title + ' ' + car.value.auto_technical_specifications[0].model.title + ' ' + car.auto_technical_specifications[0].year_release.title,
+         meta: [
+            { name: 'description', content: car.value.auto_technical_specifications[0].brand.description || 'Описание автомобиля' },
+            { property: 'og:title', content: car.value.auto_technical_specifications[0].brand.title + ' ' + car.value.auto_technical_specifications[0].model.title + ' ' + car.auto_technical_specifications[0].year_release.title },
+            { property: 'og:description', content: car.value.auto_technical_specifications[0].brand.description || 'Описание автомобиля' },
+            { property: 'og:image', content: getImageUrl(car.value.photos[0], desktopImage) },
+            { property: 'og:type', content: 'website' },
+            { property: 'og:url', content: window.location.href },
+         ],
+      });
    } catch (error) {
       console.error('Ошибка при получении данных автомобиля:', error);
    } finally {
-      setLoadingWithDelay(); 
+      setLoadingWithDelay();
    }
 };
 
 const fetchAdsSimilar = async (city) => {
    try {
-      isLoading.value = true; 
+      isLoading.value = true;
       adsSimilar.value = await getAdsSimilar(city);
    } catch (error) {
       console.error('Ошибка при получении данных: ', error);
    } finally {
-      setLoadingWithDelay(); 
+      setLoadingWithDelay();
    }
 };
 

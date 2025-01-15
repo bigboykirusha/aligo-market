@@ -837,8 +837,13 @@ export const getArchives = async () => {
 export const getMyAds = async (isPublished) => {
    try {
       const params = {};
+
       if (isPublished !== undefined) {
-         params.is_published = isPublished;
+         if (isPublished === 2) {
+            params.is_moderation = 1; 
+         } else {
+            params.is_published = isPublished;
+         }
       }
 
       const response = await apiClient.get('/all_ads_user_not_draft_not_archive', { params });

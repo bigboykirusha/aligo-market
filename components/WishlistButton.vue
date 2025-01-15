@@ -75,6 +75,7 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 .car-details__wishlist {
    display: flex;
+   max-width: fit-content;
    align-items: center;
    gap: 8px;
 

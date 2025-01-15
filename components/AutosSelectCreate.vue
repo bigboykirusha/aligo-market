@@ -8,7 +8,7 @@
          </div>
       </div>
       <ul class="dropdown-2__list" v-if="isActive">
-         <li v-for="option in options" :key="option.id" class="dropdown-2__list-item"
+         <li v-for="option in sortedOptions" :key="option.id" class="dropdown-2__list-item"
             :class="{ 'dropdown-2__list-item--selected': selectedOption === option.id }"
             @click="selectOption(option.id)">
             {{ option.title }}
@@ -37,6 +37,13 @@ const props = defineProps({
       type: Number,
       default: null,
    },
+});
+
+const sortedOptions = computed(() => {
+   if (props.label === 'Год выпуска') {
+      return [...props.options].reverse();
+   }
+   return props.options;
 });
 
 const emit = defineEmits(['updateSort']);
