@@ -24,15 +24,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from "vue";
-import { useRoute } from "vue-router";
-import { useUserStore } from "~/store/user";
-import { useI18n } from "vue-i18n";
-import { useHead } from "@vueuse/head";
-import { getCarById, getAdsSimilar } from "../../services/apiClient";
-import { getImageUrl } from "~/services/imageUtils";
-import desktopImage from "../assets/images/bg/banner-2-auto.png";
-import mobileImage from "../assets/images/bg/baner-mob-5.png";
+import { ref, onMounted, watch, computed } from 'vue';
+import { useRoute } from 'vue-router';
+import { useUserStore } from '~/store/user';
+import { getImageUrl } from '~/services/imageUtils';
+import { useI18n } from 'vue-i18n';
+import { getCarById, getAdsSimilar } from '../../services/apiClient';
+import { useHead } from '@vueuse/head';
+import desktopImage from '../assets/images/bg/banner-2-auto.png';
+import mobileImage from '../assets/images/bg/baner-mob-5.png';
 
 const route = useRoute();
 const userStore = useUserStore();
@@ -41,62 +41,66 @@ const { t } = useI18n();
 const car = ref(null);
 const adsSimilar = ref([]);
 const isLoading = ref(true);
+const title3 = t('titles.title3');
 
-const title3 = t("titles.title3");
 const bannerContent = {
-   headerText: t("bannerRent.headerTextMoscow"),
+   headerText: t('bannerRent.headerTextMoscow'),
    desktopImage,
    mobileImage,
-   altText: t("bannerRent.altText"),
-   titleText: t("bannerRent.titleText"),
+   altText: t('bannerRent.altText'),
+   titleText: t('bannerRent.titleText'),
    isMoscow: true,
 };
 
 const toolbarProps = computed(() => ({
    id: car.value?.id,
-   is_published: car.value?.is_published,
-   is_in_archive: car.value?.is_in_archive,
-   count_go_ad_page: car.value?.statistic_view?.count_go_ad_page,
-   count_add_to_favorite: car.value?.statistic_view?.count_add_to_favorite,
-   count_who_view_seller_contact: car.value?.statistic_view?.count_who_view_seller_contact,
-   main_id: car.value?.main_id,
+   is_published: car.value?.is_published || undefined,
+   is_in_archive: car.value?.is_in_archive || undefined,
+   count_go_ad_page: car.value?.statistic_view?.count_go_ad_page || undefined,
+   count_add_to_favorite: car.value?.statistic_view?.count_add_to_favorite || undefined,
+   count_who_view_seller_contact: car.value?.statistic_view?.count_who_view_seller_contact || undefined,
+   main_id: car.value?.main_id || undefined,
 }));
 
 const isOwner = computed(() => car.value && car.value.id_user_owner_ads === userStore.userId);
+
+const setLoadingWithDelay = () => {
+   setTimeout(() => {
+      isLoading.value = false;
+   }, 1000);
+};
 
 const fetchCarDetails = async (id) => {
    try {
       isLoading.value = true;
       car.value = await getCarById(id);
 
-      if (car.value) {
-         const { brand, model, year_release } = car.value.auto_technical_specifications[0];
-         const image = car.value.photos?.[0] ? getImageUrl(car.value.photos[0], desktopImage) : desktopImage;
-
-         useHead({
-            title: `${brand.title} ${model.title} ${year_release.title}`,
-            meta: [
-               { name: "description", content: brand.description || "Описание автомобиля" },
-               { property: "og:title", content: `${brand.title} ${model.title} ${year_release.title}` },
-               { property: "og:description", content: brand.description || "Описание автомобиля" },
-               { property: "og:image", content: image },
-               { property: "og:type", content: "website" },
-               { property: "og:url", content: `https://example.com${route.fullPath}` },
-            ],
-         });
-      }
+      useHead({
+         title: car.value.auto_technical_specifications[0].brand.title + ' ' + car.value.auto_technical_specifications[0].model.title + ' ' + car.auto_technical_specifications[0].year_release.title,
+         meta: [
+            { name: 'description', content: car.value.auto_technical_specifications[0].brand.description || 'Описание автомобиля' },
+            { property: 'og:title', content: car.value.auto_technical_specifications[0].brand.title + ' ' + car.value.auto_technical_specifications[0].model.title + ' ' + car.auto_technical_specifications[0].year_release.title },
+            { property: 'og:description', content: car.value.auto_technical_specifications[0].brand.description || 'Описание автомобиля' },
+            { property: 'og:image', content: getImageUrl(car.value.photos[0], desktopImage) },
+            { property: 'og:type', content: 'website' },
+            { property: 'og:url', content: window.location.href },
+         ],
+      });
    } catch (error) {
-      console.error("Ошибка при получении данных автомобиля:", error);
+      console.error('Ошибка при получении данных автомобиля:', error);
    } finally {
-      isLoading.value = false;
+      setLoadingWithDelay();
    }
 };
 
 const fetchAdsSimilar = async (city) => {
    try {
+      isLoading.value = true;
       adsSimilar.value = await getAdsSimilar(city);
    } catch (error) {
-      console.error("Ошибка при получении похожих объявлений:", error);
+      console.error('Ошибка при получении данных: ', error);
+   } finally {
+      setLoadingWithDelay();
    }
 };
 
@@ -107,9 +111,10 @@ watch(car, (newCar) => {
 });
 
 onMounted(() => {
-   const carId = route.path.split("-").pop();
+   const routePath = route.path;
+   const carId = routePath.split('-').pop();
    fetchCarDetails(carId);
-   fetchAdsSimilar("Тбилиси");
+   fetchAdsSimilar('Тбилиси');
 });
 </script>
 

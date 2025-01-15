@@ -1,5 +1,6 @@
 export default defineNuxtConfig({
   ssr: false,
+
   app: {
     head: {
       title: 'Aligo | Доска объявлений',
@@ -32,6 +33,7 @@ export default defineNuxtConfig({
       ],
     },
   },
+
   runtimeConfig: {
     public: {
       apiToken: process.env.API_TOKEN,
@@ -39,7 +41,9 @@ export default defineNuxtConfig({
       geonamesApiKey: process.env.GEONAMES_API_KEY,
     },
   },
+
   devtools: { enabled: true },
+
   modules: [
     '@nuxtjs/i18n',
     'nuxt-swiper',
@@ -49,6 +53,7 @@ export default defineNuxtConfig({
     '@nuxt/image',
     '@nuxtjs/robots',
   ],
+
   robots: {
     rules: [
       { UserAgent: '*' },
@@ -56,13 +61,16 @@ export default defineNuxtConfig({
       { Allow: '/$' },
     ]
   },
+
   plugins: [
     '~/plugins/vue-the-mask',
     '~/plugins/v-tooltip',
     '~/plugins/user-init',
     { src: '~/plugins/echo.js', mode: 'client' },
   ],
+
   css: ['~/assets/scss/main.scss', '~/assets/scss/_reset.scss'],
+
   vite: {
     css: {
       preprocessorOptions: {
@@ -72,6 +80,7 @@ export default defineNuxtConfig({
       }
     },
   },
+
   i18n: {
     locales: [
       { code: 'en', iso: 'en-US', file: 'en.json' },
@@ -83,9 +92,11 @@ export default defineNuxtConfig({
     langDir: 'locales/',
     strategy: 'no_prefix',
   },
+
   devServer: {
     port: 4000
   },
+
   nitro: {
     routeRules: {
       '/api/**': {
@@ -95,5 +106,7 @@ export default defineNuxtConfig({
         }
       }
     }
-  }
+  },
+
+  compatibilityDate: '2025-01-15'
 })

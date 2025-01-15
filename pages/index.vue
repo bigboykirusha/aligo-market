@@ -102,6 +102,10 @@ const fetchMainAds = async () => {
   }
 };
 
+definePageMeta({
+  ssr: true,
+});
+
 const fetchAdsHistory = async () => {
   if (!isLoggedIn.value) return;
 
@@ -152,7 +156,7 @@ onMounted(() => {
   window.addEventListener('resize', handleResize);
 });
 
-onBeforeUnmount(() => {
+onUnmounted(() => {
   window.removeEventListener('resize', handleResize);
 });
 </script>
