@@ -1,19 +1,18 @@
 export default defineNuxtConfig({
-  ssr: false,
-
+  ssr: true,
   app: {
     head: {
-      title: 'Aligo | Доска объявлений',
       link: [
         {
           rel: 'stylesheet',
           href: 'https://fonts.googleapis.com/css2?family=Noto+Sans:wght@100;200;300;400;500;600;700;800;900&display=swap',
         },
-        { rel: 'icon', type: 'image/png', href: '/favicons/favicon-96x96.png', sizes: '96x96' },
-        { rel: 'icon', type: 'image/svg+xml', href: '/favicons/favicon.svg' },
-        { rel: 'shortcut icon', href: '/favicons/favicon.ico' },
-        { rel: 'apple-touch-icon', sizes: '180x180', href: '/favicons/apple-touch-icon.png' },
+        { rel: 'icon', type: 'image/png', href: 'static/favicons/favicon-96x96.png', sizes: '96x96' },
+        { rel: 'icon', type: 'image/svg+xml', href: 'static/favicons/favicon.svg' },
+        { rel: 'shortcut icon', href: 'static/favicons/favicon.ico' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: 'static/favicons/apple-touch-icon.png' },
       ],
+      title: 'Aligo | Доска объявлений',
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' },
         { name: 'apple-mobile-web-app-title', content: 'Aligo' },
@@ -21,14 +20,14 @@ export default defineNuxtConfig({
         { name: 'keywords', content: 'Aligo, объявления, товары, услуги' },
         { property: 'og:title', content: 'Aligo | Доска объявлений' },
         { property: 'og:description', content: 'Aligo — удобная доска объявлений для поиска и размещения товаров.' },
-        { property: 'og:image', content: '/favicons/favicon.png' },
+        { property: 'og:image', content: 'static/favicons/favicon.png' },
         { property: 'og:url', content: 'https://aligo.ru' },
         { property: 'og:type', content: 'website' },
         { property: 'og:locale', content: 'ru_RU' },
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:title', content: 'Aligo | Доска объявлений' },
         { name: 'twitter:description', content: 'Aligo — удобная доска объявлений для поиска и размещения товаров.' },
-        { name: 'twitter:image', content: '/favicons/favicon.png' },
+        { name: 'twitter:image', content: 'static/favicons/favicon.png' },
         { name: 'author', content: 'Aligo Team' },
       ],
     },
@@ -63,10 +62,10 @@ export default defineNuxtConfig({
   },
 
   plugins: [
-    '~/plugins/vue-the-mask',
-    '~/plugins/v-tooltip',
-    '~/plugins/user-init',
     { src: '~/plugins/echo.js', mode: 'client' },
+    { src: '~/plugins/v-tooltip.js', mode: 'client' },
+    { src: '~/plugins/vue-the-mask.js', mode: 'client' },
+    { src: '~/plugins/user-init.js', mode: 'client' },
   ],
 
   css: ['~/assets/scss/main.scss', '~/assets/scss/_reset.scss'],

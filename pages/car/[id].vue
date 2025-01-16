@@ -75,17 +75,19 @@ const fetchCarDetails = async (id) => {
       isLoading.value = true;
       car.value = await getCarById(id);
 
-      useHead({
-         title: car.value.auto_technical_specifications[0].brand.title + ' ' + car.value.auto_technical_specifications[0].model.title + ' ' + car.auto_technical_specifications[0].year_release.title,
-         meta: [
-            { name: 'description', content: car.value.auto_technical_specifications[0].brand.description || 'Описание автомобиля' },
-            { property: 'og:title', content: car.value.auto_technical_specifications[0].brand.title + ' ' + car.value.auto_technical_specifications[0].model.title + ' ' + car.auto_technical_specifications[0].year_release.title },
-            { property: 'og:description', content: car.value.auto_technical_specifications[0].brand.description || 'Описание автомобиля' },
-            { property: 'og:image', content: getImageUrl(car.value.photos[0], desktopImage) },
-            { property: 'og:type', content: 'website' },
-            { property: 'og:url', content: window.location.href },
-         ],
-      });
+      if (car.value) {
+         useHead({
+            title: `${car.value.auto_technical_specifications[0].brand.title} ${car.value.auto_technical_specifications[0].model.title} ${car.value.auto_technical_specifications[0].year_release.title}`,
+            meta: [
+               { name: 'description', content: car.value.ads_parameter.ads_description || 'Описание автомобиля' },
+               { property: 'og:title', content: `${car.value.auto_technical_specifications[0].brand.title} ${car.value.auto_technical_specifications[0].model.title} ${car.value.auto_technical_specifications[0].year_release.title}` },
+               { property: 'og:description', content: car.value.ads_parameter.ads_description || 'Описание автомобиля' },
+               { property: 'og:image', content: getImageUrl(car.value.photos[0], desktopImage) },
+               { property: 'og:type', content: 'website' },
+               { property: 'og:url', content: window.location.href },
+            ],
+         });
+      }
    } catch (error) {
       console.error('Ошибка при получении данных автомобиля:', error);
    } finally {
@@ -115,6 +117,29 @@ onMounted(() => {
    const carId = routePath.split('-').pop();
    fetchCarDetails(carId);
    fetchAdsSimilar('Тбилиси');
+});
+
+onBeforeRouteLeave(() => {
+   useHead({
+      title: 'Aligo | Доска объявлений',
+      meta: [
+         { name: 'viewport', content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' },
+         { name: 'apple-mobile-web-app-title', content: 'Aligo' },
+         { name: 'description', content: 'Aligo — удобная доска объявлений для поиска и размещения товаров.' },
+         { name: 'keywords', content: 'Aligo, объявления, товары, услуги' },
+         { property: 'og:title', content: 'Aligo | Доска объявлений' },
+         { property: 'og:description', content: 'Aligo — удобная доска объявлений для поиска и размещения товаров.' },
+         { property: 'og:image', content: 'static/favicons/favicon.png' },
+         { property: 'og:url', content: 'https://aligo.ru' },
+         { property: 'og:type', content: 'website' },
+         { property: 'og:locale', content: 'ru_RU' },
+         { name: 'twitter:card', content: 'summary_large_image' },
+         { name: 'twitter:title', content: 'Aligo | Доска объявлений' },
+         { name: 'twitter:description', content: 'Aligo — удобная доска объявлений для поиска и размещения товаров.' },
+         { name: 'twitter:image', content: 'static/favicons/favicon.png' },
+         { name: 'author', content: 'Aligo Team' },
+      ],
+   });
 });
 </script>
 

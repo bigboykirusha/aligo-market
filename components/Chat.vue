@@ -208,7 +208,7 @@ const handleTopicSelected = (topic) => {
 const url = computed(() => {
    const adsInfo = chatStore.currentChat.ads_info
       .toLowerCase()
-      .replace(/,/g, '') 
+      .replace(/,/g, '')
       .replace(/\s+/g, '-');
    const adsId = chatStore.currentChat.ads_id;
    return `${adsInfo}-${adsId}`;
@@ -648,9 +648,7 @@ watch(
    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
    flex-direction: column;
    transition: transform 0.3s ease-in-out, height 0.3s ease-in-out;
-
    overflow-y: scroll;
-
    scrollbar-width: none;
    -ms-overflow-style: none;
 
@@ -1006,7 +1004,8 @@ watch(
       align-items: center;
       border: none;
       color: #fff;
-      transition: $transition-1;
+      cursor: pointer;
+      transition: color 0.3s ease;
 
       &--remove {
          img {
@@ -1018,9 +1017,6 @@ watch(
       &:hover {
          background-color: #D6EFFF;
       }
-
-      cursor: pointer;
-      transition: color 0.3s ease;
 
       img {
          width: 12px;

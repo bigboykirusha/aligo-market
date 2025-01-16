@@ -5,7 +5,7 @@ import { useFavoritesStore } from './favorites';
 import { useMessagesStore } from './messages';
 import { useRouter } from '#vue-router';
 
-const router = useRouter();
+
 
 function formatPhoneNumber(phone) {
    const cleaned = phone.replace(/\D/g, '');
@@ -130,6 +130,7 @@ export const useUserStore = defineStore('user', {
 
       // Очистка данных пользователя
       async clearUserdata() {
+         const router = useRouter();
          try {
             await logoutUser();
             const userData = JSON.parse(getCookie('userData'));

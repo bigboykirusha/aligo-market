@@ -80,13 +80,12 @@ onMounted(() => {
 
    &__message {
       font-weight: 700;
+      margin-bottom: 16px;
 
       &--underline {
          text-decoration: underline;
          cursor: pointer;
       }
-
-      margin-bottom: 16px;
    }
 
    &__close-button {

@@ -68,9 +68,10 @@
                      <p class="input-wrapper__title">Введите код</p>
                      <p class="input-wrapper__description">
                         Мы отправили код на {{ isPhoneTab ? formattedPhoneNumber : email }}<br />
-                     <div @click.prevent="switchTab(activeTab); startTimer" class="input-wrapper__description--link">
-                        Изменить {{ isPhoneTab ? 'номер' : 'почту' }}
-                     </div>
+                        <span @click.prevent="switchTab(activeTab); startTimer"
+                           class="input-wrapper__description--link">
+                           Изменить {{ isPhoneTab ? 'номер' : 'почту' }}
+                        </span>
                      </p>
 
                      <!-- Компонент ввода кода (VueOtpInput) -->
@@ -561,6 +562,15 @@ const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
       }
 
       &-switcher {
+         display: flex;
+         position: relative;
+         justify-content: space-between;
+         width: calc(100% - 84px);
+         border: 1px solid #d6d6d6;
+         padding: 4px;
+         border-radius: 4px;
+         margin-top: 24px;
+
          .switcher {
             position: absolute;
             bottom: 2;
@@ -572,15 +582,6 @@ const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
             transition: transform 0.2s ease;
             z-index: 0;
          }
-
-         display: flex;
-         position: relative;
-         justify-content: space-between;
-         width: calc(100% - 84px);
-         border: 1px solid #d6d6d6;
-         padding: 4px;
-         border-radius: 4px;
-         margin-top: 24px;
 
          button {
             padding: 4px 6px;
