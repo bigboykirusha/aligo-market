@@ -38,6 +38,10 @@ const route = useRoute();
 const userStore = useUserStore();
 const { t } = useI18n();
 
+definePageMeta({
+   ssr: true,
+});
+
 const car = ref(null);
 const adsSimilar = ref([]);
 const isLoading = ref(true);
@@ -133,11 +137,6 @@ onBeforeRouteLeave(() => {
          { property: 'og:url', content: 'https://aligo.ru' },
          { property: 'og:type', content: 'website' },
          { property: 'og:locale', content: 'ru_RU' },
-         { name: 'twitter:card', content: 'summary_large_image' },
-         { name: 'twitter:title', content: 'Aligo | Доска объявлений' },
-         { name: 'twitter:description', content: 'Aligo — удобная доска объявлений для поиска и размещения товаров.' },
-         { name: 'twitter:image', content: '../../static/favicons/favicon.png' },
-         { name: 'author', content: 'Aligo Team' },
       ],
    });
 });
