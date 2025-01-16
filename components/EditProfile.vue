@@ -54,9 +54,9 @@
                <div v-if="!(!profile.phone && !editMode.phone)"
                   class="simple-input__wrapper simple-input__wrapper--phone">
                   <div class="simple-input__block simple-input__block--phone">
-                     <input @keydown.backspace="handleBackspace" v-mask="'+7 (###) ###-##-##'" v-if="editMode.phone"
-                        id="phone" v-model="profile.phone" type="tel" class="simple-input__field"
-                        placeholder="Введите телефон" maxlength="18" @input="markAsChanged('phone')" />
+                     <input @keydown.backspace="handleBackspace" v-if="editMode.phone" id="phone"
+                        v-model="profile.phone" type="tel" class="simple-input__field" placeholder="Введите телефон"
+                        maxlength="18" @input="markAsChanged('phone')" />
                      <div v-else class="simple-input__text">{{ profile.phone }}
                         <div v-if="!codeInputVisible" class="simple-input__description">
                            При изменение номера потребуется подтверждение через SMS - код.
@@ -206,7 +206,6 @@ import { debounce } from 'lodash-es';
 import { fetchSuggestions } from '~/services/apiLocation';
 import { confirmCode } from '~/services/apiClient';
 import { validateEmail, validatePhoneNumber, validateUsername } from '~/services/validation';
-import { mask } from 'vue-the-mask';
 import VueOtpInput from 'vue3-otp-input';
 
 const isAddressSelected = ref(false);

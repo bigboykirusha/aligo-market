@@ -3,7 +3,7 @@
       <label v-if="label" class="simple-input__label">{{ label }}</label>
       <div class="simple-input__wrapper" :class="{ 'valid': isValidPhoneNumber }">
          <input type="text" class="simple-input__field" :placeholder="placeholder" v-model="displayValue"
-            v-mask="'+7 (###) ###-##-##'" :disabled="disabled" />
+            :disabled="disabled" />
          <div class="simple-input__subtext">
             Номер телефона будет виден только зарегистрированным пользователям. Эту защиту нельзя отключить.
          </div>
@@ -15,7 +15,6 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue';
-import { mask } from 'vue-the-mask';
 
 const props = defineProps({
    option: {

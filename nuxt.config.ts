@@ -1,5 +1,5 @@
 export default defineNuxtConfig({
-  ssr: true,
+  ssr: false,
   app: {
     head: {
       link: [
@@ -64,7 +64,6 @@ export default defineNuxtConfig({
   plugins: [
     { src: '~/plugins/echo.js', mode: 'client' },
     { src: '~/plugins/v-tooltip.js', mode: 'client' },
-    { src: '~/plugins/v-mask.js', mode: 'client' },
     { src: '~/plugins/user-init.js', mode: 'client' },
   ],
 
