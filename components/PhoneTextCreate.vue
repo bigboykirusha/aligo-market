@@ -15,6 +15,7 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue';
+import { mask } from 'vue-the-mask';
 
 const props = defineProps({
    option: {

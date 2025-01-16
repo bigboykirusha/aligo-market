@@ -141,6 +141,7 @@ import { getCookie, setCookie } from '~/services/auth';
 import { loginUserByPhone, confirmPhoneCode } from '../services/apiClient';
 import { useUserStore } from '../store/user';
 import VueOtpInput from 'vue3-otp-input';
+import { mask } from 'vue-the-mask';
 import { useLoginModalStore } from '~/store/loginModal.js';
 
 const loginModalStore = useLoginModalStore();

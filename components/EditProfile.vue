@@ -206,6 +206,7 @@ import { debounce } from 'lodash-es';
 import { fetchSuggestions } from '~/services/apiLocation';
 import { confirmCode } from '~/services/apiClient';
 import { validateEmail, validatePhoneNumber, validateUsername } from '~/services/validation';
+import { mask } from 'vue-the-mask';
 import VueOtpInput from 'vue3-otp-input';
 
 const isAddressSelected = ref(false);

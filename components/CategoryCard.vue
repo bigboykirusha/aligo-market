@@ -1,15 +1,15 @@
 <template>
    <div class="card">
-      <nuxt-link :to="category.href" class="card__cover" :style="{ backgroundImage: 'url(' + category.imgSrc + ')' }"
-         @click.native="handleMainClick">
+      <nuxt-link custom :to="category.href" class="card__cover"
+         :style="{ backgroundImage: 'url(' + category.imgSrc + ')' }" @click.native="handleMainClick">
          <div class="card__content">
             <span class="card__title">{{ category.title }}</span>
             <ul class="card__list">
                <li v-for="(subcategory, index) in category.subcategories" :key="index" class="card__list-item"
                   @click.stop="handleSubcategoryClick(subcategory)">
-                  <nuxt-link :to="subcategory.href" class="card__list-item-link">
+                  <div class="card__list-item-link">
                      {{ subcategory.title }}<span v-if="index === category.subcategories.length - 1"> ...</span>
-                  </nuxt-link>
+                  </div>
                </li>
             </ul>
          </div>

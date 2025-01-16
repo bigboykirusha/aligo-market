@@ -64,7 +64,7 @@ export default defineNuxtConfig({
   plugins: [
     { src: '~/plugins/echo.js', mode: 'client' },
     { src: '~/plugins/v-tooltip.js', mode: 'client' },
-    { src: '~/plugins/vue-the-mask.js', mode: 'client' },
+    { src: '~/plugins/v-mask.js', mode: 'client' },
     { src: '~/plugins/user-init.js', mode: 'client' },
   ],
 
