@@ -12,7 +12,7 @@
       <div class="card__section">
          <div class="card__body">
             <div class="card__container">
-               <nuxt-link custom :to="`/car/${id}`" class="card__title">{{ displayTitle }}</nuxt-link>
+               <nuxt-link :to="`/car/${id}`" class="card__title">{{ displayTitle }}</nuxt-link>
                <div class="card__block">
                   <span class="card__price">{{ formattedPrice }}</span>
                   <span v-if="price !== 'Цена не указана'" class="card__currency">₽</span>

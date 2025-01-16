@@ -1,6 +1,6 @@
 <template>
    <div class="card">
-      <nuxt-link custom :to="category.href" class="card__cover"
+      <nuxt-link :to="category.href" class="card__cover"
          :style="{ backgroundImage: 'url(' + category.imgSrc + ')' }" @click.native="handleMainClick">
          <div class="card__content">
             <span class="card__title">{{ category.title }}</span>

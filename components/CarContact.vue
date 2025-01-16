@@ -30,7 +30,7 @@
             </div>
             <div class="user-info">
                <div class="user-info__group">
-                  <nuxt-link custom :to="`/user/${props.id_user_owner_ads}`" class="user-info__name">{{ formattedUsername
+                  <nuxt-link :to="`/user/${props.id_user_owner_ads}`" class="user-info__name">{{ formattedUsername
                      }}</nuxt-link>
                   <div v-if="rating === null" class="car-details__rating-text">
                      О пользователе нет отзывов
