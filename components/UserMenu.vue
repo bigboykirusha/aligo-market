@@ -169,7 +169,7 @@ function pluralizeReview(count) {
 .user-menu {
    position: fixed;
    top: 0;
-   z-index: 10;
+   z-index: 100000;
    background-color: white;
    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
    border-radius: 6px;
