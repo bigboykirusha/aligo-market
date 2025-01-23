@@ -1,6 +1,6 @@
 <template>
-   <div v-if="chatStore.isChatVisible && (chatStore.currentChat || total !== 0)" class="chat-wrapper"
-      @drop="handleFileDrop" :class="{ 'chat-wrapper--collapsed': chatStore.isCollapsed }" ref="draggable">
+   <div v-if="chatStore.isChatVisible && (chatStore.currentChat)" class="chat-wrapper" @drop="handleFileDrop"
+      :class="{ 'chat-wrapper--collapsed': chatStore.isCollapsed }">
       <!-- Заголовок чата -->
       <div class="chat-header" @mousedown="startDrag">
          <!-- Информация о текущем чате -->

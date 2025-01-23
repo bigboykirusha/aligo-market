@@ -74,7 +74,7 @@ const characteristics = computed(() => {
       'Год выпуска': props.car.auto_technical_specifications[0].year_release.title || 'Не указано',
       'Пробег': mileageText,
       'Владельцев по ПТС': props.car.auto_history_conditions[0].count_owners?.title || 'Не указано',
-      'Состояние': props.car.auto_history_conditions[0].state.title || 'Не указано',
+      'Состояние': props.car.auto_history_conditions[0]?.state?.title || 'Не указано',
       'Тип двигателя': props.car.auto_technical_specifications[0].engine_type.title || 'Не указано',
       'Коробка передач': props.car.auto_technical_specifications[0].transmission.title || 'Не указано',
       'Привод': props.car.auto_technical_specifications[0].drive.title || 'Не указано',

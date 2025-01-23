@@ -20,20 +20,22 @@
             </button>
             <button v-if="activeTab === 3" class="create-ad-form__button create-ad-form__button--continue"
                @click="publishAndExit" :disabled="!isPublishEnabled">
-               Опубликовать
+               <span v-if="isPublishing" class="spinner"></span>
+               <span v-else>Опубликовать</span>
             </button>
             <button v-else class="create-ad-form__button create-ad-form__button--continue" @click="continueToNextTab">
                Продолжить
             </button>
-            <div v-if="activeTab === 3" class="create-ad-form__text">Вы также соглашаетесь с <span>правилами
-                  Aligo</span> и публикуете
-               информацию, которую увидят другие люди</div>
+            <div v-if="activeTab === 3" class="create-ad-form__text">
+               Вы также соглашаетесь с <span>правилами Aligo</span> и публикуете информацию, которую увидят другие люди
+            </div>
          </div>
       </div>
    </div>
 </template>
 
 <script setup>
+import { ref, computed } from 'vue';
 import { useCreateStore } from '../store/create';
 import { useTabsStore } from '~/store/tabsStore';
 
@@ -43,15 +45,26 @@ const tabsStore = useTabsStore();
 const emit = defineEmits(['sendAd', 'saveAd']);
 
 const activeTab = computed(() => tabsStore.activeTab);
+const isPublishing = ref(false);
 
 const saveAndExit = () => {
    createStore.setIsDraft(1);
    emit('saveAd');
 };
 
-const publishAndExit = () => {
-   createStore.setIsDraft(0);
-   emit('sendAd');
+const publishAndExit = async () => {
+   if (!isPublishing.value) {
+      isPublishing.value = true;
+      createStore.setIsDraft(0);
+      try {
+         await new Promise((resolve) => setTimeout(resolve, 5000));
+         emit('sendAd');
+      } catch (error) {
+         console.error('Ошибка при публикации:', error);
+      } finally {
+         isPublishing.value = false;
+      }
+   }
 };
 
 const continueToNextTab = () => {
@@ -73,7 +86,7 @@ const isNextEnabled = computed(() => {
 
 const isPublishEnabled = computed(() => {
    if (activeTab.value === 3) {
-      return createStore.isAdFieldsFilled;
+      return createStore.isAdFieldsFilled && !isPublishing.value; 
    }
    return true;
 });
@@ -154,7 +167,6 @@ const isSaveandExitEnabled = computed(() => {
       font-size: 12px;
       line-height: 16px;
       max-width: 400px;
-      
 
       @media (max-width: 768px) {
          max-width: 100%;
@@ -214,6 +226,26 @@ const isSaveandExitEnabled = computed(() => {
             box-shadow: none;
          }
       }
+   }
+}
+
+.spinner {
+   display: inline-block;
+   width: 16px;
+   height: 16px;
+   border: 2px solid #fff;
+   border-top: 2px solid #3366FF;
+   border-radius: 50%;
+   animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+   from {
+      transform: rotate(0deg);
+   }
+
+   to {
+      transform: rotate(360deg);
    }
 }
 </style>

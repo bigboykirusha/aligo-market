@@ -4,7 +4,7 @@
          <Swiper v-if="images.length" :modules="[SwiperAutoplay, SwiperPagination]" :slides-per-view="1"
             :pagination="{ clickable: true }" :navigation="false" :loop="true">
             <SwiperSlide v-for="(image, index) in images" :key="index">
-               <img v-if="image.path" :src="getImageUrl(image.path)" alt="Slide Image" />
+               <img v-if="image.path_webp" :src="getImageUrl(image.path)" alt="Slide Image" />
                <img v-else src='../assets/icons/placeholder.png' alt="Placeholder image" class="card__placeholder" />
             </SwiperSlide>
             <div class="swiper-pagination"></div>

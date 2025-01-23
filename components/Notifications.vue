@@ -59,9 +59,11 @@ import {
    deleteAllNotifications,
    markAllNotificationsAsRead,
 } from '~/services/apiClient.js';
+import { useUserStore } from '~/store/user';
 
 const notifications = ref([]);
 const loading = ref(true);
+const userStore = useUserStore();
 
 const fetchNotifications = async () => {
    try {
@@ -86,6 +88,7 @@ const handleMarkAsRead = async (id) => {
    try {
       await markNotificationAsRead(id);
       const notification = notifications.value.find((notif) => notif.id === id);
+      userStore.decCountUnreadNotify();
       if (notification) {
          notification.read_at = new Date().toISOString();
       }
@@ -97,6 +100,7 @@ const handleMarkAsRead = async (id) => {
 const handleDeleteNotification = async (id) => {
    try {
       await deleteNotificationById(id);
+      userStore.decCountUnreadNotify();
       notifications.value = notifications.value.filter((notif) => notif.id !== id);
    } catch (error) {
       console.error('Ошибка при удалении уведомления:', error);
@@ -109,6 +113,7 @@ const handleMarkAllAsRead = async () => {
       notifications.value.forEach((notif) => {
          notif.read_at = new Date().toISOString();
       });
+      userStore.countUnreadNotify = 0;
    } catch (error) {
       console.error('Ошибка при пометке всех уведомлений как прочитанных:', error);
    }
@@ -118,6 +123,7 @@ const handleDeleteAll = async () => {
    try {
       await deleteAllNotifications();
       notifications.value = [];
+      userStore.countUnreadNotify = 0;
    } catch (error) {
       console.error('Ошибка при удалении всех уведомлений:', error);
    }

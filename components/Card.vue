@@ -6,7 +6,7 @@
             <SwiperSlide v-for="(image, index) in images" :key="index">
                <picture v-if="image.path">
                   <source v-if="image.path_webp" :srcset="getImageUrl(image.path_webp)" type="image/webp" />
-                  <img :src="getImageUrl(image.path)" alt="Slide Image" />
+                  <img class="card__img" :src="getImageUrl(image.path_webp)" alt="Slide Image" />
                </picture>
                <img v-else src="../assets/icons/placeholder.png" alt="Placeholder image" class="card__placeholder" />
             </SwiperSlide>
@@ -337,6 +337,7 @@ const makeCall = () => {
       .card__img {
          width: 100%;
          height: 100%;
+         max-width: 500px;
          object-fit: cover;
          transition: all 0.3s;
 

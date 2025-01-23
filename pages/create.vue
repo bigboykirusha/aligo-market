@@ -28,16 +28,6 @@ createStore.initializeUserData();
 
 const isAnyFieldFilled = computed(() => createStore.isAnyFieldFilled);  // Проверка на наличие заполненных полей
 
-// Показывать попап перед переходом на другую страницу, если есть незаполненные поля
-router.beforeEach((to, from, next) => {
-   if (isAnyFieldFilled.value && !isAdSended.value) {
-      isPopupVisible.value = true;  // Показываем попап, если есть незаполненные поля и объявление не отправлено
-      next(false);  // Останавливаем переход, пока не будет решено
-   } else {
-      next();  // Разрешаем переход
-   }
-});
-
 // Обработка отправки объявления
 const handleSendAd = async () => {
    if (createStore.id) {

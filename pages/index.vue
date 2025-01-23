@@ -22,7 +22,7 @@
 <script setup>
 import desktopImage from '../assets/images/bg/banner-2.png';
 import mobileImage from '../assets/images/bg/banner-2-m.png';
-import { getCars, getAdsHistory, getAdsSimilar } from '../services/apiClient';
+import { getCars, getAdsHistory, getAdsSimilar, getModerationAds } from '../services/apiClient';
 import { useCityStore } from '~/store/city';
 import { useUserStore } from '~/store/user';
 import { ref, onMounted, watch, computed, onUnmounted, onBeforeUnmount } from 'vue';
@@ -82,6 +82,7 @@ const setLoadingWithDelay = (isLoadingRef) => {
 
 onMounted(() => {
   const timeoutId = setLoadingWithDelay(isLoadingMain);
+  getModerationAds();
 
   onBeforeUnmount(() => {
     clearTimeout(timeoutId);

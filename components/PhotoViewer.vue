@@ -14,12 +14,12 @@
                         @dblclick="toggleZoom">
                         <picture>
                            <source :srcset="getImageUrl(image.path_webp)" type="image/webp" />
-                           <img :src="getImageUrl(image.path)" alt="Основное изображение"
+                           <img :src="getImageUrl(image.path_webp)" alt="Основное изображение"
                               class="gallery-slider__main-image"
                               :style="{ transform: isZoomed ? `scale(${zoomLevel})` : 'scale(1)' }" />
                         </picture>
                         <div class="blurred-background" :style="{
-                           backgroundImage: `url(${getImageUrl(image.path)})`,
+                           backgroundImage: `url(${getImageUrl(image.path_webp)})`,
                            filter: isCover ? 'none' : 'blur(20px)',
                         }"></div>
                      </div>
@@ -66,7 +66,7 @@
                         @click="setActiveImage(index)" role="button" tabindex="0">
                         <picture>
                            <source :srcset="getImageUrl(image.path_webp)" type="image/webp" />
-                           <img :src="getImageUrl(image.path)" alt="Миниатюра" class="thumbnail__image" />
+                           <img :src="getImageUrl(image.path_webp)" alt="Миниатюра" class="thumbnail__image" />
                         </picture>
                      </SwiperSlide>
                   </Swiper>
@@ -165,6 +165,10 @@ const updateActiveImage = (swiper) => {
 const handleSwiper = (swiper, isMain) => {
    if (isMain) {
       swiperMainInstance.value = swiper;
+
+      if (props.activeIndex !== undefined) {
+         swiperMainInstance.value.slideTo(props.activeIndex, 0); 
+      }
    } else {
       swiperThumbnailInstance.value = swiper;
    }

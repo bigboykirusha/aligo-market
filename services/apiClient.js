@@ -198,6 +198,16 @@ export const getRegions = async () => {
    }
 };
 
+export const getModerationAds = async () => {
+   try {
+      const response = await apiClient.get('/moderations/ads');
+      return response.data.data;
+   } catch (error) {
+      console.error('Ошибка при получении данных регионов: ', error);
+      throw error;
+   }
+};
+
 export const getCitiesByRegion = async (regionId) => {
    try {
       const response = await apiClient.get(`/region_with_city?region_id=${regionId}`);
@@ -840,7 +850,7 @@ export const getMyAds = async (isPublished) => {
 
       if (isPublished !== undefined) {
          if (isPublished === 2) {
-            params.is_moderation = 1; 
+            params.is_moderation = 1;
          } else {
             params.is_published = isPublished;
          }

@@ -6,7 +6,7 @@
          <Swiper v-if="images.length" :modules="[SwiperAutoplay, SwiperPagination]" :slides-per-view="1"
             :pagination="{ clickable: true }" :loop="true">
             <SwiperSlide v-for="(image, index) in images" :key="index">
-               <img :src="getImageUrl(image.path)" alt="Slide image" />
+               <img :src="getImageUrl(image.path_webp)" alt="Slide image" />
             </SwiperSlide>
          </Swiper>
          <img v-else src='../assets/icons/placeholder.png' alt="Placeholder image" class="card__placeholder" />
@@ -293,19 +293,7 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
 const editAd = async () => {
    try {
       await createStore.setStoreFromApi(props.id);
-
-      const conditionId = createStore.condition_id;
-      const subValue = conditionId === 1 ? 'Новые' : 'C пробегом';
-
-      if (subValue) {
-         router.push({
-            path: '/create',
-            query: {
-               main: 'auto',
-               sub: subValue
-            }
-         });
-      }
+      router.push('/create');
    } catch (error) {
       console.error('Ошибка при загрузке черновика: ', error);
    }
@@ -363,19 +351,7 @@ const handleButtonMainClick = async () => {
    } else if (isDraft.value) {
       try {
          await createStore.setStoreFromApi(props.id);
-
-         const conditionId = createStore.condition_id;
-         const subValue = conditionId === 1 ? 'Новые' : 'C пробегом';
-
-         if (subValue) {
-            router.push({
-               path: '/create',
-               query: {
-                  main: 'auto',
-                  sub: subValue
-               }
-            });
-         }
+         router.push('/create');
       } catch (error) {
          console.error('Ошибка при загрузке черновика: ', error);
       }
@@ -532,7 +508,9 @@ onBeforeUnmount(() => {
 
       @media (max-width: 768px) {
          flex-direction: column;
-         gap: 24px;
+         gap: 8px;
+         padding-top: 12px;
+         margin-bottom: 8px;
          justify-content: flex-start;
       }
    }
@@ -564,11 +542,8 @@ onBeforeUnmount(() => {
 
       @media (max-width: 1200px) {
          margin: 0;
+         padding: 0 16px;
          justify-content: flex;
-      }
-
-      @media (max-width: 768px) {
-         display: none;
       }
    }
 
@@ -663,7 +638,7 @@ onBeforeUnmount(() => {
          }
 
          @media (max-width: 768px) {
-            gap: 8px;
+            display: none;
          }
       }
 

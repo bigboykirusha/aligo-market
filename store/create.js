@@ -847,47 +847,48 @@ export const useCreateStore = defineStore('create', {
       async setStoreFromApi(id) {
          try {
             const carData = await getCarById(id);
-            this.id = carData.id;
-            this.is_draft = carData.is_draft;
-            this.is_in_archive = carData.is_in_archive;
-            this.is_published = carData.is_published;
-            this.condition_id = carData.condition?.id || null;
+
+            // Основные данные
+            this.id = carData?.id || null;
+            this.is_draft = carData?.is_draft || false;
+            this.is_in_archive = carData?.is_in_archive || false;
+            this.is_published = carData?.is_published || false;
+            this.condition_id = carData?.condition?.id || null;
 
             // Характеристики
-            this.photos = carData.photos || [];
+            this.photos = carData?.photos || [];
+            this.color_ids = carData?.auto_appearances?.[0]?.color?.map(color => color.id) || [];
+            this.color_custom = carData?.auto_appearances?.[0]?.color_custom || null;
 
-            this.color_ids = carData.auto_appearances?.[0]?.color?.map(color => color.id) || [];
+            // Регистрационные данные
+            this.country_id = carData?.auto_registration_data?.[0]?.country?.id || null;
+            this.vin = carData?.auto_registration_data?.[0]?.vin || null;
+            this.state_number = carData?.auto_registration_data?.[0]?.state_number || null;
 
-            this.color_custom = carData.auto_appearances?.[0]?.color_custom || null;
+            // Технические характеристики
+            const techSpecs = carData?.auto_technical_specifications?.[0] || {};
+            this.brand_id = techSpecs?.brand?.id || null;
+            this.model_id = techSpecs?.model?.id || null;
+            this.year_id = techSpecs?.year_release?.id || null;
+            this.car_body_type = techSpecs?.car_body_type?.id || null;
+            this.count_doors = techSpecs?.count_doors || null;
+            this.transmission_id = techSpecs?.transmission?.id || null;
+            this.engine_type_id = techSpecs?.engine_type?.id || null;
+            this.drive_id = techSpecs?.drive?.id || null;
+            this.handlebar_id = techSpecs?.handlebar?.id || null;
 
-            // Регистрационные данные 
-            this.country_id = carData.auto_registration_data?.[0]?.country?.id || null;
-            this.vin = carData.auto_registration_data?.[0]?.vin || null;
-            this.state_number = carData.auto_registration_data?.[0]?.state_number || null;
+            // История эксплуатации и состояние
+            const historyConditions = carData?.auto_history_conditions?.[0] || {};
+            this.mileage = historyConditions?.mileage || null;
+            this.owners = historyConditions?.count_owners?.id || null;
+            this.state_id = historyConditions?.state?.id || null;
+            this.pts = historyConditions?.pts?.id || null;
 
-            // Технические характеристики 
-            this.brand_id = carData.auto_technical_specifications?.[0]?.brand?.id || null;
-            this.model_id = carData.auto_technical_specifications?.[0]?.model?.id || null;
-            this.year_id = carData.auto_technical_specifications?.[0]?.year_release.id || null;
-            this.car_body_type = carData.auto_technical_specifications?.[0]?.car_body_type?.id || null;
-            this.count_doors = carData.auto_technical_specifications?.[0]?.count_doors || null;
-            this.transmission_id = carData.auto_technical_specifications?.[0]?.transmission?.id || null;
-            this.engine_type_id = carData.auto_technical_specifications?.[0]?.engine_type?.id || null;
-            this.drive_id = carData.auto_technical_specifications?.[0]?.drive?.id || null;
-            this.handlebar_id = carData.auto_technical_specifications?.[0]?.handlebar?.id || null;
-
-            // История эксплуатации и состояние 
-            this.mileage = carData.auto_history_conditions[0]?.mileage || null;
-            this.owners = carData.auto_history_conditions[0]?.count_owners?.id || null;
-            console.log(carData.auto_history_conditions[0]?.state.id);
-            this.state_id = carData.auto_history_conditions[0]?.state.id;
-            this.pts = carData.auto_history_conditions[0]?.pts?.id || null;
-
-            // TO Data
-            const maintenanceData = carData.maintenance_data?.[0];
-            this.is_service_book = maintenanceData?.is_service_book;
-            this.is_serviced_dealer = maintenanceData?.is_serviced_dealer;
-            this.is_under_warranty = maintenanceData?.is_under_warranty;
+            // ТО данные
+            const maintenanceData = carData?.maintenance_data?.[0] || {};
+            this.is_service_book = maintenanceData?.is_service_book || false;
+            this.is_serviced_dealer = maintenanceData?.is_serviced_dealer || false;
+            this.is_under_warranty = maintenanceData?.is_under_warranty || false;
 
             // Опции
             const climateOptions = carData.auto_additional_options_climate_management?.[0] || {};
@@ -905,12 +906,12 @@ export const useCreateStore = defineStore('create', {
             const wheelsOptions = carData.auto_additional_tires_wheels?.[0] || {};
 
             // Опции
-            this.power_steering = carData.auto_additional_options?.[0]?.power_steering?.id || null;
-            this.salon = carData.auto_additional_options_salon?.[0]?.salon?.id || null;
-            this.electric_window = carData.auto_additional_options?.[0]?.electric_windows?.id || null;
-            this.wheels = carData.auto_additional_tires_wheels?.[0]?.tires_wheels?.[0]?.id || null;
-            this.climate = carData.auto_additional_options_climate_management?.[0]?.climate_management?.id || null;
-            this.headlight = carData.auto_additional_headlights?.[0]?.headlight?.[0]?.id || null;
+            this.power_steering = carData?.auto_additional_options?.[0]?.power_steering?.id || null;
+            this.salon = salonOptions?.salon?.id || null;
+            this.electric_window = carData?.auto_additional_options?.[0]?.electric_windows?.id || null;
+            this.wheels = wheelsOptions?.tires_wheels?.[0]?.id || null;
+            this.climate = climateOptions?.climate_management?.id || null;
+            this.headlight = headlightsOptions?.headlight?.[0]?.id || null;
 
             // Опции чекбоксы
             this.is_front_seats = heatingOptions.is_front_seats;
@@ -982,16 +983,17 @@ export const useCreateStore = defineStore('create', {
             this.is_winter_included = wheelsOptions.is_winter_included;
 
             // Объявление
-            this.ads_description = carData.ads_parameter?.ads_description || null;
-            this.place_inspection = carData.ads_parameter?.place_inspection || null;
-            this.amount = carData.ads_parameter?.amount || null;
-            this.phone = carData.ads_parameter?.phone || null;
-            this.email = carData.ads_parameter?.email || null;
-            this.city = carData.ads_parameter?.city || null;
-            this.latitude = carData.ads_parameter?.latitude || null;
-            this.longitude = carData.ads_parameter?.longitude || null;
-            this.communication_method_id = carData.ads_parameter?.communication_method_id.id || null;
-            this.username = carData.ads_parameter?.username || null;
+            const adsParams = carData?.ads_parameter || {};
+            this.ads_description = adsParams?.ads_description || null;
+            this.place_inspection = adsParams?.place_inspection || null;
+            this.amount = adsParams?.amount || null;
+            this.phone = adsParams?.phone || null;
+            this.email = adsParams?.email || null;
+            this.city = adsParams?.city || null;
+            this.latitude = adsParams?.latitude || null;
+            this.longitude = adsParams?.longitude || null;
+            this.communication_method_id = adsParams?.communication_method_id?.id || null;
+            this.username = adsParams?.username || null;
 
          } catch (error) {
             console.error('Ошибка при заполнении стора данными: ', error);

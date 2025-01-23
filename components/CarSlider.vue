@@ -10,11 +10,11 @@
                <div class="main-image-container">
                   <picture>
                      <source :srcset="getImageUrl(image.path_webp)" type="image/webp" />
-                     <img :src="getImageUrl(image.path)" alt="Основное изображение" @click="openPhotoViewer"
+                     <img :src="getImageUrl(image.path_webp)" alt="Основное изображение" @click="openPhotoViewer"
                         :class="['gallery-slider__main-image']" />
                   </picture>
                   <div class="blurred-background" :style="{
-                     backgroundImage: `url(${getImageUrl(image.path)})`,
+                     backgroundImage: `url(${getImageUrl(image.path_webp)})`,
                      filter: isCover ? 'none' : 'blur(20px)',
                   }"></div>
                </div>
@@ -41,7 +41,7 @@
                role="button" tabindex="0">
                <picture>
                   <source :srcset="getImageUrl(image.path_webp)" type="image/webp" />
-                  <img :src="getImageUrl(image.path)" alt="Миниатюра" class="thumbnail__image" />
+                  <img :src="getImageUrl(image.path_webp)" alt="Миниатюра" class="thumbnail__image" />
                </picture>
             </SwiperSlide>
          </Swiper>

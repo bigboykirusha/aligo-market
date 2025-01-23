@@ -1,9 +1,9 @@
 <template>
    <div class="header-row" :class="{ 'header-row--with-margin': isWithMargin }">
       <div class="header-row__container">
-         <nuxt-link to="/" class="header-row__logo-section">
+         <div class="header-row__logo-section" @click="goToHome">
             <img src="../assets/images/logo.svg" alt="Logo" class="header-row__logo" />
-         </nuxt-link>
+         </div>
          <div class="header-row__controls">
             Новое объявление
          </div>
@@ -14,7 +14,9 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const isWithMargin = ref(true)
 const lastScrollTop = ref(0)
 
@@ -22,6 +24,10 @@ const handleScroll = () => {
    const currentScrollTop = window.scrollY || document.documentElement.scrollTop
    isWithMargin.value = currentScrollTop === 0
    lastScrollTop.value = currentScrollTop <= 0 ? 0 : currentScrollTop
+}
+
+const goToHome = () => {
+   router.push('/')
 }
 
 onMounted(() => {
@@ -72,6 +78,7 @@ onUnmounted(() => {
 
    &__logo-section {
       display: flex;
+      cursor: pointer;
       align-items: center;
       outline: none;
    }

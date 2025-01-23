@@ -55,8 +55,8 @@
                   class="simple-input__wrapper simple-input__wrapper--phone">
                   <div class="simple-input__block simple-input__block--phone">
                      <input @keydown.backspace="handleBackspace" v-if="editMode.phone" id="phone"
-                        v-model="profile.phone" type="tel" class="simple-input__field" placeholder="Введите телефон"
-                        maxlength="18" @input="markAsChanged('phone')" />
+                        v-model="profile.phone" type="tel" v-mask="'+7 (###) ###-##-##'" class="simple-input__field"
+                        placeholder="Введите телефон" maxlength="18" @input="markAsChanged('phone')" />
                      <div v-else class="simple-input__text">{{ profile.phone }}
                         <div v-if="!codeInputVisible" class="simple-input__description">
                            При изменение номера потребуется подтверждение через SMS - код.

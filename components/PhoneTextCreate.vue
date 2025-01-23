@@ -2,8 +2,8 @@
    <div class="simple-input">
       <label v-if="label" class="simple-input__label">{{ label }}</label>
       <div class="simple-input__wrapper" :class="{ 'valid': isValidPhoneNumber }">
-         <input type="text" class="simple-input__field" :placeholder="placeholder" v-model="displayValue"
-            :disabled="disabled" />
+         <input type="text" v-mask="'+7 (###) ###-##-##'" class="simple-input__field" :placeholder="placeholder"
+            v-model="displayValue" :disabled="disabled" />
          <div class="simple-input__subtext">
             Номер телефона будет виден только зарегистрированным пользователям. Эту защиту нельзя отключить.
          </div>

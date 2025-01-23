@@ -7,6 +7,11 @@
             </div>
             <span v-if="totalItems > 0" class="search__count">{{ totalItems }}</span>
          </div>
+         <!-- Кнопка "Сохранить поиск" -->
+         <button class="save-search-button" @click="toggleSaved">
+            <img :src="isSaved ? savedIcon : unsavedIcon" alt="Save Icon" />
+            <span>{{ isSaved ? 'Поиск сохранён' : 'Сохранить поиск' }}</span>
+         </button>
       </div>
 
       <template v-if="query">
@@ -27,8 +32,8 @@
             </div>
          </div>
 
-         <Pagination v-if="totalItems > getAdsCount()" :totalItems="totalItems" :pageSize="pageSize" :currentPage="currentPage"
-            @changePage="changePage" />
+         <Pagination v-if="totalItems > getAdsCount()" :totalItems="totalItems" :pageSize="pageSize"
+            :currentPage="currentPage" @changePage="changePage" />
       </template>
 
       <CardList title="Свежие объявления" :ads="ads" :isLoading="isLoading" />
@@ -36,11 +41,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import CardList from '~/components/CardList.vue';
 import { getCarsSearch, getCars } from '~/services/apiClient.js';
 import { useCityStore } from '~/store/city';
+import unsavedIcon from '../assets/icons/fav.svg'
+import savedIcon from '../assets/icons/check-icon.svg'
 
 const route = useRoute();
 const query = ref(route.query.query || '');
@@ -52,7 +59,6 @@ const pageSize = ref(getAdsCount());
 const isLoading = ref(true);
 
 const cityStore = useCityStore();
-
 const savedCity = computed(() => cityStore.selectedCity.name);
 
 function getAdsCount() {
@@ -63,12 +69,18 @@ function getAdsCount() {
 const setLoadingWithDelay = () => {
    setTimeout(() => {
       isLoading.value = false;
-   }, 1000); 
+   }, 1000);
+};
+
+const isSaved = ref(false);
+
+const toggleSaved = () => {
+   isSaved.value = !isSaved.value;
 };
 
 const fetchMainAds = async () => {
    try {
-      isLoading.value = true; 
+      isLoading.value = true;
       const { data, totalCount } = await getCarsSearch({
          searchQuery: query.value,
          page: currentPage.value,
@@ -79,19 +91,19 @@ const fetchMainAds = async () => {
    } catch (error) {
       console.error('Ошибка при получении данных: ', error);
    } finally {
-      setLoadingWithDelay(); 
+      setLoadingWithDelay();
    }
 };
 
 const fetchAds = async () => {
    try {
-      isLoading.value = true; 
+      isLoading.value = true;
       const { data } = await getCars({ count: 10 });
       ads.value = data;
    } catch (error) {
       console.error('Ошибка при получении данных: ', error);
    } finally {
-      setLoadingWithDelay(); 
+      setLoadingWithDelay();
    }
 };
 
@@ -114,6 +126,7 @@ onMounted(() => {
 });
 </script>
 
+
 <style lang="scss" scoped>
 .cards-wrapper {
    display: flex;
@@ -133,6 +146,7 @@ onMounted(() => {
 .search {
    &__title {
       display: flex;
+      justify-content: space-between;
       align-items: center;
       gap: 16px;
    }
@@ -147,6 +161,7 @@ onMounted(() => {
       color: #323232;
       font-size: 32px;
       font-weight: 700;
+      line-height: 1;
       display: flex;
       align-items: center;
       gap: 16px;
@@ -159,12 +174,12 @@ onMounted(() => {
    &__count {
       display: flex;
       align-items: center;
-      height: 24px;
+      height: 28px;
       justify-content: center;
       padding: 4px 10px;
       position: relative;
       border-radius: 12px;
-      background: #EEF9FF;
+      background: #D6EFFF;
       font-weight: 400;
       font-size: 14px;
       color: #3366FF;
@@ -213,6 +228,27 @@ onMounted(() => {
    img {
       height: 40px;
       width: 40px;
+   }
+}
+
+.save-search-button {
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   background: none;
+   border: none;
+   cursor: pointer;
+   color: #3366FF;
+   font-size: 14px;
+   font-weight: 400;
+
+   img {
+      width: 14px;
+      height: 14px;
+   }
+
+   &:hover {
+      text-decoration: underline;
    }
 }
 </style>

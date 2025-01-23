@@ -15,16 +15,16 @@ const props = defineProps({
       required: true
    },
    checked: {
-      type: Number,
-      default: 0 
+      type: [Number, Boolean],
+      default: 0
    }
 });
 
 const checkboxId = `checkbox-${Math.random().toString(36).substr(2, 9)}`;
 
 const isChecked = computed({
-   get: () => props.checked === 1, 
-   set: (value) => emit('updateChecked', value ? 1 : 0) 
+   get: () => props.checked === 1,
+   set: (value) => emit('updateChecked', value ? 1 : 0)
 });
 
 watch(() => props.checked, (newValue) => {

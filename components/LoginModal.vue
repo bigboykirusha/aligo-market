@@ -50,7 +50,7 @@
                      <!-- Ввод телефона -->
                      <input v-show="isPhoneTab" :class="{ 'input-error': contactInfoError && isPhoneTab }" type="tel"
                         @keydown.backspace="handleBackspace" v-model="phoneNumber" class="phone-input" ref="phoneInput"
-                        @input="resetError" />
+                        @input="resetError" v-mask="'+7 (###) ###-##-##'" />
                      <!-- Ввод email -->
                      <input v-show="!isPhoneTab" type="email" v-model="email" @input="handleInput" class="phone-input"
                         :class="{ 'input-error': contactInfoError && !isPhoneTab }" ref="emailInput" />

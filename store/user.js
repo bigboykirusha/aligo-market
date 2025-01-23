@@ -71,6 +71,9 @@ export const useUserStore = defineStore('user', {
       setCountUnreadNotify() {
          this.countUnreadNotify += 1;
       },
+      decCountUnreadNotify() {
+         this.countUnreadNotify -= 1;
+      },
       setCounts(countData) {
          if (countData.success) {
             this.countAds = countData.count_ads ?? this.countAds;

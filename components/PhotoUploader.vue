@@ -8,13 +8,13 @@
             <!-- Кнопка удаления для фото с сервера и для локальных фото -->
             <button v-if="photo.is_file === 1 || photo.is_file === 0" @click="removePhoto(index, photo)"
                class="photo-uploader__remove-btn">
-               <img src="../assets/icons/close-white.svg" alt="" />
+               <img src="../assets/icons/close-white.svg" alt="Remove photo" />
             </button>
          </div>
          <div v-if="localPhotos.length < maxPhotos" class="photo-uploader__add-btn" @click="triggerFileInput">
             <input type="file" ref="fileInput" @change="onPhotoSelected" multiple />
             <span>
-               <img src="../assets/icons/photo-add.svg" alt="" />
+               <img src="../assets/icons/photo-add.svg" alt="Add photo" />
             </span>
          </div>
       </div>
@@ -23,7 +23,7 @@
 
 <script setup>
 import { ref, watch, onMounted } from 'vue';
-import { useCreateStore } from '@/store/create'; // Импортируем store
+import { useCreateStore } from '@/store/create';
 
 const props = defineProps({
    label: {
@@ -43,7 +43,18 @@ const props = defineProps({
 const emit = defineEmits(['updatePhotos']);
 const localPhotos = ref([...props.photos]);
 const baseUrl = 'https://api.aligo.ru';
-const createStore = useCreateStore(); 
+const createStore = useCreateStore();
+
+// Список допустимых форматов файлов
+const allowedFileTypes = [
+   'image/jpeg',
+   'image/jpg',
+   'image/png',
+   'image/webp',
+   'image/heic',
+   'image/heif',
+];
+
 watch(
    () => props.photos,
    (newPhotos) => {
@@ -55,18 +66,27 @@ const onPhotoSelected = (event) => {
    const files = event.target.files;
    if (!files) return;
 
-   const newPhotos = Array.from(files).slice(0, props.maxPhotos - localPhotos.value.length);
+   // Фильтруем файлы по допустимым типам
+   const validFiles = Array.from(files).filter((file) =>
+      allowedFileTypes.includes(file.type)
+   );
 
-   // Добавляем файлы пользователя в локальные фото
-   newPhotos.forEach(file => {
+   if (validFiles.length < files.length) {
+      alert('Можно загружать только изображения (jpeg, jpg, png, webp, heic, heif).');
+   }
+
+   const newPhotos = validFiles.slice(0, props.maxPhotos - localPhotos.value.length);
+
+   newPhotos.forEach((file) => {
       localPhotos.value.push({ file, is_file: 1 }); // Отметка, что это файл пользователя
    });
 
    emit('updatePhotos', localPhotos.value);
+
+   event.target.value = '';
 };
 
 const removePhoto = (index, photo) => {
-   // Если фото с сервера, добавляем его ID в список удаленных
    if (photo.is_file === 0 && photo.id) {
       createStore.setIdsDeletePhotos(photo.id); // Добавляем ID удаленной фотографии
    }
@@ -84,7 +104,6 @@ const triggerFileInput = () => {
 
 const fileInput = ref(null);
 
-// Функция для получения URL изображения
 const getImageUrl = (photo) => {
    if (photo.is_file === 0) {
       // Для серверных фото (полученных через API)

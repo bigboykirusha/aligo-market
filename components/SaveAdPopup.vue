@@ -6,7 +6,10 @@
          </button>
          <p class="popup-text">{{ title }}</p>
          <div class="popup-buttons">
-            <button class="popup-button" @click="handleSave">Сохранить</button>
+            <button class="popup-button" @click="handleSave" :disabled="isSaving">
+               <span v-if="!isSaving">Сохранить</span>
+               <span v-else class="spinner"></span>
+            </button>
             <button class="popup-button popup-button--cancel" @click="handleDiscard">Не сохранять</button>
          </div>
       </div>
@@ -15,6 +18,7 @@
 
 <script setup>
 import closeIcon from '../assets/icons/close.svg';
+import { ref } from 'vue';
 
 const props = defineProps({
    title: {
@@ -28,9 +32,20 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close', 'save', 'discard']);
+const isSaving = ref(false);
 
-const handleSave = () => {
-   emit('save');
+const handleSave = async () => {
+   if (!isSaving.value) {
+      isSaving.value = true;
+      try {
+         await new Promise((resolve) => setTimeout(resolve, 3000));
+         emit('save');
+      } catch (error) {
+         console.error('Ошибка сохранения:', error);
+      } finally {
+         isSaving.value = false;
+      }
+   }
 };
 
 const handleDiscard = () => {
@@ -42,7 +57,7 @@ const closePopup = () => {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .overlay {
    position: fixed;
    top: 0;
@@ -115,6 +130,11 @@ const closePopup = () => {
    transition: all 0.2s ease-in;
    color: white;
    background-color: #3366ff;
+
+   &:disabled {
+      background-color: #EEEEEE;
+      cursor: not-allowed;
+   }
 }
 
 .popup-button:hover {
@@ -129,5 +149,25 @@ const closePopup = () => {
 
 .popup-button--cancel:hover {
    background-color: #A4DCFF !important;
+}
+
+.spinner {
+   display: inline-block;
+   width: 16px;
+   height: 16px;
+   border: 2px solid #fff;
+   border-top: 2px solid #3366FF;
+   border-radius: 50%;
+   animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+   from {
+      transform: rotate(0deg);
+   }
+
+   to {
+      transform: rotate(360deg);
+   }
 }
 </style>
