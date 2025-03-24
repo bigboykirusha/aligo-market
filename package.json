@@ -38,6 +38,7 @@
     "@mdi/font": "^7.4.47",
     "@nuxt/fonts": "^0.7.1",
     "@types/node": "^20.14.9",
+    "rollup": "^4.37.0",
     "sass": "^1.77.6",
     "sass-loader": "^14.2.1",
     "tinyexec": "^0.3.2",
