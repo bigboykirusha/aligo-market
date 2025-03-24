@@ -100,7 +100,12 @@ const handleMarkAsRead = async (id) => {
 const handleDeleteNotification = async (id) => {
    try {
       await deleteNotificationById(id);
-      userStore.decCountUnreadNotify();
+      const notification = notifications.value.find((notif) => notif.id === id);
+
+      if (notification && !notification.read_at) {
+         userStore.decCountUnreadNotify();
+      }
+
       notifications.value = notifications.value.filter((notif) => notif.id !== id);
    } catch (error) {
       console.error('Ошибка при удалении уведомления:', error);

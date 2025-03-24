@@ -22,11 +22,30 @@ defineProps({
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .header__icon-wrapper {
    display: flex;
    align-items: center;
-   gap: 6px;
+   gap: 8px;
+   color: #FFFFFF;
+   font-size: 12px;
+   font-weight: 400;
+   padding: 0 8px;
+   height: 24px;
+   border-radius: 12px;
+   background: none;
+   border: none;
+   cursor: pointer;
+   text-decoration: none;
+   transition: background-color 0.2s ease-in-out;
+
+   &.header__icon-wrapper--active {
+      background-color: #144DF8;
+   }
+
+   &:hover {
+      background-color: #0c41e0;
+   }
 }
 
 .header__icon-count {

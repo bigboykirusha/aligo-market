@@ -7,8 +7,11 @@
 <style scoped lang="scss">
 .car-details-skeleton {
    width: 100%;
+   display: flex;
+   min-width: 746px;
    height: 470px;
    margin-bottom: 40px;
+   margin-left: auto;
 
    .skeleton-block {
       background-color: #d6d6d6;
@@ -18,8 +21,9 @@
       height: 100%;
    }
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       height: 230px;
+      min-width: 100%;
    }
 }
 

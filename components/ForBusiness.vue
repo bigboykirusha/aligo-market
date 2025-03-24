@@ -16,7 +16,6 @@
 <style scoped lang="scss">
 .business {
    max-width: 750px;
-   margin: 100px auto 0;
    display: flex;
    flex-direction: column;
    align-items: center;
@@ -24,18 +23,20 @@
    padding: 30px 40px 70px;
    width: 100%;
 
-   @media screen and (max-width: 590px) {
+   @media (max-width: 590px) {
       justify-content: flex-start;
       min-height: 90vh;
    }
 
    &__block {
       display: grid;
+      align-items: center;
+      justify-content: center;
       grid-template-columns: 1fr 1fr;
       gap: 20px;
       text-align: center;
 
-      @media screen and (max-width: 590px) {
+      @media (max-width: 590px) {
          display: flex;
          flex-direction: column;
          gap: 40px;

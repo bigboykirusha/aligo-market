@@ -1,6 +1,6 @@
 <template>
-   <div v-if="photos.length" :class="containerClass">
-      <div v-if="imagePhotos.length" :class="containerClass">
+   <div v-if="imagePhotos.length" :class="containerClass">
+      <div :class="containerClass">
          <template v-if="imagePhotos.length === 1">
             <img :src="getPhotoPath(imagePhotos[0])" :class="photoClass(1)" loading="lazy" />
          </template>
@@ -59,28 +59,14 @@ const props = defineProps({
 
 const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
 
-// Определение пути фотографии
-const getPhotoPath = (photo) => {
-   if (photo.path instanceof File) {
-      return URL.createObjectURL(photo.path); // Создаёт URL для объекта File
-   }
-   return getImageUrl(photo.path); // Применяем getImageUrl для строк
-};
+const getPhotoPath = (photo) => getImageUrl(photo.arr_title_size.default);
 
-// Фильтрация фотографий
 const imagePhotos = computed(() =>
-   props.photos.filter(photo => {
-      const path = photo.path instanceof File ? photo.path.name : photo.path;
-      return imageExtensions.includes(path.split('.').pop().toLowerCase());
-   })
+   props.photos.filter(photo => !photo.is_file && imageExtensions.includes(photo.title.split('.').pop().toLowerCase()))
 );
 
-// Фильтрация файлов (не фотографии)
 const filePhotos = computed(() =>
-   props.photos.filter(photo => {
-      const path = photo.path instanceof File ? photo.path.name : photo.path;
-      return !imageExtensions.includes(path.split('.').pop().toLowerCase());
-   })
+   props.photos.filter(photo => photo.is_file || !imageExtensions.includes(photo.title.split('.').pop().toLowerCase()))
 );
 
 const containerClass = computed(() => ({

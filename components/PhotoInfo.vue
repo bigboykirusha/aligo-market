@@ -6,7 +6,7 @@
             <div class="car-info__block">
                <div class="car-info__amount">{{ formatNumberWithSpaces(amount) }} ₽</div>
                <WishlistButton v-if="!(userId === userStore.userId)" @toggle-login-modal="toggleLoginModal" :id="adsId"
-                  :is_in_favorites="inFavorite" />
+                  size="big" />
             </div>
          </div>
          <div class="car-info__content">
@@ -106,7 +106,7 @@ const fetchUserData = async () => {
       const data = await getUserOtherInfo(props.userId);
       userData.value = data;
       inFavorite.value = data.is_in_favorites;
-      userAvatarUrl.value = getImageUrl(data.photo?.path, avatar);
+      userAvatarUrl.value = getImageUrl(data.photo?.arr_title_size.preview, avatar);
    } catch (error) {
       console.error('Ошибка при получении данных пользователя: ', error);
    }
@@ -116,10 +116,10 @@ const fetchCarData = async () => {
    try {
       const data = await getCarById(props.adsId);
       carData.value = data;
-      amount.value = data.ads_parameter.amount;
-      brand.value = data.auto_technical_specifications[0].brand.title;
-      model.value = data.auto_technical_specifications[0].model.title;
-      year.value = data.auto_technical_specifications[0].year_release.title;
+      amount.value = data?.ads_parameter?.amount || 'Не указано';
+      brand.value = data?.auto_technical_specifications?.[0]?.brand?.title || 'Не указано';
+      model.value = data?.auto_technical_specifications?.[0]?.model?.title || 'Не указано';
+      year.value = data?.auto_technical_specifications?.[0]?.year_release?.title || 'Не указано';
    } catch (error) {
       console.error('Ошибка при получении данных автомобиля: ', error);
    }
@@ -128,18 +128,18 @@ const fetchCarData = async () => {
 const characteristics = computed(() => {
    if (!carData.value) return {};
 
-   const mileage = carData.value.auto_history_conditions[0].mileage;
+   const mileage = carData.value?.auto_history_conditions?.[0]?.mileage;
    const mileageText = mileage ? `${mileage} км` : 'Не указано';
 
    return {
       'Пробег': mileageText,
-      'Владельцев по ПТС': carData.value.auto_history_conditions[0].count_owners?.title || 'Не указано',
-      'Состояние': carData.value.auto_history_conditions[0].state.title || 'Не указано',
-      'Тип двигателя': carData.value.auto_technical_specifications[0].engine_type.title || 'Не указано',
-      'Привод': carData.value.auto_technical_specifications[0].drive.title || 'Не указано',
-      'Тип кузова': carData.value.auto_technical_specifications[0].car_body_type.title || 'Не указано',
-      'Цвет': carData.value.auto_appearances[0].color.title || 'Не указано',
-      'Руль': carData.value.auto_technical_specifications[0].handlebar.title || 'Не указано',
+      'Владельцев по ПТС': carData.value?.auto_history_conditions?.[0]?.count_owners?.title || 'Не указано',
+      'Состояние': carData.value?.auto_history_conditions?.[0]?.state?.title || 'Не указано',
+      'Тип двигателя': carData.value?.auto_technical_specifications?.[0]?.engine_type?.title || 'Не указано',
+      'Привод': carData.value?.auto_technical_specifications?.[0]?.drive?.title || 'Не указано',
+      'Тип кузова': carData.value?.auto_technical_specifications?.[0]?.car_body_type?.title || 'Не указано',
+      'Цвет': carData.value?.auto_appearances?.[0]?.color?.title || 'Не указано',
+      'Руль': carData.value?.auto_technical_specifications?.[0]?.handlebar?.title || 'Не указано',
    };
 });
 
@@ -205,6 +205,7 @@ onMounted(() => {
 .photo-info {
    min-width: 320px;
    padding: 32px 24px;
+   padding-top: 24px;
    display: flex;
    height: 100%;
    flex-direction: column;
@@ -259,6 +260,7 @@ onMounted(() => {
       font-size: 16px;
       font-weight: 700;
       line-height: 20px;
+      padding: 6px 0;
    }
 
    .car-info__content {

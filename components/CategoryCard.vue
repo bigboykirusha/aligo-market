@@ -1,7 +1,7 @@
 <template>
    <div class="card">
-      <nuxt-link :to="category.href" class="card__cover"
-         :style="{ backgroundImage: 'url(' + category.imgSrc + ')' }" @click.native="handleMainClick">
+      <nuxt-link :to="category.href" class="card__cover" :style="{ backgroundImage: 'url(' + category.imgSrc + ')' }"
+         @click.native="handleMainClick">
          <div class="card__content">
             <span class="card__title">{{ category.title }}</span>
             <ul class="card__list">
@@ -29,14 +29,14 @@ const props = defineProps({
 });
 
 const handleMainClick = () => {
-   filtersStore.setSelectedCondition(null);
+   filtersStore.setFilter('selectedCondition', null);
 };
 
 const handleSubcategoryClick = (subcategory) => {
    if (subcategory.title === 'Подержанные авто') {
-      filtersStore.setSelectedCondition(2);
+      filtersStore.setFilter('selectedCondition', 2);
    } else if (subcategory.title === 'Новые авто') {
-      filtersStore.setSelectedCondition(1);
+      filtersStore.setFilter('selectedCondition', 1);
    }
 };
 </script>

@@ -4,13 +4,13 @@
          :class="{ 'filters__toggle--with-margin': !isWithMargin && showFilters }" ref="filtersRef">
          <div v-show="!isSecondClicked && !showFilters" class="filters__toggle-item" @click="toggleFirst">
             <SelectSkeleton v-if="loading" />
-            <SelectOptionsTemplate v-else :options="switcherConditionOptions" @updateSort="handleConditionUpdate"
-               :initialSelectedOption="selectedCondition" placeholder="Все" />
+            <SelectOptionsTemplate v-else :options="switcherConditionOptions" @updateSort="handleButtonClick($event)"
+               :initialSelectedOption="filtersStore.selectedCondition" placeholder="Все" />
          </div>
          <div v-show="!isFirstClicked && !showFilters" class="filters__toggle-item" @click="toggleSecond">
             <SelectSkeleton v-if="loading" />
             <AutosSelectTemplate v-else :options="dropdownMarksOptions" @updateSort="handleMarksUpdate"
-               :initialSelectedOptions="selectedMarkI" placeholder="Марка" :key="marksComponentKey" />
+               :initialSelectedOptions="filtersStore.selectedMark" placeholder="Марка" :key="marksComponentKey" />
          </div>
          <div v-if="showFilters" class="filters__settings--large">Настройки поиска</div>
          <div @click="resetFilters" v-if="showFilters" class="filters__settings">
@@ -33,62 +33,68 @@
          <div class="filters__title">Поиск автомобиля</div>
          <SwitcherSkeleton v-if="loading" />
          <AutosButtonsTemplate v-else :options="switcherConditionOptions" label="Категория"
-            @updateSelected="handleConditionUpdate" :activeIndex="selectedCondition" />
+            @updateSelected="handleButtonClick($event)" :activeIndex="filtersStore.selectedCondition" />
 
          <SwitcherSkeleton v-if="loading" />
-         <AutosSwitcherTemplate v-else-if="selectedCondition !== 1" :options="switcherStateOptions" label="Состояние"
-            @updateSelected="handleStateUpdate" :activeIndex="selectedState" :dis="selectedCondition === 1" />
+         <AutosSwitcherTemplate v-else-if="filtersStore.selectedCondition !== 1" :options="switcherStateOptions"
+            label="Состояние" @updateSelected="handleFilterUpdate('selectedState', $event)"
+            :activeIndex="filtersStore.selectedState" :dis="filtersStore.selectedCondition === 1" />
 
          <SelectSkeleton v-if="loading" />
          <AutosSelectTemplate v-else :options="dropdownMarksOptions" label="Марка" @updateSort="handleMarksUpdate"
-            :initialSelectedOptions="selectedMarkI" placeholder="Нажмите для выбора" />
+            :initialSelectedOptions="filtersStore.selectedMark" placeholder="Нажмите для выбора" />
 
          <SelectSkeleton v-if="loading" />
          <AutosSelectTemplate v-else :options="dropdownModelsOptions" label="Модель"
             :disabled="isModelsDropdownDisabled" @updateSort="handleModelsUpdate"
-            :initialSelectedOptions="selectedModelI" placeholder="Нажмите для выбора" />
+            :initialSelectedOptions="filtersStore.selectedModel" placeholder="Нажмите для выбора" />
 
          <FromToSkeleton v-if="loading" />
-         <AutosFromToTemplate v-else label="Цена" @updateRange="handlePriceRangeUpdate"
-            :initialMinValue="priceRange.min" :initialMaxValue="priceRange.max" />
+         <AutosFromToTemplate v-else label="Цена" @updateRange="handleFilterUpdate('priceRange', $event)"
+            :initialMinValue="filtersStore.priceRange.min" :initialMaxValue="filtersStore.priceRange.max" />
 
          <FromToSkeleton v-if="loading" />
-         <AutosFromToTemplate v-else label="Год выпуска" @updateRange="handleYearRangeUpdate"
-            :initialMinValue="yearRange.min" :initialMaxValue="yearRange.max" />
+         <AutosFromToTemplate v-else label="Год выпуска" @updateRange="handleFilterUpdate('yearRange', $event)"
+            :initialMinValue="filtersStore.yearRange.min" :initialMaxValue="filtersStore.yearRange.max" />
 
          <CheckboxSkeleton v-if="loading" />
          <AutosCheckboxTemplate v-else :options="checkboxBodyTypeOptions" label="Тип кузова"
-            @updateSelected="handleBodyTypeUpdate" :activeIndexes="selectedBodyTypes" />
+            @updateSelected="handleFilterUpdate('selectedBodyTypes', $event)"
+            :activeIndexes="filtersStore.selectedBodyTypes" />
 
          <SelectSkeleton v-if="loading" />
          <AutosSelectTemplate v-else :options="dropdownTransmissionOptions" label="Коробка передач"
-            @updateSort="handleTransmissionUpdate" :initialSelectedOptions="selectedTransmission"
-            placeholder="Нажмите для выбора" />
+            @updateSort="handleFilterUpdate('selectedTransmission', $event)"
+            :initialSelectedOptions="filtersStore.selectedTransmission" placeholder="Нажмите для выбора" />
 
          <CheckboxSkeleton v-if="loading" />
          <AutosCheckboxTemplate v-else :options="checkboxEngineTypeOptions" label="Тип двигателя"
-            @updateSelected="handleEngineTypeUpdate" :activeIndexes="selectedEngineTypes" />
+            @updateSelected="handleFilterUpdate('selectedEngineTypes', $event)"
+            :activeIndexes="filtersStore.selectedEngineTypes" />
 
          <FromToSkeleton v-if="loading" />
-         <AutosFromToTemplate v-else-if="selectedCondition !== 1" label="Пробег, км"
-            @updateRange="handleMileageRangeUpdate" :dis="selectedCondition === 1" :initialMinValue="mileageRange.min"
-            :initialMaxValue="mileageRange.max" />
+         <AutosFromToTemplate v-else-if="filtersStore.selectedCondition !== 1" label="Пробег, км"
+            @updateRange="handleFilterUpdate('mileageRange', $event)" :dis="filtersStore.selectedCondition === 1"
+            :initialMinValue="filtersStore.mileageRange.min" :initialMaxValue="filtersStore.mileageRange.max" />
 
          <FromToSkeleton v-if="loading" />
-         <AutosFromToTemplate v-else label="Объём двигателя, л" @updateRange="handleEngineVolumeRangeUpdate"
-            :initialMinValue="engineVolumeRange.min" :initialMaxValue="engineVolumeRange.max" />
+         <AutosFromToTemplate v-else label="Объём двигателя, л"
+            @updateRange="handleFilterUpdate('engineVolumeRange', $event)"
+            :initialMinValue="filtersStore.engineVolumeRange.min"
+            :initialMaxValue="filtersStore.engineVolumeRange.max" />
 
          <CheckboxSkeleton v-if="loading" />
          <AutosCheckboxTemplate v-else :options="checkboxDriveOptions" label="Привод"
-            @updateSelected="handleDriveUpdate" :activeIndexes="selectedDrives" />
+            @updateSelected="handleFilterUpdate('selectedDrives', $event)"
+            :activeIndexes="filtersStore.selectedDrives" />
 
          <FromToSkeleton v-if="loading" />
-         <AutosFromToTemplate v-else label="Мощность, л.с." @updateRange="handlePowerRangeUpdate"
-            :initialMinValue="powerRange.min" :initialMaxValue="powerRange.max" />
+         <AutosFromToTemplate v-else label="Мощность, л.с." @updateRange="handleFilterUpdate('powerRange', $event)"
+            :initialMinValue="filtersStore.powerRange.min" :initialMaxValue="filtersStore.powerRange.max" />
 
          <ColorPickerSkeleton v-if="loading" />
-         <ColorPickerTemplate v-else :options="colorOptions" label="Цвет" @updateSelected="handleColorUpdate"
-            :activeIndexes="selectedColor" />
+         <ColorPickerTemplate v-else :options="colorOptions" label="Цвет"
+            @updateSelected="handleFilterUpdate('selectedColor', $event)" :activeIndexes="filtersStore.selectedColor" />
       </div>
    </div>
    <div v-show="isAnyFilterSelected && !isButtonClicked" class="filters__overlay">
@@ -103,18 +109,12 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useFiltersStore } from '../store/filters';
 import { useRoute } from 'vue-router';
 import { getCarBrands, getCarModels, getCarTransmission, getCarBodyType, getCarEngineType, getCarDrive, getCarState, getColors, getCarCondition } from '../services/apiClient';
-import AutosButtonsTemplate from './AutosButtonsTemplate.vue';
+import { fetchDataWithCache } from '../services/createUtils'
 
 const searchCars = () => {
-   fetchCars();
-   showFilters.value = false;
-};
-
-
-const fetchCars = () => {
-   console.log(selectedFilters.value, 'выбранные фильтры')
-   isButtonClicked.value = true;
    emit('updateSort');
+   isButtonClicked.value = true;
+   showFilters.value = false;
 };
 
 const loading = ref(true);
@@ -137,7 +137,7 @@ const emit = defineEmits(['updateSort']);
 const isMobile = ref(false);
 const isWithMargin = ref(true);
 
-const isButtonClicked = ref(false);
+const isButtonClicked = ref(true);
 
 const isFirstClicked = ref(false);
 const isSecondClicked = ref(false);
@@ -145,21 +145,6 @@ const filtersRef = ref(null);
 
 const marksComponentKey = ref(0);
 const filtersComponentKey = ref(0);
-
-const selectedCondition = computed(() => filtersStore.selectedCondition);
-const selectedMarkI = computed(() => filtersStore.selectedMark);
-const selectedModelI = computed(() => filtersStore.selectedModel);
-const priceRange = computed(() => filtersStore.priceRange);
-const yearRange = computed(() => filtersStore.yearRange);
-const selectedBodyTypes = computed(() => filtersStore.selectedBodyTypes);
-const selectedTransmission = computed(() => filtersStore.selectedTransmission);
-const selectedEngineTypes = computed(() => filtersStore.selectedEngineTypes);
-const mileageRange = computed(() => filtersStore.mileageRange);
-const engineVolumeRange = computed(() => filtersStore.engineVolumeRange);
-const selectedDrives = computed(() => filtersStore.selectedDrives);
-const selectedColor = computed(() => filtersStore.selectedColor);
-const selectedState = computed(() => filtersStore.selectedState);
-const powerRange = computed(() => filtersStore.powerRange);
 
 const toggleFirst = () => {
    isFirstClicked.value = true;
@@ -182,12 +167,17 @@ const handleScroll = () => {
    isWithMargin.value = window.scrollY === 0;
 };
 
+const handleButtonClick = (value) => {
+   isButtonClicked.value = true;
+   console.log(value);
+   handleFilterUpdate('selectedCondition', value)
+};
 
 if (route.path.includes('autos/new')) {
-   filtersStore.setSelectedCondition(1);
-} else if (route.path.includes('autos/mileage')) {
-   filtersStore.setSelectedCondition(2);
-}
+   handleFilterUpdate('selectedCondition', 1);
+} else if (route.path.includes('autos/used')) {
+   handleFilterUpdate('selectedCondition', 2);
+} 
 
 const fetchOptions = async () => {
    try {
@@ -204,6 +194,46 @@ const fetchOptions = async () => {
       loading.value = false;
    } catch (error) {
       console.error('Ошибка при загрузке данных:', error);
+   }
+};
+
+const fetchMarksDropdownOptions = async () => {
+   dropdownMarksOptions.value = await fetchDataWithCache('MarksDropdownOptions', getCarBrands);
+};
+
+const fetchColorOptions = async () => {
+   colorOptions.value = await fetchDataWithCache('ColorOptions', getColors);
+};
+
+const fetchConditionOptions = async () => {
+   switcherConditionOptions.value = await fetchDataWithCache('ConditionOptions', getCarCondition);
+};
+
+const fetchTransmissionDropdownOptions = async () => {
+   dropdownTransmissionOptions.value = await fetchDataWithCache('TransmissionDropdownOptions', getCarTransmission);
+};
+
+const fetchBodyTypeOptions = async () => {
+   checkboxBodyTypeOptions.value = await fetchDataWithCache('BodyTypeOptions', getCarBodyType);
+};
+
+const fetchEngineTypeOptions = async () => {
+   checkboxEngineTypeOptions.value = await fetchDataWithCache('EngineTypeOptions', getCarEngineType);
+};
+
+const fetchDriveOptions = async () => {
+   checkboxDriveOptions.value = await fetchDataWithCache('DriveOptions', getCarDrive);
+};
+
+const fetchStateOptions = async () => {
+   switcherStateOptions.value = await fetchDataWithCache('StateOptions', getCarState);
+};
+
+const fetchModelsDropdownOptions = async (id) => {
+   try {
+      dropdownModelsOptions.value = await getCarModels(id);
+   } catch (error) {
+      console.error('Ошибка при получении моделей автомобилей:', error);
    }
 };
 
@@ -322,56 +352,57 @@ const capitalizeTitle = (text) => {
 
 const removeFilter = (filter) => {
    switch (filter.type) {
-      case 'mark': { filtersStore.setSelectedMark(filtersStore.selectedMark.filter(id => id !== filter.value)); marksComponentKey.value += 1; }
+      case 'mark':
          // Удаление марки
-
+         handleMarksUpdate(filtersStore.selectedMark.filter(id => id !== filter.value));
+         marksComponentKey.value += 1;
          break;
       case 'model':
          // Удаление модели
-         filtersStore.setSelectedModel(filtersStore.selectedModel.filter(id => id !== filter.value));
+         handleFilterUpdate('selectedModel', filtersStore.selectedModel.filter(id => id !== filter.value));
          break;
       case 'bodyType':
          // Удаление типа кузова
-         filtersStore.setSelectedBodyTypes(filtersStore.selectedBodyTypes.filter(id => id !== filter.value));
+         handleFilterUpdate('selectedBodyTypes', filtersStore.selectedBodyTypes.filter(id => id !== filter.value));
          break;
       case 'transmission':
          // Удаление коробки передач
-         filtersStore.setSelectedTransmission(filtersStore.selectedTransmission.filter(id => id !== filter.value));
+         handleFilterUpdate('selectedTransmission', filtersStore.selectedTransmission.filter(id => id !== filter.value));
          break;
       case 'color':
          // Удаление цвета
-         filtersStore.setSelectedColor(filtersStore.selectedColor.filter(id => id !== filter.value));
+         handleFilterUpdate('selectedColor', filtersStore.selectedColor.filter(id => id !== filter.value));
          break;
       case 'priceRange':
          // Сброс диапазона цен
-         filtersStore.setPriceRange({ min: null, max: null });
+         handleFilterUpdate('priceRange', { min: null, max: null });
          break;
       case 'mileageRange':
          // Сброс диапазона пробега
-         filtersStore.setMileageRange({ min: null, max: null });
+         handleFilterUpdate('mileageRange', { min: null, max: null });
          break;
       case 'engineVolumeRange':
          // Сброс диапазона объема двигателя
-         filtersStore.setEngineVolumeRange({ min: null, max: null });
+         handleFilterUpdate('engineVolumeRange', { min: null, max: null });
          break;
       case 'powerRange':
          // Сброс диапазона мощности
-         filtersStore.setPowerRange({ min: null, max: null });
+         handleFilterUpdate('powerRange', { min: null, max: null });
          break;
       case 'drive':
          // Удаление привода
-         filtersStore.setSelectedDrives(filtersStore.selectedDrives.filter(id => id !== filter.value));
+         handleFilterUpdate('selectedDrives', filtersStore.selectedDrives.filter(id => id !== filter.value));
          break;
       case 'condition':
          // Удаление категории (новые/с пробегом)
-         filtersStore.setSelectedCondition(null);
+         handleFilterUpdate('selectedCondition', null);
          break;
       case 'state':
          // Удаление состояния (битый/не битый)
-         filtersStore.setSelectedState(null);
+         handleFilterUpdate('selectedState', null);
          break;
       case 'engineType':
-         filtersStore.setSelectedEngineTypes(filtersStore.selectedEngineTypes.filter(id => id !== filter.value)); // Добавлено удаление типа двигателя
+         handleFilterUpdate('selectedEngineTypes', filtersStore.selectedEngineTypes.filter(id => id !== filter.value));
          break;
    }
 };
@@ -387,126 +418,19 @@ const isAnyFilterSelected = computed(() => {
       (filtersStore.priceRange.min !== null && filtersStore.priceRange.max !== null) ||
       (filtersStore.mileageRange.min !== null && filtersStore.mileageRange.max !== null) ||
       (filtersStore.engineVolumeRange.min !== null && filtersStore.engineVolumeRange.max !== null) ||
-      (filtersStore.powerRange.min !== null && filtersStore.powerRange.max !== null);
+      (filtersStore.powerRange.min !== null && filtersStore.powerRange.max !== null) ||
+      (filtersStore.yearRange.min !== null && filtersStore.yearRange.max !== null);
 });
 
-const fetchMarksDropdownOptions = async () => {
-   try {
-      const cachedMarksOptions = JSON.parse(localStorage.getItem('MarksDropdownOptions'));
-      if (cachedMarksOptions) {
-         dropdownMarksOptions.value = cachedMarksOptions;
-      } else {
-         dropdownMarksOptions.value = await getCarBrands();
-         localStorage.setItem('MarksDropdownOptions', JSON.stringify(dropdownMarksOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении брендов автомобилей:', error);
-   }
-};
-
-const fetchColorOptions = async () => {
-   try {
-      const cachedColorOptions = JSON.parse(localStorage.getItem('ColorOptions'));
-      if (cachedColorOptions) {
-         colorOptions.value = cachedColorOptions;
-      } else {
-         colorOptions.value = await getColors();
-         localStorage.setItem('ColorOptions', JSON.stringify(colorOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении цветов автомобилей:', error);
-   }
-};
-
-const fetchConditionOptions = async () => {
-   try {
-      const cachedConditionOptions = JSON.parse(localStorage.getItem('ConditionOptions'));
-      if (cachedConditionOptions) {
-         switcherConditionOptions.value = cachedConditionOptions;
-      } else {
-         switcherConditionOptions.value = await getCarCondition();
-         localStorage.setItem('ConditionOptions', JSON.stringify(switcherConditionOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении условий автомобилей:', error);
-   }
-};
-
-const fetchModelsDropdownOptions = async (id) => {
-   try {
-      dropdownModelsOptions.value = await getCarModels(id);
-   } catch (error) {
-      console.error('Ошибка при получении моделей автомобилей:', error);
-   }
-};
-
-const fetchTransmissionDropdownOptions = async () => {
-   try {
-      const cachedTransmissionOptions = JSON.parse(localStorage.getItem('TransmissionDropdownOptions'));
-      if (cachedTransmissionOptions) {
-         dropdownTransmissionOptions.value = cachedTransmissionOptions;
-      } else {
-         dropdownTransmissionOptions.value = await getCarTransmission();
-         localStorage.setItem('TransmissionDropdownOptions', JSON.stringify(dropdownTransmissionOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении коробок передач:', error);
-   }
-};
-
-const fetchBodyTypeOptions = async () => {
-   try {
-      const cachedBodyTypeOptions = JSON.parse(localStorage.getItem('BodyTypeOptions'));
-      if (cachedBodyTypeOptions) {
-         checkboxBodyTypeOptions.value = cachedBodyTypeOptions;
-      } else {
-         checkboxBodyTypeOptions.value = await getCarBodyType();
-         localStorage.setItem('BodyTypeOptions', JSON.stringify(checkboxBodyTypeOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении типов кузова:', error);
-   }
-};
-
-const fetchEngineTypeOptions = async () => {
-   try {
-      const cachedEngineTypeOptions = JSON.parse(localStorage.getItem('EngineTypeOptions'));
-      if (cachedEngineTypeOptions) {
-         checkboxEngineTypeOptions.value = cachedEngineTypeOptions;
-      } else {
-         checkboxEngineTypeOptions.value = await getCarEngineType();
-         localStorage.setItem('EngineTypeOptions', JSON.stringify(checkboxEngineTypeOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении типов двигателя:', error);
-   }
-};
-
-const fetchDriveOptions = async () => {
-   try {
-      const cachedDriveOptions = JSON.parse(localStorage.getItem('DriveOptions'));
-      if (cachedDriveOptions) {
-         checkboxDriveOptions.value = cachedDriveOptions;
-      } else {
-         checkboxDriveOptions.value = await getCarDrive();
-         localStorage.setItem('DriveOptions', JSON.stringify(checkboxDriveOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении типов привода:', error);
-   }
-};
-
-const fetchStateOptions = async () => {
-   try {
-      const cachedStateOptions = JSON.parse(localStorage.getItem('StateOptions'));
-      if (cachedStateOptions) {
-         switcherStateOptions.value = cachedStateOptions;
-      } else {
-         switcherStateOptions.value = await getCarState();
-         localStorage.setItem('StateOptions', JSON.stringify(switcherStateOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении состояния автомобилей:', error);
+const handleFilterUpdate = (field, value) => {
+   if (field === 'selectedCondition') {
+      filtersStore.setFilter('selectedCondition', value);
+      filtersStore.setFilter('mileageRange', { min: null, max: null });
+      filtersStore.setFilter('selectedState', null);
+      emit('updateSort');
+   } else {
+      filtersStore.setFilter(field, value);
+      if (field !== 'selectedColor') { resetButtonVisibility() };
    }
 };
 
@@ -514,16 +438,16 @@ const handleMarksUpdate = (selectedOptions) => {
    marksComponentKey.value += 1;
    if (selectedMark.value !== selectedOptions) {
       selectedMark.value = selectedOptions;
-      filtersStore.setSelectedMark(selectedOptions);
+      handleFilterUpdate('selectedMark', selectedOptions);
 
       if (selectedOptions.length === 1) {
          fetchModelsDropdownOptions(selectedOptions[0]);
          selectedModel.value = [];
-         filtersStore.setSelectedModel([]);
+         handleFilterUpdate('selectedModel', []);
       } else {
          dropdownModelsOptions.value = [];
          selectedModel.value = [];
-         filtersStore.setSelectedModel([]);
+         handleFilterUpdate('selectedModel', []);
       }
    }
 };
@@ -531,7 +455,7 @@ const handleMarksUpdate = (selectedOptions) => {
 const handleModelsUpdate = (selectedOptions) => {
    if (selectedModel.value !== selectedOptions) {
       selectedModel.value = selectedOptions;
-      filtersStore.setSelectedModel(selectedOptions);
+      handleFilterUpdate('selectedModel', selectedOptions);
    }
 };
 
@@ -539,52 +463,20 @@ const resetFilters = () => {
    filtersStore.resetFilters();
    filtersComponentKey.value += 1;
    marksComponentKey.value += 1;
-   fetchCars();
+   emit('updateSort');
 };
-
-const handlePriceRangeUpdate = (range) => filtersStore.setPriceRange(range);
-const handleYearRangeUpdate = (range) => filtersStore.setYearRange(range);
-const handleMileageRangeUpdate = (range) => filtersStore.setMileageRange(range);
-const handleEngineVolumeRangeUpdate = (range) => filtersStore.setEngineVolumeRange(range);
-const handlePowerRangeUpdate = (range) => filtersStore.setPowerRange(range);
-const handleBodyTypeUpdate = (selectedOptions) => filtersStore.setSelectedBodyTypes(selectedOptions);
-const handleTransmissionUpdate = (selectedOptions) => filtersStore.setSelectedTransmission(selectedOptions);
-const handleEngineTypeUpdate = (selectedOptions) => filtersStore.setSelectedEngineTypes(selectedOptions);
-const handleDriveUpdate = (selectedOptions) => filtersStore.setSelectedDrives(selectedOptions);
-const handleStateUpdate = (selectedOptions) => filtersStore.setSelectedState(selectedOptions);
-const handleColorUpdate = (selectedOptions) => filtersStore.setSelectedColor(selectedOptions);
-const handleConditionUpdate = (selectedOptions) => {
-   filtersStore.setSelectedCondition(selectedOptions);
-   filtersStore.setMileageRange({ min: null, max: null });
-   filtersStore.setSelectedState(null);
-   fetchCars();
-};
-
 
 watch(isModelsDropdownDisabled, (newVal) => {
    if (newVal) {
       selectedModel.value = [];
       dropdownModelsOptions.value = [];
-      filtersStore.setSelectedModel([]);
+      handleFilterUpdate('selectedModel', []);
    }
 });
 
 const resetButtonVisibility = () => {
    isButtonClicked.value = false;
 };
-
-watch(() => filtersStore.selectedState, resetButtonVisibility);
-watch(() => filtersStore.selectedMark, resetButtonVisibility, { deep: true });
-watch(() => filtersStore.selectedModel, resetButtonVisibility, { deep: true });
-watch(() => filtersStore.selectedBodyTypes, resetButtonVisibility, { deep: true });
-watch(() => filtersStore.selectedEngineTypes, resetButtonVisibility, { deep: true });
-watch(() => filtersStore.selectedTransmission, resetButtonVisibility, { deep: true });
-watch(() => filtersStore.selectedDrives, resetButtonVisibility, { deep: true });
-watch(() => filtersStore.selectedColor, resetButtonVisibility, { deep: true });
-watch(() => filtersStore.priceRange, resetButtonVisibility, { deep: true });
-watch(() => filtersStore.mileageRange, resetButtonVisibility, { deep: true });
-watch(() => filtersStore.engineVolumeRange, resetButtonVisibility, { deep: true });
-watch(() => filtersStore.powerRange, resetButtonVisibility, { deep: true });
 
 onMounted(() => {
    fetchOptions();
@@ -605,12 +497,6 @@ onMounted(() => {
    }
 });
 
-watch(isAnyFilterSelected, () => {
-   if (isAnyFilterSelected.value && !isButtonClicked.value) {
-      isButtonClicked.value = false;
-   }
-});
-
 onUnmounted(() => {
    window.removeEventListener('resize', () => { });
    document.removeEventListener('click', handleClickOutside);
@@ -626,13 +512,13 @@ onUnmounted(() => {
    flex-direction: column;
    margin-bottom: 40px;
 
-   @media screen and (max-width: 1250px) {
+   @media (max-width: 1250px) {
       max-width: 50%;
       margin: 0 auto;
       margin-bottom: 40px;
    }
 
-   @media screen and (max-width: 1250px) {
+   @media (max-width: 1250px) {
       max-width: 100%;
       margin: 0;
 
@@ -666,7 +552,7 @@ onUnmounted(() => {
             }
          }
 
-         @media screen and (max-width: 768px) {
+         @media (max-width: 768px) {
             &-item {
                &:first-child {
                   width: 100%;
@@ -678,7 +564,7 @@ onUnmounted(() => {
             }
          }
 
-         @media screen and (max-width: 480px) {
+         @media (max-width: 480px) {
             padding: 16px;
             gap: 16px;
 

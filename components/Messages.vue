@@ -2,8 +2,7 @@
    <div class="messages">
       <div v-show="!chatStore.currentChat" class="messages__title">Сообщения</div>
       <div v-if="!chatStore.currentChat && messagesStore.totalCount" class="messages__actions">
-         <input class="message-checkbox" type="checkbox" id="select-all" v-model="selectAll"
-            @change="handleSelectAllChange" />
+         <CheckboxUI class="message-checkbox" v-model="selectAll" @update:modelValue="handleSelectAllChange" />
          <AdsDropdown :options="sortOptions" @updateSort="handleSortUpdate" placeholder="Выбрать чаты" />
          <button v-if="selectedMessagesStore.selectedMessages.length > 0" @click="handleMarkAllAsRead"
             class="messages__action-button">
@@ -34,13 +33,13 @@
                </button>
                <div class="chat-header__info chat-header__info--active">
                   <img v-if="!chatStore.currentChat.is_support"
-                     :src="getImageUrl(chatStore.currentChat.ads_photo[0]?.path)" alt="Ad Image"
+                     :src="getImageUrl(chatStore.currentChat.ads_photo[0]?.arr_title_size.preview)" alt="Ad Image"
                      class="chat-header__ad-image" />
                   <img v-if="chatStore.currentChat.is_support" :src="chatStore.currentChat.sup_photo.path"
                      alt="Ad Image" class="chat-header__supp-image" />
                   <img v-if="!chatStore.currentChat.is_support"
-                     :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.path, avatar)" alt="Avatar"
-                     class="chat-header__avatar" />
+                     :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.arr_title_size.preview, avatar)"
+                     alt="Avatar" class="chat-header__avatar" />
                   <div class="chat-header__details">
                      <span class="chat-header__username">{{ relevantUserInfo(chatStore.currentChat) }}</span>
                      <nuxt-link v-if="!chatStore.currentChat.is_support" :to="`/car/${url}`"
@@ -106,7 +105,8 @@
                            <div
                               :class="['chat-wrapper__message-item', { 'chat-wrapper__message-item--self': item.isSelf }]">
                               <template v-if="!item.isSelf">
-                                 <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.path, avatar)"
+                                 <img
+                                    :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.arr_title_size.preview, avatar)"
                                     alt="Avatar" class="chat-wrapper__message-avatar">
                                  <div class="chat-wrapper__message-bubble">
                                     <MessagePhotos :photos="item.photos" />
@@ -143,7 +143,7 @@
                                        </div>
                                     </div>
                                  </div>
-                                 <img :src="getImageUrl(userStore.photo?.path, avatar)" alt="Avatar"
+                                 <img :src="getImageUrl(userStore.photo?.arr_title_size.preview, avatar)" alt="Avatar"
                                     class="chat-wrapper__message-avatar chat-wrapper__message-avatar--self">
                               </template>
                            </div>
@@ -220,7 +220,6 @@ import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useChatStore } from '~/store/chatStore';
 import { getImageUrl } from '../services/imageUtils';
 import { useSelectedMessagesStore } from '~/store/selectedMessages';
-import { formatNumberWithSpaces } from '../services/amountUtils.js';
 import { relevantUser, relevantUserInfo } from '../services/userUtils.js'
 import { fetchMessages, sendMessage, getTechSupport, sendSupport } from '~/services/apiClient';
 import { useUserStore } from '~/store/user';
@@ -238,7 +237,6 @@ const toUserId = computed(() => {
       : chatStore.currentChat.for_user.id;
 });
 const newMessage = ref('');
-const total = computed(() => messagesStore.totalCount);
 const lastMessages = computed(() => messagesStore.lastMessages);
 const loading = ref(false);
 const isMobile = ref(false);
@@ -308,6 +306,14 @@ const closeChat = () => {
 
 const handleMarkAllAsRead = async () => {
    try {
+      const selectedIds = selectedMessagesStore.selectedMessages.map(message => message.id);
+
+      messagesStore.lastMessages.forEach(message => {
+         if (selectedIds.includes(message.id)) {
+            message.read_at = true;
+         }
+      });
+
       await selectedMessagesStore.markSelectedChatsAsRead();
    } catch (error) {
       console.error('Ошибка при пометке всех сообщений как прочитанных:', error);
@@ -316,12 +322,26 @@ const handleMarkAllAsRead = async () => {
 
 const handleDeleteAll = async () => {
    try {
+      const selectedIds = selectedMessagesStore.selectedMessages.map(message => message.id);
+      messagesStore.lastMessages = messagesStore.lastMessages.filter(message => !selectedIds.includes(message.id));
       await selectedMessagesStore.deleteSelectedChats();
-      messagesStore.loadLastMessages();
    } catch (error) {
       console.error('Ошибка при удалении всех сообщений:', error);
    }
 };
+
+watch(
+   () => selectedMessagesStore.selectedMessages.length === lastMessages.value.length,
+   (isAllSelected) => {
+      if (selectedMessagesStore.selectedMessages.length === 0 && lastMessages.value.length === 0) {
+         selectAll.value = false;
+      } else if (isAllSelected) {
+         selectAll.value = true;
+      } else {
+         selectAll.value = false;
+      }
+   }
+);
 
 const capitalizeFirstLetter = (string) => {
    if (!string) return '';
@@ -412,12 +432,12 @@ const handleSelectAllChange = () => {
 
    if (selectedMessagesStore.selectedMessages.length === messages.length) {
       selectedMessagesStore.deselectAll();
+
    } else {
       const allMessages = messages.map(message => ({
          id: message.id,
          ads_id: message.ads_id,
          main_category_id: message.main_category_id,
-         user_id: message.for_user.id,
          user_id: message.for_user.id,
          user_id_alt: message.from_user.id,
       }));
@@ -504,12 +524,32 @@ const handleSortUpdate = (order_by) => {
       only_my_ads = true; // Мои объявления
    }
 
-   // Если order_by = '0', передаём пустые параметры
-   if (order_by === '0') {
-      messagesStore.loadLastMessages();
-   } else {
-      messagesStore.loadLastMessages('ru', unread_chats, read_chats, only_my_ads);
+   let sortedMessages = [...messagesStore.lastMessages];
+
+   // Сортировка по прочитанным/непрочитанным
+   if (read_chats || unread_chats) {
+      sortedMessages = sortedMessages.sort((a, b) => {
+         const aIsRead = a.read_at !== null;
+         const bIsRead = b.read_at !== null;
+
+         return read_chats
+            ? (aIsRead === bIsRead ? 0 : aIsRead ? -1 : 1)
+            : (aIsRead === bIsRead ? 0 : aIsRead ? 1 : -1);
+      });
    }
+
+   if (only_my_ads) {
+      const userId = userStore.userId;
+
+      sortedMessages = sortedMessages.sort((a, b) => {
+         const aIsMine = a.id_user_owner_ads === userId;
+         const bIsMine = b.id_user_owner_ads === userId;
+
+         return aIsMine === bIsMine ? 0 : aIsMine ? -1 : 1;
+      });
+   }
+
+   messagesStore.lastMessages = sortedMessages;
 };
 
 const checkScreenWidth = () => {
@@ -772,8 +812,8 @@ watch(
 }
 
 .message-checkbox {
-   width: 16px;
-   height: 16px;
+   min-width: 16px;
+   min-height: 16px;
    margin: auto 0;
    margin-left: 16px;
    accent-color: #3366FF;
@@ -830,14 +870,14 @@ watch(
       align-items: center;
       justify-content: center;
       color: #3366FF;
-      padding: 5px 10px;
-      border-radius: 12px;
-      background-color: transparent;
+      padding: 6px 12px;
+      border-radius: 18px;
+      background-color: #FFFFFF;
       gap: 8px;
       font-size: 14px;
       border: none;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: background-color 0.2s ease;
 
       &:not(:last-child) {
          @media (max-width: 480px) {
@@ -878,13 +918,12 @@ watch(
       font-size: 14px;
       border: none;
       cursor: pointer;
-      transition: all 0.3s ease;
       min-width: 34px;
       padding: 0 9px;
       background: #D6EFFF;
       border-radius: 6px;
       height: 34px;
-      transition: background-color 0.3s ease-in-out;
+      transition: background-color 0.2s ease;
 
       &:hover {
          background-color: #A4DCFF;
@@ -899,13 +938,13 @@ watch(
       justify-content: center;
       min-width: 34px;
       padding: 0 9px;
-      background: #D6EFFF;
+      background-color: #D6EFFF;
       border-radius: 6px;
       height: 34px;
       outline: none;
       border: none;
       cursor: pointer;
-      transition: background-color 0.2s ease-in-out;
+      transition: background-color 0.2s ease;
 
       &:hover {
          background-color: #A4DCFF;

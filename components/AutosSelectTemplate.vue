@@ -7,7 +7,7 @@
                :placeholder="placeholder" readonly :disabled="disabled" />
          </div>
       </div>
-      <ul class="dropdown-2__list" v-if="isActive">
+      <ul class="dropdown-2__list">
          <li v-for="option in options" :key="option.id" class="dropdown-2__list-item">
             <input type="checkbox" :value="option.id" v-model="selectedOptions" />
             {{ option.title }}
@@ -82,10 +82,9 @@ watch(selectedOptions, (newOptions) => {
 <style scoped lang="scss">
 .dropdown-2 {
    position: relative;
-   width: 100%;
    width: 260px;
 
-   @media screen and (max-width: 1250px) {
+   @media (max-width: 1250px) {
       max-width: 100%;
       width: 100%;
    }
@@ -157,20 +156,21 @@ watch(selectedOptions, (newOptions) => {
 
    &__list {
       position: absolute;
-      bottom: 1px;
+      bottom: 0;
       border: 1px solid #3366FF;
       border-top: 1px solid #D6D6D6;
-      left: 1px;
+      left: 0;
       z-index: 5;
-      display: none;
       flex-direction: column;
-      transform: translate(-1px, 100%);
       list-style: none;
       width: 100%;
-      max-height: 187px;
       background: #ffffff;
       border-radius: 6px;
       overflow-y: auto;
+      max-height: 260px;
+      transition: transform 0.2s ease;
+      transform-origin: top;
+      transform: translate(0, 100%) scaleY(0);
    }
 
    &__list-item {
@@ -178,31 +178,25 @@ watch(selectedOptions, (newOptions) => {
       align-items: center;
       padding: 12px;
       font-size: 14px;
-      line-height: 1.29em;
+      min-height: 43px;
       gap: 10px;
       color: #787878;
       background: white;
       transition: 0.3s;
       cursor: pointer;
       white-space: nowrap;
-      /* Обрезка текста с многоточием */
       overflow: hidden;
-      /* Обрезка текста */
       text-overflow: ellipsis;
-      /* Многоточие */
+      transition: background-color 0.1s ease, color 0.1s ease;
 
       &:hover {
-         background: #D6EFFF;
+         background-color: #D6EFFF;
          color: #3366FF;
       }
 
       &--active {
          color: #3366FF;
-         background: #eef9ff;
-      }
-
-      &--hidden {
-         display: none !important;
+         background-color: #eef9ff;
       }
    }
 
@@ -214,6 +208,9 @@ watch(selectedOptions, (newOptions) => {
       .dropdown-2__list {
          display: flex;
          border-radius: 0 0 6px 6px;
+         border: 1px solid #3366FF;
+         border-top: none;
+         transform: translate(0, 100%) scaleY(1);
       }
 
       .dropdown-2__input input {
@@ -222,13 +219,26 @@ watch(selectedOptions, (newOptions) => {
       }
    }
 
-   &--disabled .dropdown-2__input .input-text-2 input {
-      pointer-events: none;
-      background: #eeeeee;
-      color: #a8a8a8;
+   &--disabled {
+      .dropdown-2__input {
+         background: #EEEEEE;
+         border-radius: 6px;
+      }
 
-      &::before {
-         filter: grayscale(1) brightness(1.5);
+      input {
+         background: #EEEEEE;
+         pointer-events: none;
+         border: 1px solid #EEEEEE;
+         border-radius: 6px;
+      }
+
+      .dropdown-2__input::before {
+         background: url('/assets/icons/arrow-gray.svg') center center / contain no-repeat;
+         transform: translate(0, -50%);
+      }
+
+      &::placeholder {
+         color: #787878;
       }
    }
 }

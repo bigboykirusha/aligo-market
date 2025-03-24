@@ -1,49 +1,51 @@
 <template>
    <div class="switcher">
       <div class="switcher__label">{{ label }}</div>
-      <div class="switcher__items">
+      <div class="switcher__items" :style="{ maxWidth: itemsMaxWidth }">
          <div v-for="(option, index) in options" :key="option.id"
             :class="['switcher__item', { 'switcher__item--active': selectedIndex === (index + 1) }]"
             @click="selectOption(index)" :style="{ width: itemWidth }">
             {{ capitalizeFirstWord(option.title) }}
             <div v-if="shouldShowDivider(index)" class="switcher__divider"></div>
          </div>
-         <div v-if="selectedIndex !== null" class="switcher__indicator" :style="indicatorStyle">
-         </div>
+         <div v-if="selectedIndex !== null" class="switcher__indicator" :style="indicatorStyle"></div>
       </div>
    </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch } from "vue";
 
-const emit = defineEmits(['updateSelected']);
+const emit = defineEmits(["updateSelected"]);
 const props = defineProps({
    options: {
       type: Array,
-      required: true
+      required: true,
    },
    label: {
       type: String,
-      default: ''
+      default: "",
    },
    activeIndex: {
       type: Number,
-      default: null
-   }
+      default: null,
+   },
 });
 
 const selectedIndex = ref(props.activeIndex);
 
-watch(() => props.activeIndex, (newIndex) => {
-   selectedIndex.value = newIndex;
-});
+watch(
+   () => props.activeIndex,
+   (newIndex) => {
+      selectedIndex.value = newIndex;
+   }
+);
 
 const selectOption = (index) => {
    const actualIndex = index + 1;
    if (selectedIndex.value !== actualIndex) {
       selectedIndex.value = actualIndex;
-      emit('updateSelected', selectedIndex.value);
+      emit("updateSelected", selectedIndex.value);
    }
 };
 
@@ -59,24 +61,39 @@ const shouldShowDivider = (index) => {
 };
 
 const capitalizeFirstWord = (text) => {
-   if (!text) return '';
-   const words = text.split(' ');
+   if (!text) return "";
+   const words = text.split(" ");
    words[0] = words[0].charAt(0).toUpperCase() + words[0].slice(1).toLowerCase();
-   return words.join(' ');
+   return words.join(" ");
 };
 
 const indicatorStyle = computed(() => {
+   if (selectedIndex.value === null) return {};
+
    const translateX = (selectedIndex.value - 1) * 100;
    const width = 100 / props.options.length;
-   const margin = props.options.length === 2 ? 3 : 2;
+   const isFirst = selectedIndex.value === 1;
+   const isLast = selectedIndex.value === props.options.length;
+
+   const marginLeft = isFirst
+      ? "4px" 
+      : selectedIndex.value === 2
+         ? "0px" 
+         : `${(selectedIndex.value - 1) * 1}px`; 
+
    return {
-      transform: `translateX(calc(${translateX}% + 3px))`,
-      width: `calc(${width}% - ${1 * margin}px)`
+      transform: `translateX(${translateX}%)`,
+      width: isLast ? `calc(${width}% - 2px)` : `${width}%`, 
+      marginLeft, 
    };
 });
 
 const itemWidth = computed(() => {
-      return props.options.length > 3 ? '77.5px' : '103px';
+   return `calc(100% / ${props.options.length})`;
+});
+
+const itemsMaxWidth = computed(() => {
+   return props.label === "Коробка передач" && props.options.length === 4 ? "410px" : "310px";
 });
 </script>
 
@@ -103,14 +120,20 @@ const itemWidth = computed(() => {
       border: 1px solid #d6d6d6;
       border-radius: 6px;
       overflow: hidden;
+      width: 100%;
+      max-width: 310px;
+
+      @media (max-width: 768px) {
+         max-width: 100% !important;
+      }
    }
 
    &__item {
-      flex: 0 0 auto;
+      flex: 1 1 auto;
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 7.5px 0;
+      padding: 9px 0;
       z-index: 3;
       font-size: 14px;
       cursor: pointer;
@@ -119,25 +142,25 @@ const itemWidth = computed(() => {
       white-space: nowrap;
 
       &--active {
-         color: white;
+         color: #fff;
       }
    }
 
    &__divider {
       position: absolute;
       right: 0;
-      top: 10%;
-      bottom: 10%;
+      top: 15%;
+      bottom: 15%;
       width: 1px;
       background-color: #d6d6d6;
    }
 
    &__indicator {
       position: absolute;
-      top: 3px;
-      bottom: 3px;
+      top: 4px;
+      bottom: 4px;
       border-radius: 4px;
-      background-color: #3366FF;
+      background-color: #3366ff;
       transition: transform 0.3s, width 0.3s;
    }
 }

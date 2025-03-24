@@ -2,98 +2,49 @@
    <div :class="['card', { 'card--horizontal': horizontal }]">
       <nuxt-link :to="`/car/${url}`" class="card__image">
          <Swiper v-if="images.length" :modules="[SwiperAutoplay, SwiperPagination]" :slides-per-view="1"
-            :pagination="{ clickable: true }" :navigation="false" :loop="true" :autoplay="false">>
+            :pagination="{ clickable: true }" :navigation="false" :loop="true">
             <SwiperSlide v-for="(image, index) in images" :key="index">
-               <picture v-if="image.path">
-                  <source v-if="image.path_webp" :srcset="getImageUrl(image.path_webp)" type="image/webp" />
-                  <img class="card__img" :src="getImageUrl(image.path_webp)" alt="Slide Image" />
-               </picture>
-               <img v-else src="../assets/icons/placeholder.png" alt="Placeholder image" class="card__placeholder" />
+               <img class="card__img" :src="getImageUrl(image.arr_title_size.middle)" alt="Slide Image" />
             </SwiperSlide>
-            <div class="swiper-pagination"></div>
          </Swiper>
-         <img v-else src='../assets/icons/placeholder.png' alt="Placeholder image" class="card__placeholder" />
+         <img v-else src="../assets/icons/placeholder.png" alt="Placeholder image" class="card__placeholder" />
       </nuxt-link>
-      <div class="card__body">
-         <div v-if="!horizontal" class="card__vertical">
-            <button v-if="isLoggedIn && !(id_user_owner_ads === userStore.userId)" class="card__wishlist-button"
-               :class="{ active: isWishlisted }" @click="toggleWishList">
-               <img :src="isWishlisted ? favActive : fav" alt="Избранное" class="icon-heart" />
-            </button>
-            <button v-else-if="!(id_user_owner_ads === userStore.userId)" class="card__wishlist-button"
-               @click="toggleLoginModal">
-               <img :src="fav" alt="Избранное" class="icon-heart" />
-            </button>
-         </div>
-         <nuxt-link :to="`/car/${url}`" class="card__title">
+      <div class="card__section">
+         <nuxt-link class="card__title" :to="`/car/${url}`">
             {{ brand }} {{ model }}, {{ year }}
-            <div v-if="horizontal" class="card__horizontal">
-               <button v-if="!(id_user_owner_ads === userStore.userId) && isLoggedIn" class="card__wishlist-button"
-                  :class="{ active: isWishlisted }" @click.prevent="toggleWishList">
-                  <img :src="isWishlisted ? favActive : fav" alt="Избранное" class="icon-heart" />
+         </nuxt-link>
+         <div class="card__body">
+            <div v-if="!horizontal" class="card__wishlist-button">
+               <WishlistButton @toggle-login-modal="toggleLoginModal" :id="id" size="small" />
+            </div>
+            <span class="card__price">{{ formatNumberWithSpaces(price) }} ₽</span>
+            <div v-if="horizontal" class="card__description">{{ description }}</div>
+            <div class="card__info">
+               <div class="card__location">{{ place }}</div>
+               <div class="card__date">{{ timeAgo }}</div>
+            </div>
+            <div v-if="!horizontal && !(id_user_owner_ads === userStore.userId)" class="card__buttons">
+               <button class="button" @click="isLoggedIn ? productCardAction() : toggleLoginModal()">
+                  <span class="button__text">Написать</span>
                </button>
-               <button v-else-if="!(id_user_owner_ads === userStore.userId)" class="card__wishlist-button"
-                  @click.prevent="toggleLoginModal">
-                  <img :src="fav" alt="Избранное" class="icon-heart" />
+               <button class="button" @click="isLoggedIn ? handleCallClick() : toggleLoginModal()">
+                  <span class="button__text">Позвонить</span>
                </button>
             </div>
-         </nuxt-link>
-         <div class="card__block">
-            <span class="card__price">{{ formatNumberWithSpaces(price) }}</span>
-            <span class="card__currency">₽</span>
          </div>
-         <div v-if="horizontal" class="card__description">{{ description }}</div>
-         <div class="card__info">
-            <div class="card__location">{{ place }}</div>
-            <div class="card__date">{{ timeAgo }}</div>
-         </div>
-         <div v-if="!horizontal && !(id_user_owner_ads === userStore.userId)" class="card__buttons">
-            <button v-if="isLoggedIn" class="button" @click="productCardAction('Написать')">
-               <a class="button__text">{{ $t('card.write') }}</a>
-            </button>
-            <button v-else class="button" @click="toggleLoginModal">
-               <span class="button__text">{{ $t('card.write') }}</span>
-            </button>
-
-            <button v-if="isLoggedIn && showPhone" class="button" @click="makeCall">
-               <a :href="`tel:${phone}`" class="button__text">{{ $t('card.call') }}</a>
-            </button>
-            <button v-else-if="isLoggedIn" class="button" @click="handleCallClick">
-               <span class="button__text">{{ $t('card.call') }}</span>
-            </button>
-            <button v-else class="button" @click="toggleLoginModal">
-               <span class="button__text">{{ $t('card.call') }}</span>
-            </button>
-         </div>
+      </div>
+      <div v-if="horizontal" class="card__wishlist-button--horizontal">
+         <WishlistButton @toggle-login-modal="toggleLoginModal" :id="id" size="small" isWithBorder />
       </div>
       <div v-if="horizontal" class="card__more">
          <div class="card__username">{{ formattedUsername }}</div>
-         <div class="card__reviews">3 отзыва</div>
-         <div class="horizontal-wishlist">
-            <button v-if="isLoggedIn && !(id_user_owner_ads === userStore.userId)" class="card__wishlist-button"
-               :class="{ active: isWishlisted }" @click="toggleWishList">
-               <img :src="isWishlisted ? favActive : fav" alt="Избранное" class="icon-heart" />
-            </button>
-            <button v-else-if="!(id_user_owner_ads === userStore.userId)" class="card__wishlist-button"
-               @click="toggleLoginModal">
-               <img :src="fav" alt="Избранное" class="icon-heart" />
-            </button>
-         </div>
+         <div class="card__reviews">Нет отзывов</div>
          <div v-if="!(id_user_owner_ads === userStore.userId)" class="card__buttons">
-            <button v-if="isLoggedIn" class="button" @click="productCardAction('Написать')">
-               <a class="button__text">Написать на сайте</a>
+            <button class="button" @click="isLoggedIn ? productCardAction() : toggleLoginModal()">
+               <span class="button__text">Написать</span>
             </button>
-            <button v-else class="button" @click="toggleLoginModal">
-               <span class="button__text">Написать на сайте</span>
-            </button>
-            <button v-if="isLoggedIn && showPhone" class="button" @click="makeCall">
-               <a :href="`tel:${phone}`" class="button__text">Показать номер</a>
-            </button>
-            <button v-else-if="isLoggedIn" class="button" @click="handleCallClick">
-               <span class="button__text">Показать номер</span>
-            </button>
-            <button v-else class="button" @click="toggleLoginModal">
-               <span class="button__text">Показать номер</span>
+            <button class="button" @click="isLoggedIn ? handleCallClick() : toggleLoginModal()">
+               <span class="button__text">{{ showPhone ? formattedPhone : 'Показать номер' }}</span>
             </button>
          </div>
       </div>
@@ -102,178 +53,114 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import favActive from '../assets/icons/fav-white.svg';
-import fav from '../assets/icons/fav.svg';
 import { useUserStore } from '~/store/user';
 import { formatNumberWithSpaces } from '../services/amountUtils.js';
-import { getImageUrl } from '../services/imageUtils'
-import { useFavoritesStore } from '~/store/favorites';
+import { getImageUrl } from '../services/imageUtils';
 import { seeContact, getUser } from '~/services/apiClient';
 import { useChatStore } from '~/store/chatStore';
 import { useLoginModalStore } from '~/store/loginModal.js';
 import { useRouter } from 'vue-router';
+
 const router = useRouter();
-
 const loginModalStore = useLoginModalStore();
-
-const toggleLoginModal = () => {
-   loginModalStore.toggleLoginModal();
-};
-
 const currentChatStore = useChatStore();
 
 const showPhone = ref(false);
-const phone = ref('');
+const phone = ref(null);
 
-function getRandomDelay() {
-   return Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
-};
+const props = defineProps({
+   id: Number,
+   description: { type: String, default: 'Нет описания' },
+   price: Number,
+   place: { type: String, default: 'Не указано' },
+   brand: { type: String, default: 'Не указано' },
+   model: { type: String, default: 'Не указано' },
+   year: { type: String, default: '2007' },
+   username: { type: String, default: 'Не указано' },
+   horizontal: { type: Boolean, default: false },
+   images: { type: Array, default: () => [] },
+   created_at: { type: String, default: 'Не указано' },
+   id_user_owner_ads: Number,
+});
+
+const userStore = useUserStore();
+const isLoggedIn = computed(() => userStore.isLoggedIn);
+const formattedUsername = computed(() => formatUsername(props.username));
+
+const url = `${props.brand.toLowerCase()}-${props.model.toLowerCase()}-${props.year.toLowerCase()}-${props.id}`;
+
+const timeAgo = computed(() => calculateTimeAgo(props.created_at));
+
+function formatUsername(username) {
+   return username.charAt(0).toUpperCase() + username.slice(1);
+}
+
+const formattedPhone = computed(() => {
+   if (!phone.value) return '';
+   const digits = phone.value.replace(/\D/g, '');
+
+   return digits.length === 11 && digits.startsWith('7')
+      ? `+7 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9, 11)}`
+      : phone.value;
+});
 
 function calculateTimeAgo(dateString) {
    const now = new Date();
    const date = new Date(dateString);
    const diff = now - date;
-
    const seconds = Math.floor(diff / 1000);
    const minutes = Math.floor(seconds / 60);
    const hours = Math.floor(minutes / 60);
    const days = Math.floor(hours / 24);
 
    if (days > 0) {
-      return `${days} ${days % 10 === 1 && days % 100 !== 11 ? 'день' :
-         (days % 10 >= 2 && days % 10 <= 4 && (days % 100 < 10 || days % 100 >= 20)) ? 'дня' :
-            'дней'} назад`;
+      return `${days} дней назад`;
    } else if (hours > 0) {
-      return `${hours} ${hours % 10 === 1 && hours % 100 !== 11 ? 'час' :
-         (hours % 10 >= 2 && hours % 10 <= 4 && (hours % 100 < 10 || hours % 100 >= 20)) ? 'часа' :
-            'часов'} назад`;
+      return `${hours} часов назад`;
    } else if (minutes > 0) {
-      return `${minutes} ${minutes % 10 === 1 && minutes % 100 !== 11 ? 'минута' :
-         (minutes % 10 >= 2 && minutes % 10 <= 4 && (minutes % 100 < 10 || minutes % 100 >= 20)) ? 'минуты' :
-            'минут'} назад`;
+      return `${minutes} минут назад`;
    } else {
-      return `${seconds} ${seconds % 10 === 1 && seconds % 100 !== 11 ? 'секунда' :
-         (seconds % 10 >= 2 && seconds % 10 <= 4 && (seconds % 100 < 10 || seconds % 100 >= 20)) ? 'секунды' :
-            'секунд'} назад`;
+      return `${seconds} секунд назад`;
    }
 }
 
-const timeAgo = computed(() => calculateTimeAgo(props.created_at));
+function toggleLoginModal() {
+   loginModalStore.toggleLoginModal();
+}
 
-const props = defineProps({
-   id: {
-      type: Number,
-      default: 0
-   },
-   description: {
-      type: String,
-      default: 'Нет описания'
-   },
-   price: {
-      type: Number,
-      default: 0
-   },
-   place: {
-      type: String,
-      default: 'Не указано'
-   },
-   callNumber: {
-      type: String,
-      default: 'Не указано'
-   },
-   messageEmail: {
-      type: String,
-      default: 'Не указано'
-   },
-   brand: {
-      type: String,
-      default: 'Не указано'
-   },
-   model: {
-      type: String,
-      default: 'Не указано'
-   },
-   year: {
-      type: String,
-      default: '2007'
-   },
-   username: {
-      type: String,
-      default: 'Не указано'
-   },
-   horizontal: {
-      type: Boolean,
-      default: false
-   },
-   is_in_favorites: {
-      type: Number,
-      default: 1
-   },
-   images: {
-      type: Array,
-      default: () => []
-   },
-   created_at: {
-      type: String,
-      default: 'Не указано'
-   },
-   id_user_owner_ads: {
-      type: Number,
-      default: 0
-   },
-});
-
-const url = `${props.brand.toLowerCase()}-${props.model.toLowerCase()}-${props.year.toLowerCase()}-${props.id}`;
-
-const isWishlisted = computed(() => favoritesStore.items.includes(props.id))
-const userStore = useUserStore();
-const favoritesStore = useFavoritesStore();
-const isLoggedIn = computed(() => userStore.isLoggedIn);
-const userPhotoUrl = ref('');
-
-const toggleWishList = async () => {
-   await favoritesStore.toggleFavorite(props.id);
-   userStore.fetchUserCounts();
-};
-
-const formattedUsername = computed(() => {
-   const username = props.username || 'Имя не указано';
-   return username.charAt(0).toUpperCase() + username.slice(1);
-});
-
-const productCardAction = (action) => {
-   if (action === 'Написать') {
-      prepareChatData();
-   }
-   console.log(`Выполнено действие: ${action}`);
+const productCardAction = () => {
+   prepareChatData();
 };
 
 const prepareChatData = async () => {
    const userData = await getUser(props.id_user_owner_ads);
-   userPhotoUrl.value = userData.photo?.path;
-
    const chatData = {
       ads_info: `${props.brand} ${props.model}, ${props.year}`,
       ads_photo: [{
-         path: props.images[0]?.path,
+         arr_title_size: {
+            preview: props.images?.[0]?.arr_title_size.preview,
+         },
       }],
       for_user: {
          id: props.id_user_owner_ads,
          photo: {
-            path: userPhotoUrl.value,
+            arr_title_size: {
+               preview: userData.photo?.arr_title_size.preview,
+            },
          },
          username: formattedUsername.value,
       },
       ads_id: props.id,
       ads_amount: props.price,
       main_category_id: 1,
-      from_user: {
-         id: null,
-      },
    };
 
    currentChatStore.setCurrentChat(chatData);
    currentChatStore.openChat(router);
+
+   if (window.innerWidth < 768) {
+      router.push('profile/messages');
+   }
 };
 
 const fetchPhoneNumber = async () => {
@@ -289,9 +176,11 @@ const fetchPhoneNumber = async () => {
 };
 
 const handleCallClick = async () => {
-   if (isLoggedIn.value) {
+   if (showPhone.value) {
+      makeCall();
+   } else {
       await fetchPhoneNumber();
-      if (phone.value) {
+      if (props.horizontal) {
          makeCall();
       }
    }
@@ -300,7 +189,6 @@ const handleCallClick = async () => {
 const makeCall = () => {
    window.location.href = `tel:${phone.value}`;
 };
-
 </script>
 
 <style scoped lang="scss">
@@ -321,11 +209,31 @@ const makeCall = () => {
       object-fit: cover;
    }
 
-   &:hover {
-      .card__buttons {
-         transform: translateY(10px);
-         opacity: 1;
-      }
+   &:hover .card__buttons {
+      transform: translateY(10px);
+      opacity: 1;
+   }
+
+   &__section {
+      display: flex;
+      width: 100%;
+      max-width: 100%;
+      flex-direction: column;
+      position: relative;
+   }
+
+   &__info {
+      margin-top: auto;
+   }
+
+   &__description {
+      font-size: 14px;
+      color: #323232;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
    }
 
    &__image {
@@ -334,15 +242,13 @@ const makeCall = () => {
       max-height: 220px;
       cursor: pointer;
 
-      .card__img {
+      img {
          width: 100%;
          height: 100%;
-         max-width: 500px;
          object-fit: cover;
-         transition: all 0.3s;
+         transition: transform 0.2s ease;
 
          &:hover {
-            filter: contrast(1.02) brightness(1.02);
             transform: scale(1.02);
          }
       }
@@ -350,46 +256,36 @@ const makeCall = () => {
 
    &__wishlist-button {
       position: absolute;
+      z-index: 5;
       top: -12px;
       right: 16px;
-      width: 24px;
-      height: 24px;
-      background-color: white;
-      border: 1px solid transparent;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: background-color 0.3s, border-color 0.3s;
+   }
 
-      &:hover {
-         background-color: #D6EFFF;
-         border-color: #D6EFFF;
-      }
+   &__wishlist-button--horizontal {
+      padding: 24px;
 
-      &.active {
-         background-color: #3366ff;
-         border-color: #3366ff;
-      }
-
-      .icon-heart {
-         margin-top: 1px;
-         width: 12px;
-         height: 12px;
+      @media (max-width: 768px) {
+         position: absolute;
+         z-index: 5;
+         right: 0;
+         top: 0;
+         padding: 16px;
       }
    }
 
    &__title {
+      font-weight: 700;
+      width: 100%;
       display: block;
-      font-weight: bold;
-      font-size: 14px;
-      line-height: 129%;
+      max-width: 100%;
+      font-size: 16px;
       color: #3366ff;
-      text-decoration: none;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      text-decoration: none;
+      padding: 16px;
+      padding-bottom: 12px;
    }
 
    &__block {
@@ -397,18 +293,12 @@ const makeCall = () => {
       column-gap: 5px;
    }
 
-   &__price {
-      font-weight: bold;
-      font-size: 14px;
-      line-height: 129%;
-      color: #323232;
-   }
-
+   &__price,
    &__currency {
       font-weight: bold;
       font-size: 14px;
-      line-height: 129%;
-      color: black;
+      line-height: 18px;
+      color: #323232;
    }
 
    &__location,
@@ -421,30 +311,22 @@ const makeCall = () => {
    }
 
    &__body {
-      position: relative;
       display: flex;
       flex-direction: column;
-      row-gap: 10px;
-      z-index: 2;
-      padding: 14px 16px 16px;
+      height: 100%;
+      padding: 0 16px 16px;
       background: white;
    }
 
    &__more {
       display: flex;
-      gap: 10px;
       flex-direction: column;
+      min-width: 216px;
+      gap: 10px;
       padding: 24px;
-   }
 
-   @media (max-width: 768px) {
-      .card__buttons .button {
-         .button__text {
-            padding: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-         }
+      @media (max-width: 768px) {
+         display: none;
       }
    }
 
@@ -454,8 +336,7 @@ const makeCall = () => {
       font-weight: bold;
       height: 24px;
       font-size: 14px;
-      line-height: 129%;
-      color: #000;
+      color: #323232;
       text-decoration: none;
    }
 
@@ -482,13 +363,12 @@ const makeCall = () => {
    .button {
       border: none;
       border-radius: 6px;
+      box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.07);
 
       &__text {
          display: block;
          padding: 10px;
-         font-weight: 400;
          font-size: 14px;
-         line-height: 129%;
          text-align: center;
          color: #3366ff;
          background-color: #d6efff;
@@ -496,196 +376,64 @@ const makeCall = () => {
          cursor: pointer;
          transition: background-color 0.3s;
 
-         @media (max-width: 768px) {
-            display: none;
-         }
-
          &:hover {
-            background-color: #9ed2f1;
+            background-color: #A4DCFF;
          }
       }
    }
-
 
    &--horizontal {
       flex-direction: row;
       height: 220px;
 
-      &:hover {
-         .card__buttons {
-            transform: none;
-            opacity: 1;
+      .card__title {
+         max-width: calc(100% - 40px);
+         padding: 24px;
+         padding-bottom: 8px;
+
+         @media (max-width: 768px) {
+            padding: 16px;
+            padding-bottom: 8px;
          }
       }
 
-      .card {
-         &__image {
-            width: 220px;
-            height: 220px;
+      .card__body {
+         padding: 0 24px 24px;
+         row-gap: 8px;
 
-            @media (max-width: 991px) {
-               width: 180px;
-            }
-
-            @media (max-width: 480px) {
-               width: 136px;
-            }
-         }
-
-         &__wishlist-button {
-            position: static;
-         }
-
-         &__title {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            font-weight: bold;
-            font-size: 14px;
-            line-height: 129%;
-            color: #3366ff;
-            text-decoration: none;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-         }
-
-         &__description {
-            font-size: 14px;
-            color: #323232;
-            max-width: 80%;
-            margin-bottom: auto;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
-         }
-
-         &__block {
-            display: flex;
-            column-gap: 5px;
-         }
-
-         &__username,
-         &__reviews {
-            @media (max-width: 768px) {
-               display: none;
-            }
-         }
-
-         &__price {
-            font-weight: bold;
-            font-size: 14px;
-            line-height: 129%;
-            color: black;
-         }
-
-         &__currency {
-            font-weight: bold;
-            font-size: 14px;
-            line-height: 129%;
-            color: black;
-         }
-
-         &__location,
-         &__date {
-            font-size: 12px;
-            color: #a8a8a8;
-            max-width: 80%;
-         }
-
-         &__body {
-            position: relative;
-            display: flex;
-            max-width: 470px;
-            flex: 2;
-            flex-direction: column;
-            row-gap: 10px;
-            z-index: 2;
-            padding: 24px;
-            background: white;
-
-            @media (max-width: 991px) {
-               max-width: 340px;
-            }
-
-            @media (max-width: 768px) {
-               padding-right: 0;
-               max-width: 300px;
-            }
-
-            @media (max-width: 600px) {
-               padding-right: 0;
-               max-width: 160px;
-            }
-         }
-
-         &__more {
-            min-width: 260px;
-            margin-left: auto;
-
-            @media (max-width: 768px) {
-               min-width: 0;
-            }
-         }
-
-         &__buttons {
-            position: static;
-            width: 100%;
-
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            padding: 0;
-            margin-top: auto;
-            background: white;
-            transform: none;
-            opacity: 1;
-            transition: none;
-
-            .button {
-               width: 144px;
-
-               @media (max-width: 768px) {
-                  width: 28px;
-                  height: 28px;
-                  background-color: #d6efff;
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-               }
-
-               &__text {
-                  padding: 8px;
-
-                  @media (max-width: 768px) {
-                     padding: 0;
-                     display: none;
-                     height: 14px;
-                     width: 14px;
-                     margin-top: 3px;
-                  }
-               }
-            }
+         @media (max-width: 768px) {
+            padding: 0 16px 16px;
          }
       }
-   }
-}
 
-.horizontal-wishlist {
-   display: none;
+      .card__section {
+         max-width: calc(100% - 140px);
+      }
 
-   @media (max-width: 768px) {
-      display: block;
-   }
-}
+      .card__buttons {
+         position: static;
+         width: 100%;
+         padding: 0;
+         margin-top: auto;
+         display: flex;
+         flex-direction: column;
+         gap: 16px;
+         opacity: 1;
+         transform: none !important;
+      }
 
-.card__horizontal {
+      .card__image {
+         width: 220px;
+         height: 220px;
 
-   @media (max-width: 768px) {
-      display: none;
+         @media (max-width: 768px) {
+            width: 180px;
+         }
+
+         @media (max-width: 768px) {
+            width: 140px;
+         }
+      }
    }
 }
 
@@ -697,17 +445,5 @@ const makeCall = () => {
       width: 100%;
       object-fit: cover;
    }
-}
-
-.swiper-counter {
-   position: absolute;
-   z-index: 3;
-   top: 10px;
-   right: 10px;
-   background-color: #3366ff;
-   color: white;
-   padding: 2px 6px;
-   border-radius: 15px;
-   font-size: 12px;
 }
 </style>

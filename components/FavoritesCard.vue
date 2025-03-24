@@ -1,23 +1,23 @@
 <template>
    <div class="card">
-      <div class="card__image">
+      <div :class="['card__image', { 'card__image--dimmed': is_published === 0 }]">
          <Swiper v-if="images.length" :modules="[SwiperAutoplay, SwiperPagination]" :slides-per-view="1"
             :pagination="{ clickable: true }" :navigation="false" :loop="true">
             <SwiperSlide v-for="(image, index) in images" :key="index">
-               <img v-if="image.path_webp" :src="getImageUrl(image.path)" alt="Slide Image" />
-               <img v-else src='../assets/icons/placeholder.png' alt="Placeholder image" class="card__placeholder" />
+               <img :src="getImageUrl(image.arr_title_size.preview)" alt="Slide Image" />
             </SwiperSlide>
             <div class="swiper-pagination"></div>
          </Swiper>
-         <img v-else src='../assets/icons/placeholder.png' alt="Placeholder image" class="card__placeholder" />
+         <img v-else src="../assets/icons/placeholder.png" alt="Placeholder image" class="card__placeholder" />
       </div>
       <div class="card__body">
          <nuxt-link :to="`/car/${url}`" class="card__title">
             {{ brand }} {{ model }}, {{ year }}
          </nuxt-link>
          <div class="card__block">
-            <span class="card__price">{{ formatNumberWithSpaces(price) }}</span>
-            <span class="card__currency">₽</span>
+            <span v-if="is_published !== 0" class="card__price">{{ formatNumberWithSpaces(price) }}</span>
+            <span v-if="is_published !== 0" class="card__currency">₽</span>
+            <span v-if="is_published === 0" class="card__price">Снято с публикации</span>
          </div>
          <div class="card__info">
             <div class="card__location">{{ place }}</div>
@@ -25,54 +25,18 @@
          </div>
       </div>
       <div class="card__more">
-         <div v-if="!props.isAdmin" class="card__wishlist">
-            <button class="card__wishlist-button" :class="{ active: isWishlisted }" @click.prevent="toggleWishList">
-               <img :src="isWishlisted ? favActive : fav" alt="Избранное" class="icon-heart" />
-            </button>
-         </div>
+         <WishlistButton @toggle-login-modal="toggleLoginModal" :id="id" isWithBorder size="small" />
          <div class="card__section">
             <div class="card__part">
                <div class="card__username">{{ formattedUsername }}</div>
                <div class="card__state">Частное лицо</div>
             </div>
-            <div v-if="props.isAdmin" class="card__buttons">
-               <button class="button">
-                  <img src="../assets/icons/options.svg" />
+            <div :class="['card__buttons', { 'card__buttons__hidden': is_published === 0 }]">
+               <button class="button" @click="isLoggedIn ? openChat() : toggleLoginModal()">
+                  <img src="../assets/icons/mail-blue.svg" alt="Chat" />
                </button>
-            </div>
-            <div v-else class="card__buttons">
-               <button v-if="isLoggedIn" class="button" @click="productCardAction('Написать')">
-                  <a :href="`mailto:${messageEmail}`" class="button__text">
-                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                           d="M15 7.61112C15.0027 8.63769 14.7628 9.65036 14.3 10.5667C13.7512 11.6647 12.9076 12.5882 11.8636 13.2339C10.8195 13.8795 9.6164 14.2217 8.38888 14.2222C7.36231 14.2249 6.34964 13.9851 5.43333 13.5222L1 15L2.47778 10.5667C2.01494 9.65036 1.7751 8.63769 1.77778 7.61112C1.77825 6.3836 2.12047 5.18046 2.76611 4.13644C3.41175 3.09243 4.3353 2.24879 5.43333 1.70002C6.34964 1.23719 7.36231 0.997346 8.38888 1.00002H8.77777C10.3989 1.08946 11.9301 1.77372 13.0782 2.9218C14.2263 4.06987 14.9105 5.60108 15 7.22223V7.61112Z"
-                           stroke="#3366FF" stroke-linecap="round" stroke-linejoin="round" />
-                     </svg>
-
-                  </a>
-               </button>
-               <button v-else class="button" @click="toggleLoginModal">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                     <path
-                        d="M15 7.61112C15.0027 8.63769 14.7628 9.65036 14.3 10.5667C13.7512 11.6647 12.9076 12.5882 11.8636 13.2339C10.8195 13.8795 9.6164 14.2217 8.38888 14.2222C7.36231 14.2249 6.34964 13.9851 5.43333 13.5222L1 15L2.47778 10.5667C2.01494 9.65036 1.7751 8.63769 1.77778 7.61112C1.77825 6.3836 2.12047 5.18046 2.76611 4.13644C3.41175 3.09243 4.3353 2.24879 5.43333 1.70002C6.34964 1.23719 7.36231 0.997346 8.38888 1.00002H8.77777C10.3989 1.08946 11.9301 1.77372 13.0782 2.9218C14.2263 4.06987 14.9105 5.60108 15 7.22223V7.61112Z"
-                        stroke="#3366FF" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-
-               </button>
-
                <button v-if="isLoggedIn" class="button" @click="handleCallClick">
-                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                     <path
-                        d="M16.9678 12.9791V15.3877C16.9687 15.6113 16.9229 15.8327 16.8333 16.0375C16.7438 16.2424 16.6124 16.4263 16.4476 16.5775C16.2828 16.7286 16.0883 16.8437 15.8765 16.9154C15.6647 16.987 15.4402 17.0136 15.2175 16.9935C12.7469 16.725 10.3737 15.8808 8.28865 14.5286C6.34875 13.2959 4.70406 11.6512 3.47136 9.71135C2.11448 7.61679 1.27006 5.23206 1.00652 2.75036C0.986453 2.52834 1.01284 2.30457 1.084 2.0933C1.15515 1.88203 1.26952 1.6879 1.41981 1.52325C1.57011 1.35861 1.75304 1.22706 1.95696 1.13699C2.16088 1.04691 2.38132 1.00029 2.60425 1.00008H5.0129C5.40254 0.996243 5.78028 1.13422 6.07572 1.3883C6.37116 1.64237 6.56413 1.99521 6.61866 2.38103C6.72032 3.15185 6.90886 3.9087 7.18068 4.63713C7.2887 4.9245 7.31208 5.23682 7.24804 5.53707C7.18401 5.83732 7.03525 6.11292 6.81938 6.33121L5.79972 7.35087C6.94267 9.36092 8.60696 11.0252 10.617 12.1682L11.6367 11.1485C11.855 10.9326 12.1306 10.7839 12.4308 10.7198C12.7311 10.6558 13.0434 10.6792 13.3308 10.7872C14.0592 11.059 14.816 11.2476 15.5869 11.3492C15.9769 11.4042 16.333 11.6007 16.5877 11.9012C16.8423 12.2017 16.9776 12.5853 16.9678 12.9791Z"
-                        stroke="#3366FF" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-               </button>
-               <button v-else class="button" @click="toggleLoginModal">
-                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                     <path
-                        d="M16.9678 12.9791V15.3877C16.9687 15.6113 16.9229 15.8327 16.8333 16.0375C16.7438 16.2424 16.6124 16.4263 16.4476 16.5775C16.2828 16.7286 16.0883 16.8437 15.8765 16.9154C15.6647 16.987 15.4402 17.0136 15.2175 16.9935C12.7469 16.725 10.3737 15.8808 8.28865 14.5286C6.34875 13.2959 4.70406 11.6512 3.47136 9.71135C2.11448 7.61679 1.27006 5.23206 1.00652 2.75036C0.986453 2.52834 1.01284 2.30457 1.084 2.0933C1.15515 1.88203 1.26952 1.6879 1.41981 1.52325C1.57011 1.35861 1.75304 1.22706 1.95696 1.13699C2.16088 1.04691 2.38132 1.00029 2.60425 1.00008H5.0129C5.40254 0.996243 5.78028 1.13422 6.07572 1.3883C6.37116 1.64237 6.56413 1.99521 6.61866 2.38103C6.72032 3.15185 6.90886 3.9087 7.18068 4.63713C7.2887 4.9245 7.31208 5.23682 7.24804 5.53707C7.18401 5.83732 7.03525 6.11292 6.81938 6.33121L5.79972 7.35087C6.94267 9.36092 8.60696 11.0252 10.617 12.1682L11.6367 11.1485C11.855 10.9326 12.1306 10.7839 12.4308 10.7198C12.7311 10.6558 13.0434 10.6792 13.3308 10.7872C14.0592 11.059 14.816 11.2476 15.5869 11.3492C15.9769 11.4042 16.333 11.6007 16.5877 11.9012C16.8423 12.2017 16.9776 12.5853 16.9678 12.9791Z"
-                        stroke="#3366FF" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
+                  <img src="../assets/icons/call.svg" alt="Call" />
                </button>
             </div>
          </div>
@@ -82,24 +46,24 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import favActive from '../assets/icons/fav-white.svg';
-import fav from '../assets/icons/fav.svg';
 import { formatNumberWithSpaces } from '../services/amountUtils.js';
-import { getImageUrl } from '../services/imageUtils'
+import { useChatStore } from '~/store/chatStore';
+import { getImageUrl } from '../services/imageUtils';
 import { useUserStore } from '~/store/user';
-import { useFavoritesStore } from '~/store/favorites';
-import { seeContact } from '~/services/apiClient';
-
+import { seeContact, getUser } from '~/services/apiClient';
+import { useRouter } from 'vue-router';
 import { useLoginModalStore } from '~/store/loginModal.js';
 
 const loginModalStore = useLoginModalStore();
+const router = useRouter();
 
-const toggleLoginModal = () => {
-   loginModalStore.toggleLoginModal();
-};
+const userPhotoUrl = ref('');
+const showPhone = ref(false);
+const phone = ref('');
 
 const props = defineProps({
    id: Number,
+   id_user_owner_ads: Number,
    description: String,
    price: Number,
    place: {
@@ -122,24 +86,59 @@ const props = defineProps({
    },
    images: Array,
    created_at: String,
-   isAdmin: Boolean,
+   is_published: Number,
 });
 
-const url = `${props.brand.toLowerCase()}-${props.model.toLowerCase()}-${props.year.toLowerCase()}-${props.id}`;
 const userStore = useUserStore();
-const favoritesStore = useFavoritesStore();
+const currentChatStore = useChatStore();
 const isLoggedIn = computed(() => userStore.isLoggedIn);
-const isWishlisted = computed(() => favoritesStore.items.includes(props.id));
-const formattedUsername = computed(() => {
-   const username = props.username || 'Имя не указано';
-   return username.charAt(0).toUpperCase() + username.slice(1);
-});
-const showPhone = ref(false);
-const phone = ref('');
 
-const toggleWishList = async () => {
-   await favoritesStore.toggleFavorite(props.id);
-   userStore.fetchUserCounts();
+const formattedUsername = computed(() => capitalize(props.username || 'Имя не указано'));
+const url = computed(() => {
+   return [props.brand?.toLowerCase(), props.model?.toLowerCase(), props.year?.toLowerCase(), props.id]
+      .filter(Boolean)
+      .join('-');
+});
+
+const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
+const toggleLoginModal = () => loginModalStore.toggleLoginModal();
+
+const openChat = async () => {
+   await prepareChatData();
+   currentChatStore.openChat(router);
+   router.push('/profile/messages');
+};
+
+const prepareChatData = async () => {
+   try {
+      const userData = await getUser(props.id_user_owner_ads);
+      userPhotoUrl.value = userData.photo?.arr_title_size.preview;
+
+      currentChatStore.setCurrentChat({
+         ads_info: `${props.brand} ${props.model}, ${props.year}`,
+         ads_photo: [{
+            arr_title_size: {
+               preview: props.photos?.[0]?.arr_title_size.preview,
+            },
+         }],
+         for_user: {
+            id: props.id_user_owner_ads,
+            photo: {
+               arr_title_size: {
+                  preview: userPhotoUrl.value,
+               },
+            },
+            username: formattedUsername.value
+         },
+         ads_id: props.id,
+         ads_amount: props.price,
+         main_category_id: 1,
+         from_user: { id: null },
+      });
+   } catch (error) {
+      console.error('Ошибка при подготовке чата:', error);
+   }
 };
 
 const fetchPhoneNumber = async () => {
@@ -150,51 +149,53 @@ const fetchPhoneNumber = async () => {
          showPhone.value = true;
       }
    } catch (error) {
-      console.error('Ошибка при получении телефона: ', error);
+      console.error('Ошибка при получении телефона:', error);
    }
 };
 
 const handleCallClick = async () => {
    if (isLoggedIn.value) {
       await fetchPhoneNumber();
-      if (phone.value) {
-         makeCall();
+      if (phone.value) makeCall();
+   }
+};
+
+const makeCall = () => window.location.href = `tel:${phone.value}`;
+
+const calculateTimeAgo = (dateString) => {
+   const timeUnits = {
+      seconds: ['секунда', 'секунды', 'секунд'],
+      minutes: ['минута', 'минуты', 'минут'],
+      hours: ['час', 'часа', 'часов'],
+      days: ['день', 'дня', 'дней'],
+   };
+
+   const getDeclension = (number, unit) => {
+      if (number % 10 === 1 && number % 100 !== 11) return unit[0];
+      if (number % 10 >= 2 && number % 10 <= 4 && (number % 100 < 10 || number % 100 >= 20)) return unit[1];
+      return unit[2];
+   };
+
+   const diff = new Date() - new Date(dateString);
+   const units = [1000, 60, 60, 24];
+   let time = diff;
+   let unitIndex = 0;
+
+   for (let i = 0; i < units.length; i++) {
+      time = Math.floor(time / units[i]);
+      if (time >= 1) {
+         unitIndex = i;
+      } else {
+         break;
       }
    }
+
+   const unitNames = Object.keys(timeUnits);
+   const unit = unitNames[unitIndex];
+   const value = time;
+
+   return `${value} ${getDeclension(value, timeUnits[unit])} назад`;
 };
-
-const makeCall = () => {
-   window.location.href = `tel:${phone.value}`;
-};
-
-function calculateTimeAgo(dateString) {
-   const now = new Date();
-   const date = new Date(dateString);
-   const diff = now - date;
-
-   const seconds = Math.floor(diff / 1000);
-   const minutes = Math.floor(seconds / 60);
-   const hours = Math.floor(minutes / 60);
-   const days = Math.floor(hours / 24);
-
-   if (days > 0) {
-      return `${days} ${days % 10 === 1 && days % 100 !== 11 ? 'день' :
-         (days % 10 >= 2 && days % 10 <= 4 && (days % 100 < 10 || days % 100 >= 20)) ? 'дня' :
-            'дней'} назад`;
-   } else if (hours > 0) {
-      return `${hours} ${hours % 10 === 1 && hours % 100 !== 11 ? 'час' :
-         (hours % 10 >= 2 && hours % 10 <= 4 && (hours % 100 < 10 || hours % 100 >= 20)) ? 'часа' :
-            'часов'} назад`;
-   } else if (minutes > 0) {
-      return `${minutes} ${minutes % 10 === 1 && minutes % 100 !== 11 ? 'минута' :
-         (minutes % 10 >= 2 && minutes % 10 <= 4 && (minutes % 100 < 10 || minutes % 100 >= 20)) ? 'минуты' :
-            'минут'} назад`;
-   } else {
-      return `${seconds} ${seconds % 10 === 1 && seconds % 100 !== 11 ? 'секунда' :
-         (seconds % 10 >= 2 && seconds % 10 <= 4 && (seconds % 100 < 10 || seconds % 100 >= 20)) ? 'секунды' :
-            'секунд'} назад`;
-   }
-}
 
 const timeAgo = computed(() => calculateTimeAgo(props.created_at));
 </script>
@@ -212,6 +213,13 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
    overflow: hidden;
    transition: transform 0.3s, box-shadow 0.3s;
 
+   &__image {
+      &--dimmed {
+         background-color: #ffffff;
+         opacity: 0.7;
+      }
+   }
+
    &__placeholder {
       width: 100%;
       height: 100%;
@@ -223,7 +231,7 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
       display: flex;
       flex-direction: column;
       flex-grow: 1;
-      padding: 14px 16px;
+      padding: 16px;
       background: white;
    }
 
@@ -238,6 +246,7 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
+
    }
 
    &__location,
@@ -247,6 +256,7 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
+
    }
 
    &__price,
@@ -265,14 +275,13 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
       display: flex;
       column-gap: 30px;
 
-      @media screen and (max-width: 1200px) {
+      @media (max-width: 1200px) {
          flex-direction: column;
       }
 
-      @media screen and (max-width: 1000px) {
+      @media (max-width: 1000px) {
          display: none;
       }
-
    }
 
    &__info {
@@ -290,13 +299,13 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
       align-items: flex-start;
       justify-content: space-between;
       padding: 16px;
-      gap: 110px;
+      gap: 40px;
 
       @media (max-width: 1200px) {
          gap: 40px;
       }
 
-      @media screen and (max-width: 1000px) {
+      @media (max-width: 1000px) {
          padding: 16px 0;
          padding-right: 16px;
       }
@@ -316,42 +325,9 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
    &__username {
       font-weight: bold;
       font-size: 16px;
-      width: 250px;
-      text-wrap: wrap;
+      width: 200px;
       color: #000;
       margin-right: auto;
-
-      @media screen and (max-width: 1200px) {
-         width: 250px;
-      }
-   }
-
-   &__wishlist {
-      margin-right: auto;
-   }
-
-   &__wishlist-button {
-      width: 24px;
-      height: 24px;
-      background-color: white;
-      border: 1px solid transparent;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: background-color 0.3s, border-color 0.3s;
-
-      &.active {
-         background-color: #3366ff;
-         border-color: #3366ff;
-      }
-
-      .icon-heart {
-         margin-top: 1px;
-         width: 12px;
-         height: 12px;
-      }
    }
 
    &__buttons {
@@ -359,13 +335,17 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
       grid-template-columns: 1fr 1fr;
       gap: 16px;
 
-      @media screen and (max-width: 1200px) {
+      &__hidden {
+         visibility: hidden;
+      }
+
+      @media (max-width: 1200px) {
          width: fit-content;
          margin-top: 8px;
          gap: 12px;
       }
 
-      @media screen and (max-width: 1000px) {
+      @media (max-width: 1000px) {
          width: fit-content;
          gap: 12px;
       }
@@ -388,7 +368,7 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
          background-color: #9ed2f1;
       }
 
-      @media screen and (max-width: 1000px) {
+      @media (max-width: 1000px) {
          height: 28px;
          width: 28px;
       }

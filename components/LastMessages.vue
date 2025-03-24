@@ -5,18 +5,17 @@
          <img src="../assets/icons/supp.svg" alt="Support Icon" class="support-icon" />
          <span>Написать в поддержку</span>
       </div>
-
-      <SkeletonMessage v-if="isLoading" v-for="index in 4" :key="index" />
+      <SkeletonMessage v-if="isLoading" v-for="index in 3" :key="index" />
       <div v-else v-for="message in lastMessages" :key="message.id" :class="[
          'message-item',
          { 'unread-message': message.from_user.id !== userStore.userId && !message.read_at, 'profile-page': isProfilePage }
       ]" @click="openChat(message)">
-         <input v-if="isProfilePage" @click.stop type="checkbox" class="message-checkbox" :value="message.id"
-            :checked="isMessageSelected(message)" @change="toggleMessage(message)" />
+         <CheckboxUI class="message-checkbox" v-if="isProfilePage" :modelValue="isMessageSelected(message)"
+            @update:modelValue="toggleMessage(message)" @click.stop />
          <div class="image-container">
             <img v-if="!isProfilePage" :src="getImageUrl(relevantUser(message).photo?.path, avatar)" alt="Avatar"
                class="avatar" />
-            <img :src="getImageUrl(message.ads_photo[0]?.path)" alt="Ad Image" class="ad-image" />
+            <img :src="getImageUrl(message.ads_photo[0]?.arr_title_size.preview)" alt="Ad Image" class="ad-image" />
          </div>
 
          <div class="message-info">
@@ -83,7 +82,7 @@ const chatStore = useChatStore();
 const selectedMessagesStore = useSelectedMessagesStore();
 const { locale } = useI18n();
 
-const lastMessages = computed(() => messagesStore.lastMessages);
+const lastMessages = computed(() => messagesStore.lastMessages || []);
 const isLoading = computed(() => messagesStore.loading);
 
 const props = defineProps({
@@ -181,9 +180,11 @@ onMounted(() => {
    position: relative;
    display: flex;
    width: 100%;
+   z-index: 20;
    padding: 16px 24px 16px 16px;
    background: #fff;
    cursor: pointer;
+   gap: 16px;
    transition: background-color 0.3s, transform 0.3s;
    overflow: hidden;
    box-sizing: border-box;
@@ -215,7 +216,6 @@ onMounted(() => {
    width: 16px;
    height: 16px;
    margin: auto 0;
-   margin-right: 16px;
    accent-color: #3366FF;
 
    @media (max-width: 991px) {
@@ -225,7 +225,6 @@ onMounted(() => {
 
 .image-container {
    position: relative;
-   margin-right: 15px;
 }
 
 .avatar {
@@ -365,6 +364,7 @@ onMounted(() => {
    font-size: 16px;
    color: #323232;
    margin: 16px;
+   transition: background-color 0.2s ease;
 
    &.profile-page {
       margin: 0;

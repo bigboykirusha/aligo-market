@@ -2,7 +2,7 @@
    <div class="cards">
       <h2 v-show="isLoading || ads.length > 0" class="cards__title">{{ title }}</h2>
       <div class="cards__main" :class="{ 'cards__main--four': isFour }">
-         <CardSkeleton v-if="isLoading" v-for="index in 5" :key="index" />
+         <CardSkeleton v-if="isLoading" v-for="index in XTotalCount" :key="index" />
          <Card v-else v-for="ad in uniqueAds" :key="ad.id" :id="ad.id" :description="ad.ads_parameter?.ads_description"
             :price="ad.ads_parameter?.amount" :place="ad.ads_parameter?.place_inspection || 'Адрес не указан'"
             :callNumber="ad.ads_parameter?.phone" :messageEmail="ad.ads_parameter?.email"
@@ -17,7 +17,6 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
 
 const props = defineProps({
    title: {
@@ -36,9 +35,8 @@ const props = defineProps({
       type: Boolean,
       default: false,
    },
+   XTotalCount: {type: Number, default: 0}
 });
-
-const loading = ref(true);
 
 const uniqueAds = computed(() => {
    return props.ads.filter(
@@ -56,6 +54,7 @@ const uniqueAds = computed(() => {
    &__title {
       font-size: 24px;
       font-weight: bold;
+      color: #323232;
       margin-top: 0;
    }
 

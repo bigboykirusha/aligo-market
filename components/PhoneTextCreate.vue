@@ -1,20 +1,26 @@
 <template>
    <div class="simple-input">
       <label v-if="label" class="simple-input__label">{{ label }}</label>
-      <div class="simple-input__wrapper" :class="{ 'valid': isValidPhoneNumber }">
-         <input type="text" v-mask="'+7 (###) ###-##-##'" class="simple-input__field" :placeholder="placeholder"
-            v-model="displayValue" :disabled="disabled" />
+      <div class="simple-input__wrapper">
+         <input disabled type="text" v-mask="'+7 (###) ###-##-##'" class="simple-input__field"
+            :placeholder="placeholder" v-model="displayValue" :disabled="disabled" />
          <div class="simple-input__subtext">
-            Номер телефона будет виден только зарегистрированным пользователям. Эту защиту нельзя отключить.
+            Чтобы ваши номера не попали в базы мошенников, мы показываем его только зарегистрированным и проверенным
+            пользователям сервиса.
          </div>
-         <img v-if="displayValue" src="../assets/icons/close-gray.svg" alt="Clear" class="simple-input__clear"
-            @click="clearInput" />
       </div>
    </div>
 </template>
 
 <script setup>
 import { ref, watch, computed } from 'vue';
+import { mask as vMask } from 'vue-the-mask'
+
+defineOptions({
+   directives: {
+      mask: vMask
+   }
+})
 
 const props = defineProps({
    option: {
@@ -75,7 +81,6 @@ const clearInput = () => {
       color: #FFFFFF;
       padding-top: 8px;
       padding-bottom: 8px;
-      margin-top: 5px;
    }
 
    &__wrapper {
@@ -85,7 +90,7 @@ const clearInput = () => {
       border-radius: 6px;
       background-color: #3366ff;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          width: 100%;
       }
 
@@ -100,8 +105,8 @@ const clearInput = () => {
 
    &__field {
       font-size: 14px;
-      padding: 8px 12px;
-      border: 1px solid #d6d6d6;
+      font-weight: 700;
+      border: none;
       border-radius: 6px;
       width: 100%;
       box-sizing: border-box;
@@ -112,8 +117,8 @@ const clearInput = () => {
       }
 
       &:disabled {
-         background-color: #f0f0f0;
-         color: #a8a8a8;
+         background-color: #3366ff;
+         color: #FFFFFF;
       }
    }
 

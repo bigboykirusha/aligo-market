@@ -6,8 +6,8 @@
             <div class="car-details__price">{{ formatNumberWithSpaces(amount) }} ₽</div>
          </header>
          <div class="car-details__actions">
-            <WishlistButton v-if="!(id_user_owner_ads === userStore.userId)" mobile
-               @toggle-login-modal="toggleLoginModal" :id="props.id" :is_in_favorites="props.is_in_favorites" />
+            <WishlistButton v-if="!(id_user_owner_ads === userStore.userId)" @toggle-login-modal="toggleLoginModal"
+               :id="props.id" size="big" />
             <ShareButton />
          </div>
          <div class="car-details__contact">
@@ -43,12 +43,12 @@
                      <div @click="toggleReviewsModal" class="car-details__reviews">{{ count_reviews_about_myself }}{{
                         pluralizeReview(Number(count_reviews_about_myself)) }}</div>
                   </div>
-                  <a href="#" class="user-info__reviews">Частное лицо</a>
+                  <span class="user-info__status">Частное лицо</span>
                </div>
                <nuxt-link :to="`/user/${props.id_user_owner_ads}`">
                   <img class="user-info__avatar" v-if="userPhotoUrl" :src="getImageUrl(userPhotoUrl)"
                      alt="User Avatar" />
-                  <span v-else>{{ formattedUsername.charAt(0) }}</span>
+                  <span class="user-info__letter" v-else>{{ formattedUsername.charAt(0) }}</span>
                </nuxt-link>
             </div>
          </div>
@@ -178,7 +178,9 @@ const makeCall = () => {
 };
 
 const openChat = () => {
-   router.push('/profile/messages');
+   if (window.innerWidth < 768) {
+      router.push('/profile/messages');
+   }
    currentChatStore.openChat(router);
 };
 
@@ -190,12 +192,16 @@ const prepareChatData = async () => {
    const chatData = {
       ads_info: `${props.brand} ${props.model}, ${props.year}`,
       ads_photo: [{
-         path: props.photos[0]?.path,
+         arr_title_size: {
+            preview: props.photos?.[0]?.arr_title_size.preview,
+         },
       }],
       for_user: {
          id: props.id_user_owner_ads,
          photo: {
-            path: userPhotoUrl.value,
+            arr_title_size: {
+               preview: userPhotoUrl.value,
+            },
          },
          username: formattedUsername.value,
       },
@@ -213,10 +219,12 @@ const prepareChatData = async () => {
 onMounted(async () => {
    try {
       isDesktop.value = window.innerWidth > 768;
+
       const userData = await getUser(props.id_user_owner_ads);
-      userPhotoUrl.value = userData.photo?.path;
+      userPhotoUrl.value = userData.photo?.arr_title_size.preview;
       count_reviews_about_myself.value = userData.count_reviews_about_myself;
       rating.value = userData.grade;
+
       if (props.id_user_owner_ads !== userStore.userId) {
          await prepareChatData();
       }
@@ -251,6 +259,7 @@ onBeforeUnmount(() => {
    @media (max-width: 1280px) {
       display: flex;
       max-width: 100%;
+      align-items: flex-end;
       column-gap: 52px;
    }
 
@@ -284,12 +293,16 @@ onBeforeUnmount(() => {
    &__actions {
       display: flex;
       gap: 24px;
+
+      @media (max-width: 1240px) {
+         display: none;
+      }
    }
 
    &__content {
-      @media (max-width: 1280px) {
+      @media (max-width: 1240px) {
          width: 50%;
-         margin-top: 32px;
+         margin-top: 24px;
       }
 
       @media (max-width: 768px) {
@@ -341,6 +354,15 @@ onBeforeUnmount(() => {
       }
    }
 
+   .user-info__status {
+      font-size: 14px;
+      color: #323232;
+
+      @media (max-width: 768px) {
+         display: none;
+      }
+   }
+
    &__write-button {
       width: 100%;
       display: flex;
@@ -348,14 +370,19 @@ onBeforeUnmount(() => {
       justify-content: center;
       background-color: #5F2EEA;
       color: white;
-      padding: 18px;
+      height: 60px;
       font-size: 20px;
       border: none;
       border-radius: 6px;
       transition: $transition-1;
       cursor: pointer;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 1240px) {
+         height: 40px;
+         font-size: 14px;
+      }
+
+      @media (max-width: 768px) {
          font-size: 16px;
          padding: 8px;
          margin-bottom: 0;
@@ -364,19 +391,17 @@ onBeforeUnmount(() => {
       &:hover {
          background-color: #5716DF;
       }
-
-      &-text {
-         margin-left: 0.5rem;
-      }
    }
 
    &__title {
       font-size: 32px;
       color: #003BCE;
       margin-bottom: 16px;
-      line-height: 36px;
       font-weight: 700;
 
+      @media (max-width: 1240px) {
+         font-size: 24px;
+      }
    }
 
    &__price {
@@ -391,18 +416,24 @@ onBeforeUnmount(() => {
       flex-direction: column;
       align-items: flex-start;
       margin-bottom: 24px;
-      padding-right: 42px;
-      border-radius: 6px;
+      padding: 32px 40px;
+      border-radius: 8px;
+      background-color: #EEF9FF;
       margin-top: 16px;
       gap: 24px;
 
-      @media screen and (max-width: 768px) {
-         flex-direction: row;
-         align-items: center;
-         padding: 0;
+      @media (max-width: 1240px) {
+         margin-bottom: 0;
       }
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
+         flex-direction: row;
+         padding: 24px;
+         margin-bottom: 24px;
+         align-items: center;
+      }
+
+      @media (max-width: 768px) {
          flex-direction: column;
       }
 
@@ -413,14 +444,18 @@ onBeforeUnmount(() => {
          justify-content: center;
          background-color: #3366ff;
          color: white;
-         padding: 18px;
+         height: 60px;
          font-size: 20px;
          border: none;
          border-radius: 6px;
          transition: $transition-1;
          cursor: pointer;
 
-         @media screen and (max-width: 768px) {
+         @media (max-width: 1240px) {
+            height: 40px;
+         }
+
+         @media (max-width: 768px) {
             font-size: 16px;
             padding: 8px;
             margin-bottom: 0;
@@ -432,22 +467,24 @@ onBeforeUnmount(() => {
          }
 
          &-text {
-            margin-left: 0.5rem;
+            @media (max-width: 1240px) {
+               font-size: 14px;
+            }
          }
       }
    }
 
    &__location {
       font-size: 14px;
+      color: #323232;
 
-      @media screen and (max-width: 1280px) {
+      @media (max-width: 1280px) {
          width: 50%;
          height: 100%;
-         min-height: 231px;
-         margin-top: 32px;
+         min-height: 100%;
       }
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          width: 100%;
          min-height: 0;
          margin-top: 0;
@@ -481,10 +518,10 @@ onBeforeUnmount(() => {
       }
 
       &.--visible {
-         height: 306px;
+         height: 308px;
 
-         @media screen and (max-width: 1280px) {
-            height: 154px;
+         @media (max-width: 1280px) {
+            height: 219px;
          }
       }
    }
@@ -516,7 +553,7 @@ onBeforeUnmount(() => {
    width: 100%;
    justify-content: space-between;
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       margin-bottom: 0;
       margin: auto 0;
    }
@@ -555,7 +592,32 @@ onBeforeUnmount(() => {
       line-height: 1;
 
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
+         min-width: 57px;
+         width: 57px;
+         min-height: 57px;
+         height: 57px;
+         font-size: 42px;
+      }
+   }
+
+   &__letter {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-width: 64px;
+      width: 64px;
+      min-height: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 50%;
+      background-color: #3366ff;
+      color: #fff;
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1;
+
+      @media (max-width: 768px) {
          min-width: 57px;
          width: 57px;
          min-height: 57px;

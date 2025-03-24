@@ -1,16 +1,15 @@
 <template>
    <div class="dropdown-2" :class="{ 'dropdown-2--active': isActive, 'dropdown-2--disabled': disabled }" ref="dropdown">
       <div class="dropdown-2__label">{{ label }}</div>
-      <div class="dropdown-2__input" @click="toggleDropdown" :class="{ 'dropdown-2__input--disabled': disabled }">
+      <div class="dropdown-2__input" @click="activateDropdown" :class="{ 'dropdown-2__input--disabled': disabled }">
          <div class="input-text-2 input-text-2--with-clear input-wrapper --check-fill">
-            <input class="input-text-2__input" type="text" :value="displayedSelectedOptionTitle"
-               placeholder="Нажмите для выбора" readonly :disabled="disabled" />
+            <input class="input-text-2__input" type="text" v-model="searchQuery" placeholder="Нажмите для выбора"
+               :disabled="disabled" @input="filterOptions" @focus="activateDropdown" />
          </div>
       </div>
       <ul class="dropdown-2__list" v-if="isActive">
-         <li v-for="option in sortedOptions" :key="option.id" class="dropdown-2__list-item"
-            :class="{ 'dropdown-2__list-item--selected': selectedOption === option.id }"
-            @click="selectOption(option.id)">
+         <li v-for="option in filteredOptions" :key="option.id" class="dropdown-2__list-item"
+            :class="{ 'dropdown-2__list-item--selected': selectedOption === option.id }" @click="selectOption(option)">
             {{ option.title }}
          </li>
       </ul>
@@ -39,20 +38,52 @@ const props = defineProps({
    },
 });
 
-const sortedOptions = computed(() => {
-   if (props.label === 'Год выпуска') {
-      return [...props.options].reverse();
-   }
-   return props.options;
-});
-
 const emit = defineEmits(['updateSort']);
 const selectedOption = ref(props.initialSelectedOption);
 const isActive = ref(false);
+const searchQuery = ref('');
+const hasUserTyped = ref(false);
 
-const toggleDropdown = () => {
+const sortedOptions = computed(() => {
+   return (props.label === 'Год выпуска' || props.label === 'Шины и диски')
+      ? [...props.options].reverse()
+      : props.options;
+});
+
+const activateDropdown = () => {
    if (!props.disabled) {
-      isActive.value = !isActive.value;
+      isActive.value = true;
+      hasUserTyped.value = false;
+   }
+};
+
+
+const filteredOptions = computed(() => {
+   if (!hasUserTyped.value) return sortedOptions.value;
+
+   const query = searchQuery.value.toLowerCase();
+   return sortedOptions.value.filter(option => option.title.toLowerCase().startsWith(query));
+});
+
+const filterOptions = () => {
+   hasUserTyped.value = true;
+};
+
+const selectOption = (option) => {
+   selectedOption.value = option.id;
+   searchQuery.value = option.title;
+   isActive.value = false;
+   emit('updateSort', selectedOption.value);
+};
+
+const handleClickOutside = (event) => {
+   if (!props.disabled && !event.target.closest('.dropdown-2')) {
+      if (props.options.some(option => option.title === searchQuery.value)) {
+         isActive.value = false;
+      } else {
+         searchQuery.value = displayedSelectedOptionTitle.value;
+         isActive.value = false;
+      }
    }
 };
 
@@ -61,20 +92,11 @@ const displayedSelectedOptionTitle = computed(() => {
    return option ? option.title : '';
 });
 
-const selectOption = (id) => {
-   selectedOption.value = id;
-   isActive.value = false;
-   emit('updateSort', selectedOption.value);
-};
-
-const handleClickOutside = (event) => {
-   if (!props.disabled && !event.target.closest('.dropdown-2')) {
-      isActive.value = false;
-   }
-};
-
 onMounted(() => {
    document.addEventListener('click', handleClickOutside);
+   if (selectedOption.value) {
+      searchQuery.value = displayedSelectedOptionTitle.value;
+   }
 });
 
 onUnmounted(() => {
@@ -86,6 +108,15 @@ watch(selectedOption, (newOption) => {
       emit('updateSort', newOption);
    }
 });
+
+watch(
+   () => props.initialSelectedOption,
+   (newSelectedOption) => {
+      selectedOption.value = newSelectedOption;
+      searchQuery.value = displayedSelectedOptionTitle.value;
+   },
+   { immediate: true }  
+);
 </script>
 
 <style scoped lang="scss">

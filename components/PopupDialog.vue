@@ -1,13 +1,13 @@
 <template>
-   <div class="overlay" @click="closePopup">
-      <div class="popup-content" @click.stop>
-         <button class="popup-close-button" @click="closePopup">
+   <div class="popup__overlay" @click="closePopup">
+      <div class="popup__content" @click.stop>
+         <button class="popup__close-button" @click="closePopup">
             <img :src="closeIcon" alt="Close icon" />
          </button>
-         <p class="popup-text">{{ message }}</p>
-         <div class="popup-buttons">
-            <button class="popup-button" @click="confirmAction">{{ confirmText }}</button>
-            <button class="popup-button popup-button--cancel" @click="cancelAction">{{ cancelText }}</button>
+         <p class="popup__text">{{ message }}</p>
+         <div class="popup__buttons">
+            <button class="popup__button" @click="confirmAction">{{ confirmText }}</button>
+            <button class="popup__button popup__button--cancel" @click="cancelAction">{{ cancelText }}</button>
          </div>
       </div>
    </div>
@@ -52,8 +52,8 @@ const cancelAction = () => {
 };
 </script>
 
-<style scoped>
-.overlay {
+<style lang="scss" scoped>
+.popup__overlay {
    position: fixed;
    top: 0;
    left: 0;
@@ -64,10 +64,11 @@ const cancelAction = () => {
    align-items: center;
    background: rgba(0, 0, 0, 0.5);
    backdrop-filter: blur(3px);
-   z-index: 30;
+   z-index: 30000;
+   animation: fade-in 0.2s ease-out;
 }
 
-.popup-content {
+.popup__content {
    background: #fff;
    border-radius: 8px;
    padding: 32px;
@@ -75,10 +76,10 @@ const cancelAction = () => {
    max-width: 370px;
    width: 100%;
    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-   animation: slide-up 0.3s ease-out;
+   animation: slide-up 0.2s ease-out
 }
 
-.popup-close-button {
+.popup__close-button {
    position: absolute;
    display: flex;
    align-items: center;
@@ -101,7 +102,7 @@ const cancelAction = () => {
    }
 }
 
-.popup-text {
+.popup__text {
    font-size: 20px;
    line-height: 24px;
    font-weight: 700;
@@ -109,13 +110,13 @@ const cancelAction = () => {
    margin-bottom: 24px;
 }
 
-.popup-buttons {
+.popup__buttons {
    display: flex;
    justify-content: space-between;
    gap: 24px;
 }
 
-.popup-button {
+.popup__button {
    padding: 8px 16px;
    border: none;
    width: 100%;
@@ -127,17 +128,38 @@ const cancelAction = () => {
    background-color: #3366ff;
 }
 
-.popup-button:hover {
+.popup__button:hover {
    background-color: #274bcc;
 }
 
-.popup-button--cancel {
+.popup__button--cancel {
    background-color: #d6efff !important;
    color: #3366ff;
    transition: all 0.2s ease-in;
 }
 
-.popup-button--cancel:hover {
+.popup__button--cancel:hover {
    background-color: #A4DCFF !important;
+}
+
+@keyframes fade-in {
+   0% {
+      opacity: 0;
+   }
+
+   100% {
+      opacity: 1;
+   }
+}
+
+@keyframes slide-up {
+   0% {
+      transform: translateY(50px);
+
+   }
+
+   100% {
+      transform: translateY(0);
+   }
 }
 </style>

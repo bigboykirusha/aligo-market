@@ -1,12 +1,13 @@
 <template>
    <!-- Основной контейнер модального окна -->
-   <div v-show="isLoginModalOpen" id="main-login-modal" class="modal" @click.self="closeModal"
-      @keydown="handleTabKeydown">
+   <div v-show="isLoginModalOpen" id="main-login-modal" class="modal"
+      :class="{ 'authorization-page': isAuthorizationPage }" @click.self="closeModal" @keydown="handleTabKeydown">
       <!-- Анимация для модального контента -->
       <transition name="modal-fade">
          <div class="modal__content">
             <!-- Кнопка закрытия модального окна -->
-            <button class="modal__close-button" @click="closeModal" aria-label="Close" tabindex="0">
+            <button v-if="!isAuthorizationPage" class="modal__close-button" @click="closeModal" aria-label="Close"
+               tabindex="0">
                <img :src="closeIcon" alt="close icon" />
             </button>
 
@@ -19,7 +20,7 @@
                <!-- Разделительная линия -->
                <div class="modal__header-bar"></div>
                <!-- Переключатель вкладок (SMS или Email) -->
-               <div v-show="isBothSaved && !showCodeInput" class="modal__header-switcher">
+               <div v-if="false" v-show="isBothSaved && !showCodeInput" class="modal__header-switcher">
                   <button :class="{ 'active': activeTab === 0 }" @click="switchTab(0)" tabindex="0">
                      {{ $t('loginModal.smsLogin') }}
                   </button>
@@ -32,20 +33,21 @@
             </div>
 
             <!-- Форма входа -->
-            <form class="modal__form" @submit.prevent="submitForm">
+            <form class="modal__form" @submit.prevent="submitForm" @keydown.enter="handleEnter">
                <!-- Секция формы: ввод телефона или email -->
                <div v-show="(activeTab === 0 || activeTab === 1)" class="modal__form-section">
-                  <!-- Загрузка (оверлей со спиннером) -->
-                  <div v-show="isLoading" class="loading-overlay">
-                     <div class="spinner"></div>
-                  </div>
 
                   <!-- Поле ввода телефона или email -->
                   <div v-show="!showCodeInput" class="input-wrapper">
-                     <p class="input-wrapper__title">{{ isPhoneTab ? 'Введите номер телефона' : 'Введите адрес почты' }}
+                     <p class="input-wrapper__title">
+                        {{ isAuthorizationPage ? `Эту страницу могут просматривать только авторизованные
+                        пользователи` : (isPhoneTab ? 'Введите номер телефона' : 'Введите адрес почты') }}
                      </p>
                      <p class="input-wrapper__description">
-                        Мы отправим вам проверочный код для входа в аккаунт
+                        {{ isAuthorizationPage
+                           ? 'Введите номер телефона и мы отправим вам код по СМС для входа в аккаунт'
+                           : 'Мы отправим вам проверочный код для входа в аккаунт'
+                        }}
                      </p>
                      <!-- Ввод телефона -->
                      <input v-show="isPhoneTab" :class="{ 'input-error': contactInfoError && isPhoneTab }" type="tel"
@@ -57,7 +59,7 @@
                      <!-- Чекбокс "Вход через Telegram" -->
                      <p v-if="contactInfoError && !showCodeInput" class="error-message">{{ contactInfoError }}</p>
                      <label v-show="isPhoneTab" class="input-wrapper__telegram-checkbox">
-                        <input type="checkbox" v-model="loginWithTelegram" />
+                        <CheckboxUI v-model="loginWithTelegram" size="16" />
                         <span>Отправить код в <img src="../assets/icons/tgshka.svg" alt=""><span
                               class="checkbox-wrapper--tg">Telegram</span></span>
                      </label>
@@ -67,16 +69,30 @@
                   <div class="input-wrapper" v-show="showCodeInput">
                      <p class="input-wrapper__title">Введите код</p>
                      <p class="input-wrapper__description">
-                        Мы отправили код на {{ isPhoneTab ? formattedPhoneNumber : email }}<br />
+                        Мы отправили вам код для подтверждения на номер {{ isPhoneTab ? formattedPhoneNumber : email
+                        }}
                         <span @click.prevent="switchTab(activeTab); startTimer"
                            class="input-wrapper__description--link">
-                           Изменить {{ isPhoneTab ? 'номер' : 'почту' }}
+                           <br /> Изменить {{ isPhoneTab ? 'номер' : 'почту' }}
                         </span>
                      </p>
 
                      <!-- Компонент ввода кода (VueOtpInput) -->
-                     <VueOtpInput input-classes="otp-input" inputType="numeric" :num-inputs="4" v-model:value="code"
-                        :should-auto-focus="true" @on-complete="submitForm" />
+                     <OTPInput v-model="code" :maxlength="4" inputmode="tel" auto-focus autocomplete="one-time-code"
+                        @complete="submitForm" @input="resetSendCodeFlag">
+                        <template #default="{ slots }">
+                           <div class="otp-container">
+                              <div v-for="(slot, idx) in slots" :key="idx" v-bind="slot" class="otp-input" :class="{
+                                 'otp-input--active': slot.isActive,
+                                 'otp-input--filled': slot.char,
+                                 'otp-input--error': hasError
+                              }" @click="focusSlot(idx)">
+                                 <span v-if="slot.char">{{ slot.char }}</span>
+                                 <span v-else-if="slot.isActive" class="otp-caret"></span>
+                              </div>
+                           </div>
+                        </template>
+                     </OTPInput>
                      <!-- Таймер до получения нового кода -->
                      <p class="timer-message" v-if="timeLeft > 0">
                         Получить новый можно через {{ formattedTime }}
@@ -85,14 +101,13 @@
                         tabindex="0">
                         Получить новый код
                      </button>
-                     <button v-if="activeTab === 0 && showCodeInput"
-                        class="modal__button modal__button--revers modal__button--change"
+                     <button v-if="false" class="modal__button modal__button--revers modal__button--change"
                         @click.prevent="loginWithEmail">
                         Войти через почту
                      </button>
                      <!-- Кнопка "Войти по SMS" -->
-                     <button v-if="activeTab === 1 && showCodeInput"
-                        class="modal__button modal__button--revers modal__button--change" @click.prevent="loginWithSMS">
+                     <button v-if="false" class="modal__button modal__button--revers modal__button--change"
+                        @click.prevent="loginWithSMS">
                         Войти по SMS
                      </button>
                   </div>
@@ -104,27 +119,31 @@
                   <p class="timer-message" v-if="timeLeft > 0">
                      Войти снова можно через {{ formattedTime }}
                   </p>
-                  <!-- Кнопка "Вход" -->
-                  <button v-show="isBothSaved && !showCodeInput && !(timeLeft > 0)" :disabled="isContactInfoInvalid"
-                     class="modal__button" :class="{ '--disabled': isContactInfoInvalid }" @click.prevent="submitForm"
+                  <!-- Кнопка "Отправить" -->
+                  <button v-show="!showCodeInput && !(timeLeft > 0)"
+                     :disabled="(isAuthorizationPage ? isContactInfoInvalid : isContactInfoRegInvalid) || isLoading"
+                     class="modal__button"
+                     :class="{ '--disabled': (isAuthorizationPage ? isContactInfoInvalid : isContactInfoRegInvalid) || isLoading }"
                      tabindex="0">
-                     Вход
+                     <span v-if="isLoading" class="spinner"></span>
+                     <span v-else>Отправить</span>
                   </button>
-                  <!-- Кнопка "Отправить" или "Зарегистрироваться" -->
-                  <button v-show="!isBothSaved && !showCodeInput && !(timeLeft > 0)" :disabled="isContactInfoRegInvalid"
-                     class="modal__button" :class="{ '--disabled': isContactInfoRegInvalid }" tabindex="0">
-                     {{ showCodeInput ? 'Зарегистрироваться' : 'Отправить' }}
-                  </button>
+                  <p v-if="isAuthorizationPage" class="agreement-text">
+                     Вы также соглашаетесь с <a class="agreement-link">правилами Aligo</a> и
+                     <a class="agreement-link">политикой обработки персональных
+                        данных</a>.
+                  </p>
+                  <nuxt-link v-if="isAuthorizationPage" to="/" class="main-page-button">На главную</nuxt-link>
                   <!-- Чекбоксы согласия с правилами -->
-                  <div v-if="!isBothSaved && !showCodeInput" class="checkbox-wrapper">
+                  <div v-if="!showCodeInput && !isAuthorizationPage && !(timeLeft > 0)" class="checkbox-wrapper">
                      <label>
-                        <input type="checkbox" v-model="checkbox1" />
-                        <span>Согласен с <span class="checkbox-wrapper--blue">правилами Aligo</span></span>
+                        <CheckboxUI v-model="checkbox1" size="16" />
+                        <span>Согласен с <a class="checkbox-wrapper--blue">правилами Aligo</a></span>
                      </label>
                      <label>
-                        <input type="checkbox" v-model="checkbox2" />
-                        <span>Принимаю <span class="checkbox-wrapper--blue">политику обработки персональных
-                              данных</span></span>
+                        <CheckboxUI v-model="checkbox2" size="16" />
+                        <span>Принимаю <a class="checkbox-wrapper--blue">политику обработки персональных
+                              данных</a></span>
                      </label>
                   </div>
                </div>
@@ -137,13 +156,28 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue';
 import closeIcon from '../assets/icons/close.svg';
-import { getCookie, setCookie } from '~/services/auth';
-import { loginUserByPhone, confirmPhoneCode } from '../services/apiClient';
+import { useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
+import { loginUserByPhone, confirmPhoneCode, getSiteDocumentById } from '../services/apiClient';
 import { useUserStore } from '../store/user';
-import VueOtpInput from 'vue3-otp-input';
+import { OTPInput } from 'vue-input-otp'
 import { useLoginModalStore } from '~/store/loginModal.js';
+import { mask as vMask } from 'vue-the-mask'
+import { useCookie } from '#app';
+
+defineOptions({
+   directives: {
+      mask: vMask
+   }
+})
 
 const loginModalStore = useLoginModalStore();
+const route = useRoute();
+const router = useRouter();
+
+const redirectPath = route.query.redirect || '/';
+
+const isAuthorizationPage = computed(() => route.path.startsWith('/authorization'));
 
 const isLoginModalOpen = computed(() => loginModalStore.isOpen);
 
@@ -154,8 +188,11 @@ const activeTab = ref(0);
 const phoneNumber = ref('');
 const email = ref('');
 const code = ref('');
-const showCodeInput = ref(false);
+const showCodeInput = computed(() => loginModalStore.showCodeInput);
 const isLoading = ref(false);
+const hasError = ref(false)
+const canResendCode = ref(true);
+const documents = ref([]);
 
 // Таймер и ошибки
 let timer = null;
@@ -163,12 +200,28 @@ const timeLeft = ref(0);
 
 onMounted(() => {
    checkAndRestoreTimer();
+   loadAgreementDocuments();
 });
+
+const loadAgreementDocuments = async () => {
+   try {
+      const { data } = await getSiteDocumentById();
+
+      if (data && Array.isArray(data)) {
+         documents.value = data;
+      } else {
+         console.warn('Документы не были найдены или данные не в правильном формате');
+      }
+   } catch (error) {
+      console.error('Ошибка при загрузке документов:', error);
+   }
+};
+
 
 // Запуск таймера
 const startTimer = () => {
    const firstTimeKey = 'firstTimeTimestamp';
-   const firstTimeDuration = 24 * 60 * 60 * 1000; // 24 часа в миллисекундах
+   const firstTimeDuration = 24 * 60 * 60 * 1000;
 
    // Проверяем, если прошло меньше 24 часов с первого запуска
    const firstTime = localStorage.getItem(firstTimeKey);
@@ -182,7 +235,7 @@ const startTimer = () => {
    clearInterval(timer);
 
    // Устанавливаем время (1 минута при первом запуске, 3 минуты при повторных)
-   const duration = isFirstTime ? 60 : 180; // 1 минута или 3 минуты
+   const duration = isFirstTime ? 60 : 180;
    const endTime = Date.now() + duration * 1000;
 
    // Сохранение времени окончания в localStorage
@@ -224,7 +277,6 @@ const updateRemainingTime = (endTime) => {
 const contactInfoError = ref('');
 const generalError = ref('');
 
-// Для ввода
 const phoneInput = ref(null);
 const emailInput = ref(null);
 const checkbox1 = ref(false);
@@ -237,6 +289,15 @@ const formattedPhoneNumber = computed(() =>
    phoneNumber.value.replace(/(\d{3})(\d{3})(\d{2})(\d{2})/, '7 ($1) $2 - $3 - $4')
 );
 
+function resetErrorOtp() {
+   hasError.value = false
+}
+
+const resetSendCodeFlag = () => {
+   canResendCode.value = true;
+   resetErrorOtp();
+}
+
 const formattedTime = computed(() => {
    const minutes = Math.floor(timeLeft.value / 60);
    const seconds = timeLeft.value % 60;
@@ -247,31 +308,29 @@ const isContactInfoInvalid = computed(() => {
    const isInvalid = isPhoneTab.value
       ? !validatePhoneNumber(phoneNumber.value)
       : !validateEmail(email.value);
-   console.log(phoneNumber.value)
    return isInvalid;
 });
 
-const isContactInfoRegInvalid = computed(
-   () => isContactInfoInvalid.value || !checkbox1.value || !checkbox2.value
-);
-const isCodeInvalid = computed(() => showCodeInput.value && code.value.length < 6);
+const isContactInfoRegInvalid = computed(() => {
+   return isContactInfoInvalid.value || (!checkbox1.value || !checkbox2.value);
+});
 
 // Сохранение данных
 const isPhoneSaved = computed(() => {
-   const savedData = JSON.parse(getCookie('userData') || '{}');
+   const savedData = useCookie('userData').value || {};
    if (savedData.phoneNumber) phoneNumber.value = savedData.phoneNumber;
    return !!savedData.phoneNumber;
 });
 
 const isEmailSaved = computed(() => {
-   const savedData = JSON.parse(getCookie('userData') || '{}');
+   const savedData = useCookie('userData').value || {};
    if (savedData.email) email.value = savedData.email;
    return !!savedData.email;
 });
 
 // Монтирование компонента
 onMounted(() => {
-   const savedUserData = JSON.parse(getCookie('userData') || '{}');
+   const savedUserData = useCookie('userData').value || {};
    phoneNumber.value = savedUserData.phoneNumber || '';
    email.value = savedUserData.email || '';
    if (savedUserData.phoneNumber && savedUserData.email) {
@@ -347,7 +406,7 @@ const handleTabKeydown = (event) => {
 // Обработка переключения табов
 const switchTab = (index) => {
    activeTab.value = index;
-   showCodeInput.value = false;
+   loginModalStore.hideCodeField();
    setFocusOnInput();
 };
 
@@ -359,19 +418,24 @@ const clearFormFields = () => {
 
 // Закрытие модального окна
 const closeModal = () => {
+   if (!isAuthorizationPage.value) {
+      document.body.style.overflow = '';
+      clearFormFields();
+      loginModalStore.closeLoginModal();
+   }
+};
+
+const closeAuthorizationModal = () => {
    document.body.style.overflow = '';
    clearFormFields();
    loginModalStore.closeLoginModal();
-   showCodeInput.value = false;
-};
+}
 
 // Проверка и обработка входа
 const submitForm = async () => {
-   if (isLoading.value || isContactInfoInvalid.value) {
+   if (isLoading.value || isContactInfoInvalid.value || !canResendCode.value) {
       return;
    }
-
-   isLoading.value = true;
 
    try {
       const cleanedPhone = removePhoneFormatting(phoneNumber.value);
@@ -385,28 +449,46 @@ const submitForm = async () => {
 
       if (!showCodeInput.value) {
          const response = await loginUserByPhone(requestData);
+         isLoading.value = true;
          if (response.success) {
-            showCodeInput.value = true;
+            loginModalStore.showCodeField();
+            isLoading.value = false;
             startTimer();
-            alert(`Код: ${response.code}`);
          } else {
+            isLoading.value = false;
             contactInfoError.value = response.message || 'Ошибка при отправке кода.';
          }
       } else {
          const response = await confirmPhoneCode({ ...requestData, code: code.value });
+         isLoading.value = true;
          if (response.success) {
             handleSuccessfulLogin(response.data, cleanedPhone);
+            isLoading.value = false;
          } else {
+            hasError.value = true
+            isLoading.value = false;
+            canResendCode.value = false;
             contactInfoError.value = response.data.message || 'Неверный код.';
          }
       }
    } catch (error) {
       contactInfoError.value = error.message;
       console.error('Ошибка при отправке запроса:', contactInfoError);
-   } finally {
-      isLoading.value = false;
    }
 };
+
+const handleEnter = (event) => {
+   if (
+      (isAuthorizationPage.value ? isContactInfoInvalid.value : isContactInfoRegInvalid.value) ||
+      isLoading.value
+   ) {
+      event.preventDefault();;
+   }
+};
+
+function focusSlot(index) {
+   document.querySelectorAll('.otp-input')[index]?.focus();
+}
 
 const requestCode = async () => {
 
@@ -428,9 +510,8 @@ const requestCode = async () => {
 
       const response = await loginUserByPhone(requestData);
       if (response.success) {
-         showCodeInput.value = true;
+         loginModalStore.showCodeField();
          startTimer();
-         alert(`Код: ${response.code}`);
       } else {
          contactInfoError.value = response.message || 'Ошибка при отправке кода.';
       }
@@ -445,36 +526,39 @@ const requestCode = async () => {
 
 const loginWithEmail = () => {
    activeTab.value = 1;
-   showCodeInput.value = false;
+   loginModalStore.hideCodeField();
    setFocusOnInput();
    console.log('Login with Email');
 };
 
 const loginWithSMS = () => {
    activeTab.value = 2;
-   showCodeInput.value = false;
+   loginModalStore.hideCodeField();
    setFocusOnInput();
    console.log('Login with SMS');
 };
 
-// Успешный вход
 const handleSuccessfulLogin = (data, cleanedPhone) => {
    const { token, user_id } = data;
-   setCookie(
-      'userData',
-      JSON.stringify({
-         token,
-         user_id,
-         phoneNumber: isPhoneTab.value ? cleanedPhone : '',
-         email: !isPhoneTab.value ? email.value : '',
-      }),
-      7
-   );
+
+   const userDataCookie = useCookie('userData', { maxAge: 7 * 24 * 60 * 60 });
+
+   userDataCookie.value = JSON.stringify({
+      token,
+      user_id,
+      phoneNumber: isPhoneTab.value ? cleanedPhone : '',
+      email: !isPhoneTab.value ? email.value : '',
+   });
+
    clearFormFields();
-   userStore.isLoggedIn = true;
    userStore.fetchAndSetUserdata();
-   userStore.fetchUserCounts();
-   closeModal();
+
+   if (isAuthorizationPage.value) {
+      closeAuthorizationModal();
+      router.push(redirectPath);
+   } else {
+      closeModal();
+   }
 };
 
 // Дополнительные методы
@@ -666,7 +750,7 @@ const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
                display: flex;
                align-items: center;
                margin-top: 8px;
-               gap: 8px;
+               gap: 6px;
 
                input {
                   height: 14px;
@@ -706,6 +790,46 @@ const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
       justify-content: center;
       gap: 16px;
       padding: 0 42px;
+      padding-bottom: 24px;
+   }
+}
+
+.authorization-page {
+   position: static;
+   z-index: 0;
+   background: none;
+   backdrop-filter: none;
+   height: auto;
+   padding: 0;
+   display: flex;
+   justify-content: center;
+
+   @media (max-width: 768px) {
+      min-height: calc(100vh - 70px);
+   }
+
+   .modal__header-image {
+      padding: 32px 0;
+   }
+
+   .modal__content {
+      background: #fff;
+      border-radius: 0;
+      width: 100%;
+      max-width: 300px;
+      box-shadow: none;
+      overflow: hidden;
+      position: relative;
+      box-sizing: border-box;
+   }
+
+   .input-wrapper {
+      padding: 0;
+   }
+
+   .modal__footer {
+      border-top: 1px solid #D6D6D6;
+      padding: 0;
       padding-bottom: 24px;
    }
 }
@@ -774,7 +898,8 @@ const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
 
    label {
       display: flex;
-      align-items: center;
+      gap: 6px;
+      align-items: flex-start;
       font-size: 14px;
       line-height: 1;
 
@@ -844,6 +969,92 @@ const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
 
    100% {
       transform: rotate(360deg);
+   }
+}
+
+.otp-container {
+   display: flex;
+   gap: 12px;
+   justify-content: space-between;
+   align-items: center;
+}
+
+.otp-input {
+   width: 52px;
+   height: 62px;
+   color: #323232;
+   font-size: 32px;
+   border: 1px solid #D6D6D6;
+   border-radius: 6px;
+   text-align: center;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   background-color: #fff;
+   transition: all 0.3s ease;
+   position: relative;
+   cursor: text;
+   user-select: none;
+}
+
+.otp-input:hover {
+   border-color: #A6A6A6;
+}
+
+.otp-input--active {
+   border-color: #3366FF;
+   box-shadow: 0 0 12px rgba(51, 102, 255, 0.4);
+}
+
+.otp-input--filled {
+   border-color: #3366FF;
+}
+
+.otp-input--error {
+   border-color: #FF5959;
+}
+
+.otp-caret {
+   width: 2px;
+   height: 40%;
+   background-color: #3366FF;
+   animation: blink 1s step-end infinite;
+}
+
+.agreement-text {
+   font-size: 12px;
+   color: #787878;
+   line-height: 16px;
+   text-align: center;
+}
+
+.agreement-link {
+   text-decoration: underline;
+   color: #787878;
+}
+
+.main-page-button {
+   display: inline-block;
+   background-color: #fff;
+   color: #3366FF;
+   padding: 12px 24px;
+   font-size: 14px;
+   border: none;
+   border-radius: 4px;
+   text-align: center;
+   text-decoration: none;
+   box-shadow: none;
+}
+
+@keyframes blink {
+
+   0%,
+   100% {
+      opacity: 1;
+   }
+
+   50% {
+      opacity: 0;
    }
 }
 </style>

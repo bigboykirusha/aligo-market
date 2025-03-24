@@ -11,7 +11,7 @@
          <ul v-if="blockedUsers.length > 0" class="blocked-users__list">
             <li v-for="user in blockedUsers" :key="user.id" class="blocked-users__item">
                <div class="blocked-users__info">
-                  <img v-if="user.blocked_user.photo" :src="getImageUrl(user.blocked_user.photo.path, avatarRevers)"
+                  <img v-if="user.blocked_user.photo" :src="getImageUrl(user.blocked_user.arr_title_size.preview, avatarRevers)"
                      alt="user photo" class="blocked-users__photo" />
                   <div class="blocked-users__details">
                      <span class="blocked-users__name">{{ user.blocked_user.username }}</span>

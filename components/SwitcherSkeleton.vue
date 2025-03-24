@@ -14,7 +14,7 @@
    max-width: 260px;
    gap: 10px;
 
-   @media screen and (max-width: 1250px) {
+   @media (max-width: 1250px) {
       max-width: 100%;
       width: 100%;
    }

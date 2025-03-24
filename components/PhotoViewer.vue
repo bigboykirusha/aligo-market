@@ -1,10 +1,10 @@
 <template>
-   <div v-if="isVisible" class="photo-viewer-overlay">
+   <div class="photo-viewer-overlay">
       <div class="wrapper-container" :class="{ 'fullscreen': isFullscreen }" @click.self="closeAndExitFullscreen">
          <div class="gallery-container">
             <div class="main-slide">
                <div class="clickable-area clickable-area--left" @click="slidePrev" :disabled="isPrevDisabled"><img
-                     src="..//assets/icons/white-arrow.svg" alt=""></div>
+                     src="../assets/icons/white-arrow.svg" alt=""></div>
 
                <!-- Основной слайдер -->
                <Swiper :slides-per-view="1" :navigation="false" @slideChange="updateActiveImage" :space-between="16"
@@ -12,22 +12,19 @@
                   <SwiperSlide v-for="(image, index) in images" :key="index">
                      <div class="main-image-container" ref="mainImageContainer" @wheel="onWheelZoom"
                         @dblclick="toggleZoom">
-                        <picture>
-                           <source :srcset="getImageUrl(image.path_webp)" type="image/webp" />
-                           <img :src="getImageUrl(image.path_webp)" alt="Основное изображение"
-                              class="gallery-slider__main-image"
-                              :style="{ transform: isZoomed ? `scale(${zoomLevel})` : 'scale(1)' }" />
-                        </picture>
+                        <img :src="getImageUrl(image.arr_title_size.default)" alt="Основное изображение"
+                           class="gallery-slider__main-image"
+                           :style="{ transform: isZoomed ? `scale(${zoomLevel})` : 'scale(1)' }" />
                         <div class="blurred-background" :style="{
-                           backgroundImage: `url(${getImageUrl(image.path_webp)})`,
-                           filter: isCover ? 'none' : 'blur(20px)',
+                           backgroundImage: `url(${getImageUrl(image.arr_title_size.preview)})`,
+                           filter: isCover ? 'none' : 'blur(10px)',
                         }"></div>
                      </div>
                   </SwiperSlide>
                </Swiper>
 
                <div class="clickable-area clickable-area--right" @click="slideNext" :disabled="isNextDisabled"><img
-                     src="..//assets/icons/white-arrow.svg" alt=""></div>
+                     src="../assets/icons/white-arrow.svg" alt=""></div>
 
                <!-- Счетчик и кнопки -->
                <div class="slide-counter-actions">
@@ -48,7 +45,7 @@
                </div>
             </div>
 
-            <div class="thumbnails" v-if="!isFullscreen">
+            <div class="thumbnails" v-if="!isFullscreen && images.length > 0">
                <div class="thumbnail-list">
                   <Swiper direction="horizontal" :slidesPerView="4" :breakpoints="{
                      768: {
@@ -61,13 +58,11 @@
                         slidesPerView: 8,
                      }
                   }" :space-between="16" class="thumbnail-swiper" @swiper="(swiper) => handleSwiper(swiper, false)">
-                     <SwiperSlide v-for="(image, index) in images" :key="image.path"
+                     <SwiperSlide v-for="(image, index) in images" :key="image.arr_title_size.preview"
                         :class="['thumbnail', { 'thumbnail--active': index === currentIndex }]"
                         @click="setActiveImage(index)" role="button" tabindex="0">
-                        <picture>
-                           <source :srcset="getImageUrl(image.path_webp)" type="image/webp" />
-                           <img :src="getImageUrl(image.path_webp)" alt="Миниатюра" class="thumbnail__image" />
-                        </picture>
+                        <img :src="getImageUrl(image.arr_title_size.preview)" alt="Миниатюра"
+                           class="thumbnail__image" />
                      </SwiperSlide>
                   </Swiper>
                </div>
@@ -91,7 +86,6 @@ import closeWhite from '../assets/icons/close-white.svg';
 const props = defineProps({
    images: Array,
    activeIndex: Number,
-   isVisible: Boolean,
    adsId: Number,
    userId: Number,
 });
@@ -99,7 +93,6 @@ const props = defineProps({
 const emit = defineEmits(['close']);
 const currentIndex = ref(props.activeIndex);
 const swiperMainInstance = ref(null);
-const isCover = ref(false);
 const swiperThumbnailInstance = ref(null);
 const isZoomed = ref(false);
 const zoomLevel = ref(1);
@@ -121,29 +114,20 @@ const slideNext = () => {
 };
 
 const toggleZoom = () => {
-   if (zoomLevel.value === 1) {
-      zoomLevel.value = 2;
-      isZoomed.value = true;
-   } else {
-      zoomLevel.value = 1;
-      isZoomed.value = false;
-   }
+   zoomLevel.value = zoomLevel.value === 1 ? 2 : 1;
+   isZoomed.value = zoomLevel.value > 1;
 };
 
 const onWheelZoom = (event) => {
+   if (event.target.closest('input, textarea, select')) return;
    event.preventDefault();
    const delta = Math.sign(event.deltaY);
-   zoomLevel.value = Math.max(1, zoomLevel.value - delta * 0.1);
-
+   zoomLevel.value = Math.max(1, Math.min(3, zoomLevel.value - delta * 0.1));
    isZoomed.value = zoomLevel.value > 1;
 };
 
 const toggleFullscreen = () => {
-   if (!isFullscreen.value) {
-      isFullscreen.value = true;
-   } else {
-      isFullscreen.value = false;
-   }
+   isFullscreen.value = !isFullscreen.value;
 };
 
 const closeAndExitFullscreen = () => {
@@ -165,9 +149,8 @@ const updateActiveImage = (swiper) => {
 const handleSwiper = (swiper, isMain) => {
    if (isMain) {
       swiperMainInstance.value = swiper;
-
       if (props.activeIndex !== undefined) {
-         swiperMainInstance.value.slideTo(props.activeIndex, 0); 
+         swiperMainInstance.value.slideTo(props.activeIndex, 0);
       }
    } else {
       swiperThumbnailInstance.value = swiper;

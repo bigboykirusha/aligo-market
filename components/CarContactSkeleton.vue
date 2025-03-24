@@ -21,26 +21,25 @@
 
 <style scoped lang="scss">
 .car-details-skeleton {
-   max-width: 416px;
    width: 100%;
 
-   @media screen and (max-width: 1280px) {
+   @media (max-width: 1280px) {
       display: flex;
       max-width: 100%;
       column-gap: 52px;
    }
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       flex-direction: column;
    }
 
    &__content {
-      @media screen and (max-width: 1280px) {
-         width: 50%;
+      @media (max-width: 1280px) {
+         width: 100%;
          margin-top: 32px;
       }
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          width: 100%;
       }
    }
@@ -56,7 +55,7 @@
       gap: 24px;
       margin-bottom: 24px;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          flex-direction: row;
          gap: 16px;
       }

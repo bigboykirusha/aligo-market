@@ -1,17 +1,16 @@
 <template>
    <div class="container">
-      <div>
-         <Header />
-      </div>
+      <Header />
       <NuxtPage />
       <CookiePopup />
       <LoginModal />
+      <LocationModal />
       <LocationPopupMobile />
-      <Footer v-if="showFooter" />
-      <FooterAlternative v-else />
+      <FooterAlternative v-show="!showFooter" />
+      <Footer v-show="showFooter" />
       <Chat
          v-if="userStore.isLoggedIn && !route.path.startsWith('/profile') && !route.path.startsWith('/auto') && !route.path.startsWith('/create')" />
-      <NotifPopup />
+      <PopupError />
       <UserMenuBurger />
       <BottomToolbar />
    </div>
@@ -20,6 +19,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+import PopupError from '~/components/PopupError.vue';
 import { useUserStore } from '~/store/user';
 
 const route = useRoute();

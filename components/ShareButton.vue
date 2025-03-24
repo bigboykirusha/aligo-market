@@ -40,6 +40,7 @@
 <script setup>
 import { ref } from 'vue';
 import shareIcon from '../assets/icons/share.svg';
+import { usePopupErrorStore } from '~/store/popupErrorStore.js';
 
 const props = defineProps({
    mobile: {
@@ -53,6 +54,7 @@ const props = defineProps({
 const emit = defineEmits(['toggle-login-modal']);
 
 const isHovered = ref(false);
+const popupErrorStore = usePopupErrorStore();
 
 const showSharePopup = ref(false);
 
@@ -76,9 +78,9 @@ const shareOnPlatform = (url) => {
 const copyLink = async () => {
    try {
       await navigator.clipboard.writeText(currentUrl);
-      alert('Ссылка скопирована!');
+      popupErrorStore.showNotification('Ссылка скопирована!');
    } catch (err) {
-      alert('Не удалось скопировать ссылку.');
+      popupErrorStore.showError('Не удалось скопировать ссылку.');
    }
 };
 </script>
@@ -89,10 +91,10 @@ const copyLink = async () => {
    align-items: center;
    gap: 6px;
    padding: 4px 8px;
-   transition: background-color 0.3s, border-color 0.3s;
-   border-radius: 12px;
+   transition: background-color 0.3s ease, border-color 0.3s ease;
+   border-radius: 18px;
 
-   &.hovered {
+   &:hover {
       background-color: #D6EFFF;
    }
 

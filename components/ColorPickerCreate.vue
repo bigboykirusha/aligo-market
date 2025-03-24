@@ -1,10 +1,8 @@
 <template>
    <div class="color-picker">
-      <div class="color-picker__title">{{ label }}</div>
       <div class="color-picker__options">
-         <div v-for="color in options" :key="color.id" class="color-picker__option" :style="getStyle(color)"
-            :class="{ 'color-picker__option--selected': selectedColors.includes(color.id) }"
-            @click="toggleColorSelection(color.id)">
+         <div v-for="color in options" :key="color.id" class="color-picker__option"
+            :style="getStyle(color)" @click="toggleColorSelection(color.id)" :class="{ 'color-picker__option--selected': selectedColorId[0] == color.id }">
             <div class="color-picker__tooltip">
                {{ color.title }}
                <span class="color-picker__tooltip-arrow"></span>
@@ -12,18 +10,10 @@
          </div>
       </div>
    </div>
-   <div class="color-picker__custom-color">
-      <label for="colorCustom"></label>
-      <input type="text" id="colorCustom" v-model="colorCustom" @input="setColorCustom"
-         placeholder="Укажите цвет по ПТС" class="color-picker__text-input" />
-   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue';
-import { useCreateStore } from '@/store/create.js';
-
-const store = useCreateStore();
 
 const emit = defineEmits(['updateSelected']);
 const props = defineProps({
@@ -35,48 +25,28 @@ const props = defineProps({
       type: String,
       default: '',
    },
-   activeIndices: {
-      type: Array,
+   activeIndex: {
+      type: [Array],
       default: () => [],
    },
 });
 
-const colorCustom = computed({
+const selectedColorId = computed({
    get() {
-      return store.color_custom;
+      return props.activeIndex;
    },
-   set(newColor) {
-      store.setColorCustom(newColor);
-   }
-});
-
-const setColorCustom = (event) => {
-   const color = event.target.value;
-   if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
-      colorCustom.value = color;
-   }
-};
-
-const selectedColors = computed({
-   get() {
-      return props.activeIndices;
-   },
-   set(newColors) {
-      emit('updateSelected', newColors);
+   set(newColorId) {
+      console.log(newColorId);
+      emit('updateSelected', [newColorId]);
    }
 });
 
 const toggleColorSelection = (id) => {
-   const newSelection = [...selectedColors.value];
-   const index = newSelection.indexOf(id);
-
-   if (index > -1) {
-      newSelection.splice(index, 1);
+   if (selectedColorId.value === id) {
+      selectedColorId.value = null;
    } else {
-      newSelection.push(id);
+      selectedColorId.value = id;
    }
-
-   selectedColors.value = newSelection;
 };
 
 const getStyle = (color) => {
@@ -108,6 +78,7 @@ const getStyle = (color) => {
    }
 
    &__title {
+      display: none;
       font-size: 14px;
       color: #323232;
       min-width: 270px;
@@ -125,12 +96,12 @@ const getStyle = (color) => {
       width: 35px;
       height: 35px;
       border-radius: 50%;
-      cursor: pointer;
       border: 1px solid #d6d6d6;
       transition: border-color 0.3s ease;
       position: relative;
 
       &:hover .color-picker__tooltip {
+         display: none;
          visibility: visible;
          opacity: 1;
       }
@@ -141,6 +112,7 @@ const getStyle = (color) => {
    }
 
    &__tooltip {
+      display: none;
       position: absolute;
       bottom: -42px;
       left: 50%;
@@ -162,6 +134,7 @@ const getStyle = (color) => {
    }
 
    &__tooltip-arrow {
+      display: none;
       position: absolute;
       top: -8px;
       left: 30%;

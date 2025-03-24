@@ -1,14 +1,20 @@
 <template>
-   <div class='card-skeleton'>
+   <div class="card-skeleton" :class="{ 'card-skeleton--horizontal': isHorizontal }">
       <div class="card-skeleton__image"></div>
       <div class="card-skeleton__body">
          <div class="card-skeleton__wishlist-button"></div>
+         <div class="card-skeleton__block"></div>
          <div class="card-skeleton__title"></div>
          <div class="card-skeleton__price"></div>
-         <div class="card-skeleton__block"></div>
       </div>
    </div>
 </template>
+
+<script setup>
+defineProps({
+   isHorizontal: Boolean
+});
+</script>
 
 <style lang="scss" scoped>
 .card-skeleton {
@@ -19,7 +25,7 @@
    border-radius: 6px;
    min-width: 220px;
    overflow: hidden;
-   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+   box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
 
    &__image,
    &__title,
@@ -62,13 +68,20 @@
 
    &__price {
       height: 18px;
-      margin-bottom: 10px;
       width: 40%;
    }
 
    &__block {
-      height: 34px;
-      width: 100%;
+      height: 32px;
+      width: 60%;
+   }
+}
+
+.card-skeleton--horizontal {
+   height: 220px;
+
+   .card-skeleton__wishlist-button {
+      display: none;
    }
 }
 

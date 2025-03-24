@@ -7,8 +7,7 @@ export const useChatStore = defineStore('chatStore', {
       isChatVisible: true,
       messages: [],
       usersWithAvatars: [],
-      windowWidth: window.innerWidth,
-      is_support: false
+      is_support: false,
    }),
    getters: {
       displayedUsers(state) {
@@ -39,9 +38,6 @@ export const useChatStore = defineStore('chatStore', {
       openChat(router) {
          this.isCollapsed = false;
          this.isChatVisible = true;
-         if (this.windowWidth < 768) {
-            router.push('/profile/messages');
-         }
       },
       closeChat() {
          this.isCollapsed = true;

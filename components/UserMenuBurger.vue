@@ -1,43 +1,44 @@
 <template>
    <div :class="['side-menu', { 'side-menu--open': isMenuOpen }]" ref="userMenuRef">
       <div class="user-menu">
-         <img class="close-icon" src="../assets/icons/close-white.svg" alt="" @click="toggleMenu">
+         <img class="close-icon" :src="icons.close" alt="close" @click="toggleMenu" />
          <div class="user-menu__header">
             <div class="user-menu__block">
                <ul class="user-menu__nav-list">
                   <li class="user-menu__nav-item">
                      <button class="user-menu__nav-link" @click="toggleModal">
-                        <img :src="defaultLocationIcon" alt="location icon" />
+                        <img :src="icons.location" alt="location icon" />
                         <span class="user-menu__text user-menu__text--hidden">{{ translatedCityName }}</span>
                      </button>
                   </li>
                </ul>
 
-               <img :src="avatarUrl" alt="login icon" class="user-menu__icon" />
+               <img :src="avatarUrl" alt="avatar" class="user-menu__icon" />
                <input type="file" id="avatarUpload" ref="avatarUpload" @change="handleAvatarChange"
                   class="hidden-input" />
-               <img src="../assets/icons/change-ava.svg" alt="change avatar icon" class="user-menu__icon-change"
+               <img :src="icons.changeAva" alt="change avatar" class="user-menu__icon-change"
                   @click="triggerFileInput" />
 
                <a class="user-menu__user-name">{{ displayName }}</a>
 
-               <div v-if="rating === null" class="user-menu__rating-text">О вас нет отзывов</div>
-               <a v-else class="user-menu__profile-button">
-                  <div class="user-menu__rating">
-                     <div class="user-menu__rating-text">{{ rating }}</div>
-                     <NuxtRating :rating-value="Number(rating)" :rating-count="5" :rating-size="9" :rating-spacing="6"
-                        :active-color="'#FFFFFF'" :inactive-color="'#3366FF'" :border-color="'#FFFFFF'"
-                        :border-width="2" :rounded-corners="true" :read-only="true" />
-                     {{ countReviews }} {{ pluralizeReview(countReviews) }}
-                  </div>
-               </a>
+               <div class="user-menu__profile-button">
+                  <nuxt-link to="/profile/reviews/mine" class="user-menu__rating">
+                     <div class="user-menu__rating-text">{{ rating === 0 ? '0.0' : rating }}</div>
+                     <NuxtRating :rating-value="rating" :rating-count="5" :rating-size="10" :rating-spacing="6"
+                        active-color="#FFFFFF" inactive-color="#3366FF" border-color="#FFFFFF" :border-width="2"
+                        rounded-corners read-only />
+                     <span class="user-menu__rating-count">
+                        {{ userStore.countReviews === 0 ? 'Нет отзывов' : `${userStore.countReviews}
+                        ${pluralizeReview(userStore.countReviews)}` }}
+                     </span>
+                  </nuxt-link>
+               </div>
 
-               <nuxt-link @click="toggleMenu" to="/profile/edit" class="user-menu__profile-button">
-                  Управление профилем
-               </nuxt-link>
+               <nuxt-link @click="toggleMenu" to="/profile/edit" class="user-menu__profile-button">Управление
+                  профилем</nuxt-link>
 
                <nuxt-link @click="toggleMenu" class="user-menu__item--post" to="/create">
-                  <img :src="postIcon" />Разместить объявление
+                  <img :src="icons.post" />Разместить объявление
                </nuxt-link>
             </div>
          </div>
@@ -45,10 +46,10 @@
          <ul class="user-menu__list">
             <li class="user-menu__item user-menu__item--search">
                <nuxt-link @click="toggleMenu" to="/">
-                  <img :src="searchIcon" />Все объявления
+                  <img :src="icons.search" />Все объявления
                </nuxt-link>
             </li>
-            <li v-for="(item, index) in menuItems" :key="index" class="user-menu__item" @click="toggleMenu">
+            <li v-for="item in menuItems" :key="item.link" class="user-menu__item" @click="toggleMenu">
                <nuxt-link :to="item.link">
                   <img :src="item.icon" />{{ item.text }}
                   <div v-if="item.count" class="user-menu__count">{{ item.count }}</div>
@@ -57,20 +58,24 @@
             <li class="user-menu__item user-menu__item--logout" @click="logout">Выйти</li>
          </ul>
       </div>
-      <LocationModal v-if="modalOpen" @close-modal="toggleModal" />
    </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
-import { getImageUrl } from '../services/imageUtils';
+import { ref, computed } from 'vue';
 import { useUserStore } from '~/store/user';
 import { useCityStore } from '~/store/city';
 import { useBurgerStore } from '~/store/burger';
-import { getUserCount } from '~/services/apiClient.js';
+import { useLoginModalStore } from '~/store/loginModal';
+import { useLocationModalStore } from '~/store/locationModalStore';
+import { useRouter } from '#app';
+import { storeToRefs } from 'pinia';
+import { getImageUrl } from '../services/imageUtils';
+
+import closeIcon from '../assets/icons/close-white.svg';
 import defaultLocationIcon from '../assets/icons/location.svg';
 import avatarRevers from '../assets/icons/avatar-revers.svg';
-
+import changeAvaIcon from '../assets/icons/change-ava.svg';
 import searchIcon from '../assets/icons/search-blue.svg';
 import adIcon from '../assets/icons/ad.svg';
 import favIcon from '../assets/icons/favorites-menu.svg';
@@ -80,72 +85,72 @@ import mailMenuIcon from '../assets/icons/message-menu.svg';
 import busIcon from '../assets/icons/briefcase.svg';
 import postIcon from '../assets/icons/add.svg';
 
-
 const userStore = useUserStore();
 const cityStore = useCityStore();
 const burgerStore = useBurgerStore();
+const loginModalStore = useLoginModalStore();
+const locationModalStore = useLocationModalStore();
+const router = useRouter();
+
+const { count_new_messages, countFavorites, countAds, countUnreadNotify, countReviews } = storeToRefs(userStore);
 
 const isMenuOpen = computed(() => burgerStore.isOpen);
-const modalOpen = ref(false);
 const userMenuRef = ref(null);
 
-const countReviews = computed(() => userStore.countReviews);
-
 const userName = computed(() => userStore.username || userStore.login);
-const avatarUrl = computed(() => getImageUrl(userStore.photo?.path, avatarRevers));
-const phoneNumber = computed(() => userStore.phoneNumber);
+const avatarUrl = computed(() => getImageUrl(userStore.photo?.arr_title_size?.preview, avatarRevers));
 const rating = computed(() => userStore.grade);
-
 const translatedCityName = computed(() => cityStore.selectedCity.name);
-const formattedPhoneNumber = computed(() => phoneNumber.value || userStore.email);
-const displayName = computed(() => userName.value ? capitalize(userName.value) : formattedPhoneNumber.value);
+const displayName = computed(() => userName.value ? capitalize(userName.value) : userStore.phoneNumber || userStore.email);
 
-const menuItems = [
-   { text: 'Мои объявления', link: '/profile/ads', icon: adIcon, count: userStore.countAds },
-   { text: 'Избранное', link: '/profile/favorites', icon: favIcon, count: userStore.countFavorites },
-   { text: 'Сообщения', link: '/profile/messages', icon: mailMenuIcon, count: userStore.count_new_messages },
-   { text: 'Оповещения', link: '/profile/notifications', icon: notifIcon, count: userStore.countUnreadNotify },
-   { text: 'Отзывы', link: '/profile/reviews', icon: reviewsIcon, count: userStore.countReviews },
-   { text: 'Для бизнеса', link: '/business', icon: busIcon }
-];
+const capitalize = (str) => str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
 
-const toggleMenu = () => {
-   burgerStore.toggleBurger();
+const icons = {
+   close: closeIcon,
+   location: defaultLocationIcon,
+   avatarFallback: avatarRevers,
+   changeAva: changeAvaIcon,
+   search: searchIcon,
+   ad: adIcon,
+   fav: favIcon,
+   reviews: reviewsIcon,
+   notif: notifIcon,
+   message: mailMenuIcon,
+   business: busIcon,
+   post: postIcon
 };
 
-const toggleModal = () => (modalOpen.value = !modalOpen.value);
-
-const logout = () => {
-   userStore.clearUserdata();
-   toggleMenu();
-};
-
-function pluralizeReview(count) {
-   const lastDigit = count % 10;
-   const lastTwoDigits = count % 100;
-
-   if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
-      return 'отзывов';
-   }
-
-   if (lastDigit === 1) {
-      return 'отзыв';
-   }
-
-   if (lastDigit >= 2 && lastDigit <= 4) {
-      return 'отзыва';
-   }
-
-   return 'отзывов';
-}
+const menuItems = computed(() => [
+   { text: 'Мои объявления', link: '/profile/ads/all', icon: icons.ad, count: countAds.value },
+   { text: 'Избранное', link: '/profile/favorites/ads', icon: icons.fav, count: countFavorites.value },
+   { text: 'Сообщения', link: '/profile/messages', icon: icons.message, count: count_new_messages.value },
+   { text: 'Оповещения', link: '/profile/notifications', icon: icons.notif, count: countUnreadNotify.value },
+   { text: 'Отзывы', link: '/profile/reviews/mine', icon: icons.reviews, count: userStore.count_new_reviews_about_myself },
+   { text: 'Для бизнеса', link: '/business', icon: icons.business }
+]);
 
 const handleAvatarChange = async (event) => {
    const file = event.target.files[0];
    if (!file) return;
+
+   const validFormats = ['image/heic', 'image/heif', 'image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+   const maxSizeMB = 5;
+   const maxSizeBytes = maxSizeMB * 1024 * 1024;
+
+   if (!validFormats.includes(file.type)) {
+      popupErrorStore.showError('Ошибка: допустимые форматы изображений - HEIC, HEIF, JPG, JPEG, PNG, WEBP.');
+      return;
+   }
+
+   if (file.size > maxSizeBytes) {
+      popupErrorStore.showError(`Ошибка: размер файла не должен превышать ${maxSizeMB} МБ.`);
+      return;
+   }
+
    try {
       await userStore.updateProfile({ photo: file });
-      avatarUrl.value = URL.createObjectURL(file);
    } catch (error) {
+      popupErrorStore.showError('Ошибка при загрузке аватара. Попробуйте позже.');
       console.error('Ошибка при загрузке аватара:', error);
    }
 };
@@ -154,34 +159,40 @@ const triggerFileInput = () => {
    userMenuRef.value?.querySelector('#avatarUpload')?.click();
 };
 
-onMounted(async () => {
-   try {
-      const data = await getUserCount();
-      userStore.countFavorites = data.count_favorites;
-   } catch (error) {
-      console.error('Ошибка при получении данных пользователя:', error);
-   }
-});
+const logout = () => {
+   userStore.clearUserdata();
+   loginModalStore.hideCodeField();
+   router.push('/');
+   toggleMenu();
+};
 
-const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+const pluralizeReview = (count) => {
+   const lastDigit = count % 10;
+   const lastTwoDigits = count % 100;
+   if (lastTwoDigits >= 11 && lastTwoDigits <= 19) return 'отзывов';
+   if (lastDigit === 1) return 'отзыв';
+   if (lastDigit >= 2 && lastDigit <= 4) return 'отзыва';
+   return 'отзывов';
+};
+
+const toggleMenu = () => burgerStore.toggleBurger();
+const toggleModal = () => locationModalStore.toggleMenu();
+
 </script>
 
 <style scoped lang="scss">
 .side-menu {
    position: fixed;
-   top: 0;
-   left: 0;
-   right: 0;
-   bottom: 0;
+   inset: 0;
    background-color: #1a1a1a;
    z-index: 10000;
-   width: 100%;
-   height: 100vh;
    display: flex;
    justify-content: center;
-   transform: translateX(100%);
    align-items: center;
-   transition: transform 0.3s ease-in-out;
+   width: 100%;
+   height: 100vh;
+   transform: translateX(100%);
+   transition: transform 0.2s ease-in-out;
 
    &--open {
       transform: translateX(0);
@@ -201,52 +212,57 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
    width: 100%;
    height: 100%;
 
+   &__header,
+   &__nav-list,
+   &__rating {
+      display: flex;
+      align-items: center;
+   }
+
    &__header {
-      display: flex;
-      align-items: center;
       gap: 12px;
-      position: relative;
-   }
-
-   &__nav-list {
-      display: flex;
-      position: relative;
-      align-items: center;
-      list-style: none;
-      gap: 40px;
-      width: 100%;
-      margin-bottom: 16px;
-   }
-
-   &__nav-item {
-      display: flex;
-      align-items: center;
-      position: relative;
    }
 
    &__rating {
       display: flex;
       align-items: center;
+      outline: none;
       gap: 8px;
-      margin-bottom: 4px;
+      font-size: 14px;
+      margin: 4px 0;
+      color: #FFFFFF;
+      transition: color 0.2s ease;
    }
 
    &__rating-text {
       font-size: 14px;
-      color: #ffffff;
+      line-height: 18px;
+      color: #FFFFFF;
+
+      &--empty {
+         font-size: 14px;
+         color: #323232;
+      }
+   }
+
+   &__nav-list {
+      gap: 40px;
+      list-style: none;
+      width: 100%;
+      margin-bottom: 16px;
    }
 
    &__nav-link {
       display: flex;
       align-items: center;
-      color: $white;
       font-weight: 400;
       font-size: 12px;
+      color: #ffffff;
       background: none;
       border: none;
       cursor: pointer;
       text-decoration: none;
-      transition: $transition-1;
+      transition: 0.2s ease-in-out;
 
       img {
          margin-right: 7px;
@@ -263,28 +279,28 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
    }
 
    &__user-circle {
-      background-color: #007bff;
-      color: #ffffff;
-      font-size: 18px;
-      width: 64px;
-      height: 64px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 50%;
+      width: 64px;
+      height: 64px;
+      font-size: 18px;
       font-weight: bold;
+      color: #ffffff;
+      background-color: #007bff;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
    }
 
    &__user-name {
       font-size: 18px;
       font-weight: 600;
-      color: white;
-      margin-bottom: 4px;
+      color: #ffffff;
    }
 
    &__profile-button {
       font-size: 14px;
-      color: white;
+      color: #ffffff;
       background: transparent;
       border: none;
       cursor: pointer;
@@ -298,25 +314,25 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
    }
 
    &__icon {
-      object-fit: cover;
       width: 64px;
       height: 64px;
       border-radius: 50%;
       margin-bottom: 16px;
+      object-fit: cover;
    }
 
    &__icon-change {
       position: absolute;
       left: 85px;
-      top: 105px;
+      top: 97px;
       width: 24px;
       height: 24px;
-      border-radius: 50%;
       padding: 0 5px;
-      background-color: white;
-      object-fit: contain;
-      cursor: pointer;
+      background-color: #ffffff;
+      border-radius: 50%;
       border: 1px solid #eeeeee;
+      cursor: pointer;
+      object-fit: contain;
 
       &:hover {
          background-color: #D6EFFF;
@@ -324,40 +340,34 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
    }
 
    &__list {
-      list-style: none;
       display: flex;
       flex-direction: column;
       gap: 16px;
-      background-color: white;
+      list-style: none;
       width: 100%;
       height: 100%;
       margin: 0;
       padding: 32px 40px;
+      background-color: #ffffff;
    }
 
-   &__item {
+   &__item a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #3366FF;
+      cursor: pointer;
+      transition: all 0.2s;
 
-      a {
-         display: flex;
-         justify-content: flex-start;
-         gap: 10px;
-         align-items: center;
-         font-size: 14px;
-         color: #3366FF;
-         cursor: pointer;
-         transition: all 0.2s;
+      img {
+         max-width: 16px;
+         max-height: 16px;
+         width: 16px;
+      }
 
-         svg {
-            width: 16px;
-
-            path {
-               stroke: #3366FF;
-            }
-         }
-
-         &:hover {
-            text-decoration: underline;
-         }
+      &:hover {
+         text-decoration: underline;
       }
    }
 
@@ -365,21 +375,24 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
       display: flex;
       justify-content: center;
       align-items: center;
+      font-size: 14px;
+      font-weight: 700;
+      height: 24px;
+      width: 24px;
       color: #3366FF;
       background: #EEF9FF;
       border-radius: 12px;
-      padding: 0 7px;
-      height: 20px;
+      line-height: 1;
    }
 
    &__item--logout {
-      color: #787878;
       padding-top: 16px;
       margin-top: 8px;
       font-size: 14px;
+      color: #787878;
       cursor: pointer;
       border-top: 1px solid #EEEEEE;
-      transition: all 0.2s;
+      transition: color 0.2s;
 
       &:hover {
          color: red;
@@ -399,8 +412,8 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
       display: flex;
       align-items: center;
       gap: 8px;
-      color: #ffffff;
       font-size: 14px;
+      color: #ffffff;
       cursor: pointer;
       margin-top: 16px;
 
@@ -417,10 +430,10 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
 .close-icon {
    position: absolute;
-   z-index: 14;
    top: 24px;
    right: 24px;
    width: 16px;
    height: 16px;
+   z-index: 14;
 }
 </style>

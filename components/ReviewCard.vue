@@ -54,7 +54,7 @@
             </div>
          </div>
          <div v-if="review.photos.length > 0" class="review-card__images">
-            <img v-for="photo in review.photos" :key="photo.id" :src="getImageUrl(photo.path)" :alt="photo.title"
+            <img v-for="photo in review.photos" :key="photo.id" :src="getImageUrl(photo.arr_title_size.preview)" :alt="photo.title"
                class="review-card__image" />
          </div>
       </div>
@@ -185,7 +185,7 @@ const formattedTimestamp = computed(() => {
 const fetchUserData = async (userId) => {
    try {
       const userData = await getUser(userId);
-      avatarUrl.value = getImageUrl(userData.photo?.path, avatar);
+      avatarUrl.value = getImageUrl(userData.photo?.arr_title_size.preview, avatar);
       userName.value = userData.username || userData.login || userData.email || 'Артемий';
    } catch (error) {
       console.error('Ошибка при получении данных пользователя:', error);
@@ -208,7 +208,7 @@ const getStarClass = (star) => {
 const fetchOwnerReplyUserData = async (userId) => {
    try {
       const userData = await getUser(userId);
-      ownerReplyAvatarUrl.value = getImageUrl(userData.photo?.path, avatar);
+      ownerReplyAvatarUrl.value = getImageUrl(userData.photo?.arr_title_size.preview, avatar);
       ownerReplyUserName.value = userData.username || 'Имя не указано';
    } catch (error) {
       console.error('Ошибка при получении данных владельца:', error);

@@ -1,6 +1,6 @@
 <template>
    <div class="banner" :class="{ 'banner--moscow': content.isMoscow }">
-      <div class="banner__row">
+      <div v-show="false" class="banner__row">
          <div class="banner__col banner__col--empty"></div>
          <div class="banner__col">
             <p class="banner__text" v-html="content.headerText"></p>
@@ -8,8 +8,8 @@
          </div>
       </div>
       <div class="banner__bg">
-         <img class="banner__bg-img" :src="content.desktopImage" :alt="content.altText" :title="content.titleText" />
-         <img class="banner__bg-img--mobile" :src="content.mobileImage" :alt="content.altText"
+         <img v-show="false"  class="banner__bg-img" :src="content.desktopImage" :alt="content.altText" :title="content.titleText" />
+         <img v-show="false"  class="banner__bg-img--mobile" :src="content.mobileImage" :alt="content.altText"
             :title="content.titleText" />
       </div>
    </div>
@@ -37,11 +37,12 @@ defineProps({
    position: relative;
    width: 100%;
    height: 300px;
-   border-radius: 4px;
    overflow: hidden;
    max-width: 1280px;
-   margin: 40px auto;
-   background: $tags-blue;
+   margin: 0 auto;
+   box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
+   border-radius: 6px;
+   background-color: #D6EFFF;
 
    &--moscow {
       margin-bottom: 0;

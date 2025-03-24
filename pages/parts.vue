@@ -3,7 +3,7 @@
       <PlaceholderBanner :title="bannerTitle" :description="bannerDescription" :backgroundImage="placeimage"
          tg="Перейти в Telegram" />
       <VerticalLinesText :firstText="firstText" :secondText="secondText" />
-      <CardList :title="title5" :ads="ads" :isLoading="isLoadingMain" />
+      <CardList :title="title5" :XTotalCount="5" :ads="ads" :isLoading="isLoadingMain" />
    </div>
 </template>
 

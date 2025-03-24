@@ -44,6 +44,7 @@ export const useSelectedMessagesStore = defineStore('selectedMessages', {
                user_id: message.user_id === userStrore.userId ? message.user_id_alt : message.user_id
             }));
             await markChatsAsRead(ids);
+            this.deselectAll();
          } catch (error) {
             console.error('Ошибка при пометке выбранных чатов как прочитанных:', error);
          }

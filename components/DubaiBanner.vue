@@ -26,11 +26,11 @@
    height: 100px;
    padding: 16px;
    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
-   border-radius: 4px;
+   border-radius: 6px;
    overflow: hidden;
    grid-column: 1 / -1;
 
-   @media screen and (max-width: 600px) {
+   @media (max-width: 600px) {
       padding-top: 22px;
    }
 
@@ -38,10 +38,10 @@
       position: absolute;
       top: 0;
       left: 0;
-      z-index: -1;
+      z-index: 2000;
       width: 100%;
       height: 100%;
-      background-color: #050721;
+      background-color: #D6EFFF;
    }
 
    &__bg-img {

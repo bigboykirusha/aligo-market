@@ -52,12 +52,14 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { getMyselfAuthEvents, logoutUser, logoutEverywhere } from '../services/apiClient';
+import { useLoginModalStore } from '~/store/loginModal';
 import phoneIcon from '../assets/icons/phone2.svg';
 import pcIcon from '../assets/icons/pc2.svg';
 
 const devices = ref([]);
 const currentDevice = computed(() => devices.value.find(device => device.is_this_device));
 const otherDevices = computed(() => devices.value.filter(device => !device.is_this_device));
+const loginModalStore = useLoginModalStore();
 
 // Запросить устройства
 const fetchDevices = async () => {
@@ -88,6 +90,7 @@ const logoutEverywhereDevices = async () => {
    try {
       await logoutEverywhere();
       devices.value = [];
+      loginModalStore.hideCodeField();
    } catch (error) {
       console.error('Ошибка при выходе со всех устройств:', error);
    }
@@ -100,7 +103,7 @@ const formatDate = (date) => {
 
 // Определяем категорию устройства (ПК, iPhone, Android)
 const getDeviceCategory = (device) => {
-   if (device.platform.includes('Mac')) {
+   if (device.platform.includes('OS X')) {
       return 'MacBook'; // Если это Mac
    }
    if (device.platform.includes('Windows') || device.platform.includes('Linux')) {

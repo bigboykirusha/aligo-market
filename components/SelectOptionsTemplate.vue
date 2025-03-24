@@ -8,7 +8,7 @@
          </div>
       </div>
       <ul class="dropdown-2__list" :class="{ 'dropdown-2__list--no-label': !label }" v-if="isActive">
-         <li v-for="option in options" :key="option.id" class="dropdown-2__list-item"
+         <li v-for="option in sortedOptions" :key="option.id" class="dropdown-2__list-item"
             :class="{ 'dropdown-2__list-item--selected': selectedOption === option.id }"
             @click="selectOption(option.id)">
             {{ option.title }}
@@ -41,6 +41,10 @@ const props = defineProps({
       type: String,
       default: 'Нажмите',
    },
+   isRevers: {
+      type: Boolean,
+      default: false,
+   }
 });
 
 const emit = defineEmits(['updateSort']);
@@ -66,6 +70,10 @@ const displayedSelectedOptionTitle = computed(() => {
    return option ? option.title : '';
 });
 
+const sortedOptions = computed(() => {
+   return props.isRevers ? [...props.options].reverse() : props.options;
+});
+
 const selectOption = (id) => {
    selectedOption.value = id;
    isActive.value = false;
@@ -79,7 +87,6 @@ const handleClickOutside = (event) => {
 };
 
 onMounted(() => {
-   console.log(props.initialSelectedOption)
    document.addEventListener('click', handleClickOutside);
 });
 

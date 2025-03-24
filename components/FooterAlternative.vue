@@ -11,7 +11,7 @@
                   </li>
                </ul>
                <div class="footer__text">
-                  Aligo corporate co ltd. 2024г. Мы делаем Россию мобильнее.
+                  Aligo corporate co ltd. 2025г. Мы делаем Россию мобильнее.
                </div>
             </div>
             <nuxt-link to="/" class="footer__logo">
@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import { getSiteDocumentById } from '@/services/apiClient';
 
@@ -31,11 +31,20 @@ const isCreateAdPage = ref(false);
 const route = useRoute();
 const footerDocuments = ref([]);
 
-isCreateAdPage.value = route.name === 'create';
+watchEffect(() => {
+   isCreateAdPage.value = route.path.startsWith('/create');
+});
 
 const loadFooterDocuments = async () => {
+   const cachedDocuments = localStorage.getItem('footerDocuments');
+   if (cachedDocuments) {
+      footerDocuments.value = JSON.parse(cachedDocuments).slice(0, 3);
+      return;
+   }
+
    try {
       const { data } = await getSiteDocumentById();
+      localStorage.setItem('footerDocuments', JSON.stringify(data));
       footerDocuments.value = data.slice(0, 3);
    } catch (error) {
       console.error('Ошибка при загрузке документов:', error);

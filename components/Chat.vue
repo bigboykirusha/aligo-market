@@ -1,5 +1,5 @@
 <template>
-   <div v-if="chatStore.isChatVisible && (chatStore.currentChat)" class="chat-wrapper" @drop="handleFileDrop"
+   <div v-if="chatStore.isChatVisible" class="chat-wrapper" @drop="handleFileDrop"
       :class="{ 'chat-wrapper--collapsed': chatStore.isCollapsed }">
       <!-- Заголовок чата -->
       <div class="chat-header" @mousedown="startDrag">
@@ -11,12 +11,12 @@
             </button>
             <div v-if="!chatStore.currentChat.is_support" :to="`/user/${relevantUser(chatStore.currentChat).id}`"
                class="user-info__avatar">
-               <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.path, avatar)" alt="Avatar"
+               <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.arr_title_size.preview, avatar)" alt="Avatar"
                   class="chat-header__avatar" />
             </div>
             <img v-if="chatStore.currentChat.is_support" :src="chatStore.currentChat.sup_photo.path" alt="Ad Image"
                class="chat-header__supp-image" />
-            <img v-if="!chatStore.currentChat.is_support" :src="getImageUrl(chatStore.currentChat.ads_photo[0]?.path)"
+            <img v-if="!chatStore.currentChat.is_support" :src="getImageUrl(chatStore.currentChat.ads_photo[0]?.arr_title_size.preview)"
                alt="Ad Image" class="chat-header__ad-image" />
             <div class="chat-header__details">
                <div :to="`/user/${relevantUser(chatStore.currentChat).id}`" class="chat-header__username">
@@ -30,7 +30,7 @@
 
          <!-- Информация о чате по умолчанию -->
          <div v-else class="chat-header__info">
-            <div class="chat-header__avatars">
+            <div v-show="displayedUsers.length > 0" class="chat-header__avatars">
                <div v-for="(avatar, index) in displayedUsers" :key="index" class="chat-header__ava"
                   :style="{ zIndex: 1 + index }">
                   <img :src="avatar" alt="User Avatar" class="avatar-round" />
@@ -106,7 +106,7 @@
                   <template v-else>
                      <div :class="['chat-wrapper__message-item', { 'chat-wrapper__message-item--self': item.isSelf }]">
                         <template v-if="!item.isSelf">
-                           <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.path, avatar)" alt="Avatar"
+                           <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.arr_title_size.preview, avatar)" alt="Avatar"
                               class="chat-wrapper__message-avatar" />
                            <div class="chat-wrapper__message-bubble">
                               <MessagePhotos :photos="item.photos" />
@@ -125,7 +125,7 @@
                               <MessagePhotos :photos="item.photos" />
                               <div class="chat-wrapper__message-content">{{ item.message }}</div>
                            </div>
-                           <img :src="getImageUrl(userStore.photo?.path, avatar)" alt="Avatar"
+                           <img :src="getImageUrl(userStore.photo?.arr_title_size.preview, avatar)" alt="Avatar"
                               class="chat-wrapper__message-avatar chat-wrapper__message-avatar--self" />
                         </template>
                      </div>
@@ -265,43 +265,6 @@ const setFocus = () => {
    if (mesInput.value) {
       mesInput.value.focus();
    }
-};
-
-const draggable = ref(null);
-let offsetX = 0;
-let offsetY = 0;
-let animationFrame = null;  // для хранения идентификатора анимации
-
-const startDrag = (event) => {
-   offsetX = event.clientX - draggable.value.offsetLeft;
-   offsetY = event.clientY - draggable.value.offsetTop;
-
-   // Добавляем обработчики событий на документ
-   document.addEventListener("mousemove", onDrag);
-   document.addEventListener("mouseup", stopDrag);
-};
-
-const onDrag = (event) => {
-   // Отменяем предыдущую анимацию, если она есть
-   if (animationFrame) cancelAnimationFrame(animationFrame);
-
-   // Рассчитываем новые координаты
-   const currentX = event.clientX - offsetX;
-   const currentY = event.clientY - offsetY;
-
-   // Синхронизируем обновление с частотой обновления экрана для плавности
-   animationFrame = requestAnimationFrame(() => {
-      draggable.value.style.left = `${currentX}px`;
-      draggable.value.style.top = `${currentY}px`;
-   });
-};
-
-// Завершаем перетаскивание
-const stopDrag = () => {
-   document.removeEventListener("mousemove", onDrag);
-   document.removeEventListener("mouseup", stopDrag);
-
-   if (animationFrame) cancelAnimationFrame(animationFrame);
 };
 
 const newMessage = ref('');
@@ -521,7 +484,7 @@ watch(
          const usersWithAvatars = await Promise.all(
             newMessages.map(async (message) => {
                const userId = relevantUser(message).id;
-               const avatarUrl = getImageUrl(relevantUser(message).photo?.path, avatar);
+               const avatarUrl = getImageUrl(relevantUser(message).photo?.arr_title_size.preview, avatar);
                return { userId, avatarUrl };
             })
          );

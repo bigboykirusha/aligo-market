@@ -65,8 +65,6 @@ const handleInput = () => {
    isSuggestionSelected.value = false;
 
    if (inputValue.value.length > 3) {
-      const cityToSet = cityStore.selectedCity.name;
-      createStore.setCity(cityToSet);
       emit('update:address', inputValue.value);
       debouncedFetchSuggestions(inputValue.value);
    } else {
@@ -81,12 +79,9 @@ const selectSuggestion = (suggestion) => {
 
    parseAddress(suggestion.geoObject);
 
-   const cityToSet = city.value || cityStore.selectedCity.name;
-   createStore.setCity(cityToSet);
-
    if (latitude.value && longitude.value) {
-      createStore.setLatitude(latitude.value);
-      createStore.setLongitude(longitude.value);
+      createStore.setField('latitude', latitude.value);
+      createStore.setField('longitude', longitude.value);
    }
 
    emit('update:address', inputValue.value);
@@ -97,12 +92,10 @@ const shouldShowError = computed(() => {
 });
 
 const confirmAddress = () => {
-   const cityToSet = city.value || cityStore.selectedCity.name;
-   createStore.setCity(cityToSet);
 
    if (latitude.value && longitude.value) {
-      createStore.setLatitude(latitude.value);
-      createStore.setLongitude(longitude.value);
+      createStore.setField('latitude', latitude.value);
+      createStore.setField('longitude', longitude.value);
    }
 
    emit('update:address', inputValue.value);
@@ -153,11 +146,11 @@ const clearInput = () => {
 };
 
 const handleFocus = () => {
-   isFocused.value = true; 
+   isFocused.value = true;
 };
 
 const handleBlur = () => {
-   isFocused.value = false; 
+   isFocused.value = false;
 };
 
 const handleClickOutside = (event) => {
@@ -191,7 +184,7 @@ onBeforeUnmount(() => {
       margin-bottom: 8px;
       min-width: 270px;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          width: 100%;
       }
    }
@@ -200,7 +193,7 @@ onBeforeUnmount(() => {
       position: relative;
       width: 340px;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          width: 100%;
       }
    }

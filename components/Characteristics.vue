@@ -4,26 +4,32 @@
          <BlockTitle text="Категория*" />
          <SwitcherCreateSkeleton v-if="loading" />
          <AutosSwitcherCreate v-else :options="conditionIdOptions" label="Состояние"
-            @updateSelected="handleConditionIdUpdate" :activeIndex="createStore.condition_id" />
+            @updateSelected="(value) => handleFieldUpdate('condition_id', value)"
+            :activeIndex="createStore.condition_id" />
       </div>
       <div class="characteristics__content">
          <BlockTitle text="Внешний вид*" />
-         <PhotoUploader label="Фотографии (до 10 шт)" :photos="createStore.photos" @updatePhotos="updatePhotos" />
+         <PhotoUploader label="Фотографии (до 10 шт)" :photos="createStore.photos"
+            @updatePhotos="(photos) => handleFieldUpdate('photos', photos)" />
+         <AutosSelectCreateSkeleton v-if="loading" />
+         <AutosSelectColor v-else label="Цвет" :initialSelectedOption="createStore.color_ids" :options="colorOptions"
+            @updateSort="(value) => handleFieldUpdate('color_ids', value)" />
          <ColorPickerCreateSkeleton v-if="loading" />
-         <ColorPickerCreate v-else :options="colorOptions" label="Цвет" @updateSelected="handleColorUpdate"
-            :activeIndices="createStore.color_ids" />
+         <ColorPickerCreate v-else :options="colorOptions" label="Цвет"
+            @updateSelected="(value) => handleFieldUpdate('color_ids', value)" :activeIndex="createStore.color_ids" />
       </div>
       <div class="characteristics__content">
          <BlockTitle text="Регистрационные данные" />
          <AutosSelectCreateSkeleton v-if="loading" />
          <AutosSelectCreate v-else label="Страна регистрации*" :initialSelectedOption="createStore.country_id"
-            :options="countryOptions" @updateSort="handleCountryUpdate" />
+            :options="countryOptions" @updateSort="(value) => handleFieldUpdate('country_id', value)" />
          <TextSkeleton v-if="loading" />
          <AutosTextTemplate v-else label="VIN или номер кузова*" placeholder="Нажмите для ввода"
-            :option="createStore.vin" @update:option="handleVinUpdate" validationType="vin" />
+            :option="createStore.vin" @update:option="(value) => handleFieldUpdate('vin', value)"
+            validationType="vin" />
          <TextSkeleton v-if="loading" />
-         <AutosStateNumber v-if="showStateNumber" label="Государственный номер" placeholder="Нажмите для ввода"
-            :option="createStore.state_number" @update:option="handleStateNumberUpdate" />
+         <AutosStateNumber v-show="showStateNumber" label="Государственный номер" placeholder="Нажмите для ввода"
+            :option="createStore.state_number" @update:option="(value) => handleFieldUpdate('state_number', value)" />
       </div>
       <div class="characteristics__content">
          <BlockTitle text="Технические характеристики*" />
@@ -34,50 +40,63 @@
          <AutosSelectCreate v-else label="Модель" :initialSelectedOption="createStore.model_id"
             :options="dropdownModelsOptions" @updateSort="handleModelsUpdate" :disabled="isModelsDropdownDisabled" />
          <AutosSelectCreateSkeleton v-if="loading" />
-         <AutosSelectCreate v-else label="Год выпуска" :initialSelectedOption="createStore.year_id"
-            :options="yearOptions" @updateSort="handleYearUpdate" />
+         <AutosSelectCreate v-else label="Поколение" :initialSelectedOption="createStore.generation_id"
+            :options="dropdownGenerationOptions" @updateSort="handleGenerationUpdate"
+            :disabled="isGenerationDropdownDisabled" />
          <AutosSelectCreateSkeleton v-if="loading" />
-         <AutosSelectCreate v-else label="Тип кузова" :initialSelectedOption="createStore.car_body_type"
-            :options="checkboxBodyTypeOptions" @updateSort="handleBodyTypeUpdate" />
+         <AutosSelectCreate v-else label="Комплектация" :initialSelectedOption="createStore.equipment_id"
+            :options="dropdownEquipmentOptions" @updateSort="(value) => handleFieldUpdate('equipment_id', value)"
+            :disabled="isEquipmentDropdownDisabled" />
+         <AutosSelectCreateSkeleton v-if="loading" />
+         <AutosSelectCreate v-else label="Год выпуска" :initialSelectedOption="createStore.year_id"
+            :options="yearOptions" @updateSort="(value) => handleFieldUpdate('year_id', value)" />
+         <AutosSelectCreateSkeleton v-if="loading" />
+         <AutosSelectCreate v-else label="Тип кузова" :initialSelectedOption="createStore.car_body_type_id"
+            :options="checkboxBodyTypeOptions" @updateSort="(value) => handleFieldUpdate('car_body_type_id', value)" />
          <SwitcherCreateSkeleton v-if="loading" />
          <AutosSwitcherCreate v-else :options="handlebarIdOptions" label="Руль"
-            @updateSelected="handleHandlebarIdUpdate" :activeIndex="createStore.handlebar_id" />
+            @updateSelected="(value) => handleFieldUpdate('handlebar_id', value)"
+            :activeIndex="createStore.handlebar_id" />
          <TextSkeleton v-if="loading" />
          <AutosTextTemplate v-else label="Количество дверей" placeholder="Нажмите для ввода"
-            :option="createStore.count_doors" @update:option="handleCountDoorsUpdate" validationType="doors" />
+            :option="createStore.count_doors" @update:option="(value) => handleFieldUpdate('count_doors', value)"
+            validationType="doors" />
+         <AutosSelectCreateSkeleton v-if="loading" />
+         <AutosSelectCreate v-else label="Тип двигателя" :initialSelectedOption="createStore.engine_type_id"
+            :options="checkboxEngineTypeOptions" @updateSort="(value) => handleFieldUpdate('engine_type_id', value)" />
          <SwitcherCreateSkeleton v-if="loading" />
-         <AutosSwitcherCreate v-else :options="checkboxEngineTypeOptions" label="Тип двигателя"
-            @updateSelected="handleEngineTypeUpdate" :activeIndex="createStore.engine_type_id" />
-         <SwitcherCreateSkeleton v-if="loading" />
-         <AutosSwitcherCreate v-else :options="checkboxDriveOptions" label="Привод" @updateSelected="handleDriveUpdate"
-            :activeIndex="createStore.drive_id" />
+         <AutosSwitcherCreate v-else :options="checkboxDriveOptions" label="Привод"
+            @updateSelected="(value) => handleFieldUpdate('drive_id', value)" :activeIndex="createStore.drive_id" />
          <SwitcherCreateSkeleton v-if="loading" />
          <AutosSwitcherCreate v-else :options="dropdownTransmissionOptions" label="Коробка передач"
-            @updateSelected="handleTransmissionUpdate" :activeIndex="createStore.transmission_id" />
+            @updateSelected="(value) => handleFieldUpdate('transmission_id', value)"
+            :activeIndex="createStore.transmission_id" />
       </div>
       <div class="characteristics__content">
          <BlockTitle text="История эксплуатации и состояние" />
          <TextSkeleton v-if="loading" />
-         <AutosTextTemplate v-else label="Пробег, км" placeholder="Нажмите для ввода" :option="createStore.mileage"
-            @update:option="handleMileageUpdate" v-if="showMileage" validationType="number" />
+         <AutosTextTemplate v-else v-show="showUsedOptions" label="Пробег, км" placeholder="Нажмите для ввода"
+            :option="createStore.mileage" @update:option="(value) => handleFieldUpdate('mileage', value)"
+            validationType="number" />
          <SwitcherCreateSkeleton v-if="loading" />
-         <AutosSwitcherCreate v-else :options="switcherStateOptions" label="Состояние*"
-            @updateSelected="handleStateUpdate" :activeIndex="createStore.state_id" v-if="showState" />
+         <AutosSwitcherCreate v-else v-show="showUsedOptions" :options="switcherStateOptions" label="Состояние*"
+            @updateSelected="(value) => handleFieldUpdate('state_id', value)" :activeIndex="createStore.state_id" />
          <SwitcherCreateSkeleton v-if="loading" />
-         <AutosSwitcherCreate v-else :options="ownersOptions" label="Владельцев" @updateSelected="handleOwnersUpdate"
-            :activeIndex="createStore.owners" v-if="showOwners" />
+         <AutosSwitcherCreate v-else v-show="showUsedOptions" :options="ownersOptions" label="Владельцев"
+            @updateSelected="(value) => handleFieldUpdate('count_owners', value)"
+            :activeIndex="createStore.count_owners" />
          <AutosSelectCreateSkeleton v-if="loading" />
-         <AutosSelectCreate v-else label="ПТС*" :initialSelectedOption="createStore.pts" :options="PtsOptions"
-            @updateSort="handlePtsUpdate" />
+         <AutosSelectCreate v-else label="ПТС*" :initialSelectedOption="createStore.pts_id" :options="PtsOptions"
+            @updateSort="(value) => handleFieldUpdate('pts_id', value)" />
          <div class="checkbox-section">
             <div class="checkbox-section__title">Данные о ТО</div>
             <div class="checkbox-section__items">
                <SimpleCheckboxTemplate label="Есть сервисная книжка" :checked="createStore.is_service_book"
-                  @updateChecked="handleServiceBookUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_service_book', value)" />
                <SimpleCheckboxTemplate label="Обслуживался у диллера" :checked="createStore.is_serviced_dealer"
-                  @updateChecked="handleServicedDealerUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_serviced_dealer', value)" />
                <SimpleCheckboxTemplate label="На гарантии" :checked="createStore.is_under_warranty"
-                  @updateChecked="handleUnderWarrantyUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_under_warranty', value)" />
             </div>
          </div>
       </div>
@@ -86,14 +105,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useCreateStore } from '../store/create';
-import { getCarsPts, getCarBrands, getCarModels, getCarTransmission, getCarBodyType, getCarEngineType, getCarDrive, getCarState, getColors, getCarCountry, getYear, getCarsOwners, getCarsHandlebar, getCarCondition } from '../services/apiClient';
+import {
+   getCarsPts, getCarBrands, getCarModels, getCarGenerations, getCarEquipment,
+   getCarTransmission, getCarBodyType, getCarEngineType, getCarDrive, getCarState,
+   getColors, getCarCountry, getYear, getCarsOwners, getCarsHandlebar, getCarCondition
+} from '../services/apiClient';
+import { fetchDataWithCache } from '../services/createUtils';
 
 const loading = ref(true);
 const createStore = useCreateStore();
 const dropdownMarksOptions = ref([]);
 const dropdownModelsOptions = ref([]);
+const dropdownGenerationOptions = ref([]);
+const dropdownEquipmentOptions = ref([]);
 const dropdownTransmissionOptions = ref([]);
 const checkboxBodyTypeOptions = ref([]);
 const checkboxEngineTypeOptions = ref([]);
@@ -104,19 +130,20 @@ const colorOptions = ref([]);
 const countryOptions = ref([]);
 const ownersOptions = ref([]);
 const selectedModel = ref([]);
-const yearOptions = ref([])
+const yearOptions = ref([]);
 const handlebarIdOptions = ref([]);
 const PtsOptions = ref([]);
-const isModelsDropdownDisabled = computed(() => !(createStore.brand_id));
-const isMobile = ref(false);
 
-const showStateNumber = computed(() => createStore.country_id !== 1 && createStore.country_id !== null);
-const showMileage = computed(() => createStore.condition_id !== 1);
-const showState = computed(() => createStore.condition_id !== 1);
-const showOwners = computed(() => createStore.condition_id !== 1);
+const isModelsDropdownDisabled = computed(() => !createStore.brand_id);
+const isGenerationDropdownDisabled = computed(() => !createStore.model_id);
+const isEquipmentDropdownDisabled = computed(() => !createStore.generation_id);
+
+const showStateNumber = computed(() => createStore.country_id !== null && createStore.country_id !== 1);
+const showUsedOptions = computed(() => createStore.condition_id !== 1);
 
 const fetchOptions = async () => {
    try {
+      loading.value = true;
       await Promise.all([
          fetchMarksDropdownOptions(),
          fetchTransmissionDropdownOptions(),
@@ -132,266 +159,135 @@ const fetchOptions = async () => {
          fetchPtsOptions(),
          fetchConditionOptions(),
       ]);
-      loading.value = false;
+
+      if (createStore.brand_id) {
+         await fetchModelsDropdownOptions(createStore.brand_id);
+      }
+
+      if (createStore.model_id) {
+         await fetchGenerationDropdownOptions(createStore.brand_id, createStore.model_id);
+      }
+
+      if (createStore.generation_id) {
+         await fetchEquipmentDropdownOptions(createStore.brand_id, createStore.model_id, createStore.generation_id);
+      }
+
    } catch (error) {
       console.error('Ошибка при загрузке данных:', error);
+   } finally {
+      loading.value = false;
    }
+};
+
+const handleFieldUpdate = (field, value) => {
+   createStore.setField(field, value);
 };
 
 const fetchMarksDropdownOptions = async () => {
-   try {
-      const cachedMarksOptions = JSON.parse(localStorage.getItem('dropdownMarksOptions'));
-      if (cachedMarksOptions) {
-         dropdownMarksOptions.value = cachedMarksOptions;
-      } else {
-         dropdownMarksOptions.value = await getCarBrands();
-         localStorage.setItem('dropdownMarksOptions', JSON.stringify(dropdownMarksOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении брендов автомобилей:', error);
-   }
+   dropdownMarksOptions.value = await fetchDataWithCache('dropdownMarksOptions', getCarBrands);
 };
 
 const fetchPtsOptions = async () => {
-   try {
-      const cachedPtsOptions = JSON.parse(localStorage.getItem('PtsOptions'));
-      if (cachedPtsOptions) {
-         PtsOptions.value = cachedPtsOptions;
-      } else {
-         PtsOptions.value = await getCarsPts();
-         localStorage.setItem('PtsOptions', JSON.stringify(PtsOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении ПТС:', error);
-   }
+   PtsOptions.value = await fetchDataWithCache('PtsOptions', getCarsPts);
 };
 
 const fetchHandlebarOptions = async () => {
-   try {
-      const cachedHandlebarOptions = JSON.parse(localStorage.getItem('handlebarIdOptions'));
-      if (cachedHandlebarOptions) {
-         handlebarIdOptions.value = cachedHandlebarOptions;
-      } else {
-         handlebarIdOptions.value = await getCarsHandlebar();
-         localStorage.setItem('handlebarIdOptions', JSON.stringify(handlebarIdOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении типов руля:', error);
-   }
+   handlebarIdOptions.value = await fetchDataWithCache('handlebarIdOptions', getCarsHandlebar);
 };
 
 const fetchConditionOptions = async () => {
-   try {
-      const cachedConditionOptions = JSON.parse(localStorage.getItem('conditionOptions'));
-      if (cachedConditionOptions) {
-         conditionIdOptions.value = cachedConditionOptions;
-      } else {
-         conditionIdOptions.value = await getCarCondition();
-         localStorage.setItem('conditionOptions', JSON.stringify(conditionIdOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении цветов:', error);
-   }
+   conditionIdOptions.value = await fetchDataWithCache('conditionOptions', getCarCondition);
 };
 
 const fetchColorOptions = async () => {
-   try {
-      const cachedColorOptions = JSON.parse(localStorage.getItem('colorOptions'));
-      if (cachedColorOptions) {
-         colorOptions.value = cachedColorOptions;
-      } else {
-         colorOptions.value = await getColors();
-         localStorage.setItem('colorOptions', JSON.stringify(colorOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении цветов:', error);
-   }
+   colorOptions.value = await fetchDataWithCache('colorOptions', getColors);
 };
 
-const fetchModelsDropdownOptions = async (id) => {
+const fetchTransmissionDropdownOptions = async () => {
+   dropdownTransmissionOptions.value = await fetchDataWithCache('dropdownTransmissionOptions', getCarTransmission);
+};
+
+const fetchBodyTypeOptions = async () => {
+   checkboxBodyTypeOptions.value = await fetchDataWithCache('checkboxBodyTypeOptions', getCarBodyType);
+};
+
+const fetchEngineTypeOptions = async () => {
+   checkboxEngineTypeOptions.value = await fetchDataWithCache('checkboxEngineTypeOptions', getCarEngineType);
+};
+
+const fetchOwnersOptions = async () => {
+   ownersOptions.value = await fetchDataWithCache('ownersOptions', getCarsOwners);
+};
+
+const fetchDriveOptions = async () => {
+   checkboxDriveOptions.value = await fetchDataWithCache('checkboxDriveOptions', getCarDrive);
+};
+
+const fetchStateOptions = async () => {
+   switcherStateOptions.value = await fetchDataWithCache('switcherStateOptions', getCarState);
+};
+
+const fetchCountryOptions = async () => {
+   countryOptions.value = await fetchDataWithCache('countryOptions', getCarCountry);
+};
+
+const fetchYearOptions = async () => {
+   yearOptions.value = await fetchDataWithCache('yearOptions', getYear);
+};
+
+const fetchModelsDropdownOptions = async (brandId) => {
    try {
-      dropdownModelsOptions.value = await getCarModels(id);
+      dropdownModelsOptions.value = await getCarModels(brandId);
    } catch (error) {
       console.error('Ошибка при получении моделей автомобилей:', error);
    }
 };
 
-const fetchTransmissionDropdownOptions = async () => {
+const fetchGenerationDropdownOptions = async (brandId, modelId) => {
    try {
-      const cachedTransmissionOptions = JSON.parse(localStorage.getItem('dropdownTransmissionOptions'));
-      if (cachedTransmissionOptions) {
-         dropdownTransmissionOptions.value = cachedTransmissionOptions;
-      } else {
-         dropdownTransmissionOptions.value = await getCarTransmission();
-         localStorage.setItem('dropdownTransmissionOptions', JSON.stringify(dropdownTransmissionOptions.value));
-      }
+      dropdownGenerationOptions.value = await getCarGenerations(brandId, modelId);
    } catch (error) {
-      console.error('Ошибка при получении коробок передач:', error);
+      console.error('Ошибка при получении моделей автомобилей:', error);
    }
 };
 
-const fetchBodyTypeOptions = async () => {
+const fetchEquipmentDropdownOptions = async (brandId, modelId, generationId) => {
    try {
-      const cachedBodyTypeOptions = JSON.parse(localStorage.getItem('checkboxBodyTypeOptions'));
-      if (cachedBodyTypeOptions) {
-         checkboxBodyTypeOptions.value = cachedBodyTypeOptions;
-      } else {
-         checkboxBodyTypeOptions.value = await getCarBodyType();
-         localStorage.setItem('checkboxBodyTypeOptions', JSON.stringify(checkboxBodyTypeOptions.value));
-      }
+      dropdownEquipmentOptions.value = await getCarEquipment(brandId, modelId, generationId);
    } catch (error) {
-      console.error('Ошибка при получении типов кузова:', error);
-   }
-};
-
-const fetchEngineTypeOptions = async () => {
-   try {
-      const cachedEngineTypeOptions = JSON.parse(localStorage.getItem('checkboxEngineTypeOptions'));
-      if (cachedEngineTypeOptions) {
-         checkboxEngineTypeOptions.value = cachedEngineTypeOptions;
-      } else {
-         checkboxEngineTypeOptions.value = await getCarEngineType();
-         localStorage.setItem('checkboxEngineTypeOptions', JSON.stringify(checkboxEngineTypeOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении типов двигателя:', error);
-   }
-};
-
-const fetchOwnersOptions = async () => {
-   try {
-      const cachedOwnersOptions = JSON.parse(localStorage.getItem('ownersOptions'));
-      if (cachedOwnersOptions) {
-         ownersOptions.value = cachedOwnersOptions;
-      } else {
-         ownersOptions.value = await getCarsOwners();
-         localStorage.setItem('ownersOptions', JSON.stringify(ownersOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении владельцев:', error);
-   }
-};
-
-const fetchDriveOptions = async () => {
-   try {
-      const cachedDriveOptions = JSON.parse(localStorage.getItem('checkboxDriveOptions'));
-      if (cachedDriveOptions) {
-         checkboxDriveOptions.value = cachedDriveOptions;
-      } else {
-         checkboxDriveOptions.value = await getCarDrive();
-         localStorage.setItem('checkboxDriveOptions', JSON.stringify(checkboxDriveOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении типов привода:', error);
-   }
-};
-
-const fetchStateOptions = async () => {
-   try {
-      const cachedStateOptions = JSON.parse(localStorage.getItem('switcherStateOptions'));
-      if (cachedStateOptions) {
-         switcherStateOptions.value = cachedStateOptions;
-      } else {
-         switcherStateOptions.value = await getCarState();
-         localStorage.setItem('switcherStateOptions', JSON.stringify(switcherStateOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении состояния автомобилей:', error);
-   }
-};
-
-const fetchCountryOptions = async () => {
-   try {
-      const cachedCountryOptions = JSON.parse(localStorage.getItem('countryOptions'));
-      if (cachedCountryOptions) {
-         countryOptions.value = cachedCountryOptions;
-      } else {
-         countryOptions.value = await getCarCountry();
-         localStorage.setItem('countryOptions', JSON.stringify(countryOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении стран:', error);
-   }
-};
-
-const fetchYearOptions = async () => {
-   try {
-      const cachedYearOptions = JSON.parse(localStorage.getItem('yearOptions'));
-      if (cachedYearOptions) {
-         yearOptions.value = cachedYearOptions;
-      } else {
-         yearOptions.value = await getYear();
-         localStorage.setItem('yearOptions', JSON.stringify(yearOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении годов выпуска:', error);
+      console.error('Ошибка при получении моделей автомобилей:', error);
    }
 };
 
 const handleMarksUpdate = (selectedOptions) => {
-   createStore.setBrandId(selectedOptions);
+   createStore.setField('brand_id', selectedOptions);
    fetchModelsDropdownOptions(selectedOptions);
    selectedModel.value = null;
-   createStore.setModelId(null);
+   dropdownGenerationOptions.value = [];
+   dropdownEquipmentOptions.value = [];
+   createStore.model_id = null;
+   createStore.generation_id = null;
+   createStore.equipment_id = null;
 };
 
 const handleModelsUpdate = (selectedOptions) => {
-   createStore.setModelId(selectedOptions);
+   createStore.setField('model_id', selectedOptions);
+   dropdownGenerationOptions.value = [];
+   dropdownEquipmentOptions.value = [];
+   createStore.generation_id = null;
+   createStore.equipment_id = null;
+   fetchGenerationDropdownOptions(createStore.brand_id, selectedOptions);
 };
 
-const handleBodyTypeUpdate = (selectedOptions) => createStore.setCarBodyType(selectedOptions);
-const handleTransmissionUpdate = (selectedOptions) => createStore.setTransmissionId(selectedOptions);
-const handleEngineTypeUpdate = (selectedOptions) => createStore.setEngineTypeId(selectedOptions);
-const handleDriveUpdate = (selectedOptions) => createStore.setDriveId(selectedOptions);
-const handleStateUpdate = (selectedOptions) => createStore.setStateId(selectedOptions);
-const handleColorUpdate = (selectedOptions) => createStore.setColorId(selectedOptions);
-const handleVideoUpdate = (selectedOptions) => createStore.setVideo(selectedOptions);
-const handleVinUpdate = (selectedOptions) => createStore.setVin(selectedOptions);
-const handleCountDoorsUpdate = (selectedOptions) => createStore.setCountDoors(selectedOptions);
-const handleCountryUpdate = (selectedOptions) => createStore.setCountryId(selectedOptions);
-const handleYearUpdate = (selectedOptions) => createStore.setYearId(selectedOptions);
-const handleMileageUpdate = (selectedOptions) => createStore.setMileage(selectedOptions);
-const handleOwnersUpdate = (selectedOptions) => createStore.setOwners(selectedOptions);
-const handleStateNumberUpdate = (selectedOptions) => createStore.setStateNumber(selectedOptions);
-const handleHandlebarIdUpdate = (selectedOptions) => createStore.setHandlebarId(selectedOptions);
-const handlePtsUpdate = (selectedOptions) => createStore.setPts(selectedOptions);
-const updatePhotos = (newPhotos) => createStore.setPhotos(newPhotos);
-const handleServiceBookUpdate = (selectedOptions) => createStore.setIsServiceBook(selectedOptions);
-const handleServicedDealerUpdate = (selectedOptions) => createStore.setIsServicedDealer(selectedOptions);
-const handleUnderWarrantyUpdate = (selectedOptions) => createStore.setIsUnderWarranty(selectedOptions);
-const handleConditionIdUpdate = (selectedOptions) => createStore.setConditionId(selectedOptions);
+const handleGenerationUpdate = (selectedOptions) => {
+   dropdownEquipmentOptions.value = [];
+   createStore.setField('generation_id', selectedOptions);
+   createStore.equipment_id = null;
+   fetchEquipmentDropdownOptions(createStore.brand_id, createStore.model_id, selectedOptions);
+};
 
 onMounted(() => {
    fetchOptions();
-
-   if (window.innerWidth <= 1250) {
-      isMobile.value = true;
-   }
-
-   window.addEventListener('resize', () => {
-      isMobile.value = window.innerWidth <= 1250;
-   });
-
-   if (createStore.brand_id) {
-      fetchModelsDropdownOptions(createStore.brand_id);
-   }
-});
-
-const resetFields = () => {
-   createStore.setStateNumber(null);
-   createStore.setMileage(null);
-   createStore.setOwners(null);
-   createStore.setStateId(null);
-};
-
-watch(() => createStore.condition_id, (newConditionId, oldConditionId) => {
-   if (newConditionId !== oldConditionId) {
-      resetFields();
-   }
-});
-
-onUnmounted(() => {
-   window.removeEventListener('resize', () => { });
 });
 </script>
 
@@ -420,7 +316,7 @@ onUnmounted(() => {
    align-items: flex-start;
    gap: 5px;
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       flex-direction: column;
       gap: 8px;
       align-items: flex-start;
@@ -432,7 +328,7 @@ onUnmounted(() => {
       flex-wrap: wrap;
       gap: 24px;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          gap: 8px;
       }
    }

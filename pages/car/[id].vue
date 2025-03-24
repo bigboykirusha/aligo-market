@@ -1,10 +1,10 @@
 <template>
-   <div class="container">
+   <div class="car-page">
       <CarToolbar v-if="isOwner" v-bind="toolbarProps" />
-      <div class="info-wrapper">
+      <div class="car-page__info">
          <CarInfoSkeleton v-if="isLoading" />
          <CarInfo v-else :car="car" />
-         <div class="car-contact-wrapper">
+         <div class="car-page__contact">
             <CarContactSkeleton v-if="isLoading" />
             <CarContact v-else :id_user_owner_ads="car.id_user_owner_ads"
                :brand="car.auto_technical_specifications[0].brand.title"
@@ -16,20 +16,20 @@
                :longitude="car.ads_parameter.longitude" :photos="car.photos" />
          </div>
       </div>
-      <div class="ads-wrapper">
-         <CardList :title="title3" :ads="adsSimilar.slice(0, 5)" :isLoading="isLoading" />
+      <div class="car-page__ads">
+         <CardList :title="title3" :ads="adsSimilar" :XTotalCount="10" :isLoading="isLoadingSimilar" />
          <BannerTemplate :content="bannerContent" />
       </div>
    </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '~/store/user';
 import { getImageUrl } from '~/services/imageUtils';
 import { useI18n } from 'vue-i18n';
-import { getCarById, getAdsSimilar } from '../../services/apiClient';
+import { getCarById, getAdsSimilar } from '~/services/apiClient';
 import { useHead } from '@vueuse/head';
 import desktopImage from '../assets/images/bg/banner-2-auto.png';
 import mobileImage from '../assets/images/bg/baner-mob-5.png';
@@ -38,13 +38,10 @@ const route = useRoute();
 const userStore = useUserStore();
 const { t } = useI18n();
 
-definePageMeta({
-   ssr: true,
-});
-
 const car = ref(null);
 const adsSimilar = ref([]);
 const isLoading = ref(true);
+const isLoadingSimilar = ref(true);
 const title3 = t('titles.title3');
 
 const bannerContent = {
@@ -56,71 +53,77 @@ const bannerContent = {
    isMoscow: true,
 };
 
-const toolbarProps = computed(() => ({
-   id: car.value?.id,
-   is_published: car.value?.is_published || undefined,
-   is_in_archive: car.value?.is_in_archive || undefined,
-   count_go_ad_page: car.value?.statistic_view?.count_go_ad_page || undefined,
-   count_add_to_favorite: car.value?.statistic_view?.count_add_to_favorite || undefined,
-   count_who_view_seller_contact: car.value?.statistic_view?.count_who_view_seller_contact || undefined,
-   main_id: car.value?.main_id || undefined,
-}));
+const toolbarProps = computed(() => car.value ? ({
+   id: car.value.id,
+   is_published: car.value.is_published,
+   is_in_archive: car.value.is_in_archive,
+   is_moderation: car.value.is_moderation,
+   count_go_ad_page: car.value.statistic_view?.count_go_ad_page,
+   count_add_to_favorite: car.value.statistic_view?.count_add_to_favorite,
+   count_who_view_seller_contact: car.value.statistic_view?.count_who_view_seller_contact,
+   main_id: car.value.main_id,
+}) : {});
 
-const isOwner = computed(() => car.value && car.value.id_user_owner_ads === userStore.userId);
+const isOwner = computed(() => car.value?.id_user_owner_ads === userStore.userId);
 
-const setLoadingWithDelay = () => {
+const setLoadingWithDelay = (isLoadingRef) => new Promise(resolve => {
    setTimeout(() => {
-      isLoading.value = false;
+      isLoadingRef.value = false;
+      resolve();
    }, 1000);
+});
+
+const getHeadMeta = (car) => ({
+   title: `${car.auto_technical_specifications[0].brand.title} ${car.auto_technical_specifications[0].model.title} ${car.auto_technical_specifications[0].year_release.title}`,
+   meta: [
+      { name: 'description', content: car.ads_parameter.ads_description || 'Описание автомобиля' },
+      { property: 'og:title', content: `${car.auto_technical_specifications[0].brand.title} ${car.auto_technical_specifications[0].model.title} ${car.auto_technical_specifications[0].year_release.title}` },
+      { property: 'og:description', content: car.ads_parameter.ads_description || 'Описание автомобиля' },
+      { property: 'og:image', content: getImageUrl(car.photos[0], desktopImage) },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:url', content: window.location.href },
+   ],
+});
+
+const fetchData = async (apiFunction, params) => {
+   try {
+      return await apiFunction(params);
+   } catch (error) {
+      console.error('Ошибка при получении данных:', error);
+      return { data: [], totalCount: 0 };
+   }
 };
 
 const fetchCarDetails = async (id) => {
-   try {
-      isLoading.value = true;
-      car.value = await getCarById(id);
+   isLoading.value = true;
+   const carData = await fetchData(getCarById, id);
+   if (!carData) return setLoadingWithDelay(isLoading);
 
-      if (car.value) {
-         useHead({
-            title: `${car.value.auto_technical_specifications[0].brand.title} ${car.value.auto_technical_specifications[0].model.title} ${car.value.auto_technical_specifications[0].year_release.title}`,
-            meta: [
-               { name: 'description', content: car.value.ads_parameter.ads_description || 'Описание автомобиля' },
-               { property: 'og:title', content: `${car.value.auto_technical_specifications[0].brand.title} ${car.value.auto_technical_specifications[0].model.title} ${car.value.auto_technical_specifications[0].year_release.title}` },
-               { property: 'og:description', content: car.value.ads_parameter.ads_description || 'Описание автомобиля' },
-               { property: 'og:image', content: getImageUrl(car.value.photos[0], desktopImage) },
-               { property: 'og:type', content: 'website' },
-               { property: 'og:url', content: window.location.href },
-            ],
-         });
-      }
-   } catch (error) {
-      console.error('Ошибка при получении данных автомобиля:', error);
-   } finally {
-      setLoadingWithDelay();
+   car.value = carData;
+   useHead(getHeadMeta(carData));
+
+   if (carData?.ads_parameter?.city?.id) {
+      await fetchAdsSimilar(carData.ads_parameter.city.id);
    }
+
+   await setLoadingWithDelay(isLoading);
 };
 
-const fetchAdsSimilar = async (city) => {
-   try {
-      isLoading.value = true;
-      adsSimilar.value = await getAdsSimilar(city);
-   } catch (error) {
-      console.error('Ошибка при получении данных: ', error);
-   } finally {
-      setLoadingWithDelay();
-   }
+const fetchAdsSimilar = async (cityId) => {
+   isLoadingSimilar.value = true;
+   const { data } = await fetchData(getAdsSimilar, {
+      city: cityId,
+      page: 1,
+      count: 10,
+      order_by: 'desc',
+   });
+   adsSimilar.value = data;
+   await setLoadingWithDelay(isLoadingSimilar);
 };
-
-watch(car, (newCar) => {
-   if (newCar?.ads_parameter?.city) {
-      fetchAdsSimilar(newCar.ads_parameter.city);
-   }
-});
 
 onMounted(() => {
-   const routePath = route.path;
-   const carId = routePath.split('-').pop();
+   const carId = route.path.split('-').pop();
    fetchCarDetails(carId);
-   fetchAdsSimilar('Тбилиси');
 });
 
 onBeforeRouteLeave(() => {
@@ -133,7 +136,7 @@ onBeforeRouteLeave(() => {
          { name: 'keywords', content: 'Aligo, объявления, товары, услуги' },
          { property: 'og:title', content: 'Aligo | Доска объявлений' },
          { property: 'og:description', content: 'Aligo — удобная доска объявлений для поиска и размещения товаров.' },
-         { property: 'og:image', content: '../../staticfavicons/favicon.png' },
+         { property: 'og:image', content: '../../public/favicons/favicon.svg' },
          { property: 'og:url', content: 'https://aligo.ru' },
          { property: 'og:type', content: 'website' },
          { property: 'og:locale', content: 'ru_RU' },
@@ -143,41 +146,43 @@ onBeforeRouteLeave(() => {
 </script>
 
 <style lang="scss" scoped>
-.container {
+.car-page {
    margin-top: 134px;
 
    @media (max-width: 768px) {
       margin-top: 67px;
    }
-}
 
-.info-wrapper {
-   display: flex;
-   width: 100%;
-   max-width: 1312px;
-   margin: 0 auto;
-   padding: 0 16px;
-   column-gap: 125px;
-   justify-content: space-between;
-
-   @media (max-width: 1280px) {
-      flex-direction: column-reverse;
+   &__info {
+      display: flex;
+      width: 100%;
+      max-width: 1312px;
+      margin: 0 auto;
+      padding: 0 16px;
+      column-gap: 106px;
+      justify-content: space-between;
    }
-}
 
-.car-contact-wrapper {
-   max-width: 416px;
-   width: 100%;
+   &__contact {
+      width: 100%;
 
-   @media (max-width: 1280px) {
-      display: none;
+      @media (max-width: 1240px) {
+         display: none;
+      }
    }
-}
 
-.ads-wrapper {
-   width: 100%;
-   max-width: 1312px;
-   margin: 0 auto;
-   padding: 0 16px;
+   &__ads {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+      max-width: 1312px;
+      margin: 0 auto;
+      padding: 0 16px;
+
+      @media (max-width: 768px) {
+         gap: 32px;
+      }
+   }
 }
 </style>

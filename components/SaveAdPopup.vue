@@ -38,8 +38,8 @@ const handleSave = async () => {
    if (!isSaving.value) {
       isSaving.value = true;
       try {
-         await new Promise((resolve) => setTimeout(resolve, 3000));
          emit('save');
+         emit('close');
       } catch (error) {
          console.error('Ошибка сохранения:', error);
       } finally {

@@ -1,12 +1,14 @@
 <template>
    <div ref="menuRef" class='menu-2' :class="{ 'menu-2--open': modelValue }">
       <div class="menu-2__header-row">
-         <img @click="dropdownStore.setDropdownState(false);" class="header__close-icon" src="../assets/icons/close.svg"
-            alt="">
-         <button class="header__nav-link" @click="toggleModal">
-            <img :src="defaultLocationIcon" alt="Location icon" class="header__icon">
-            <span class="header__text header__text--hidden">{{ translatedCityName }}</span>
-         </button>
+         <div class="menu-2__block">
+            <img @click="dropdownStore.setDropdownState(false);" class="header__close-icon"
+               src="../assets/icons/close.svg" alt="">
+            <button class="header__nav-link" @click="toggleModal">
+               <img :src="defaultLocationIcon" alt="Location icon" class="header__icon">
+               <span class="header__text header__text--hidden">{{ translatedCityName }}</span>
+            </button>
+         </div>
       </div>
       <div class="menu-2__container">
          <div class="menu-2__columns">
@@ -25,9 +27,9 @@
                   </div>
                </div>
             </div>
+            <div class="menu-2__placeholder"></div>
          </div>
       </div>
-      <LocationModal v-if="modalOpen" @close-modal="toggleModal" />
    </div>
 </template>
 
@@ -40,6 +42,7 @@ import diskIcon from '../assets/icons/disc.svg';
 import motoIcon from '../assets/icons/moto.svg';
 import { useFiltersStore } from '~/store/filters.js';
 import { useDropdownStore } from '~/store/dropdown.js';
+import { useLocationModalStore } from '~/store/locationModalStore';
 import { useCityStore } from '~/store/city.js';
 import defaultLocationIcon from '../assets/icons/Location-blue.svg';
 
@@ -49,10 +52,10 @@ const props = defineProps({
 
 const adsCount = ref(0);
 const menuRef = ref(null);
-const modalOpen = ref(false);
 const filtersStore = useFiltersStore();
 const dropdownStore = useDropdownStore();
 const cityStore = useCityStore();
+const locationModalStore = useLocationModalStore();
 
 const router = useRouter();
 
@@ -69,7 +72,7 @@ const hideDetailedMenu = () => {
 };
 
 const toggleModal = () => {
-   modalOpen.value = !modalOpen.value;
+   locationModalStore.toggleMenu();
 };
 
 const detailedGroups = ref([
@@ -133,26 +136,26 @@ const detailedGroups = ref([
 
 const handleUsedClick = () => {
    console.log('Выбран б/у автомобиль');
-   filtersStore.setSelectedCondition(2);
+   filtersStore.setFilter('selectedCondition', 2);
 };
 
 const handleNewClick = () => {
    console.log('Выбран новый автомобиль');
-   filtersStore.setSelectedCondition(1);
+   filtersStore.setFilter('selectedCondition', 1);
 };
 
 const handleSedansClick = () => {
-   filtersStore.setSelectedBodyTypes([2])
+   filtersStore.setFilter('selectedBodyTypes', [2]);
    console.log('Седаны выбраны');
 };
 
 const handleWagonsClick = () => {
-   filtersStore.setSelectedBodyTypes([3])
+   filtersStore.setFilter('selectedBodyTypes', [3]);
    console.log('Универсалы выбраны');
 };
 
 const handleSuvsClick = () => {
-   filtersStore.setSelectedBodyTypes([1])
+   filtersStore.setFilter('selectedBodyTypes', [1]);
    console.log('Внедорожники выбраны');
 };
 
@@ -181,7 +184,7 @@ const handleSubCategoryClick = (item) => {
 
 const handleMenuItemClick = (item) => {
    if (item.target === 'auto') {
-      filtersStore.setSelectedCondition(null);
+      filtersStore.setFilter('selectedCondition', null);
    }
    dropdownStore.setDropdownState(false);
    router.push(item.target);
@@ -212,37 +215,62 @@ onUnmounted(() => {
    position: fixed;
    left: 0;
    right: 0;
-   top: 0;
+   top: -548px;
    z-index: -1;
    max-width: 1360px;
    margin: 0 auto;
-   overflow: hidden;
    min-height: 66px;
-   transform: translateY(-100%);
+   transform-origin: top;
+   transform: translate(0, 100%) scaleY(0);
+   box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
    will-change: transform;
    transition: transform 0.2s ease-in-out;
 
    @media (max-width: 768px) {
       height: 100vh;
       z-index: 100;
+      top: -100vh;
       padding-bottom: env(safe-area-inset-bottom);
    }
 
    &--open {
-      transform: translateY(0);
+      transform: translate(0, 100%) scaleY(1);
+   }
+
+   &__block {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      justify-content: space-between;
+      height: 66px;
    }
 
    &__header-row {
-      height: 66px;
       display: none;
-      width: 100%;
       padding: 0 16px;
-      align-items: center;
-      justify-content: space-between;
       background-color: #FFFFFF;
+
+      &::after {
+         content: '';
+         width: 100%;
+         height: 1px;
+         background-color: #D6D6D6;
+      }
 
       @media (max-width: 768px) {
          display: flex;
+         flex-direction: column;
+      }
+   }
+
+   &__placeholder {
+      background-color: #D6EFFF;
+      border-radius: 6px;
+      height: 100%;
+      width: 100%;
+
+      @media (max-width: 991px) {
+         display: none;
       }
    }
 
@@ -253,41 +281,34 @@ onUnmounted(() => {
       width: 100%;
       border: 1px solid $color-block;
       border-top: none;
-      transition: max-height 0.3s ease;
+      transition: max-height 0.2s ease-in-out;
 
       @media (max-width: 768px) {
-         padding: 0 16px 40px;
+         padding: 0 16px 60px;
          overflow-y: auto;
          border: none;
-         border-bottom: 1px solid #d6d6d6;
-         box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
+         height: calc(100vh - 66px);
          border-radius: 0;
-         height: calc(100% - 66px);
       }
    }
 
    &__columns {
       display: grid;
-      grid-template-columns: repeat(3, 25%);
-      column-gap: 32px;
+      grid-template-columns: repeat(4, 25%);
       row-gap: 64px;
       border-top: 1px solid #d6d6d6;
       padding-top: 32px;
 
-      @media (max-width: 1024px) {
+      @media (max-width: 991px) {
          grid-template-columns: repeat(3, 33%);
       }
 
       @media (max-width: 768px) {
-         grid-template-columns: repeat(2, 50%);
-         padding-top: 16px;
-         border: none;
-      }
-
-      @media (max-width: 480px) {
          display: flex;
          flex-direction: column;
+         padding-top: 24px;
          row-gap: 32px;
+         border: none;
       }
    }
 
@@ -347,7 +368,6 @@ onUnmounted(() => {
       display: flex;
       flex-direction: column;
       gap: 12px;
-      ;
       padding: 0;
       margin: 0;
    }
@@ -372,8 +392,8 @@ onUnmounted(() => {
    align-items: center;
    color: #3366FF;
    font-weight: 400;
-   font-size: 14px;
-   line-height: 18px;
+   font-size: 12px;
+   line-height: 16px;
    gap: 6px;
    background: none;
    border: none;
@@ -382,8 +402,8 @@ onUnmounted(() => {
    text-decoration: none;
 
    .header__icon {
-      width: 16px;
-      height: 16px;
+      width: 12px;
+      height: 12px;
    }
 }
 

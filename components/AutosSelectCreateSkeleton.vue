@@ -16,7 +16,7 @@
    width: auto;
    align-items: center;
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       flex-direction: column;
       gap: 8px;
       align-items: flex-start;
@@ -41,7 +41,7 @@
       padding: 12px;
       animation: pulse 1.5s infinite ease-in-out;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          width: 100%;
       }
 

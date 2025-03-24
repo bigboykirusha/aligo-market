@@ -1,63 +1,94 @@
 <template>
-   <div class="card">
-      <input type="checkbox" v-if="!isArchivePage" :id="`checkbox-${id}`" class="card__checkbox" :checked="isSelected"
-         @change="toggleSelection" />
-      <div :class="['card__image', { 'card__image--dimmed': isArchivePage || isModeration }]">
+   <div :class="['card', { 'card--not-confirmed': isEmailNotConfirmed }]">
+      <!-- Checkbox -->
+      <div v-if="!isArchivePage && !isUnderModeration" class="card__checkbox">
+         <CheckboxUI :model-value="isSelected" @update:model-value="toggleSelection" :showLabel="false" />
+      </div>
+
+
+      <!-- Image Section -->
+      <div
+         :class="['card__image', { 'card__image--dimmed': isArchivePage || isUnderModeration || isEmailNotConfirmed }]">
          <Swiper v-if="images.length" :modules="[SwiperAutoplay, SwiperPagination]" :slides-per-view="1"
             :pagination="{ clickable: true }" :loop="true">
             <SwiperSlide v-for="(image, index) in images" :key="index">
-               <img :src="getImageUrl(image.path_webp)" alt="Slide image" />
+               <img :src="getImageUrl(image.arr_title_size.middle)" alt="Slide image" />
             </SwiperSlide>
          </Swiper>
-         <img v-else src='../assets/icons/placeholder.png' alt="Placeholder image" class="card__placeholder" />
+         <img v-else src='../assets/icons/placeholder.png' alt="Placeholder image" class="card__image" />
       </div>
+
+      <!-- Card Body -->
       <div class="card__section">
-         <div ref="popupRef" class="popup-main" :class="{ 'popup-main--active': showPopup }" @pointerdown.stop>
+         <!-- Popup Dialog -->
+         <div ref="popupRef" @pointerdown.stop class="popup-main" :class="{ 'popup-main--active': showPopup }">
             <ul class="popup-main__list">
                <li class="popup-main__item" v-for="(option, index) in popupOptions" :key="index" @click="option.action">
                   <img :src="option.icon" :alt="option.text" class="popup-main__icon" />
                   {{ option.text }}
                </li>
             </ul>
+            <button class="popup__close-button" @click="togglePopup">
+               <img :src="closeIcon" alt="Close icon" />
+            </button>
          </div>
+
+         <!-- Card Details -->
          <div class="card__body">
             <div class="card__container">
-               <nuxt-link v-if="!isModeration && !isDraft && !isArchivePage" :to="`/car/${url}`" class="card__title">
+               <!-- Title -->
+               <nuxt-link v-if="!isDraft && !isArchivePage" :to="`/car/${url}`" class="card__title">
                   {{ displayTitle }}
                </nuxt-link>
                <span v-else class="card__title card__title--inactive">
                   {{ displayTitle }}
                </span>
+
                <div class="card__block">
-                  <span class="card__price">{{ formatNumberWithSpaces(Number(price)) }}</span>
-                  <span v-if="price !== 'Цена не указана'" class="card__currency">₽</span>
+                  <!-- Status -->
+                  <span v-if="isEmailNotConfirmed" class="card__accept-title">Объявление не опубликовано</span>
+                  <span v-if="delete_after_days" class="card__accept-title">Удалится через {{ delete_after_days }}
+                     дней</span>
+                  <span v-else-if="price" class="card__price">{{ formatNumberWithSpaces(Number(price)) }} ₽</span>
+                  <span v-else class="card__price card__price--skinny">Цена не указана</span>
                </div>
-               <div class="card__description">{{ description || 'Описание не указано' }}</div>
-               <div class="card__info">
+
+               <!-- Email Confirmation -->
+               <div v-if="isEmailNotConfirmed" class="card__accept">
+                  <p>Подтвердите адрес электронной почты для публикации объявления.</p>
+                  <p>Это можно сделать в <nuxt-link class="blue-dec">Управлении профилем</nuxt-link> или при изменении
+                     объявления.</p>
+               </div>
+
+               <!-- Description -->
+               <div v-else :class="['card__description', { 'card__description--main': !isArchivePage && !isDraft }]">
+                  {{ description || 'Описание не указано' }}
+               </div>
+
+               <div v-if="!isArchivePage && !isDraft" :class="['card__stat']">
+                  <div class="button">
+                     <span class="button__text">{{ actionStatus }}</span>
+                  </div>
+                  <div class="button__block">
+                     <div class="button" v-for="(icon, idx) in statsIcons" :key="idx">
+                        <img :src="icon.src" :alt="icon.alt" class="button__icon" />
+                        <span class="button__text">{{ icon.count }}</span>
+                     </div>
+                  </div>
+               </div>
+
+               <!-- Location -->
+               <div v-if="!isEmailNotConfirmed" class="card__info">
                   <div class="card__location">{{ place || 'Адрес не указан' }}</div>
-                  <div class="card__date">{{ timeAgo }}</div>
-               </div>
-            </div>
-            <div class="card__mobile">
-               <div class="button-2" @click="handleButtonMainClick">
-                  <img :src="buttonIcon" alt="Action icon" class="button-2__icon" />
-                  <span class="button-2__text">{{ buttonText }}</span>
-               </div>
-               <div class="button-2" @click="handleButtonClick">
-                  <img :src="optionsIcon" alt="Options icon" class="button-2__icon" />
                </div>
             </div>
          </div>
+
+         <!-- More Actions -->
          <div class="card__more">
             <div v-if="!isDraft && !isArchivePage" class="card__more-column">
                <div class="button">
-                  <span class="button__text">
-                     {{
-                        isModeration
-                           ? 'На модерации'
-                           : (isPublished ? 'Опубликовано' : 'Снято с публикации')
-                     }}
-                  </span>
+                  <span class="button__text">{{ actionStatus }}</span>
                </div>
                <div class="button__block">
                   <div class="button" v-for="(icon, idx) in statsIcons" :key="idx">
@@ -66,44 +97,33 @@
                   </div>
                </div>
             </div>
-            <div v-show="!isModeration" class="card__more-row">
-               <div class="button-2" @click="handleButtonMainClick">
+            <div :class="['card__more-row', { 'card__more-row--hidden': isUnderModeration }]">
+               <div v-if="isDraft || isArchivePage" :class="['button-2']" @click="handleButtonMainClick">
                   <img :src="buttonIcon" alt="Action icon" class="button-2__icon" />
                   <span class="button-2__text">{{ buttonText }}</span>
                </div>
-               <div class="button-2" @click="handleButtonClick">
-                  <img :src="isDraft || isArchivePage ? deleteIcon : optionsIcon" alt="Options or delete icon"
-                     class="button-2__icon" />
+               <div v-if="!delete_after_days" class="button-2" @click="handleButtonClick">
+                  <img :src="actionIcon" alt="Action icon" class="button-2__icon" />
                </div>
             </div>
          </div>
       </div>
    </div>
-   <PopupDialog v-if="showPopup2" :message="'Вы уверены, что хотите снова опубликовать это объявление?'"
-      :confirmText="'Опубликовать'" :cancelText="'Редактировать'" :closeIcon="closeIcon" @confirm="confirmPublishAgain"
-      @cancel="editAd" @close="closePopupTemplate" />
-   <PopupDialog v-if="showDeleteConfirm" :message="'Вы уверены, что хотите удалить объявление?'"
-      :confirmText="'Удалить'" :cancelText="'Отменить'" :closeIcon="closeIcon" @confirm="confirmDelete"
-      @cancel="closeConfirmPopup" @close="closeConfirmPopup" />
-   <PopupDialog v-if="showArchiveConfirm" :message="'Вы уверены, что хотите перенести объявление в архив?'"
-      :confirmText="'Перенести'" :cancelText="'Отменить'" :closeIcon="closeIcon" @confirm="confirmArchive"
-      @cancel="closeConfirmPopup" @close="closeConfirmPopup" />
-   <PopupDialog v-if="showUnpublishConfirm" :message="'Вы уверены, что хотите снять объявление с публикации?'"
-      :confirmText="'Снять'" :cancelText="'Отменить'" :closeIcon="closeIcon" @confirm="confirmUnpublish"
-      @cancel="closeConfirmPopup" @close="closeConfirmPopup" />
+
+   <!-- Popups -->
+   <PopupDialog v-if="showPopupDialog" :message="popupMessage" :confirmText="confirmText" :cancelText="cancelText"
+      :closeIcon="closeIcon" @confirm="handleConfirm" @cancel="handleCancel" @close="closePopup" />
 </template>
 
 <script setup>
-import { ref, computed, watchEffect, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, watchEffect } from 'vue';
 import { useSelectedAdsStore } from '../store/selectedAds.js';
 import { formatNumberWithSpaces } from '../services/amountUtils.js';
 import { useSelectedDraftsStore } from '../store/selectedDrafts.js';
-import { getImageUrl } from '../services/imageUtils'
+import { getImageUrl } from '../services/imageUtils';
 import { useCreateStore } from '~/store/create.js';
-import { deleteFromArchive, publishFromArchive } from "../services/apiClient.js";
-import { useRoute, useRouter } from 'vue-router';
-
-const emit = defineEmits(['updateData']);
+import { deleteFromArchive, publishFromMainTab, publishFromArchive } from "../services/apiClient.js";
+import { useRouter } from 'vue-router';
 
 import deleteIcon from '../assets/icons/delete.svg';
 import optionsIcon from '../assets/icons/options.svg';
@@ -128,254 +148,226 @@ const props = defineProps({
    year: String,
    is_published: Number,
    is_moderation: Number,
-   count_who_view_seller_contact: {
-      type: Number,
-      default: 0
-   },
-   count_add_to_favorite: {
-      type: Number,
-      default: 0
-   },
-   count_go_ad_page: {
-      type: Number,
-      default: 0
-   },
+   is_not_confirmed_email: Number,
+   count_who_view_seller_contact: { type: Number, default: 0 },
+   count_add_to_favorite: { type: Number, default: 0 },
+   count_go_ad_page: { type: Number, default: 0 },
+   delete_after_days: { type: Number, default: null },
    images: Array,
    created_at: String,
+   pageType: String,
 });
 
-const url = [
-   props.brand?.toLowerCase(),
-   props.model?.toLowerCase(),
-   props.year?.toLowerCase(),
-   props.id
-]
-   .filter(Boolean)
-   .join('-');
-const route = useRoute();
 const router = useRouter();
 const createStore = useCreateStore();
+const emit = defineEmits(['updateData', 'deleteAd']);
 let store = ref(null);
 
+const url = computed(() => {
+   return [
+      props.brand?.toLowerCase() ?? '',
+      props.model?.toLowerCase() ?? '',
+      props.year?.toLowerCase() ?? '',
+      props.id ?? ''
+   ]
+      .filter(Boolean)
+      .join('-');
+});
+
 watchEffect(() => {
-   if (route.path.includes('/profile/ads')) {
-      store.value = useSelectedAdsStore();
-   } else if (route.path.includes('/profile/drafts')) {
-      store.value = useSelectedDraftsStore();
-   }
+   store.value = (props.pageType === 'all') ? useSelectedAdsStore() : useSelectedDraftsStore();
 });
 
 const showPopup = ref(false);
-const showPopup2 = ref(false);
+const showPopupDialog = ref(false);
+const popupMessage = ref('');
+const confirmText = ref('');
+const cancelText = ref('');
+const popupAction = ref(null);
 const popupRef = ref(null);
-const popupRef2 = ref(null);
 
-const showDeleteConfirm = ref(false);
-const showArchiveConfirm = ref(false);
-const showUnpublishConfirm = ref(false);
+const openPopup = (type) => {
+   showPopupDialog.value = true;
+   switch (type) {
+      case 'delete':
+         popupMessage.value = 'Вы уверены, что хотите удалить объявление?';
+         confirmText.value = 'Удалить';
+         cancelText.value = 'Отменить';
+         popupAction.value = confirmDelete;
+         break;
+      case 'archive':
+         popupMessage.value = 'Вы уверены, что хотите перенести объявление в архив?';
+         confirmText.value = 'Перенести';
+         cancelText.value = 'Отменить';
+         popupAction.value = confirmArchive;
+         break;
+      case 'unpublish':
+         popupMessage.value = 'Вы уверены, что хотите снять объявление с публикации?';
+         confirmText.value = 'Снять';
+         cancelText.value = 'Отменить';
+         popupAction.value = confirmUnpublish;
+         break;
+      case 'publish':
+         popupMessage.value = 'Вы уверены, что хотите опубликовать это объявление?';
+         confirmText.value = 'Опубликовать';
+         cancelText.value = 'Отменить';
+         popupAction.value = confirmPublishAgain;
+         break;
+      case 'edit':
+         popupMessage.value = 'Вы уверены, что хотите отредактировать это объявление?';
+         confirmText.value = 'Редактировать';
+         cancelText.value = 'Отменить';
+         popupAction.value = editAd;
+         break;
+      case 'restore':
+         popupMessage.value = 'Вы уверены, что хотите восстановить это объявление?';
+         confirmText.value = 'Восстановить';
+         cancelText.value = 'Отменить';
+         popupAction.value = restoreFromArchive;
+         break;
+      default:
+         popupMessage.value = 'Что-то пошло не так!';
+         confirmText.value = 'Ок';
+         cancelText.value = 'Закрыть';
+         popupAction.value = null;
+         break;
+   }
+};
+
+const handleConfirm = () => {
+   popupAction.value();
+   closePopup();
+};
+
+const handleCancel = () => {
+   closePopup();
+};
+
+const closePopup = () => {
+   showPopupDialog.value = false;
+};
 
 const confirmDelete = async () => {
    await deleteFromArchive(props.id);
-   console.log('Объявление успешно удалено из архива');
-   emit('updateData');
-   showPopup.value = false;
-   closeConfirmPopup();
+   emit("updateData");
 };
 
 const confirmArchive = async () => {
    await store.value.deleteAds([props.id]);
-   console.log('Переместить в архив');
-   emit('updateData');
-   showPopup.value = false;
-   closeConfirmPopup();
+   emit("deleteAd", props.id);
 };
 
 const confirmUnpublish = async () => {
    await store.value.takeOffPublication([props.id]);
-   emit('updateData');
-   showPopup.value = false;
-   closeConfirmPopup();
+   emit("updateData");
 };
-
-const closeConfirmPopup = () => {
-   showDeleteConfirm.value = false;
-   showArchiveConfirm.value = false;
-   showUnpublishConfirm.value = false;
-   showPopup2.value = false;
-};
-
-const handleClickOutside = (event) => {
-   const isOutsidePopup1 = popupRef.value && !popupRef.value.contains(event.target);
-   const isOutsidePopup2 = popupRef2.value && !popupRef2.value.contains(event.target);
-
-   if (isOutsidePopup1) {
-      showPopup.value = false;
-   }
-   if (isOutsidePopup2) {
-      showPopup2.value = false;
-   }
-};
-
-const isSelected = computed(() => store.value?.selectedAdIds.includes(props.id));
-const isDraft = computed(() => route.path === '/profile/drafts');
-const isArchivePage = computed(() => route.path === '/profile/archive');
-const isPublished = computed(() => props.is_published === 1);
-const isModeration = computed(() => props.is_moderation === 1);
-
-const buttonIcon = computed(() => (isArchivePage.value ? againIcon : (isDraft.value ? editIcon : rocketIcon)));
-const buttonText = computed(() => (isArchivePage.value ? 'Опубликовать снова' : (isDraft.value ? 'Продолжить' : 'Продвигать')));
-
-const statsIcons = computed(() => [
-   { src: personIcon, count: props.count_who_view_seller_contact, alt: 'Просмотры контактов' },
-   { src: favIcon, count: props.count_add_to_favorite, alt: 'Добавления в избранное' },
-   { src: eyeIcon, count: props.count_go_ad_page, alt: 'Просмотры страницы' },
-]);
-
-const popupOptions = computed(() => {
-   if (isPublished.value) {
-      return [
-         { text: 'Редактировать', icon: editIcon, action: editAd },
-         { text: 'Снять с публикации', icon: stopIcon, action: togglePublication },
-         { text: 'Переместить в архив', icon: archiveIcon, action: moveToArchive }
-      ];
-   } else {
-      return [
-         { text: 'Редактировать', icon: editIcon, action: editAd },
-         { text: 'Опубликовать снова', icon: againIcon, action: publishAgain },
-         { text: 'Переместить в архив', icon: archiveIcon, action: moveToArchive }
-      ];
-   }
-});
-
-const displayTitle = computed(() => {
-   const brandText = props.brand ? props.brand : 'Название не указано';
-   const modelText = props.model ? props.model : '';
-   const yearText = props.year ? props.year : '';
-
-   return [brandText, modelText, yearText].filter(Boolean).join(' ');
-});
-
-const togglePopup = () => {
-   showPopup.value = !showPopup.value;
-};
-
-function calculateTimeAgo(dateString) {
-   const now = new Date();
-   const date = new Date(dateString);
-   const diff = now - date;
-
-   const seconds = Math.floor(diff / 1000);
-   const minutes = Math.floor(seconds / 60);
-   const hours = Math.floor(minutes / 60);
-   const days = Math.floor(hours / 24);
-
-   if (days > 0) {
-      return `${days} ${days % 10 === 1 && days % 100 !== 11 ? 'день' :
-         (days % 10 >= 2 && days % 10 <= 4 && (days % 100 < 10 || days % 100 >= 20)) ? 'дня' :
-            'дней'} назад`;
-   } else if (hours > 0) {
-      return `${hours} ${hours % 10 === 1 && hours % 100 !== 11 ? 'час' :
-         (hours % 10 >= 2 && hours % 10 <= 4 && (hours % 100 < 10 || hours % 100 >= 20)) ? 'часа' :
-            'часов'} назад`;
-   } else if (minutes > 0) {
-      return `${minutes} ${minutes % 10 === 1 && minutes % 100 !== 11 ? 'минута' :
-         (minutes % 10 >= 2 && minutes % 10 <= 4 && (minutes % 100 < 10 || minutes % 100 >= 20)) ? 'минуты' :
-            'минут'} назад`;
-   } else {
-      return `${seconds} ${seconds % 10 === 1 && seconds % 100 !== 11 ? 'секунда' :
-         (seconds % 10 >= 2 && seconds % 10 <= 4 && (seconds % 100 < 10 || seconds % 100 >= 20)) ? 'секунды' :
-            'секунд'} назад`;
-   }
-}
-
-const timeAgo = computed(() => calculateTimeAgo(props.created_at));
 
 const editAd = async () => {
-   try {
-      await createStore.setStoreFromApi(props.id);
-      router.push('/create');
-   } catch (error) {
-      console.error('Ошибка при загрузке черновика: ', error);
-   }
-   console.log('Редактировать');
-   showPopup.value = false;
+   await createStore.setStoreFromApi(props.id);
+   router.push('/create');
 };
 
-const publishAgain = async () => {
-   showPopup2.value = true;
-};
-
-const closePopupTemplate = async () => {
-   showPopup2.value = false;
+const restoreFromArchive = async () => {
+   await publishFromArchive(props.id);
+   emit("deleteAd", props.id);
 };
 
 const confirmPublishAgain = async () => {
-   await publishFromArchive(props.id);
-   console.log('Объявление успешно опубликовано');
-   emit('updateData');
-   showPopup2.value = false;
+   await publishFromMainTab(props.id);
+   emit("updateData", props.id);
 };
 
-const moveToArchive = async () => {
-   showArchiveConfirm.value = true;
-};
+const isSelected = computed(() => store.value?.selectedAdIds.includes(props.id));
 
-const togglePublication = async () => {
-   showUnpublishConfirm.value = true;
+const toggleSelection = (value) => {
+   if (value) {
+      store.value.selectedAdIds.push(props.id);
+   } else {
+      store.value.selectedAdIds = store.value.selectedAdIds.filter(id => id !== props.id);
+   }
 };
+const isDraft = computed(() => props.pageType === 'drafts');
+const isArchivePage = computed(() => props.pageType === 'archive');
+const isAdPublished = computed(() => props.is_published === 1);
+const isUnderModeration = computed(() => props.is_moderation === 1);
+const isEmailNotConfirmed = computed(() => props.is_not_confirmed_email === 1);
 
-const toggleSelection = () => {
-   store.value?.toggleAd(props.id);
-};
+const buttonIcon = computed(() => isAdPublished.value ? rocketIcon : isDraft.value ? editIcon : againIcon);
+const actionIcon = computed(() => isDraft.value ? archiveIcon : isArchivePage.value ? deleteIcon : optionsIcon);
+const actionStatus = computed(() => isAdPublished.value ? 'Опубликовано' : isUnderModeration ? 'На модерации' : 'Снято с публикации');
+const buttonText = computed(() => isAdPublished.value ? 'Продвигать' : isDraft.value ? 'Продолжить' : props.delete_after_days ? 'Восстановить' : 'Вернуть в черновики');
+const statsIcons = computed(() => [
+   { src: eyeIcon, alt: 'Просмотры', count: props.count_go_ad_page },
+   { src: favIcon, alt: 'В избранном', count: props.count_add_to_favorite },
+   { src: personIcon, alt: 'Контакты', count: props.count_who_view_seller_contact }
+]);
+
+const displayTitle = computed(() => {
+   if (!props.brand) return 'Без названия';
+   const { brand, model, year } = props;
+   return [brand, model, year].filter(Boolean).join(year ? ', ' : ' ');
+});
+
+const popupOptions = computed(() => {
+   if (isAdPublished.value) {
+      return [
+         { text: 'Редактировать', icon: editIcon, action: () => openPopup('edit') },
+         { text: 'Снять с публикации', icon: stopIcon, action: () => openPopup('unpublish') },
+         { text: 'Переместить в архив', icon: archiveIcon, action: () => openPopup('archive') },
+      ];
+   }
+   return [
+      { text: 'Редактировать', icon: editIcon, action: () => openPopup('edit') },
+      { text: 'Опубликовать снова', icon: againIcon, action: () => openPopup('publish') },
+      { text: 'Переместить в архив', icon: archiveIcon, action: () => openPopup('archive') },
+   ];
+});
 
 const handleButtonClick = async () => {
    if (isDraft.value) {
-      showDeleteConfirm.value = true;
-   } else if (route.path.includes('/profile/ads')) {
+      openPopup('archive');
+   } else if (props.pageType === 'all') {
       togglePopup();
    } else if (isArchivePage.value) {
-      showDeleteConfirm.value = true;
+      openPopup('delete');
    }
 };
 
 const handleButtonMainClick = async () => {
    if (isArchivePage.value) {
       try {
-         await editAd();
-         // await publishFromArchive(props.id);
-         emit('updateData');
-         console.log('Объявление успешно опубликовано');
+         openPopup('restore');
       } catch (error) {
          console.error('Ошибка при публикации объявления: ', error);
       }
    } else if (isDraft.value) {
       try {
-         await createStore.setStoreFromApi(props.id);
-         router.push('/create');
+         openPopup('edit');
       } catch (error) {
          console.error('Ошибка при загрузке черновика: ', error);
       }
-      emit('updateData');
-   } else {
-      console.log('Продвигать');
    }
 };
 
-onMounted(() => {
-   document.addEventListener('pointerdown', handleClickOutside);
+const togglePopup = () => {
+   showPopup.value = !showPopup.value;
+};
 
-});
+const handleClickOutside = (event) => {
+   const isOutside = popupRef.value && !popupRef.value.contains(event.target);
+   if (isOutside) showPopup.value = false;
+};
 
-onBeforeUnmount(() => {
-   document.removeEventListener('pointerdown', handleClickOutside);
-});
+
+onMounted(() => document.addEventListener('pointerdown', handleClickOutside));
+onBeforeUnmount(() => document.removeEventListener('pointerdown', handleClickOutside));
+
 </script>
 
 <style scoped lang="scss">
 .card {
    display: flex;
    min-height: 200px;
-   min-width: 200px;
    position: relative;
    flex-direction: row;
    background: #ffffff;
@@ -383,14 +375,17 @@ onBeforeUnmount(() => {
    border-radius: 6px;
    transition: transform 0.3s, box-shadow 0.3s;
 
-   @media (max-width: 1200px) {
+   &--not-confirmed {
+      border-color: #FF4D4F;
+      background-color: #FFF6DF;
+   }
+
+   @media (max-width: 768px) {
       min-height: 160px;
-      min-width: 160px;
    }
 
    @media (max-width: 480px) {
       min-height: 145px;
-      min-width: 145px;
    }
 
    &:hover {
@@ -406,27 +401,11 @@ onBeforeUnmount(() => {
       cursor: pointer;
 
       &--dimmed {
-         filter: brightness(0.5);
-         opacity: 0.8;
+         background-color: #ffffff;
+         opacity: 0.7;
       }
 
-      @media (max-width: 1200px) {
-         width: 160px;
-         max-height: 160px;
-      }
-
-      @media (max-width: 480px) {
-         width: 145px;
-         max-height: 145px;
-      }
-   }
-
-   &__placeholder {
-      width: 200px;
-      max-height: 200px;
-      object-fit: cover;
-
-      @media (max-width: 1200px) {
+      @media (max-width: 768px) {
          width: 160px;
          max-height: 160px;
       }
@@ -440,6 +419,7 @@ onBeforeUnmount(() => {
    &__title {
       font-weight: bold;
       font-size: 16px;
+      line-height: 16px;
       color: #3366ff;
       cursor: pointer;
       text-decoration: none;
@@ -454,11 +434,6 @@ onBeforeUnmount(() => {
       display: flex;
       flex-direction: row;
       width: 100%;
-
-      @media (max-width: 1200px) {
-         flex-direction: column;
-         width: 100%;
-      }
    }
 
    &__block {
@@ -467,10 +442,12 @@ onBeforeUnmount(() => {
    }
 
    &__price,
-   &__currency {
-      font-weight: bold;
+   &__currency,
+   &__accept-title {
+      font-weight: 700;
       font-size: 14px;
-      color: black;
+      line-height: 18px;
+      color: #323232;
    }
 
    &__location,
@@ -483,9 +460,6 @@ onBeforeUnmount(() => {
       overflow: hidden;
       text-overflow: ellipsis;
 
-      @media (max-width: 1200px) {
-         display: none;
-      }
    }
 
    &__body {
@@ -494,24 +468,19 @@ onBeforeUnmount(() => {
       position: relative;
       gap: 10px;
       width: 100%;
-      max-width: 320px;
       height: 100%;
-      padding: 16px;
+      padding: 24px;
+      padding-right: 0;
 
-      @media (max-width: 1200px) {
+      @media (max-width: 1280px) {
          flex-direction: row;
-         max-width: 100%;
-         width: 100%;
          justify-content: space-between;
-         padding-bottom: 0;
       }
 
       @media (max-width: 768px) {
          flex-direction: column;
          gap: 8px;
-         padding-top: 12px;
-         margin-bottom: 8px;
-         justify-content: flex-start;
+         padding: 16px;
       }
    }
 
@@ -519,31 +488,31 @@ onBeforeUnmount(() => {
       height: 100%;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
+   }
 
-      @media (max-width: 1200px) {
-         gap: 0;
-      }
+   &__stat {
+      display: none;
 
-      @media (max-width: 768px) {
-         height: fit-content;
+      @media (max-width: 1024px) {
+         display: flex;
+         margin-top: auto;
+         flex-direction: column;
+         gap: 8px;
       }
    }
 
    &__more {
       display: flex;
-      gap: 86px;
-      width: 100%;
+      gap: 70px;
       height: 100%;
       flex-direction: row;
-      padding: 16px;
+      padding: 24px;
       margin-left: auto;
       justify-content: space-between;
 
-      @media (max-width: 1200px) {
-         margin: 0;
-         padding: 0 16px;
-         justify-content: flex;
+      @media (max-width: 768px) {
+         padding: 16px;
       }
    }
 
@@ -552,8 +521,8 @@ onBeforeUnmount(() => {
       flex-direction: column;
       gap: 16px;
 
-      @media (max-width: 1200px) {
-         gap: 8px;
+      @media (max-width: 1024px) {
+         display: none;
       }
    }
 
@@ -565,30 +534,50 @@ onBeforeUnmount(() => {
       justify-content: flex-end;
       margin-left: auto;
 
-      @media (max-width: 1200px) {
-         display: none;
+      &--hidden {
+         visibility: hidden;
+      }
+
+      @media (max-width: 768px) {
+         margin-left: 0;
+      }
+
+      @media (max-width: 480px) {
+         flex-direction: column;
+         justify-content: flex-start;
       }
    }
 
-   &__mobile {
-      display: none;
-      flex-direction: row;
-      gap: 10px;
+   &__accept {
+      color: #323232;
 
-      @media (max-width: 1200px) {
-         display: flex;
+      p {
+         font-size: 14px;
+         font-weight: 18px;
       }
    }
 
    &__description {
       font-size: 14px;
+      line-height: 18px;
+      color: #323232;
       display: -webkit-box;
-      -webkit-line-clamp: 2;
+      -webkit-line-clamp: 4;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
 
-      @media (max-width: 1200px) {
+      @media (max-width: 1280px) {
+         -webkit-line-clamp: 3;
+      }
+
+      &--main {
+         @media (max-width: 1024px) {
+            display: none;
+         }
+      }
+
+      @media (max-width: 768px) {
          display: none;
       }
    }
@@ -604,19 +593,17 @@ onBeforeUnmount(() => {
    .button {
       display: flex;
       align-items: center;
-      gap: 5px;
-      padding: 5px 10px;
+      gap: 6px;
+      padding: 3px 14px;
       background: #EEF9FF;
       border-radius: 12px;
+      font-size: 14px;
       transition: background-color 0.3s;
       width: fit-content;
-
-      span {
-         text-wrap: nowrap;
-      }
+      text-wrap: nowrap;
 
       @media (max-width: 480px) {
-         padding: 5px 8px;
+         padding: 3px 8px;
       }
 
       &__icon {
@@ -630,21 +617,18 @@ onBeforeUnmount(() => {
       &__block {
          display: flex;
          flex-direction: column;
-         gap: 16px;
+         gap: 14px;
 
-         @media (max-width: 1200px) {
-            display: flex;
+         @media (max-width: 1024px) {
             flex-direction: row;
-         }
-
-         @media (max-width: 768px) {
-            display: none;
+            gap: 6px;
          }
       }
 
       &__text {
          font-weight: 400;
          font-size: 14px;
+         line-height: 18px;
          color: #3366ff;
       }
    }
@@ -653,7 +637,7 @@ onBeforeUnmount(() => {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      gap: 6px;
       min-width: 34px;
       padding: 0 9px;
       background: #D6EFFF;
@@ -678,6 +662,20 @@ onBeforeUnmount(() => {
          }
       }
 
+      &--not-confirmed {
+         background-color: #3366FF;
+         color: #ffffff;
+         padding: 0 18px;
+
+         .button-2__text {
+            color: #ffffff;
+
+            @media (max-width: 1200px) {
+               display: block;
+            }
+         }
+      }
+
       &:hover {
          background: #9ed2f1;
       }
@@ -687,11 +685,10 @@ onBeforeUnmount(() => {
 .card__checkbox {
    position: absolute;
    top: 16px;
-   z-index: 3;
+   z-index: 5;
    left: 16px;
-   width: 16px;
-   height: 16px;
-   cursor: pointer;
+   min-width: 16px;
+   min-height: 16px;
 }
 
 .swiper {
@@ -699,56 +696,65 @@ onBeforeUnmount(() => {
    width: 200px;
    border-radius: 6px 0 0 6px;
 
-   @media (max-width: 1200px) {
-      height: 160px;
-      width: 160px;
-   }
-
-   @media (max-width: 480px) {
-      height: 145px;
-      width: 145px;
-   }
-
    img {
       height: 200px;
+      width: 200px;
       width: 100%;
       object-fit: cover;
 
-      @media (max-width: 1200px) {
+      @media (max-width: 768px) {
          height: 160px;
+         width: 160px;
       }
 
       @media (max-width: 480px) {
          height: 145px;
+         width: 145px;
       }
    }
 }
 
 .popup-main {
    position: absolute;
-   background-color: #fff;
-   top: 16px;
-   right: 16px;
+   background-color: #FFFFFF;
+   top: 24px;
+   right: 24px;
    border: 1px solid #3366FF;
-   border-radius: 6px;
+   border-radius: 8px;
    padding: 16px;
    display: flex;
+   justify-content: center;
    flex-direction: column;
    z-index: 9;
    transform: scale(0);
    transform-origin: top right;
-   transition: opacity 0.3s ease, transform 0.3s ease;
+   transition: transform 0.2s ease;
 
-   @media (max-width: 768px) {
-      top: 0;
-      right: 0;
-      padding: 8px;
-      height: 145px;
+   &--active {
+      transform: scale(1);
    }
 
-   &.popup-main--active {
-      opacity: 1;
-      transform: scale(1);
+   @media (max-width: 768px) {
+      top: 16px;
+      right: 16px;
+      padding: 8px;
+   }
+
+   @media (max-width: 480px) {
+      top: 0;
+      right: 0;
+      display: flex;
+      transform: scale(0);
+      border-radius: 0 8px 8px 0;
+      border: none;
+      width: calc(100% - 145px);
+      padding: 12px;
+   }
+
+   &--active {
+      @media (max-width: 480px) {
+         transform: scale(1);
+      }
    }
 
    &__list {
@@ -757,6 +763,14 @@ onBeforeUnmount(() => {
       flex-direction: column;
       gap: 8px;
       margin: 0;
+
+      @media (max-width: 768px) {
+         gap: 3px;
+      }
+
+      @media (max-width: 480px) {
+         gap: 8px;
+      }
    }
 
    &__item {
@@ -781,5 +795,33 @@ onBeforeUnmount(() => {
       height: 14px;
       margin-right: 8px;
    }
+}
+
+.popup__close-button {
+   position: absolute;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   top: 16px;
+   right: 16px;
+   width: 34px;
+   height: 34px;
+   background: #D6EFFF;
+   border: none;
+   border-radius: 6px;
+   cursor: pointer;
+   font-size: 16px;
+   font-weight: bold;
+   color: #333;
+   transition: background-color 0.2s ease;
+
+   img {
+      height: 16px;
+   }
+}
+
+.blue-dec {
+   color: #3366FF;
+   cursor: pointer;
 }
 </style>

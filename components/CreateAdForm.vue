@@ -15,56 +15,109 @@
       <div class="create-ad-form__actions">
          <div class="create-ad-form__overlay">
             <button :disabled="!isSaveandExitEnabled" class="create-ad-form__button create-ad-form__button--save"
-               @click="saveAndExit">
-               Сохранить и выйти
+               :class="{ 'disabled': props.isPublishing }" @click="saveAndExit">
+               <span v-if="props.isSaving" class="spinner"></span>
+               <span v-else>Сохранить и выйти</span>
             </button>
+
             <button v-if="activeTab === 3" class="create-ad-form__button create-ad-form__button--continue"
-               @click="publishAndExit" :disabled="!isPublishEnabled">
-               <span v-if="isPublishing" class="spinner"></span>
+               :class="{ 'disabled': props.isSaving }" @click="publishAndExit" :disabled="!isPublishEnabled">
+               <span v-if="props.isPublishing" class="spinner"></span>
                <span v-else>Опубликовать</span>
             </button>
             <button v-else class="create-ad-form__button create-ad-form__button--continue" @click="continueToNextTab">
                Продолжить
             </button>
             <div v-if="activeTab === 3" class="create-ad-form__text">
-               Вы также соглашаетесь с <span>правилами Aligo</span> и публикуете информацию, которую увидят другие люди
+               Вы также соглашаетесь с <a :href="rulesLink" :download="rulesTitle">{{ rulesTitle }}</a> и публикуете
+               информацию,
+               которую увидят другие люди
             </div>
          </div>
       </div>
+      <CodeModal v-if="showCodeModal" @confirmed="handleCodeConfirmed" />
    </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useCreateStore } from '../store/create';
 import { useTabsStore } from '~/store/tabsStore';
+import { useUserStore } from '~/store/user';
+import { getSiteDocumentById } from '@/services/apiClient';
+import { usePopupErrorStore } from '~/store/popupErrorStore';
 
 const createStore = useCreateStore();
 const tabsStore = useTabsStore();
+const userStore = useUserStore();
+const popupErrorStore = usePopupErrorStore();
+
+const showCodeModal = ref(false);
+const rulesLink = ref('');
+const rulesTitle = ref('');
+
+const props = defineProps({
+   isPublishing: {
+      type: Boolean,
+      default: false
+   },
+   isSaving: {
+      type: Boolean,
+      default: false
+   }
+});
 
 const emit = defineEmits(['sendAd', 'saveAd']);
 
+const isConfirmed = computed(() => {
+   return !userStore.unconfirmed_email && !!userStore.email;
+});
+
 const activeTab = computed(() => tabsStore.activeTab);
-const isPublishing = ref(false);
+
+const loadRulesDocument = async () => {
+   try {
+      const { data } = await getSiteDocumentById(2);
+      if (data) {
+         rulesLink.value = `https://api.aligo.ru/${data.path}`;
+         rulesTitle.value = data.title;
+      }
+   } catch (error) {
+      console.error('Ошибка при загрузке документа с правилами:', error);
+   }
+};
 
 const saveAndExit = () => {
-   createStore.setIsDraft(1);
-   emit('saveAd');
+   if (!props.isPublishing && !props.isSaving) {
+      emit('saveAd');
+   }
 };
 
 const publishAndExit = async () => {
-   if (!isPublishing.value) {
-      isPublishing.value = true;
-      createStore.setIsDraft(0);
-      try {
-         await new Promise((resolve) => setTimeout(resolve, 5000));
+   if (!props.isPublishing && !props.isSaving) {
+
+      if (!userStore.username && createStore.username) {
+         await userStore.updateProfile({ username: createStore.username });
+      }
+
+      if (!userStore.address && createStore.place_inspection) {
+         await userStore.updateProfile({ address: createStore.address });
+      }
+
+      if (userStore.unconfirmed_email) {
+         if (!isConfirmed.value) {
+            await userStore.updateProfile({ email: createStore.email });
+            showCodeModal.value = true;
+         }
+      } else {
          emit('sendAd');
-      } catch (error) {
-         console.error('Ошибка при публикации:', error);
-      } finally {
-         isPublishing.value = false;
       }
    }
+};
+
+const handleCodeConfirmed = async () => {
+   showCodeModal.value = false;
+   emit('sendAd');
 };
 
 const continueToNextTab = () => {
@@ -73,7 +126,7 @@ const continueToNextTab = () => {
          tabsStore.setActiveTab(activeTab.value + 1);
       }
    } else {
-      alert('Заполните обязательные поля!');
+      popupErrorStore.showError('Пожалуйста, заполните обязательные поля!');
    }
 };
 
@@ -86,7 +139,7 @@ const isNextEnabled = computed(() => {
 
 const isPublishEnabled = computed(() => {
    if (activeTab.value === 3) {
-      return createStore.isAdFieldsFilled && !isPublishing.value; 
+      return createStore.isAdFieldsFilled;
    }
    return true;
 });
@@ -94,14 +147,19 @@ const isPublishEnabled = computed(() => {
 const isSaveandExitEnabled = computed(() => {
    return createStore.isAnyFieldFilled;
 });
+
+onMounted(() => {
+   loadRulesDocument();
+});
 </script>
+
 
 <style lang="scss" scoped>
 .create-ad-form {
    display: flex;
    flex-direction: column;
-   border: 1px solid #e0e0e0;
    border-radius: 6px;
+   box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
    margin-top: 134px;
    margin-bottom: 70px;
    width: 100%;
@@ -110,6 +168,7 @@ const isSaveandExitEnabled = computed(() => {
       margin-top: calc(101px + 16px);
       margin-bottom: calc(82px - 16px);
       border-radius: 0;
+      box-shadow: none;
       border: none;
    }
 
@@ -173,7 +232,7 @@ const isSaveandExitEnabled = computed(() => {
          text-align: center;
       }
 
-      span {
+      a {
          color: #3366FF;
          cursor: pointer;
          text-decoration: underline;
@@ -212,7 +271,6 @@ const isSaveandExitEnabled = computed(() => {
       &--save {
          background-color: #D6EFFF;
          color: #3366FF;
-
          transition: background-color 0.2s ease;
 
          &:hover {
@@ -225,6 +283,13 @@ const isSaveandExitEnabled = computed(() => {
             cursor: not-allowed;
             box-shadow: none;
          }
+      }
+
+      &.disabled {
+         background-color: #EEEEEE !important;
+         color: #787878 !important;
+         cursor: not-allowed;
+         box-shadow: none;
       }
    }
 }

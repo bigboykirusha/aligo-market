@@ -3,11 +3,12 @@
       <label v-if="label" class="number-input__label">{{ label }}</label>
       <div class="number-input__block">
          <div class="number-input__wrapper">
-            <input type="text" class="number-input__field" :class="{
-               'number-input__field--error': shouldShowError,
-               'number-input__field--success': shouldShowSuccess
-            }" :placeholder="placeholder" v-model="optionValue" :disabled="disabled" @input="handleInput"
-               @blur="handleBlur" @focus="handleFocus" maxlength="9" />
+            <input type="text" v-mask="{ mask: 'Y ### YY | ###', tokens: customTokens }" class="number-input__field"
+               :class="{
+                  'number-input__field--error': shouldShowError,
+                  'number-input__field--success': shouldShowSuccess
+               }" :placeholder="placeholder" v-model="optionValue" :disabled="disabled" @input="handleInput"
+               @blur="handleBlur" @focus="handleFocus" />
             <img v-if="hasInput" src="../assets/icons/close-gray.svg" alt="Clear" class="number-input__clear"
                @click="clearInput" />
          </div>
@@ -21,6 +22,13 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { mask as vMask } from 'vue-the-mask'
+
+defineOptions({
+   directives: {
+      mask: vMask
+   }
+})
 
 const props = defineProps({
    option: {
@@ -46,29 +54,31 @@ const hasInput = ref(false);
 const hasBlurred = ref(false);
 const isErrorDisplayed = ref(false);
 
+const cleanValue = (value) => {
+   return value.replace(/[ |]/g, '').trim();
+};
+
+const customTokens = {
+   'Y': {
+      pattern: /[АВЕКМНОРСТУХABEKMHOPCTYX]/i,
+      transform: v => v.toLocaleUpperCase()
+   },
+   '#': { pattern: /\d/ },
+};
+
+// Регулярное выражение для валидации
 const numberRegex = /^[АВЕКМНОРСТУХABEKMHOPCTYX]{1}\d{3}[АВЕКМНОРСТУХABEKMHOPCTYX]{2}\d{2,3}$/;
 
-const isValid = computed(() => numberRegex.test(optionValue.value));
+// Валидация на основе очищенного значения
+const isValid = computed(() => numberRegex.test(cleanValue(optionValue.value)));
 
 const errorMessage = computed(() => 'Госномер должен соответствовать формату: А 123 ВС 45');
 
 const shouldShowError = computed(() => !isValid.value && hasInput.value && hasBlurred.value && isErrorDisplayed.value);
 const shouldShowSuccess = computed(() => isValid.value && hasInput.value && hasBlurred.value && isErrorDisplayed.value);
 
-const charMap = {
-   'А': 'A', 'В': 'B', 'Е': 'E', 'К': 'K', 'М': 'M', 'Н': 'N', 'О': 'O', 'Р': 'P', 'С': 'C',
-   'Т': 'T', 'У': 'Y', 'Х': 'X', 'А': 'A', 'В': 'B', 'Е': 'E', 'К': 'K', 'М': 'M', 'Н': 'N',
-   'О': 'O', 'Р': 'P', 'С': 'C', 'Т': 'T', 'У': 'Y', 'Х': 'X',
-   'а': 'a', 'в': 'b', 'е': 'e', 'к': 'k', 'м': 'm', 'н': 'n', 'о': 'o', 'р': 'p', 'с': 'c',
-   'т': 't', 'у': 'y', 'х': 'x'
-};
-
-const convertToLatin = (str) => {
-   return str.split('').map(char => charMap[char] || char).join('');
-};
-
 const handleInput = (event) => {
-   const rawValue = event.target.value.toUpperCase().replace(/[^АВЕКМНОРСТУХABEKMHOPCTYX0-9]/g, '');
+   const rawValue = event.target.value;
    optionValue.value = rawValue;
    hasInput.value = rawValue.trim() !== '';
 };
@@ -82,9 +92,9 @@ const clearInput = () => {
 const handleBlur = () => {
    hasBlurred.value = true;
    isErrorDisplayed.value = true;
+   const cleanedValue = cleanValue(optionValue.value);
    if (isValid.value) {
-      const latinValue = convertToLatin(optionValue.value.trim());
-      emit('update:option', latinValue);
+      emit('update:option', cleanedValue);
    } else {
       emit('update:option', null);
    }
@@ -162,17 +172,6 @@ const handleFocus = () => {
 
       &--highlighted {
          box-shadow: 0px 0px 16px 1px #D1F5FF;
-      }
-
-      /* Добавляем стили для меньших букв */
-      &::selection {
-         font-size: 12px;
-         /* Размер шрифта для букв */
-      }
-
-      &::after {
-         font-size: 16px;
-         /* Размер шрифта для цифр */
       }
    }
 

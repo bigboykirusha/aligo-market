@@ -1,6 +1,5 @@
 <template>
    <div v-if="reviews.length" class="review-list">
-      <!-- Если не передан пропс hideTitle или он false, отображаем заголовок -->
       <div v-if="!hideTitle" class="review-list__title">Отзывы пользователя</div>
       <div class="review-list__cards">
          <ReviewCard v-for="review in reviews" :key="review.id" :review="review" :hideOptionsButton="true" />
@@ -14,7 +13,7 @@ import { getUserOtherReviews } from '~/services/apiClient';
 
 const props = defineProps({
    userId: {
-      type: String,
+      type: Number,
       required: true,
    },
    hideTitle: {

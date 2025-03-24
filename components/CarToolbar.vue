@@ -13,7 +13,7 @@
          </div>
       </div>
 
-      <ul class="popup__list">
+      <ul class="popup__list" v-if="!isModeration">
          <li class="popup__item" v-if="!isArchived && isPublished" @click="togglePublication">
             <img :src="publicationIcon" alt="Снять с публикации" class="popup__icon" />
             <span class="popup__text">Снять с публикации</span>
@@ -53,7 +53,6 @@ import { useSelectedAdsStore } from '../store/selectedAds.js';
 import { useCreateStore } from '~/store/create.js';
 import { useRouter } from 'vue-router';
 import { deleteFromArchive } from '../services/apiClient.js';
-import { usePopupStore } from '../store/popup.js';
 
 import deleteIcon from '../assets/icons/delete.svg';
 import editIcon from "../assets/icons/edit.svg";
@@ -68,6 +67,7 @@ const props = defineProps({
    id: Number,
    is_published: Number,
    is_in_archive: Number,
+   is_moderation: Number,
    count_who_view_seller_contact: Number,
    count_add_to_favorite: Number,
    count_go_ad_page: Number
@@ -75,6 +75,7 @@ const props = defineProps({
 
 const isPublished = ref(props.is_published === 1);
 const isArchived = ref(props.is_in_archive === 1);
+const isModeration = ref(props.is_moderation === 1);
 const publicationIcon = computed(() => isPublished.value ? stopIcon : againIcon);
 
 const statsIcons = computed(() => [
@@ -84,6 +85,9 @@ const statsIcons = computed(() => [
 ]);
 
 const statusText = computed(() => {
+   if (isModeration.value) {
+      return 'На модерации';
+   }
    if (isArchived.value) {
       return 'В архиве';
    }
@@ -108,6 +112,7 @@ const moveToArchive = () => {
       store.deleteAds([props.id]);
       isArchived.value = true;
       isPublished.value = false;
+      isModeration.value = false;
    }
    console.log('Перемещено в архив');
 };
@@ -118,6 +123,7 @@ const togglePublication = async () => {
       store.takeOffPublication([props.id]);
       isPublished.value = false;
       isArchived.value = false;
+      isModeration.value = false;
    }
 };
 
@@ -125,8 +131,9 @@ const rePublishAdFromArchive = (id) => {
    console.log('Опубликовать снова');
    if (store) {
       store.republish([id]);
-      isPublished.value = true;
+      isPublished.value = false;
       isArchived.value = false;
+      isModeration.value = true;
    }
 };
 
@@ -136,7 +143,6 @@ const deleteAdFromArchive = (id) => {
    router.push('/');
 };
 </script>
-
 
 <style lang="scss" scoped>
 .car-ad {

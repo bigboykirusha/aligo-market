@@ -31,10 +31,6 @@ const props = defineProps({
 
 const selectedIndex = ref(props.activeIndex);
 
-watch(() => props.activeIndex, (newIndex) => {
-   selectedIndex.value = newIndex;
-});
-
 const capitalizeFirstWord = (text) => {
    if (!text) return '';
    const words = text.split(' ');
@@ -45,6 +41,7 @@ const capitalizeFirstWord = (text) => {
 const selectOption = (id) => {
    if (selectedIndex.value !== id) {
       selectedIndex.value = id;
+      console.log(id);
       emit('updateSelected', selectedIndex.value);
    }
 };
@@ -71,7 +68,7 @@ const selectOption = (id) => {
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      transition: background-color 0.2s;
+      transition: background-color 0.2s ease-in-out;
 
       &:hover {
          background-color: #A4DCFF;

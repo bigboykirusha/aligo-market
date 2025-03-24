@@ -12,7 +12,7 @@
    display: flex;
    align-items: center;
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       flex-direction: column;
       gap: 8px;
       align-items: flex-start;
@@ -30,15 +30,21 @@
 
    &__items {
       display: flex;
-      min-width: 260px;
+      max-width: 310px;
+      width: 100%;
       border: 1px solid #d6d6d6;
       border-radius: 6px;
+
+      @media (max-width: 768px) {
+         max-width: 100%;
+      }
+
    }
 
    &__item {
       flex: 1;
-      height: 30px;
-      margin: 2px;
+      height: 32px;
+      margin: 4px;
       background: #e0e0e0;
       border-radius: 6px;
       animation: pulse 1.5s infinite ease-in-out;

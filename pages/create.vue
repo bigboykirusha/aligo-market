@@ -1,79 +1,134 @@
 <template>
    <div class="container">
-      <CreateAdForm v-if="!isAdSended" @sendAd="handleSendAd" @saveAd="handleSaveAd" />
-      <SaveAdPopup v-if="isPopupVisible && isAnyFieldFilled" :title="'Хотите сохранить объявление в черновики?'"
+      <!-- Показываем CreateAdForm только после загрузки данных -->
+      <CreateAdForm v-if="!isLoading" @sendAd="handleSendAd" @saveAd="handleSaveAd" :isPublishing="isPublishing"
+         :isSaving="isSaving" />
+      <SaveAdPopup v-if="isPopupVisible && isAnyFieldFilled" title="Хотите сохранить объявление в черновики?"
          :isVisible="isPopupVisible" @close="closePopup" @save="saveAd" @discard="discardAd" />
    </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useCreateStore } from '../store/create.js';
 import { useUserStore } from '../store/user.js';
 import { useTabsStore } from '~/store/tabsStore.js';
-import { useRouter } from '#vue-router';
-import { publishFromArchive } from '../services/apiClient.js';
-import { usePopupStore } from '../store/popup.js';
+import { useRouter, useRoute, onBeforeRouteLeave } from '#vue-router';
+import { useCookie } from '#app';
 
+// Инициализация стора и роутинга
 const createStore = useCreateStore();
 const userStore = useUserStore();
 const tabsStore = useTabsStore();
-const popupStore = usePopupStore();
-
-const isAdSended = ref(false);
-const isPopupVisible = ref(false);
 const router = useRouter();
+const route = useRoute();
 
-createStore.initializeUserData();
+// Состояния компонента
+const isPopupVisible = ref(false);
+const isPublishing = ref(false);
+const isSaving = ref(false);
+const isLoading = ref(true);
 
-const isAnyFieldFilled = computed(() => createStore.isAnyFieldFilled);  // Проверка на наличие заполненных полей
+// Проверяем, заполнены ли поля
+const isAnyFieldFilled = computed(() => createStore.isAnyFieldFilled);
 
-// Обработка отправки объявления
+// Функция отправки объявления
 const handleSendAd = async () => {
-   if (createStore.id) {
-      if (createStore.is_in_archive) {
-         await publishFromArchive(createStore.id);
-         await createStore.updateCarAd();
-      } else {
-         await createStore.updateCarAd();
-      }
-   } else {
-      await createStore.sendCarAd();
+   isPublishing.value = true;
+   try {
+      const response = await createStore.setField('is_draft', 0);
+      if (!response?.success) throw response.error;
+   } catch (error) {
+      console.error('Ошибка отправки объявления:', error);
+   } finally {
+      setTimeout(() => {
+         router.push('/profile/ads/all');
+         isPublishing.value = false;
+      }, 500);
    }
-   if (createStore.is_draft === 1) {
-      isAdSended.value = 1;
-   } else if (createStore.is_draft === 0) {
-      isAdSended.value = 2;
-   }
-   router.push('/');
-   createStore.resetParams();
-   tabsStore.resetTabs();
 };
 
-const handleSaveAd = () => {
-   isPopupVisible.value = true;
-};
-
+// Функция сохранения в черновики
 const saveAd = async () => {
-   createStore.setIsDraft(1);
-   await createStore.sendCarAd();
-   createStore.resetParams();
-   await userStore.fetchUserCounts();
-   isPopupVisible.value = false;
-   tabsStore.resetTabs();
-   router.push('/');
+   isSaving.value = true;
+   try {
+      const response = await createStore.setField('is_draft', 1);
+      if (!response?.success) throw response.error;
+   } catch (error) {
+      console.error('Ошибка при сохранении объявления:', error);
+   } finally {
+      setTimeout(() => {
+         router.push('/profile/ads/drafts');
+         isSaving.value = false;
+      }, 500);
+   }
 };
 
-const discardAd = () => {
-   createStore.resetParams();
-   isPopupVisible.value = false;
-   tabsStore.resetTabs();
-   router.push('/');
+// Открытие попапа для сохранения в черновики
+const handleSaveAd = () => {
+   saveAd()
 };
 
+// Закрытие попапа без сохранения
 const closePopup = () => {
    isPopupVisible.value = false;
 };
+
+// Отмена объявления и возврат на главную
+const discardAd = () => {
+   resetState();
+};
+
+// Сброс состояния
+const resetState = () => {
+   createStore.resetParams();
+   tabsStore.resetTabs();
+   userStore.fetchUserCounts();
+   isPopupVisible.value = false;
+};
+
+// Автоматическое обновление параметров в URL
+watch(
+   () => [createStore.id, createStore.id_user_owner_ads],
+   ([id, owner]) => {
+      if (id && owner) {
+         router.replace({ query: { ...route.query, id, id_user_owner_ads: owner } });
+      }
+   },
+   { immediate: true }
+);
+
+const userData = useCookie('userData');
+
+// Проверка данных из cookies при монтировании компонента
+onMounted(async () => {
+   const urlId = route.query.id_user_owner_ads;
+
+   if (userData.value) {
+      const { token, user_id } = userData.value;
+      if (token && user_id.toString() === urlId) {
+         console.log('Токен существует и user_id совпадает с id в URL.');
+         await createStore.setStoreFromApi(route.query.id);
+      } else {
+         console.log('Токен или user_id не совпадают.');
+      }
+   } else {
+      console.log('Данные пользователя не найдены в cookies.');
+   }
+
+   isLoading.value = false;
+});
+
+// Автосохранение перед выходом со страницы
+onBeforeRouteLeave((to, from, next) => {
+   if (!createStore.id) {
+      next();
+      return;
+   }
+   createStore.autoSaveField('is_finished', 1);
+   resetState();
+   next();
+});
 </script>
 
 <style scoped lang="scss">

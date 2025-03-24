@@ -9,10 +9,10 @@
                   'simple-input__field--error': shouldShowError,
                   'simple-input__field--success': shouldShowSuccess,
                   'simple-input__field--highlighted': isHighlighted
-               }" :placeholder="placeholder" v-model="displayValue" :disabled="disabled" @input="handleInput"
-               @blur="handleBlur" @focus="handleFocus" @keypress="restrictNonNumericInput" />
-            <img v-if="optionValue" src="../assets/icons/close-gray.svg" alt="Clear" class="simple-input__clear"
-               @click="clearInput" />
+               }" :placeholder="placeholder" v-model="displayValue" :disabled="isInputDisabled" @blur="handleBlur"
+               @focus="handleFocus" @keypress="restrictNonNumericInput" />
+            <img v-if="optionValue && showClearIcon" src="../assets/icons/close-gray.svg" alt="Clear"
+               class="simple-input__clear" @click="clearInput" />
          </div>
          <div v-if="hasInput && props.validationType && hasBlurred && isErrorDisplayed"
             :class="{ 'simple-input__error': !isValid, 'simple-input__success': isValid }">
@@ -54,8 +54,8 @@ const emit = defineEmits(['update:option']);
 const optionValue = ref(props.option ? String(props.option).trim() : '');
 const hasInput = ref(false);
 const isHighlighted = ref(props.isEmpty);
-const hasBlurred = ref(false);  // Состояние для отслеживания, потерял ли инпут фокус
-const isErrorDisplayed = ref(false);  // Состояние для отслеживания, была ли ошибка показана
+const hasBlurred = ref(false);
+const isErrorDisplayed = ref(false);
 
 // Функция для форматирования числа с разделением на разряды
 const formatNumber = (value) => {
@@ -77,6 +77,14 @@ const displayValue = computed({
          optionValue.value = newValue;
       }
    }
+});
+
+const isInputDisabled = computed(() => {
+   return props.option !== null && (props.label === 'Email');
+});
+
+const showClearIcon = computed(() => {
+   return !isInputDisabled.value && optionValue.value.trim() !== '';
 });
 
 const isValid = computed(() => {
@@ -173,33 +181,10 @@ const restrictNonNumericInput = (event) => {
    }
 };
 
-watch(() => optionValue.value, (newValue) => {
-   const trimmedValue = newValue.trim();
-   hasInput.value = trimmedValue !== '';
-   optionValue.value = trimmedValue;
-   if (['vin', 'licensePlate'].includes(props.validationType)) {
-      const translitMap = {
-         А: 'A',
-         В: 'B',
-         Е: 'E',
-         К: 'K',
-         М: 'M',
-         Н: 'H',
-         О: 'O',
-         Р: 'P',
-         С: 'C',
-         Т: 'T',
-         У: 'Y',
-         Х: 'X'
-      };
-
-      function convertToLatin(input) {
-         return input.replace(/[АВЕКМНОРСТУХ]/g, (char) => translitMap[char] || char);
-      }
-
-      const trimmedValue = optionValue.value.trim();
-      optionValue.value = convertToLatin(trimmedValue.toUpperCase());
-   }
+const handleBlur = () => {
+   hasBlurred.value = true;
+   isErrorDisplayed.value = true;
+   const trimmedValue = optionValue.value.trim();
    if (hasInput.value && props.validationType) {
       if (isValid.value) {
          emit('update:option', trimmedValue);
@@ -209,37 +194,27 @@ watch(() => optionValue.value, (newValue) => {
    } else {
       emit('update:option', null);
    }
-});
-
-const handleInput = () => {
-   isHighlighted.value = false;
-   if (optionValue.value.trim() !== '') {
-      hasInput.value = true;
-      if (isValid.value) {
-         emit('update:option', optionValue.value.trim());
-      }
-   }
-};
-
-const clearInput = () => {
-   optionValue.value = '';
-   hasInput.value = false;
-   emit('update:option', null);
-};
-
-const handleBlur = () => {
-   hasBlurred.value = true;
-   isErrorDisplayed.value = true;
-   if (isValid.value) {
-      emit('update:option', optionValue.value.trim());
-   } else {
-      emit('update:option', null);
-   }
 };
 
 const handleFocus = () => {
    isErrorDisplayed.value = false;
 };
+
+const clearInput = () => {
+   optionValue.value = '';
+   hasInput.value = false;
+};
+
+watch(() => optionValue.value, (newValue) => {
+   const trimmedValue = newValue.trim();
+   hasInput.value = trimmedValue !== '';
+   optionValue.value = trimmedValue;
+});
+
+watch(() => props.option, (newValue) => {
+   optionValue.value = newValue ? String(newValue).trim() : '';
+   hasInput.value = !!optionValue.value;
+});
 </script>
 
 <style scoped lang="scss">

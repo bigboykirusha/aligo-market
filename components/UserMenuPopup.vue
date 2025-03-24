@@ -1,256 +1,147 @@
 <template>
-   <div class="user-menu" :class="{ 'user-menu--compact': compact }" ref="userMenuRef">
-      <div class="user-menu__header" :class="{ 'user-menu__header--compact': compact }">
-         <client-only>
-            <template v-if="userStore.photo?.path || capitalizedUserName || formattedPhoneNumber">
-               <img v-if="userStore.photo?.path" :src="userAvatar" alt="user avatar" class="user-menu__user-avatar" />
-               <span v-else-if="!userStore.photo?.path && userStore.username" class="user-menu__user-circle">{{ initial
-                  }}</span>
-               <img v-else :src="userAvatar" alt="user avatar" class="user-menu__user-avatar" />
-
-               <div class="user-menu__block">
-                  <nuxt-link to="/profile/edit" class="user-menu__user-name">
-                     {{ capitalizedUserName || formattedPhoneNumber }}
-                  </nuxt-link>
-                  <nuxt-link :to="'/profile/edit'" class="user-menu__profile-button">
-                     {{ isProfileComplete ? 'Редактировать профиль' : 'Заполнить профиль' }}
-                  </nuxt-link>
-               </div>
-            </template>
-
-            <template v-else>
-               <div class="user-menu__block">
-                  <nuxt-link to="/profile/edit" class="user-menu__profile-button">
-                     Заполнить профиль
-                  </nuxt-link>
-               </div>
-            </template>
-         </client-only>
-      </div>
-
+   <div class="user-menu" :class="{ 'user-menu--reversed': isRevers, 'active': isActive }" ref="userMenuRef">
       <ul class="user-menu__list">
-         <li class="user-menu__item">
-            <nuxt-link to="/profile/ads">
-               Мои объявления
-               <div v-if="countAds" class="user-menu__count">{{ countAds }}</div>
+         <li v-for="item in menuItems" :key="item.path" class="user-menu__item">
+            <nuxt-link :to="item.path">
+               {{ item.label }}
+               <div v-if="item.count" class="user-menu__count">{{ item.count }}</div>
             </nuxt-link>
          </li>
-         <li class="user-menu__item">
-            <nuxt-link to="/profile/drafts">
-               Черновики
-               <div v-if="countDrafts" class="user-menu__count">{{ countDrafts }}</div>
-            </nuxt-link>
-         </li>
-         <li class="user-menu__item">
-            <nuxt-link to="/profile/favorites">
-               Избранное
-               <div v-if="countFavorites" class="user-menu__count">{{ countFavorites }}</div>
-            </nuxt-link>
-         </li>
-         <li class="user-menu__item">
-            <nuxt-link to="/profile/messages">
-               Сообщения
-               <div v-if="countMessage" class="user-menu__count">{{ countMessage }}</div>
-            </nuxt-link>
-         </li>
-         <li class="user-menu__item">
-            <nuxt-link to="/profile/notifications">
-               Оповещения
-               <div v-if="countUnreadNotify" class="user-menu__count">{{ countUnreadNotify }}</div>
-            </nuxt-link>
-         </li>
-         <li class="user-menu__item">
-            <nuxt-link to="/profile/reviews">Отзывы</nuxt-link>
-         </li>
-         <li class="user-menu__item user-menu__item--logout" @click="logout">
-            Выйти
-         </li>
+         <li class="user-menu__item user-menu__item--logout" @click="logout"><span>Выйти</span></li>
       </ul>
    </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useUserStore } from '~/store/user';
-import { getUserCount } from '~/services/apiClient.js';
+import { useLoginModalStore } from '~/store/loginModal';
 import { useFavoritesStore } from '~/store/favorites';
-import { getImageUrl } from '../services/imageUtils';
-import avatarPhoto from '../assets/icons/avatar-revers.svg';
+import { useUserMenuStore } from '~/store/userMenuStore';
+import { useRouter } from '#app';
 
-const props = defineProps({
-   compact: {
-      type: Boolean,
-      default: false,
-   },
-});
+const props = defineProps({ isRevers: Boolean });
 
 const userStore = useUserStore();
 const favoritesStore = useFavoritesStore();
+const loginModalStore = useLoginModalStore();
+const userMenuStore = useUserMenuStore();
+const router = useRouter();
 const userMenuRef = ref(null);
 
-const isProfileComplete = computed(() => userStore.photo && userStore.username && userStore.phoneNumber && userStore.address && userStore.login);
+const isActive = computed(() => userMenuStore.isActive);
 
-const userName = computed(() => userStore.username || userStore.login);
-const initial = computed(() => userName.value ? userName.value.charAt(0).toUpperCase() : '');
-const phoneNumber = computed(() => userStore.phoneNumber || '');
-const formattedPhoneNumber = computed(() => phoneNumber.value || userStore.email);
-const capitalizedUserName = computed(() => userName.value ? userName.value.charAt(0).toUpperCase() + userName.value.slice(1) : '');
-
-const countFavorites = ref(favoritesStore.countFavorites);
-const countUnreadNotify = ref(userStore.countUnreadNotify);
-const countDrafts = ref(userStore.countDrafts);
-const countAds = ref(userStore.countAds);
-const countMessage = ref(userStore.count_new_messages);
-
-const userAvatar = computed(() => getImageUrl(userStore.photo?.path, avatarPhoto));
-
-const emit = defineEmits(['close-userMenu']);
-
-const closeModal = () => {
-   emit('close-userMenu');
-};
-
-const handleClickOutside = (event) => {
-   if (userMenuRef.value && !userMenuRef.value.contains(event.target)) {
-      closeModal();
+const handleClickOutside = () => {
+   if (userMenuStore.isActive) {
+      userMenuStore.closeMenu();
    }
 };
 
-onMounted(() => {
-   document.addEventListener('click', handleClickOutside);
-});
+onMounted(() => document.addEventListener('click', handleClickOutside));
+onBeforeUnmount(() => document.removeEventListener('click', handleClickOutside));
 
-onBeforeUnmount(() => {
-   document.removeEventListener('click', handleClickOutside);
-});
+const menuItems = computed(() => [
+   { path: '/profile/ads/all', label: 'Мои объявления', count: userStore.countAds },
+   { path: '/profile/ads/drafts', label: 'Черновики', count: userStore.countDrafts },
+   { path: '/profile/favorites/ads', label: 'Избранное', count: favoritesStore.countFavorites },
+   { path: '/profile/messages', label: 'Сообщения', count: userStore.count_new_messages },
+   { path: '/profile/notifications', label: 'Оповещения', count: userStore.countUnreadNotify },
+   { path: '/profile/reviews/mine', label: 'Отзывы', count: userStore.count_new_reviews_about_myself }
+]);
 
 const logout = () => {
    userStore.clearUserdata();
-   emit('close-userMenu');
+   loginModalStore.hideCodeField();
+   userMenuStore.closeMenu();
+   router.push('/');
 };
 </script>
 
 <style scoped lang="scss">
 .user-menu {
    position: absolute;
-   z-index: 200;
-   background-color: white;
-   border: 1px solid #3366FF;
-   border-radius: 0 0 4px 4px;
-   top: 0;
+   z-index: -1;
+   background: #FFFFFF;
+   border-top: none;
+   border-radius: 0 0 12px 12px;
+   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+   top: -158px;
    right: 0;
-   display: flex;
-   flex-direction: column;
-   align-items: center;
-   width: 224px;
+   width: 190px;
+   transition: background-color 0.1s ease, transform 0.2s ease-in-out, top 0.1s ease;
+   transform-origin: top;
+   transform: translate(0, 100%) scaleY(0);
 
-   &--compact {
-      border-radius: 6px;
+   &.active {
+      transform: translate(0, 100%) scaleY(1);
    }
 
-   @media screen and (max-width: 1420px) {
+   &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -16px;
+      width: 16px;
+      height: 16px;
+      background-image: url('data:image/svg+xml;charset=UTF-8,<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M 0,16 A 16,16 0 0 1 16,0 L 16,16 Z" fill="transparent"/><path d="M 0,0 A 16,16 0 0 1 16,16 L 16,0 Z" fill="white"/></svg>');
+      background-repeat: no-repeat;
+      z-index: 5;
+   }
+
+   &::after {
+      content: '';
+      position: absolute;
+      top: 0;
       right: -16px;
+      width: 16px;
+      height: 16px;
+      background-image: url('data:image/svg+xml;charset=UTF-8,<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(-90, 8, 8)"><path d="M 0,16 A 16,16 0 0 1 16,0 L 16,16 Z" fill="transparent"/><path d="M 0,0 A 16,16 0 0 1 16,16 L 16,0 Z" fill="white"/></g></svg>');
+      background-repeat: no-repeat;
+      z-index: 5;
+   }
+
+   @media (max-width: 1420px) {
       margin-left: auto;
    }
 
-   &__user-avatar {
-      height: 24px;
-      width: 24px;
-      object-fit: cover;
-      border-radius: 50%;
-   }
-
-   &__header {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 16px;
-      background-color: transparent;
-      border-bottom: 1px solid #EEEEEE;
-      width: 100%;
-
-      &--compact {
-         height: 34px;
-         justify-content: flex-start;
-
-         .user-menu__profile-button {
-            display: none;
-         }
-      }
-   }
-
-   &__block {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      text-align: left;
-   }
-
-   &__user-circle {
-      background-color: #3366FF;
-      font-size: 14px;
-      color: #fff;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-   }
-
-   &__user-name {
-      font-size: 12px;
-      font-weight: 700;
-      color: #0056b3;
-   }
-
-   &__profile-button {
-      font-size: 10px;
-      color: #0056b3;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      line-height: 1;
-      text-decoration: none;
-
-      &:hover {
-         color: #003d7a;
-         text-decoration: underline;
-      }
-   }
-
    &__list {
-      list-style: none;
-      background-color: white;
-      border-radius: 0 0 4px 4px;
       width: 100%;
-      margin: 0;
-      padding: 0;
+      padding: 8px 0;
    }
 
    &__item {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      padding: 10px 16px;
       font-size: 12px;
       color: #323232;
+      align-items: center;
+      height: 36px;
+      margin: 0 8px;
+      padding: 6px 8px;
+      border-radius: 18px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: background-color 0.2s ease, color 0.2s ease;
+
+      &--logout {
+         span {
+            padding-left: 4px;
+         }
+      }
 
       &:hover {
-         background: #D6EFFF;
+         background-color: #D6EFFF;
          color: #3366FF;
       }
 
-      & a {
+      a {
          color: inherit;
          text-decoration: none;
          display: flex;
+         outline: none;
          align-items: center;
          justify-content: space-between;
          width: 100%;
+         padding-left: 4px;
       }
    }
 
@@ -258,26 +149,51 @@ const logout = () => {
       display: flex;
       justify-content: center;
       align-items: center;
-      color: white;
+      color: #FFFFFF;
+      font-weight: 700;
       background: #3366FF;
       border-radius: 12px;
-      width: fit-content;
-      padding: 0 7px;
-      line-height: 1;
-      height: 20px;
+      height: 24px;
+      width: 24px;
+      font-size: 12px;
    }
 
-   &__item--logout {
-      color: #323232;
-      padding: 10px 16px;
-      font-size: 12px;
-      cursor: pointer;
-      border-radius: 0 0 4px 4px;
-      border-top: 1px solid #EEEEEE;
-      transition: all 0.2s;
+   &--reversed {
+      background-color: #3366FF;
+      color: #FFFFFF;
+      box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.14);
+      top: -224px;
 
-      &:hover {
-         background: #D6EFFF;
+      &::before {
+         background-image: url('data:image/svg+xml;charset=UTF-8,<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M 0,16 A 16,16 0 0 1 16,0 L 16,16 Z" fill="transparent"/><path d="M 0,0 A 16,16 0 0 1 16,16 L 16,0 Z" fill="%233366FF"/></svg>');
+      }
+
+      &::after {
+         background-image: url('data:image/svg+xml;charset=UTF-8,<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(-90, 8, 8)"><path d="M 0,16 A 16,16 0 0 1 16,0 L 16,16 Z" fill="transparent"/><path d="M 0,0 A 16,16 0 0 1 16,16 L 16,0 Z" fill="%233366FF"/></g></svg>');
+      }
+
+      .user-menu__item {
+         color: #FFFFFF;
+
+         &:hover {
+            background-color: #5580FF;
+         }
+
+         a {
+            color: inherit;
+         }
+
+         &--logout {
+            border-top: none;
+
+            &:hover {
+               background-color: #5580FF;
+            }
+         }
+      }
+
+      .user-menu__count {
+         background: #FFFFFF;
          color: #3366FF;
       }
    }

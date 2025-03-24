@@ -2,11 +2,16 @@
    <section class="layout">
       <div class="layout__container">
          <div class="layout__content">
-            <h2 class="layout__title">{{ $t('info.title') }}</h2>
-            <p class="layout__paragraph">{{ $t('info.paragraphs.0') }}</p>
-            <p class="layout__paragraph">{{ $t('info.paragraphs.1') }}</p>
-            <p class="layout__paragraph">{{ $t('info.paragraphs.2') }}</p>
-            <p class="layout__paragraph">{{ $t('info.paragraphs.3') }}</p>
+            <h1 class="layout__title">🚗 Aligo – сервис бесплатных объявлений для всех!</h1>
+            <p class="layout__paragraph">Мы – небольшая, но амбициозная команда разработчиков, которая создает удобный,
+               современный и максимально доступный сервис для покупки и продажи автомобилей, мототехники, запчастей и
+               аксессуаров. Aligo – это простота, удобство и никаких лишних комиссий!</p>
+            <p class="layout__paragraph">Наши пользователи могут бесплатно размещать объявления, быстро находить нужные
+               товары и легко связываться с продавцами. Мы уверены, что поиск машины, редкой детали или нужного
+               аксессуара не должен превращаться в сложный квест. Именно поэтому мы сделали Алиго интуитивно понятным и
+               доступным для каждого.</p>
+            <p class="layout__paragraph">Присоединяйтесь к нам и помогайте делать его лучше! Aligo – там, где автомобили
+               находят своих владельцев. 🚀</p>
          </div>
       </div>
    </section>
@@ -16,79 +21,28 @@
 .layout {
    max-width: 1280px;
    width: 100%;
-   margin: 72px auto;
+   margin: 0 auto;
 
    &__content {
-      columns: 2;
-      column-gap: 27px;
-
-      @media screen and (max-width: 900px) {
-         columns: 1;
-      }
+      column-count: 1;
    }
 
    &__title {
       margin: 0;
       margin-bottom: 16px;
+      font-size: 24px;
       color: #323232;
    }
 
    &__paragraph {
-      display: inline-block;
-      width: 100%;
+      display: block;
       color: #323232;
       font-size: 14px;
-      line-height: 1.29em;
-      margin-bottom: 1.29em;
+      line-height: 1.29;
+      margin-bottom: 18px;
 
       &:last-child {
          margin-bottom: 0;
-      }
-
-      @media screen and (max-width: 600px) {
-         &:not(:first-of-type) {
-            display: none;
-         }
-      }
-
-      &--highlight {
-         color: #787878;
-      }
-   }
-
-   &__list {
-      list-style: none;
-      display: inline-block;
-      width: 100%;
-      columns: 2;
-      column-gap: 3em;
-      font-size: 14px;
-      padding-left: 1.5em;
-      margin-bottom: 1.29em;
-
-      @media screen and (max-width: 600px) {
-         columns: 1;
-      }
-
-      &:last-child {
-         margin-bottom: 0;
-      }
-
-      &-item {
-         position: relative;
-         font-size: 14px;
-         line-height: 1.29em;
-         margin-bottom: 1.29em;
-
-         &::before {
-            position: absolute;
-            left: -1.5em;
-            top: 0.2em;
-            content: '';
-            display: block;
-            width: 1em;
-            height: 1em;
-         }
       }
    }
 }

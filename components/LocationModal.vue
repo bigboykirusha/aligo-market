@@ -1,48 +1,59 @@
 <template>
-  <div id="location-switcher-modal" class="modal" @click.self="closeModal">
+  <div v-show="isLocationModalOpen" id="location-switcher-modal" class="modal" @click.self="closeModal">
     <div class="modal__content">
       <button class="modal__close-button" @click.stop="closeModal">
         <img :src="closeIcon" alt="close icon" />
       </button>
       <form class="modal__form" @submit.prevent="saveCity">
         <div class="modal__header">
+          <button v-if="selectedRegion" class="back-button" @click="clearRegionSelection">
+            <img :src="backIcon" alt="back arrow" />
+          </button>
           <h2 class="modal__title">
-            {{ selectedRegion ? `${selectedRegion.sorp} ${selectedRegion.title}` : $t('modal.title') }}
+            {{ selectedRegion ? `${selectedRegion.title}, РФ` : $t('modal.title') }}
           </h2>
         </div>
         <div class="modal__body">
           <div class="input-wrapper">
-            <button v-if="selectedRegion" class="back-button" @click="clearRegionSelection">
-              <img :src="backIcon" alt="back arrow" />
-            </button>
             <div class="input-text">
               <img class="input-text__icon" src="../assets/icons/ru.svg" alt="flag" />
               <input v-model="searchQuery" type="text" placeholder="Поиск города" class="input-text__input" />
             </div>
           </div>
-          <div v-if="!selectedRegion && searchQuery === ''" class="list-wrapper">
+
+          <!-- Скелетоны для загрузки -->
+          <div v-if="isLoadingCities" class="list-wrapper">
             <ul class="list">
-              <li v-for="region in regions" :key="region.id" class="list__item" @click="fetchCitiesForRegion(region)">
-                {{ region.sorp }} {{ region.title }}
-              </li>
+              <li v-for="n in 8" :key="n" class="list__item list__item--skeleton"></li>
             </ul>
           </div>
+          <!-- Список городов -->
+          <div v-else>
+            <div v-if="!selectedRegion && searchQuery === ''" class="list-wrapper">
+              <ul class="list">
+                <li v-for="region in regions" :key="region.id" class="list__item" @click="fetchCitiesForRegion(region)">
+                  {{ region.title }}
+                </li>
+              </ul>
+            </div>
 
-          <div v-else class="list-wrapper">
-            <ul class="list">
-              <li v-for="city in filteredCities" :key="city.id" class="list__item" @click="selectCity(city)"
-                :title="`${city.title}, РФ`">
-                {{ transformSorp(city.sorp) }} {{ `${city.title}` }}
-              </li>
-              <li v-if="filteredCities.length === 0" class="list__empty">
-                {{ $t('modal.noData') }}
-              </li>
-            </ul>
+            <div v-else class="list-wrapper">
+              <ul class="list">
+                <li v-for="city in filteredCities" :key="city.id"
+                  :class="['list__item', { 'selected': city.id === selectedCity.id }]" @click="selectCity(city)"
+                  :title="`${city.title}, РФ`">
+                  {{ `${city.title}` }}
+                </li>
+                <li v-if="filteredCities.length === 0" class="list__empty">
+                  Ничего не найдено
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 
         <div class="modal__footer">
-          <button type="submit" class="modal__button" :disabled="!selectedCity.name">
+          <button type="submit" class="modal__button" :disabled="!selectedCity?.id">
             {{ $t('modal.saveButton') }}
           </button>
         </div>
@@ -54,172 +65,87 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { debounce } from 'lodash-es';
-import { getRegions, getCitiesByRegion, searchCitiesByName } from '~/services/apiClient';
+import { getRegions, getCitiesByRegion, searchCitiesByName, updateUserInfo } from '~/services/apiClient';
+import { useLocationModalStore } from '~/store/locationModalStore';
 import { useCityStore } from '~/store/city';
 import closeIcon from '../assets/icons/close.svg';
 import backIcon from '../assets/icons/back.svg';
 
 const cityStore = useCityStore();
-const emit = defineEmits(['close-modal']);
+const locationModalStore = useLocationModalStore();
 
 const regions = ref([]);
 const cities = ref([]);
 const selectedRegion = ref(null);
 const searchQuery = ref('');
 const selectedCity = ref({ name: '' });
+const isLoadingCities = ref(false);
+const isLocationModalOpen = computed(() => locationModalStore.isActive);
 
 onMounted(() => {
   fetchRegions();
 });
 
-const transformSorp = (sorp) => {
-  return sorp
-    .replace(/г\b/g, 'г.') // Город
-    .replace(/\bп\b/g, 'поселок') // Поселок
-    .replace(/\bс\b/g, 'село') // Село
-    .replace(/с\/с\b/g, 'сельсовет') // Сельсовет
-    .replace(/р-н\b/g, 'район') // Район
-    .replace(/д\b/g, 'деревня') // Деревня
-    .replace(/ст\b/g, 'станица') // Станция
-    .replace(/кп\b/g, 'коттеджный поселок') // Курортный поселок
-    .replace(/мкр\b/g, 'микрорайон') // Микрорайон
-    .replace(/\bм\b/g, 'мыс') // Мыс
-    .replace(/пр-кт\b/g, 'проспект') // Проспект
-    .replace(/ш\b/g, 'шоссе') // Шоссе
-    .replace(/пер\b/g, 'переулок') // Переулок
-    .replace(/б-р\b/g, 'бульвар') // Бульвар
-    .replace(/тер\b/g, 'территория') // Территория
-    .replace(/рп\b/g, 'рабочий поселок') // Рабочий поселок
-    .replace(/нп\b/g, 'населенный пункт') // Населенный пункт
-    .replace(/х\b/g, 'хутор') // Хутор
-    .replace(/пгт\b/g, 'поселок городского типа') // Поселок городского типа
-    .replace(/аал\b/g, 'аал') // Аал
-    .replace(/арбан\b/g, 'арбан') // Арбан
-    .replace(/ау\b/g, 'аул') // Аул
-    .replace(/в-ки\b/g, 'выселки') // Выселки
-    .replace(/г-к\b/g, 'городок') // Городок
-    .replace(/з-ка\b/g, 'заимка') // Заимка
-    .replace(/п-к\b/g, 'починок') // Починок
-    .replace(/киш\b/g, 'кишлак') // Кишлак
-    .replace(/м-ко\b/g, 'местечко') // Местечко
-    .replace(/с\b/g, 'село') // Село
-    .replace(/сл\b/g, 'слобода') // Слобода
-    .replace(/ст\b/g, 'станция') // Станция
-    .replace(/ст-ца\b/g, 'станица') // Станница
-    .replace(/у\b/g, 'улус') // Улус
-    .replace(/х\b/g, 'хутор') // Хутор
-    .replace(/рзд\b/g, 'разъезд') // Разъезд
-    .replace(/зим\b/g, 'зимовье') // Зимовье
-    .replace(/б-г\b/g, 'берег') // Берег
-    .replace(/вал\b/g, 'вал') // Вал
-    .replace(/ж\/р\b/g, 'жилой район') // Жилой район
-    .replace(/зона\b/g, 'зона') // Зона
-    .replace(/кв-л\b/g, 'квартал') // Квартал
-    .replace(/мкр\b/g, 'микрорайон') // Микрорайон
-    .replace(/ост-в\b/g, 'остров') // Остров
-    .replace(/парк\b/g, 'парк') // Парк
-    .replace(/платф\b/g, 'платформа') // Платформа
-    .replace(/п\/р\b/g, 'промышленный район') // Промышленный район
-    .replace(/сад\b/g, 'сад') // Сад
-    .replace(/сквер\b/g, 'сквер') // Сквер
-    .replace(/тер\b/g, 'территория') // Территория
-    .replace(/ус\b/g, 'усадьба') // Усадьба
-    .replace(/тер\.ф\.х\b/g, 'территория фермерского хозяйства') // Территория ФХ
-    .replace(/ю\b/g, 'юрты') // Юрты
-    .replace(/ал\b/g, 'аллея') // Аллея
-    .replace(/б-р\b/g, 'бульвар') // Бульвар
-    .replace(/взв\b/g, 'взвоз') // Взвоз
-    .replace(/взд\b/g, 'въезд') // Въезд
-    .replace(/дор\b/g, 'дорога') // Дорога
-    .replace(/ззд\b/g, 'заезд') // Заезд
-    .replace(/км\b/g, 'километр') // Километр
-    .replace(/к-цо\b/g, 'кольцо') // Кольцо
-    .replace(/коса\b/g, 'коса') // Коса
-    .replace(/лн\b/g, 'линия') // Линия
-    .replace(/мгстр\b/g, 'магистраль') // Магистраль
-    .replace(/наб\b/g, 'набережная') // Набережная
-    .replace(/пер-д\b/g, 'переезд') // Переезд
-    .replace(/пер\b/g, 'переулок') // Переулок
-    .replace(/пл-ка\b/g, 'площадка') // Площадка
-    .replace(/пл\b/g, 'площадь') // Площадь
-    .replace(/пр-д\b/g, 'проезд') // Проезд
-    .replace(/пр-к\b/g, 'просек') // Просек
-    .replace(/пр-ка\b/g, 'просека') // Просека
-    .replace(/пр-лок\b/g, 'проселок') // Проселок
-    .replace(/пр-кт\b/g, 'проспект') // Проспект
-    .replace(/проул\b/g, 'проулок') // Проулок
-    .replace(/рзд\b/g, 'разъезд') // Разъезд
-    .replace(/ряд\b/g, 'ряд') // Ряд
-    .replace(/с-р\b/g, 'сквер') // Сквер
-    .replace(/с-к\b/g, 'спуск') // Спуск
-    .replace(/сзд\b/g, 'съезд') // Съезд
-    .replace(/тракт\b/g, 'тракт') // Тракт
-    .replace(/туп\b/g, 'тупик') // Тупик
-    .replace(/ул\b/g, 'улица') // Улица
-    .replace(/ш\b/g, 'шоссе') // Шоссе
-    .replace(/влд\b/g, 'владение') // Владение
-    .replace(/г-ж\b/g, 'гараж') // Гараж
-    .replace(/д\b/g, 'дом') // Дом
-    .replace(/двлд\b/g, 'домовладение') // Домовладение
-    .replace(/зд\b/g, 'здание') // Здание
-    .replace(/з\/у\b/g, 'земельный участок') // Земельный участок
-    .replace(/кв\b/g, 'квартира') // Квартира
-    .replace(/ком\b/g, 'комната') // Комната
-    .replace(/подв\b/g, 'подвал') // Подвал
-    .replace(/кот\b/g, 'котельная') // Котельная
-    .replace(/п-б\b/g, 'погреб') // Погреб
-    .replace(/к\b/g, 'корпус') // Корпус
-    .replace(/ОНС\b/g, 'объект незавершенного строительства') // ОНС
-    .replace(/офис\b/g, 'офис') // Офис
-    .replace(/пав\b/g, 'павильон') // Павильон
-    .replace(/помещ\b/g, 'помещение') // Помещение
-    .replace(/раб\.уч\b/g, 'рабочий участок') // Рабочий участок
-    .replace(/скл\b/g, 'склад') // Склад
-    .replace(/coop\b/g, 'сооружение') // Сооружение
-    .replace(/стр\b/g, 'строение') // Строение
-    .replace(/торг\.зал\b/g, 'торговый зал') // Торговый зал
-    .replace(/цех\b/g, 'цех'); // Цех
-};
-
 const fetchRegions = async () => {
+  const cachedRegions = localStorage.getItem('regions');
+
+  if (cachedRegions) {
+    regions.value = JSON.parse(cachedRegions);
+    return;
+  }
+
   try {
-    regions.value = await getRegions();
+    isLoadingCities.value = true;
+    const data = await getRegions();
+    regions.value = data;
+
+    // Сохраняем регионы в локальное хранилище
+    localStorage.setItem('regions', JSON.stringify(data));
   } catch (error) {
     console.error('Ошибка получения регионов:', error);
+  } finally {
+    setLoadingWithDelay(isLoadingCities);
   }
 };
 
 const fetchCitiesForRegion = async (region) => {
   try {
+    isLoadingCities.value = true;
     selectedRegion.value = region;
     searchQuery.value = '';
     cities.value = await getCitiesByRegion(region.id);
   } catch (error) {
     console.error('Ошибка получения городов:', error);
+  } finally {
+    setLoadingWithDelay(isLoadingCities);
   }
 };
 
 const searchCities = async (query) => {
-  if (query.length >= 3) {
+  if (query.length !== 0) {
     try {
+      isLoadingCities.value = true;
       cities.value = await searchCitiesByName(query);
     } catch (error) {
       console.error('Ошибка поиска городов:', error);
-    }
-  } else if (!selectedRegion.value) {
-    cities.value = [];
-  } else if (selectedRegion.value) {
-    try {
-      cities.value = await getCitiesByRegion(selectedRegion.value.id);
-    } catch (error) {
-      console.error('Ошибка получения городов по региону:', error);
+    } finally {
+      setLoadingWithDelay(isLoadingCities);
     }
   }
 };
 
+let loadingTimeout;
+const setLoadingWithDelay = (isLoadingRef) => {
+  clearTimeout(loadingTimeout);
+  loadingTimeout = setTimeout(() => {
+    isLoadingRef.value = false;
+  }, 1000);
+};
+
 const debouncedSearch = debounce((newQuery) => {
+  selectedRegion.value = null;
   searchCities(newQuery);
-}, 300);
+}, 500);
 
 watch(searchQuery, (newQuery) => {
   debouncedSearch(newQuery);
@@ -233,23 +159,27 @@ const filteredCities = computed(() => {
 });
 
 const selectCity = (city) => {
-  searchQuery.value = city.title;
-  selectedCity.value.name = city.title;
+  selectedCity.value = { name: city.title, id: city.id };
 };
 
 const clearRegionSelection = () => {
   selectedRegion.value = null;
   cities.value = [];
+  selectedCity.value = { name: null, id: null };
 };
 
-const saveCity = () => {
-  cityStore.setSelectedCity(selectedCity.value.name);
+const saveCity = async () => {
+  cityStore.setSelectedCity(selectedCity.value);
+  const formData = new FormData();
+  formData.append('city_id', selectedCity.value.id);
+
+  await updateUserInfo(formData);
   closeModal();
 };
 
 const closeModal = () => {
   searchQuery.value = '';
-  emit('close-modal');
+  locationModalStore.closeMenu();
 };
 </script>
 
@@ -264,10 +194,14 @@ const closeModal = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(3px);
   padding: 32px;
   box-sizing: border-box;
+
+  @media (max-width: 576px) {
+    padding: 16px;
+  }
 
   &__content {
     background: #fff;
@@ -307,12 +241,22 @@ const closeModal = () => {
     padding: 0;
   }
 
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
   &__title {
     font-size: 20px;
     line-height: 24px;
-    padding-bottom: 24px;
     font-weight: bold;
     margin: 0;
+
+    @media (max-width: 768px) {
+      font-size: 18px;
+    }
   }
 
   &__body {
@@ -345,7 +289,8 @@ const closeModal = () => {
     }
 
     &:disabled {
-      background-color: #d3d3d3;
+      background-color: #EEEEEE;
+      color: #787878;
       cursor: not-allowed;
     }
   }
@@ -387,30 +332,34 @@ const closeModal = () => {
 }
 
 .back-button {
-  background: none;
+  background-color: #D6EFFF;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.1s ease-in-out;
-  min-width: 34px;
+  transition: background-color 0.2s ease-in;
+  min-width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: none;
   cursor: pointer;
 
   img {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
   }
 
   &:hover {
-    background-color: #D6EFFF;
+    background-color: #A4DCFF;
   }
 }
 
 .list-wrapper {
-  height: 100%;
-  max-height: 165px;
+  height: 165px;
   overflow-y: auto;
+
+  @media (max-width: 768px) {
+    height: 285px;
+  }
 
   &::-webkit-scrollbar {
     width: 8px;
@@ -436,32 +385,53 @@ const closeModal = () => {
   margin: 0;
   padding: 0;
   display: grid;
-  column-gap: 16px;
+  gap: 24px;
   padding-right: 8px;
   grid-template-columns: 1fr;
 
   @media (min-width: 768px) {
     grid-template-columns: 1fr 1fr;
   }
-}
 
-.list__item {
-  padding: 10px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  border-radius: 12px;
+  &__item {
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-radius: 12px;
 
-  &:hover {
-    background-color: #d6efff;
+    &--skeleton {
+      height: 34px;
+      background-color: #f0f0f0;
+      border-radius: 4px;
+      animation: pulse 1.5s infinite ease-in-out;
+    }
+
+    &.selected {
+      font-weight: 700;
+      color: #3366ff;
+    }
+  }
+
+  &__empty {
+    padding: 16px;
+    padding-left: 0;
+    font-size: 14px;
+    line-height: 18px;
   }
 }
 
-.list__empty {
-  text-align: center;
-  padding: 10px;
-  font-size: 14px;
-  line-height: 16px;
+@keyframes pulse {
+  0% {
+    background-color: #f0f0f0;
+  }
+
+  50% {
+    background-color: #e0e0e0;
+  }
+
+  100% {
+    background-color: #f0f0f0;
+  }
 }
 
 @keyframes slide-up {
@@ -481,11 +451,5 @@ const closeModal = () => {
   font-size: 16px;
   font-weight: bold;
   color: #333;
-}
-
-@media screen and (max-width: 576px) {
-  .modal {
-    padding: 16px;
-  }
 }
 </style>

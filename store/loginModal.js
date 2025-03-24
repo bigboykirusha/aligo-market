@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 export const useLoginModalStore = defineStore('loginModal', {
    state: () => ({
       isOpen: false,
+      showCodeInput: false,
    }),
    actions: {
       toggleLoginModal() {
@@ -13,6 +14,12 @@ export const useLoginModalStore = defineStore('loginModal', {
       },
       closeLoginModal() {
          this.isOpen = false;
+      },
+      showCodeField() {
+         this.showCodeInput = true;
+      },
+      hideCodeField() {
+         this.showCodeInput = false;
       },
    },
 });

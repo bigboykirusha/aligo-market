@@ -81,8 +81,20 @@
                            src="..//assets/icons/cancel.svg" alt="">Отменить</button>
                   </div>
                   <div v-if="codeInputVisible" class="simple-input__code-block">
-                     <VueOtpInput input-classes="otp-input" inputType="numeric" :num-inputs="4" v-model:value="code"
-                        :should-auto-focus="true" @on-complete="submitCode" />
+                     <OTPInput v-model="code" :maxlength="4" inputmode="tel" autocomplete="one-time-code"
+                        @complete="submitCode">
+                        <template #default="{ slots }">
+                           <div class="otp-container">
+                              <div v-for="(slot, idx) in slots" :key="idx" v-bind="slot" class="otp-input" :class="{
+                                 'otp-input--active': slot.isActive,
+                                 'otp-input--filled': slot.char,
+                              }" @click="focusSlot(idx)">
+                                 <span v-if="slot.char">{{ slot.char }}</span>
+                                 <span v-else-if="slot.isActive" class="otp-caret"></span>
+                              </div>
+                           </div>
+                        </template>
+                     </OTPInput>
                      <p class="timer-message" v-if="timeLeft > 0">
                         Получить новый можно через {{ formattedTime }}
                      </p>
@@ -103,13 +115,26 @@
             <div class="simple-input simple-input--phone" :class="{ 'has-error': validationErrors.email }">
                <label class="simple-input__label simple-input__label--phone">Почта</label>
                <div v-if="!(!profile.email && !editMode.email)"
-                  class="simple-input__wrapper simple-input__wrapper--phone">
+                  class="simple-input__wrapper simple-input__wrapper--phone"
+                  :class="{ 'simple-input__wrapper--confirm': !isConfirmed }">
                   <div class="simple-input__block simple-input__block--phone">
                      <input v-if="editMode.email" id="email" v-model="profile.email" type="email"
                         class="simple-input__field" placeholder="Введите email" @input="markAsChanged('email')" />
                      <div v-else class="simple-input__text">{{ profile.email }}
-                        <div class="simple-input__description">При изменение почты потребуется подтверждение через код.
+                        <div v-if="!isConfirmed && !emailCodeInputVisible" class="simple-input__confirmed">
+                           Подтвердите почту
                         </div>
+                        <div v-if="!isConfirmed && !emailCodeInputVisible" class="simple-input__description">Это
+                           необходимо для повышения безопасности вашего
+                           аккаунта и получения важных оповещений</div>
+                        <div v-else-if="emailCodeInputVisible" class="simple-input__description">Введите проверочный
+                           код, отправленный на указанную почту:
+                        </div>
+                        <div v-else class="simple-input__description">При изменение почты потребуется
+                           подтверждение через код.</div>
+                        <div v-if="!isConfirmed && !emailCodeInputVisible" @click="saveField('email')"
+                           class="simple-input__button--confirm">
+                           Подтвердить</div>
                      </div>
                      <button v-if="!editMode.email && profile.email" type="button"
                         class="edit-button edit-button--phone" @click="toggleEditMode('email')">
@@ -120,19 +145,33 @@
                      {{ validationErrors.email }}
                   </div>
                   <div v-if="editMode.email" class="edit-input-actions">
-                     <button @click="saveField('email')" class="edit-input-actions__save-button"><img
+                     <button @click="saveField('email')" class="edit-input-actions__save-button"
+                        :class="{ 'edit-input-actions__save-button--confirm': !isConfirmed }"><img
                            src="..//assets/icons/check-icon.svg" alt="">Сохранить</button>
-                     <button @click="cancelEdit('email')" class="edit-input-actions__cancel-button"><img
+                     <button @click="cancelEdit('email')" class="edit-input-actions__cancel-button"
+                        :class="{ 'edit-input-actions__cancel-button--confirm': !isConfirmed }"><img
                            src="..//assets/icons/cancel.svg" alt="">Отменить</button>
                   </div>
                   <div v-if="emailCodeInputVisible" class="simple-input__code-block">
                      <!-- Используем VueOtpInput для email -->
-                     <VueOtpInput input-classes="otp-input" inputType="numeric" :num-inputs="4"
-                        v-model:value="emailCode" :should-auto-focus="true" @on-complete="submitEmailCode" />
+                     <OTPInput v-model="emailCode" :maxlength="4" inputmode="tel" autocomplete="one-time-code"
+                        @complete="submitEmailCode">
+                        <template #default="{ slots }">
+                           <div class="otp-container">
+                              <div v-for="(slot, idx) in slots" :key="idx" v-bind="slot" class="otp-input" :class="{
+                                 'otp-input--active': slot.isActive,
+                                 'otp-input--filled': slot.char,
+                              }" @click="focusSlot(idx)">
+                                 <span v-if="slot.char">{{ slot.char }}</span>
+                                 <span v-else-if="slot.isActive" class="otp-caret"></span>
+                              </div>
+                           </div>
+                        </template>
+                     </OTPInput>
                      <p class="timer-message" v-if="timeLeft > 0">
                         Получить новый можно через {{ formattedTime }}
                      </p>
-                     <button v-else @click.prevent="saveField('phone')" class="timer-text" tabindex="0">
+                     <button v-else @click.prevent="saveField('email')" class="timer-text" tabindex="0">
                         Получить новый код
                      </button>
                   </div>
@@ -202,23 +241,35 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { useUserStore } from '../store/user';
+import { useCityStore } from '~/store/city';
 import { debounce } from 'lodash-es';
 import { fetchSuggestions } from '~/services/apiLocation';
 import { confirmCode } from '~/services/apiClient';
 import { validateEmail, validatePhoneNumber, validateUsername } from '~/services/validation';
-import VueOtpInput from 'vue3-otp-input';
+import { OTPInput } from 'vue-input-otp'
+import { mask as vMask } from 'vue-the-mask'
+
+defineOptions({
+   directives: {
+      mask: vMask
+   }
+})
 
 const isAddressSelected = ref(false);
 
+const isConfirmed = computed(() => !userStore.unconfirmed_email)
+
+const cityStore = useCityStore();
 const userStore = useUserStore();
+
 const profile = computed(() => ({
    createdAt: userStore.createdAt,
    username: userStore.username,
-   email: userStore.email,
+   email: userStore.unconfirmed_email || userStore.email,
    phone: userStore.phoneNumber,
    uniqueCode: userStore.uniqueCode,
    address: userStore.address,
-   city: userStore.city || null,
+   city_id: userStore.city_id || null,
    latitude: userStore.latitude || null,
    longitude: userStore.longitude || null,
 }));
@@ -307,6 +358,10 @@ const code = ref('');
 const emailCodeInputVisible = ref(false);
 const emailCode = ref('');
 
+function focusSlot(index) {
+   document.querySelectorAll('.otp-input')[index]?.focus();
+}
+
 const handleAddressInput = () => {
    isAddressSelected.value = false;
    if (addressInputValue.value.length > 3) {
@@ -346,6 +401,7 @@ const submitEmailCode = async () => {
       await confirmCode({ email: profile.value.email, code: emailCode.value });
       emailCodeInputVisible.value = false;
       emailCode.value = '';
+      userStore.fetchAndSetUserdata();
    } catch (error) {
       console.error('Ошибка при подтверждении кода email', error);
    }
@@ -388,10 +444,10 @@ const selectAddressSuggestion = (suggestion) => {
 
    markAsChanged('address');
 
-   profile.value.city = suggestion.geoObject.metaDataProperty.GeocoderMetaData.Address.Components.find(comp => comp.kind === 'locality')?.name || '';
+   profile.value.city_id = cityStore.selectedCity.id;
    profile.value.latitude = suggestion.geoObject.Point.pos.split(' ')[1];
    profile.value.longitude = suggestion.geoObject.Point.pos.split(' ')[0];
-   markAsChanged('city');
+   markAsChanged('city_id');
    markAsChanged('latitude');
    markAsChanged('longitude');
 };
@@ -487,12 +543,24 @@ const validateField = (field) => {
 };
 
 const saveField = async (field) => {
+   let response;
+   if (!isConfirmed.value && (field === 'email')) {
+      response = await handleSubmit();
+      console.log(response);
+      if (response.success) {
+         emailCodeInputVisible.value = true;
+         startTimer();
+      } else {
+         validationErrors.value[field] = response.message || response;
+         return;
+      }
+   }
+
    if (editMode.value[field]) {
       const isValid = validateField(field);
 
       if (!isValid) return;
 
-      let response;
       if (field === 'phone') {
          response = await handleSubmit();
 
@@ -530,6 +598,8 @@ const saveField = async (field) => {
 const cancelEdit = (field) => {
    if (field === 'phone') {
       profile.value[field] = userStore.phoneNumber;
+   } else if (field === 'email') {
+      profile.value[field] = userStore.unconfirmed_email || userStore.email;
    } else {
       profile.value[field] = userStore[field];
    }
@@ -541,6 +611,16 @@ const cancelEdit = (field) => {
 };
 
 const handleSubmit = async () => {
+   if (!isConfirmed.value && (Object.keys(changedFields.value).length == 0)) {
+      const response = await userStore.updateProfile({ email: userStore.unconfirmed_email });
+
+      if (response.success) {
+         console.log('Email успешно обновлен:', response.data);
+      }
+
+      return response;
+   }
+
    console.log('changedFields.value', changedFields.value);
    if (Object.keys(changedFields.value).length > 0) {
       const response = await userStore.updateProfile(changedFields.value);
@@ -559,16 +639,6 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped lang="scss">
-.simple-input__code-block {
-   margin-top: 1rem;
-}
-
-.simple-input__description {
-   margin-top: 0.5rem;
-   font-size: 0.875rem;
-   color: #666;
-}
-
 .edit-profile {
    width: 100%;
    background-color: #fff;
@@ -648,6 +718,16 @@ const handleSubmit = async () => {
          margin-right: 0;
       }
 
+      &__confirmed {
+         font-size: 14px;
+         margin-top: 8px;
+         color: #FF5959;
+      }
+
+      &__code-block {
+         margin-top: 16px;
+      }
+
       @media (max-width: 768px) {
          align-items: flex-start;
          flex-direction: column;
@@ -690,7 +770,10 @@ const handleSubmit = async () => {
             @media (max-width: 768px) {
                margin-left: 0;
             }
+         }
 
+         &--confirm {
+            background-color: #FFF6DF;
          }
       }
 
@@ -739,9 +822,26 @@ const handleSubmit = async () => {
       }
 
       &__description {
+         margin-top: 4px;
          font-size: 14px;
-         color: #777777;
-         margin-top: 8px;
+         color: #787878;
+      }
+
+      &__button--confirm {
+         background-color: #3366FF;
+         color: #FFFFFF;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         height: 34px;
+         width: 135px;
+         border-radius: 6px;
+         margin-top: 16px;
+         transition: background-color 0.2s ease;
+
+         &:hover {
+            background-color: #144DF8;
+         }
       }
 
       .edit-input-actions {
@@ -799,6 +899,10 @@ const handleSubmit = async () => {
          cursor: pointer;
          transition: background-color 0.3s;
 
+         &--confirm {
+            background-color: #FFF6DF;
+         }
+
          &-common {
             background-color: #FFFFFF;
          }
@@ -821,6 +925,10 @@ const handleSubmit = async () => {
          font-size: 14px;
          cursor: pointer;
          transition: background-color 0.3s;
+
+         &--confirm {
+            background-color: #FFF6DF;
+         }
 
          &-common {
             background-color: #FFFFFF;
@@ -873,13 +981,73 @@ const handleSubmit = async () => {
    margin-top: 16px;
    color: #787878;
    font-size: 14px;
-   text-align: center;
+   text-align: left;
 }
 
 .timer-text {
    margin-top: 16px;
+   outline: none;
+   background-color: transparent;
+   border: none;
    color: #3366FF;
    font-size: 14px;
    text-align: center;
+}
+
+.otp-container {
+   display: flex;
+   gap: 12px;
+   justify-content: flex-start;
+   align-items: center;
+}
+
+.otp-input {
+   width: 52px;
+   height: 62px;
+   color: #323232;
+   font-size: 32px;
+   border: 1px solid #D6D6D6;
+   border-radius: 6px;
+   text-align: center;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   background-color: #fff;
+   transition: all 0.3s ease;
+   position: relative;
+   cursor: text;
+   user-select: none;
+}
+
+.otp-input:hover {
+   border-color: #A6A6A6;
+}
+
+.otp-input--active {
+   border-color: #3366FF;
+   box-shadow: 0 0 12px rgba(51, 102, 255, 0.4);
+}
+
+.otp-input--filled {
+   border-color: #3366FF;
+}
+
+.otp-caret {
+   width: 2px;
+   height: 40%;
+   background-color: #3366FF;
+   animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+
+   0%,
+   100% {
+      opacity: 1;
+   }
+
+   50% {
+      opacity: 0;
+   }
 }
 </style>

@@ -1,236 +1,152 @@
 <template>
-  <div>
-    <header :class="{ 'header--hidden': isHeaderHidden }" class="header">
-      <div :class="containerClasses">
-        <!-- Навигация -->
-        <nav class="header__nav" aria-label="Primary">
-          <ul class="header__nav-list" v-show="!isMyselfRoute || isDesktop">
-            <nuxt-link to="/" class="header__nav-item header__nav-item--mobile">
-              <img class="header__nav--logo" src="@/assets/images/logo-white.svg" alt="Logo">
+  <header :class="{ 'header--hidden': isHeaderHidden }" class="header">
+    <div class="header__container">
+      <nav class="header__nav" aria-label="Primary">
+        <ul class="header__nav-list">
+          <li class="header__nav-item">
+            <button class="header__nav-link" @click="toggleModal">
+              <img :src="locationIcon" alt="Location icon" class="header__icon" />
+              <span class="header__text header__text--hidden">{{ selectedCityName }}</span>
+            </button>
+            <LocationPopup @open-modal="toggleModal" />
+          </li>
+          <li class="header__nav-item">
+            <nuxt-link to="/business" class="header__nav-link">
+              <img :src="businessIcon" alt="Business icon" class="header__icon" />
+              <span class="header__text header__text--hidden">{{ $t('nav.business') }}</span>
             </nuxt-link>
-            <li class="header__nav-item">
-              <button class="header__nav-link" @click="toggleModal">
-                <img :src="defaultLocationIcon" alt="Location icon" class="header__icon">
-                <span class="header__text header__text--hidden">{{ translatedCityName }}</span>
-              </button>
-              <LocationPopup @open-modal="toggleModal" />
-            </li>
-            <li class="header__nav-item">
-              <nuxt-link to="/business" class="header__nav-link">
-                <img src="@/assets/icons/business.svg" alt="Business icon" class="header__icon">
-                <span class="header__text header__text--hidden">{{ $t('nav.business') }}</span>
-              </nuxt-link>
-            </li>
-          </ul>
-        </nav>
-        <!-- Логотип для мобильной версии -->
-        <div v-show="isMyselfRoute && !isDesktop" class="header__images">
-          <img src="@/assets/icons/white-logo.svg" alt="Logo">
+          </li>
+        </ul>
+      </nav>
+
+      <nuxt-link v-show="isProfilePage" to="/create" class="header__actions">
+        <button class="header__nav-link header__nav-link--add">
+          <img :src="addIcon" alt="Add icon" class="header__icon" />
+          <span class="header__text header__text--add">Разместить объявление</span>
+        </button>
+      </nuxt-link>
+
+      <div v-show="!isProfilePage" class="header__actions">
+        <div v-if="isLoggedIn" class="header__user-info">
+          <div class="header__user-block">
+            <IconLink v-for="icon in userIcons" :key="icon.to" :to="icon.to" :icon-src="icon.src"
+              :icon-count="icon.count" />
+          </div>
+          <div class="header__menu" :class="{ 'header__menu--active': userMenuStore.isActive }"
+            @click.stop="toggleUserMenu">
+            <img v-if="userAvatar" :src="userAvatar" alt="Avatar" class="header__user-avatar" />
+            <span v-else class="header__user-circle">{{ userInitial }}</span>
+            <span class="header__user-name">{{ displayName }}</span>
+            <nuxt-link v-if="userMenuStore.isActive"
+              :class="{ 'header__edit--active': userMenuStore.isActive, 'header__edit--reversed': !userStore.username }"
+              to="/profile/edit" class="header__edit">
+              <img :src="userStore.username ? editIcon : editIconW" alt="Add icon" :class="{ 'header__icon': true }" />
+            </nuxt-link>
+          </div>
+          <UserMenuPopup :isRevers="!isHeaderHidden" @close-userMenu="toggleUserMenu" />
         </div>
-        <!-- Кнопка добавления объявления -->
-        <nuxt-link to="/create" v-show="isMyselfRoute" class="header__actions">
-          <button class="header__nav-link header__nav-link--add">
-            <img src="@/assets/icons/add.svg" alt="Add icon" class="header__icon">
-            <span class="header__text header__text--add">Разместить объявление</span>
-          </button>
-        </nuxt-link>
-        <!-- Аватар пользователя -->
-        <img class="header__user-avatar" v-show="isMyselfRoute && !isDesktop" :src="userAvatar" alt="Menu"
-          @click="toggleSideMenu" />
-        <!-- Действия пользователя -->
-        <div v-show="!isMyselfRoute" class="header__actions">
-          <template v-if="isLoggedIn">
-            <div class="header__user-info">
-              <div class="header__user-block">
-                <IconLink v-for="icon in userIcons" :key="icon.to" :to="icon.to" :icon-src="icon.src"
-                  :icon-count="icon.count" />
-              </div>
-              <div class="header__menu" @click.stop="toggleUserMenu">
-                <img v-if="userAvatar" :src="userAvatar" alt="Avatar" class="header__user-avatar">
-                <span v-else class="header__user-circle">{{ initial }}</span>
-                <span class="header__user-name">{{ displayName }}</span>
-              </div>
-              <UserMenuPopup v-if="isUserMenuOpen && isDesktop" @close-userMenu="toggleUserMenu" />
-            </div>
-          </template>
-          <button v-else class="header__nav-link" @click="toggleLoginModal">
-            <img src="@/assets/icons/user.svg" alt="Login icon" class="header__icon header__icon--large">
-            <span class="header__text">{{ $t('nav.login') }}</span>
-          </button>
-        </div>
+
+        <button v-else class="header__nav-link" @click="loginModalStore.toggleLoginModal">
+          <img :src="defaultUserAvatar" alt="Login icon" class="header__icon header__icon--large" />
+          <span class="header__text">{{ $t('nav.login') }}</span>
+        </button>
       </div>
-    </header>
-    <component :is="currentPageComponent" />
-    <LocationModal v-if="modalOpen" @close-modal="toggleModal" />
-    <UserMenuBurger v-model="isSideMenuOpen" :isRight="!isMyselfRoute" />
-  </div>
+    </div>
+  </header>
+  <HeaderRow />
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { getImageUrl } from '../services/imageUtils';
 import { useCityStore } from '~/store/city';
 import { useUserStore } from '~/store/user';
-import { useLoginModalStore } from '~/store/loginModal.js';
+import { useLoginModalStore } from '~/store/loginModal';
+import { useUserMenuStore } from '~/store/userMenuStore';
+import { useLocationModalStore } from '~/store/locationModalStore';
 
-const loginModalStore = useLoginModalStore();
+import locationIcon from '@/assets/icons/location.svg';
+import businessIcon from '@/assets/icons/business.svg';
+import addIcon from '@/assets/icons/add.svg';
+import defaultUserAvatar from '@/assets/icons/user.svg';
+import favoritesIcon from '@/assets/icons/favorites.svg';
+import mailIcon from '@/assets/icons/mail.svg';
+import messageIcon from '@/assets/icons/message.svg';
+import editIcon from '@/assets/icons/edit.svg';
+import editIconW from '@/assets/icons/edit-w.svg';
 
-import HeaderRow from './HeaderRow.vue';
-import HeaderRowNew from './HeaderRowNew.vue';
-import HeaderRowMyself from './HeaderRowMyself.vue';
-
-import defaultLocationIcon from '../assets/icons/location.svg';
-import avatarPhoto from '../assets/icons/user.svg';
-import favoritesIcon from '../assets/icons/favorites.svg';
-import mailIcon from '../assets/icons/mail.svg';
-import messageIcon from '../assets/icons/message.svg';
-
-const modalOpen = ref(false);
-const isUserMenuOpen = ref(false);
-const isHeaderHidden = ref(false);
 const route = useRoute();
 const cityStore = useCityStore();
 const userStore = useUserStore();
-const isClient = ref(false);
-const isDesktop = ref(false);
-const isSideMenuOpen = ref(false);
+const loginModalStore = useLoginModalStore();
+const userMenuStore = useUserMenuStore();
+const locationModalStore = useLocationModalStore();
 
-const toggleSideMenu = () => {
-  isSideMenuOpen.value = !isSideMenuOpen.value;
-};
+const screenWidth = ref(window.innerWidth);
 
-const toggleModal = () => {
-  modalOpen.value = !modalOpen.value;
-};
-
-const toggleUserMenu = () => {
-  if (isDesktop.value) {
-    isUserMenuOpen.value = !isUserMenuOpen.value;
-  } else {
-    toggleSideMenu();
-  }
-};
-
-const toggleLoginModal = () => {
-  loginModalStore.toggleLoginModal();
-};
-
-const updateIsDesktop = () => {
-  if (typeof window !== 'undefined') {
-    isDesktop.value = window.innerWidth >= 768;
-  }
-};
-
-const translatedCityName = computed(() => cityStore.selectedCity.name);
-
-const handleScroll = () => {
-  const currentScrollTop = window.scrollY || document.documentElement.scrollTop;
-  isHeaderHidden.value = currentScrollTop !== 0;
-
-  if (isUserMenuOpen.value) {
-    isUserMenuOpen.value = false;
-  }
-};
+const isHeaderHidden = ref(false);
 
 const isLoggedIn = computed(() => userStore.isLoggedIn);
-const userName = computed(() => userStore.username || userStore.login);
-const userAvatar = computed(() => getImageUrl(userStore.photo?.path, avatarPhoto));
-const initial = computed(() => userName.value ? userName.value.charAt(0).toUpperCase() : '');
-const displayName = computed(() => userName.value ? capitalizedUserName.value : formattedPhoneNumber.value);
+const isProfilePage = computed(() => route.path.startsWith('/profile'));
+const selectedCityName = computed(() => cityStore.selectedCity.name);
 
-const capitalizedUserName = computed(() => userName.value.charAt(0).toUpperCase() + userName.value.slice(1));
-const formattedPhoneNumber = computed(() => userStore.phoneNumber || userStore.email);
+const userAvatar = computed(() => getImageUrl(userStore.photo?.arr_title_size?.preview, defaultUserAvatar));
+const userInitial = computed(() => userStore.username?.charAt(0).toUpperCase() || '');
+const displayName = computed(() => userStore.username || userStore.phoneNumber || userStore.email);
 
 const userIcons = computed(() => [
-  { to: '/profile/favorites', src: favoritesIcon, count: userStore.countFavorites },
+  { to: '/profile/favorites/ads', src: favoritesIcon, count: userStore.countFavorites },
   { to: '/profile/notifications', src: mailIcon, count: userStore.countUnreadNotify },
-  { to: '/profile/messages', src: messageIcon, count: userStore.count_new_messages },
+  { to: '/profile/messages', src: messageIcon, count: userStore.count_new_messages }
 ]);
 
-const currentPageComponent = computed(() => {
-  if (route.path.startsWith('/create')) {
-    return HeaderRowNew;
-  }
-  if (route.path.startsWith('/profile')) {
-    return isDesktop.value ? HeaderRowMyself : HeaderRow;
-  }
-  return HeaderRow;
-});
+const toggleModal = () => { locationModalStore.toggleMenu(); };
+const toggleUserMenu = () => { userMenuStore.toggleMenu(); };
 
-const containerClasses = computed(() => ({
-  'header__container': true,
-  'header__container--small': isMyselfRoute.value && !isDesktop.value,
-}));
+const handleScroll = () => { isHeaderHidden.value = document.documentElement.scrollTop !== 0; };
 
-const isMyselfRoute = computed(() => route.path.startsWith('/profile'));
+const updateWidth = () => {
+  screenWidth.value = window.innerWidth;
+};
 
 onMounted(() => {
-  isClient.value = true;
-  updateIsDesktop();
-  window.addEventListener('resize', updateIsDesktop);
   window.addEventListener('scroll', handleScroll);
+  window.addEventListener('resize', updateWidth);
 });
 
-onUnmounted(() => {
-  window.removeEventListener('resize', updateIsDesktop);
+onBeforeUnmount(() => {
   window.removeEventListener('scroll', handleScroll);
+  window.removeEventListener('resize', updateWidth);
 });
 </script>
 
 <style scoped lang="scss">
 .header {
   background: $main-button;
-  transition: $transition-1;
+  transition: transform 0.2s ease-in-out;
   position: fixed;
+  top: 0;
   width: 100%;
   max-width: 100vw;
-  top: 0;
   z-index: 12;
   padding: 0 16px;
-  transition: transform 0.3s ease-in-out;
 
   @media (max-width: 768px) {
-    display: none;
+    transform: translateY(-100%);
   }
 
   &--hidden {
     transform: translateY(-100%);
   }
 
-  &__images {
-    display: flex;
-    gap: 24px;
-    margin-right: auto;
-
-    img:last-child {
-      height: 24px;
-    }
-  }
-
-  &__user-avatar {
-    height: 24px;
-    width: 24px;
-    object-fit: cover;
-    border-radius: 50%;
-  }
-
   &__container {
     display: flex;
-    height: 44px;
     justify-content: space-between;
     align-items: center;
     max-width: 1280px;
     margin: 0 auto;
-
-    &--small {
-      height: 56px;
-      gap: 12px;
-
-      .header__nav {
-        display: none;
-      }
-    }
+    height: 44px;
   }
 
   &__nav {
@@ -239,40 +155,27 @@ onUnmounted(() => {
 
     &-list {
       display: flex;
-      list-style: none;
       gap: 24px;
-
-      @media (max-width: 768px) {
-        gap: 16px;
-      }
-    }
-
-    &--logo {
-      height: 20px;
+      list-style: none;
     }
 
     &-item {
       display: flex;
       align-items: center;
       position: relative;
-
-      &--mobile {
-        display: none;
-        outline: none;
-
-        @media (max-width: 480px) {
-          display: flex;
-        }
-      }
     }
   }
 
   &__nav-link {
     display: flex;
     align-items: center;
+    gap: 8px;
     color: $white;
-    font-weight: 400;
     font-size: 12px;
+    font-weight: 400;
+    padding: 0 8px;
+    height: 24px;
+    border-radius: 12px;
     background: none;
     border: none;
     outline: none;
@@ -280,141 +183,117 @@ onUnmounted(() => {
     text-decoration: none;
     transition: $transition-1;
 
-    .header__icon {
-
-      @media (max-width: 768px) {
-        margin-right: 0px;
-      }
-    }
-
-    &--add {
-      padding: 5px 8px;
-      border-radius: 12px;
-
-      @media (max-width: 768px) {
-        padding: 0;
-        border-radius: 0;
-      }
-
-      &:hover {
-        background-color: #0c41e0;
-      }
-
-      .header__icon {
-        margin-right: 7px;
-        height: 16px;
-        width: 16px;
-
-        @media (max-width: 768px) {
-          height: 18px;
-          width: 18px;
-          margin-right: 0;
-        }
-      }
+    &:hover {
+      background-color: #0c41e0;
     }
   }
 
   &__actions {
     display: flex;
+    position: relative;
     align-items: center;
     gap: 7px;
   }
 
   &__icon {
+    width: 16px;
+    height: 16px;
+
     &--large {
       width: 24px;
       height: 24px;
     }
   }
 
-  &__icon-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 24px;
-    padding: 0 8px;
-    color: white;
-    font-size: 14px;
-    cursor: pointer;
-    border-radius: 12px;
-    transition: $transition-1;
-
-    &--active {
-      background-color: #144DF8;
-    }
-
-    &:hover {
-      background-color: #0c41e0;
-    }
-  }
-
   &__user-info {
     display: flex;
-    position: relative;
-    height: 44px;
-    gap: 24px;
     align-items: center;
+    gap: 24px;
+    height: 44px;
     cursor: pointer;
   }
 
   &__user-block {
-    height: 44px;
     display: flex;
     align-items: center;
     gap: 24px;
-
-    @media (max-width: 768px) {
-      display: none;
-    }
   }
 
   &__menu {
     display: flex;
-    height: 44px;
-    position: relative;
     align-items: center;
     gap: 5px;
+    min-width: 50px;
+    transition: min-width 0.2s ease-in-out;
+
+    &--active {
+      min-width: 174px;
+    }
   }
 
-  &__user-circle {
-    background-color: $white;
+  &__edit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 24px;
     height: 24px;
+    border-radius: 50%;
+    margin-left: auto;
+    margin-right: 16px;
+    background-color: #FFFFFF;
+    transform: translateY(-50px);
+    position: absolute;
+    right: 0;
+    transition: transform 0.2s ease-in-out;
+
+    &--active {
+      transform: translateY(0);
+    }
+
+    &:hover {
+      background-color: #EEEEEE
+    }
+
+    &--reversed {
+      background-color: #3366FF;
+
+      &:hover {
+        background-color: #3366FF
+      }
+    }
+
+    .header__icon {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  &__user-avatar,
+  &__user-circle {
+    width: 24px;
+    height: 24px;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  &__user-avatar {
+    object-fit: cover;
+  }
+
+  &__user-circle {
+    background-color: $white;
     color: $main-button;
     font-size: 16px;
     font-weight: bold;
   }
 
   &__user-name {
-    color: white;
+    color: $white;
     font-size: 12px;
     font-weight: 400;
-
-    @media (max-width: 480px) {
-      display: none;
-    }
-  }
-
-  &__text {
-    margin-left: 8px;
-
-    &--add {
-      @media screen and (max-width: 768px) {
-        display: none;
-      }
-    }
-
-    &--hidden {
-      display: none;
-
-      @media screen and (min-width: 768px) {
-        display: inline;
-      }
-    }
   }
 }
 </style>

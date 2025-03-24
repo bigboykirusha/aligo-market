@@ -2,17 +2,21 @@
    <div class="photo-uploader">
       <label>{{ label }}</label>
       <div class="photo-uploader__photos">
-         <!-- Отображаем как файлы с сервера, так и загруженные -->
-         <div v-for="(photo, index) in localPhotos" :key="photo.id || index" class="photo-uploader__photo">
+         <div v-for="(photo, index) in localPhotos" :key="photo.id || `photo-${index}`" class="photo-uploader__photo">
             <img :src="getImageUrl(photo)" alt="uploaded photo" />
-            <!-- Кнопка удаления для фото с сервера и для локальных фото -->
-            <button v-if="photo.is_file === 1 || photo.is_file === 0" @click="removePhoto(index, photo)"
-               class="photo-uploader__remove-btn">
+            <button @click="removePhoto(index, photo)" class="photo-uploader__remove-btn">
                <img src="../assets/icons/close-white.svg" alt="Remove photo" />
             </button>
          </div>
-         <div v-if="localPhotos.length < maxPhotos" class="photo-uploader__add-btn" @click="triggerFileInput">
-            <input type="file" ref="fileInput" @change="onPhotoSelected" multiple />
+
+         <div v-for="(photo, index) in uploadingPhotos" :key="`uploading-${index}`"
+            class="photo-uploader__photo photo-uploader__skeleton">
+            <div class="skeleton"></div>
+         </div>
+
+         <div v-if="localPhotos.length + uploadingPhotos.length < maxPhotos" class="photo-uploader__add-btn"
+            @click="triggerFileInput">
+            <input type="file" ref="fileInput" multiple @change="onPhotoSelected" />
             <span>
                <img src="../assets/icons/photo-add.svg" alt="Add photo" />
             </span>
@@ -24,6 +28,7 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue';
 import { useCreateStore } from '@/store/create';
+import { usePopupErrorStore } from '~/store/popupErrorStore';
 
 const props = defineProps({
    label: {
@@ -42,10 +47,15 @@ const props = defineProps({
 
 const emit = defineEmits(['updatePhotos']);
 const localPhotos = ref([...props.photos]);
+const uploadingPhotos = ref([]);
 const baseUrl = 'https://api.aligo.ru';
 const createStore = useCreateStore();
+const popupErrorStore = usePopupErrorStore();
+const fileInput = ref(null);
 
-// Список допустимых форматов файлов
+const maxFileSizeMB = 20;
+const maxFileSizeBytes = maxFileSizeMB * 1024 * 1024;
+
 const allowedFileTypes = [
    'image/jpeg',
    'image/jpg',
@@ -62,38 +72,66 @@ watch(
    }
 );
 
-const onPhotoSelected = (event) => {
+const onPhotoSelected = async (event) => {
    const files = event.target.files;
-   if (!files) return;
+   if (!files || files.length === 0) return;
 
-   // Фильтруем файлы по допустимым типам
-   const validFiles = Array.from(files).filter((file) =>
-      allowedFileTypes.includes(file.type)
-   );
-
-   if (validFiles.length < files.length) {
-      alert('Можно загружать только изображения (jpeg, jpg, png, webp, heic, heif).');
-   }
-
-   const newPhotos = validFiles.slice(0, props.maxPhotos - localPhotos.value.length);
-
-   newPhotos.forEach((file) => {
-      localPhotos.value.push({ file, is_file: 1 }); // Отметка, что это файл пользователя
+   const validFiles = Array.from(files).filter((file) => {
+      if (!allowedFileTypes.includes(file.type)) {
+         popupErrorStore.showError('Вы можете загрузить только изображения формата JPEG, JPG, PNG, WEBP, HEIC, HEIF');
+         return false;
+      }
+      if (file.size > maxFileSizeBytes) {
+         popupErrorStore.showError(`Ошибка: размер файла не должен превышать ${maxFileSizeMB} МБ.`);
+         return false;
+      }
+      return true;
    });
 
-   emit('updatePhotos', localPhotos.value);
+   if (validFiles.length === 0) return;
+
+   for (const file of validFiles) {
+      const skeleton = { id: `skeleton-${Date.now()}`, isUploading: true };
+      uploadingPhotos.value.push(skeleton);
+
+      try {
+         const response = await createStore.autoSaveField('photos', file);
+         if (response?.photos?.length) {
+            const lastPhoto = response.photos[response.photos.length - 1];
+
+            uploadingPhotos.value = uploadingPhotos.value.filter((p) => p.id !== skeleton.id);
+
+            localPhotos.value.push({
+               id: lastPhoto.id,
+               arr_title_size: {
+                  preview: lastPhoto.arr_title_size.preview,
+               },
+               is_file: 0,
+            });
+            emit('updatePhotos', localPhotos.value);
+         }
+      } catch (error) {
+         popupErrorStore.showError('Ошибка загрузки фото');
+         uploadingPhotos.value = uploadingPhotos.value.filter((p) => p.id !== skeleton.id);
+      }
+   }
 
    event.target.value = '';
 };
 
-const removePhoto = (index, photo) => {
+const removePhoto = async (index, photo) => {
    if (photo.is_file === 0 && photo.id) {
-      createStore.setIdsDeletePhotos(photo.id); // Добавляем ID удаленной фотографии
+      try {
+         await createStore.autoSaveField('ids_delete_photos', photo.id);
+         localPhotos.value.splice(index, 1);
+         emit('updatePhotos', localPhotos.value);
+      } catch (error) {
+         console.error('Ошибка удаления фото:', error);
+      }
+   } else {
+      localPhotos.value.splice(index, 1);
+      emit('updatePhotos', localPhotos.value);
    }
-
-   // Удаляем фото из локального массива
-   localPhotos.value.splice(index, 1);
-   emit('updatePhotos', localPhotos.value);
 };
 
 const triggerFileInput = () => {
@@ -102,20 +140,11 @@ const triggerFileInput = () => {
    }
 };
 
-const fileInput = ref(null);
-
 const getImageUrl = (photo) => {
-   if (photo.is_file === 0) {
-      // Для серверных фото (полученных через API)
-      return `${baseUrl}/${photo.path}`;
-   } else {
-      // Для файлов пользователя
-      return URL.createObjectURL(photo.file);
-   }
+   return photo.is_file === 0 ? `${baseUrl}/${photo.arr_title_size?.preview}` : URL.createObjectURL(photo.file);
 };
 
 onMounted(() => {
-   // Инициализация данных (загрузка фото с бека)
    localPhotos.value = [...props.photos];
 });
 </script>
@@ -124,15 +153,17 @@ onMounted(() => {
 .photo-uploader {
    display: flex;
    flex-direction: row;
+   align-items: flex-start;
+   gap: 12px;
 
    @media screen and (max-width: 768px) {
       flex-direction: column;
-      gap: 8px;
-      align-items: flex-start;
+      align-items: stretch;
    }
 
    label {
       font-size: 14px;
+      font-weight: 500;
       color: #323232;
       min-width: 270px;
    }
@@ -145,48 +176,78 @@ onMounted(() => {
 
    &__photo {
       position: relative;
-      transition: transform 0.3s ease;
       cursor: pointer;
+      border-radius: 6px;
+      overflow: hidden;
+      transition: transform 0.2s ease-in-out;
 
       img {
          width: 85px;
          height: 65px;
          object-fit: cover;
          border-radius: 6px;
-         transition: transform 0.3s ease;
+         aspect-ratio: 4/3;
+         transition: transform 0.3s ease-in-out;
       }
 
       &:hover {
-         transform: scale(1.02);
+         transform: scale(1.05);
+      }
+   }
 
-         img {
-            transform: scale(1.02);
-         }
+   &__skeleton {
+      background: #f3f3f3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 85px;
+      height: 65px;
+      border-radius: 6px;
+      position: relative;
+      overflow: hidden;
+
+      .skeleton {
+         width: 100%;
+         height: 100%;
+         background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+         background-size: 200% 100%;
+         animation: loading 1.5s infinite;
+      }
+   }
+
+   @keyframes loading {
+      from {
+         background-position: 200% 0;
+      }
+
+      to {
+         background-position: -200% 0;
       }
    }
 
    &__remove-btn {
       position: absolute;
-      top: 4px;
-      right: 4px;
+      top: 6px;
+      right: 6px;
       background-color: rgba(0, 0, 0, 0.6);
       border: none;
       border-radius: 50%;
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.3s ease-in-out, transform 0.2s ease;
 
       img {
-         width: 10px;
-         height: 10px;
+         width: 12px;
+         height: 12px;
       }
 
       &:hover {
-         background-color: rgba(255, 0, 0, 0.8);
+         background-color: rgba(255, 0, 0, 0.85);
+         transform: scale(1.1);
       }
    }
 
@@ -196,14 +257,15 @@ onMounted(() => {
       justify-content: center;
       width: 85px;
       height: 65px;
-      background-color: #d6efff;
+      background-color: #eaf7ff;
       cursor: pointer;
       border-radius: 6px;
       position: relative;
-      transition: background-color 0.3s ease, transform 0.3s ease;
+      transition: background-color 0.3s ease, transform 0.3s ease-in-out;
+      border: 1px dashed #8bcaff;
 
       &:hover {
-         background-color: #bce0ff;
+         background-color: #d4efff;
          transform: scale(1.02);
       }
 
@@ -216,14 +278,16 @@ onMounted(() => {
       }
 
       span {
+         display: flex;
+         flex-direction: column;
+         align-items: center;
          font-size: 12px;
          color: #333;
-         text-align: center;
 
-         svg {
-            display: block;
-            margin: 0 auto 5px;
-            color: #333;
+         img {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 4px;
          }
       }
    }

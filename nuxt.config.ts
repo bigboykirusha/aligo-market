@@ -56,12 +56,6 @@ export default defineNuxtConfig({
     ]
   },
 
-  plugins: [
-    { src: '~/plugins/echo.js', mode: 'client' },
-    { src: '~/plugins/v-tooltip.js', mode: 'client' },
-    { src: '~/plugins/user-init.js', mode: 'client' },
-  ],
-
   css: ['~/assets/scss/main.scss', '~/assets/scss/_reset.scss'],
 
   vite: {

@@ -111,7 +111,7 @@ button,
 input,
 select,
 textarea {
-    font-family: $normalized_font_family;
+    font-family: "Noto Sans", sans-serif;
 }
 
 // Addresses margins handled incorrectly in IE6/7
@@ -234,11 +234,7 @@ code,
 kbd,
 pre,
 samp {
-    font-family: monospace, serif;
-    @if $legacy_support_for_ie {
-        _font-family: 'courier new', monospace;
-    }
-    font-size: 1em;
+    font-family: "Noto Sans", sans-serif;
 }
 
 // Improves readability of pre-formatted text in all browsers

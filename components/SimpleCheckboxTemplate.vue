@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch } from 'vue';
 
 const emit = defineEmits(['updateChecked']);
 const props = defineProps({
@@ -22,10 +22,7 @@ const props = defineProps({
 
 const checkboxId = `checkbox-${Math.random().toString(36).substr(2, 9)}`;
 
-const isChecked = computed({
-   get: () => props.checked === 1,
-   set: (value) => emit('updateChecked', value ? 1 : 0)
-});
+const isChecked = ref(props.checked === 1);
 
 watch(() => props.checked, (newValue) => {
    isChecked.value = newValue === 1;

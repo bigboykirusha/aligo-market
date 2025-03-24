@@ -2,7 +2,7 @@
    <div class="cards">
       <h2 class="cards__title">{{ title }}</h2>
 
-      <div v-if="showSwitcher" class="cards__switcher">
+      <div class="cards__switcher">
          <div v-for="(item, index) in switcherItems" :key="index" class="cards__item"
             :class="{ 'cards__item--active': selectedItem === item }" @click="handleSwitch(item)">
             {{ item }}
@@ -11,8 +11,8 @@
       </div>
 
       <div class="cards__main">
-         <CardSkeleton v-if="loading" v-for="index in 4" :key="index" />
-         <Card v-else-if="ads && ads.length > 0" v-for="ad in ads" :key="ad.id" :id="ad.id"
+         <CardSkeleton v-if="isLoading" v-for="index in xCountOnPage" :key="index" />
+         <Card v-else-if="!isLoading && ads.length" v-for="ad in ads" :key="ad.id" :id="ad.id"
             :description="ad.ads_parameter?.ads_description" :price="ad.ads_parameter?.amount"
             :place="ad.ads_parameter?.place_inspection || 'Адрес не указан'" :callNumber="ad.ads_parameter?.phone"
             :messageEmail="ad.ads_parameter?.email" :brand="ad.auto_technical_specifications?.[0]?.brand?.title"
@@ -22,7 +22,7 @@
             :is_in_favorites="ad.is_in_favorites" :images="ad.photos" :created_at="ad.created_at"
             :id_user_owner_ads="ad.id_user_owner_ads" />
       </div>
-      <div v-if="ads && ads.length === 0 && !loading" class="cards__placeholder">
+      <div v-if="!ads.length && !isLoading" class="cards__placeholder">
          <img src="../assets/icons/ad-sad.svg" alt="Заглушка" />
          <div class="cards__placeholder--text">Объявлений пока нет.</div>
          <div class="cards__placeholder--description">Здесь будут отображаться все публикации пользователя.</div>
@@ -32,7 +32,9 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { getUserOtherAds } from '../services/apiClient';
+import { getUserOtherAdsHeaders } from '../services/apiHeaders';
 
 const props = defineProps({
    title: {
@@ -40,42 +42,61 @@ const props = defineProps({
       required: true,
    },
    userId: {
-      type: String,
+      type: Number,
       required: true,
    },
 });
 
+const route = useRoute();
 const ads = ref([]);
-const loading = ref(true);
+const isLoading = ref(false);
 const switcherItems = ['Активные', 'Закрытые'];
 const selectedItem = ref(switcherItems[0]);
-const showSwitcher = ref(true); 
+const xCountOnPage = ref(4);
+
+const saveCountToStorage = (key, count) => {
+   localStorage.setItem(`xCountOnPage_${key}`, count);
+};
+
+const loadCountFromStorage = (key) => {
+   return parseInt(localStorage.getItem(`xCountOnPage_${key}`), 10) || 0;
+};
+
+const setLoadingWithDelay = (isLoadingRef) => new Promise(resolve => {
+   setTimeout(() => {
+      isLoadingRef.value = false;
+      resolve();
+   }, 100);
+});
+
+const fetchHeaders = async (status) => {
+   let headers = null;
+   try {
+      headers = await getUserOtherAdsHeaders(props.userId, status);
+      const count = parseInt(headers['x-count-on-page'], 10);
+      xCountOnPage.value = count;
+      saveCountToStorage(status, count);
+   } catch (error) {
+      console.error('Ошибка при получении заголовков:', error);
+      xCountOnPage.value = 0;
+   }
+};
 
 const fetchAds = async (status) => {
+   xCountOnPage.value = loadCountFromStorage(status);
+   ads.value = [];
+   if (xCountOnPage.value > 0) {
+      isLoading.value = true;
+   }
+   await fetchHeaders(status);
    try {
-      loading.value = true;
       const data = await getUserOtherAds(props.userId, status);
       return data;
    } catch (error) {
       console.error('Ошибка при получении объявлений: ', error);
       return [];
    } finally {
-      loading.value = false;
-   }
-};
-
-const fetchAllAds = async () => {
-   try {
-      const publishedAds = await fetchAds('published');
-      const closedAds = await fetchAds('closed');
-
-      if (publishedAds.length === 0 || closedAds.length === 0) {
-         showSwitcher.value = false;
-      }
-
-      ads.value = publishedAds.concat(closedAds);
-   } catch (error) {
-      console.error('Ошибка при получении всех объявлений: ', error);
+      setLoadingWithDelay(isLoading);
    }
 };
 
@@ -88,15 +109,26 @@ const indicatorStyle = computed(() => {
    };
 });
 
-const handleSwitch = (item) => {
+// Обработка переключения вкладок
+const handleSwitch = async (item) => {
+   if (selectedItem.value === item) return;
+
    selectedItem.value = item;
-   fetchAds(item === 'Активные' ? 'published' : 'closed').then((data) => {
-      ads.value = data;
-   });
+   const newPath = item === 'Закрытые' ? `/user/${props.userId}/closed-ads` : `/user/${props.userId}`;
+   history.replaceState(null, '', newPath);
+
+   const status = item === 'Активные' ? 'published' : 'closed';
+   const data = await fetchAds(status);
+   ads.value = data;
 };
 
+// Загрузка данных при монтировании компонента
 onMounted(() => {
-   fetchAllAds();
+   const initialStatus = route.path.includes('closed-ads') ? 'closed' : 'published';
+   selectedItem.value = initialStatus === 'closed' ? 'Закрытые' : 'Активные';
+   fetchAds(initialStatus).then((data) => {
+      ads.value = data;
+   });
 });
 </script>
 
@@ -109,7 +141,7 @@ onMounted(() => {
    &__title {
       font-size: 20px;
       font-weight: bold;
-      color: #003BCE;
+      color: #3366ff;
       margin-top: 0;
       margin-bottom: 24px;
       line-height: 20px;
@@ -119,18 +151,11 @@ onMounted(() => {
       display: flex;
       align-items: center;
       position: relative;
-      border: 1px solid #d6d6d6;
+      box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
       border-radius: 6px;
-      gap: 20px;
-      padding: 0 20px;
       height: 40px;
       margin-bottom: 24px;
       overflow: hidden;
-
-      @media screen and (max-width: 768px) {
-         padding: 0;
-         margin-bottom: 16px;
-      }
    }
 
    &__item {
@@ -138,10 +163,12 @@ onMounted(() => {
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #323232;
       font-size: 14px;
       cursor: pointer;
-      transition: color 0.3s ease;
+      height: 100%;
+      position: relative;
+      color: #333;
+      transition: color 0.3s ease, font-weight 0.3s ease, background-color 0.3s ease;
 
       &--active {
          color: #3366ff;
@@ -149,7 +176,8 @@ onMounted(() => {
       }
 
       &:hover {
-         color: #003bce;
+         color: #3366ff;
+         background-color: rgba(51, 102, 255, 0.1);
       }
    }
 
@@ -158,7 +186,7 @@ onMounted(() => {
       bottom: 0;
       height: 4px;
       background-color: #3366ff;
-      transition: left 0.2s ease, width 0.2s ease;
+      transition: left 0.3s ease, width 0.3s ease;
    }
 
    &__main {
@@ -166,15 +194,15 @@ onMounted(() => {
       grid-template-columns: repeat(4, 1fr);
       gap: 24px;
 
-      @media screen and (max-width: 1350px) {
+      @media (max-width: 1350px) {
          grid-template-columns: repeat(3, 1fr);
       }
 
-      @media screen and (max-width: 1100px) {
+      @media (max-width: 1100px) {
          grid-template-columns: repeat(2, 1fr);
       }
 
-      @media screen and (max-width: 480px) {
+      @media (max-width: 480px) {
          grid-template-columns: 1fr;
       }
    }
@@ -187,6 +215,11 @@ onMounted(() => {
       text-align: center;
       gap: 16px;
       margin: 72px auto;
+
+      @media (max-width: 480px) {
+         grid-template-columns: 1fr;
+         max-width: 80%;
+      }
 
       &--text {
          font-size: 14px;

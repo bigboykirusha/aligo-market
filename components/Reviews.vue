@@ -1,8 +1,7 @@
 <template>
    <div class="reviews">
-      <div class="reviews__title">
-         Отзывы
-      </div>
+      <div class="reviews__title">Отзывы</div>
+
       <div class="reviews__switcher">
          <div v-for="(item, index) in switcherItems" :key="index" class="reviews__item"
             :class="{ 'reviews__item--active': selectedItem === item }" @click="handleSwitch(item)">
@@ -10,106 +9,154 @@
          </div>
          <div class="reviews__indicator" :style="indicatorStyle"></div>
       </div>
-      <div class="reviews__content">
-         <NotificationCardSkeleton v-if="loading" v-for="index in 3" :key="index" />
-         <div v-show="!loading && !reviews.length" class="reviews__placeholder">
-            <img src="../assets/icons/reviews-icon.svg" alt="">
+
+      <div class="reviews__container">
+         <NotificationCardSkeleton v-if="loading" v-for="index in 2" :key="index" />
+         <div v-show="!loading && selectedReviews.length === 0" class="reviews__placeholder">
+            <img src="../assets/icons/reviews-icon.svg" alt="" />
             <p class="reviews__placeholder-text">Отзывов пока нет</p>
-            <p class="reviews__placeholder-description">
-               Здесь будут собираться все отзывы
-            </p>
+            <p class="reviews__placeholder-description">Здесь будут собираться все отзывы</p>
          </div>
-         <div class="reviews__container" v-if="!loading && reviews.length">
-            <ReviewCard v-for="review in reviews" :key="review.id" :review="review" />
-         </div>
+         <ReviewCard v-if="!loading && selectedReviews.length" v-for="review in selectedReviews" :key="review.id"
+            :review="review" />
       </div>
    </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { getAboutMeReviews, getLeftToAnotherReviews } from '~/services/apiClient.js';
-
-const reviews = ref([]);
-const loading = ref(true);
+import { useRoute } from 'vue-router';
+import { getAboutMeReviews, getLeftToAnotherReviews } from '~/services/apiClient';
 
 const switcherItems = ['Обо мне', 'Мои'];
-const selectedItem = ref(switcherItems[0]);
+const ROUTE_MAP = {
+   'Обо мне': 'reviews/aboutme',
+   'Мои': 'reviews/mine',
+};
+const ITEM_MAP = Object.fromEntries(
+   Object.entries(ROUTE_MAP).map(([key, value]) => [value, key])
+);
 
-const fetchReviews = async (type) => {
+const route = useRoute();
+const selectedItem = ref(switcherItems[0]);
+const reviews = ref([]);
+const aboutme = ref([]);
+const loading = ref(false);
+const activeIndex = ref(0);
+
+const fetchFunctions = {
+   'Обо мне': getAboutMeReviews,
+   'Мои': getLeftToAnotherReviews,
+};
+
+const fetchReviews = async () => {
+   loading.value = true;
    try {
-      loading.value = true;
-      if (type === 'Обо мне') {
-         reviews.value = await getAboutMeReviews();
+      if (selectedItem.value === 'Обо мне') {
+         aboutme.value = await fetchFunctions['Обо мне']();
       } else {
-         reviews.value = await getLeftToAnotherReviews();
+         reviews.value = await fetchFunctions['Мои']();
       }
    } catch (error) {
-      console.error('Ошибка при получении отзывов: ', error);
+      console.error('Ошибка при получении данных:', error);
    } finally {
       loading.value = false;
    }
 };
 
-const indicatorStyle = computed(() => {
-   const index = switcherItems.indexOf(selectedItem.value);
-   const percentage = (index / switcherItems.length) * 100;
-   return {
-      width: `${100 / switcherItems.length}%`,
-      left: `${percentage}%`,
-   };
-});
+const handleSwitch = async (item) => {
+   if (selectedItem.value === item) return;
 
-const handleSwitch = (item) => {
+   activeIndex.value = switcherItems.indexOf(item);
    selectedItem.value = item;
-   fetchReviews(item);
+
+   const slug = ROUTE_MAP[item].split('/');
+   const url = `/profile/${slug.join('/')}`;
+   history.replaceState({ ...history.state, forward: null, back: null }, '', url);
+   fetchReviews();
 };
 
-onMounted(() => {
-   fetchReviews(selectedItem.value);
-});
+const indicatorStyle = computed(() => ({
+   width: `${100 / switcherItems.length}%`,
+   left: `${(activeIndex.value / switcherItems.length) * 100}%`,
+   transition: 'left 0.3s ease',
+}));
+
+const selectedReviews = computed(() =>
+   selectedItem.value === 'Обо мне' ? aboutme.value : reviews.value
+);
+
+const updateSelectedItem = async () => {
+   const slug = route.params.slug || [];
+   let newItem = switcherItems[0];
+
+   if (slug.length === 2 && slug.join('/') === ROUTE_MAP['Обо мне']) {
+      newItem = 'Обо мне';
+   } else if (slug.length === 2 && slug.join('/') === ROUTE_MAP['Мои']) {
+      newItem = 'Мои';
+   }
+
+   activeIndex.value = switcherItems.indexOf(newItem);
+   selectedItem.value = newItem;
+   fetchReviews();
+};
+
+onMounted(updateSelectedItem);
 </script>
 
 <style scoped lang="scss">
 .reviews {
    width: 100%;
-
-   ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      height: auto;
-      max-height: calc(100vh - 350px);
-      overflow-y: auto;
-
-      @media screen and (max-width: 480px) {
-         max-height: calc(100vh - 320px);
-      }
-   }
+   display: flex;
+   flex-direction: column;
 
    &__title {
       color: #3366ff;
       font-size: 20px;
       font-weight: 700;
       margin-bottom: 24px;
+   }
+
+   &__switcher {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      position: relative;
+      box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
+      border-radius: 6px;
+      height: 40px;
+      margin-bottom: 24px;
+      overflow: hidden;
    }
 
-   &__content {
+   &__item {
+      flex: 1;
       display: flex;
-      flex-direction: column;
-      gap: 16px;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      cursor: pointer;
+      height: 100%;
+      position: relative;
+      color: #333;
+      transition: color 0.3s ease, font-weight 0.3s ease, background-color 0.3s ease;
+
+      &--active {
+         color: #3366ff;
+         font-weight: 700;
+      }
+
+      &:hover {
+         color: #3366ff;
+         background-color: rgba(51, 102, 255, 0.1);
+      }
    }
 
-   &__container {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
+   &__indicator {
+      position: absolute;
+      bottom: 0;
+      height: 4px;
+      background-color: #3366ff;
+      transition: left 0.3s ease, width 0.3s ease;
    }
 
    &__placeholder {
@@ -136,76 +183,10 @@ onMounted(() => {
       color: #323232;
    }
 
-   &__indicator {
-      position: absolute;
-      bottom: 0;
-      height: 4px;
-      background-color: #3366ff;
-      transition: left 0.2s ease, width 0.2s ease;
-   }
-
-   &__switcher {
+   &__container {
       display: flex;
-      align-items: center;
-      position: relative;
-      border: 1px solid #d6d6d6;
-      border-radius: 6px;
-      gap: 20px;
-      padding: 0 20px;
-      height: 40px;
-      margin-bottom: 24px;
-      overflow: hidden;
-
-      @media (max-width: 768px) {
-         padding: 0;
-         margin-bottom: 16px;
-         height: 34px;
-         overflow-x: auto;
-         gap: 16px;
-         scrollbar-width: none;
-
-         &::-webkit-scrollbar {
-            display: none;
-         }
-      }
-   }
-
-   &__item {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #323232;
-      font-size: 14px;
-      cursor: pointer;
-      transition: color 0.3s ease, font-weight 0.3s ease;
-      height: 100%;
-
-      @media (max-width: 768px) {
-         min-width: none;
-         padding: 0 16px;
-      }
-
-      &--active {
-         color: #3366ff;
-         font-weight: 700;
-      }
-
-      &:hover {
-         color: #003bce;
-      }
-   }
-
-   &__indicator {
-      position: absolute;
-      bottom: 0;
-      height: 4px;
-      background-color: #3366ff;
-      transition: transform 0.3s ease;
-
-      @media (max-width: 768px) {
-         display: none;
-      }
+      flex-direction: column;
+      gap: 16px;
    }
 }
 </style>

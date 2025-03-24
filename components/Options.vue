@@ -2,76 +2,79 @@
    <div class="characteristics">
       <div class="characteristics__content">
          <SelectSkeleton v-if="loading" />
-         <SelectOptionsTemplate v-else label="Усилитель руля" :initialSelectedOption="createStore.power_steering"
-            :options="PowerSteeringOptions" @updateSort="handlePowerSteeringUpdate" placeholder="Нажмите для выбора" />
+         <SelectOptionsTemplate v-else label="Усилитель руля" :initialSelectedOption="createStore.power_steering_id"
+            :options="PowerSteeringOptions" @updateSort="(value) => handleFieldUpdate('power_steering_id', value)"
+            placeholder="Нажмите для выбора" />
          <div class="checkbox-section">
             <div class="checkbox-section__title">Управление климатом</div>
             <div class="checkbox-section__items">
                <SelectSkeleton v-if="loading" />
-               <SelectOptionsTemplate v-else :initialSelectedOption="createStore.climate" :options="ClimateOptions"
-                  @updateSort="handleClimateUpdate" placeholder="Нажмите для выбора" />
+               <SelectOptionsTemplate v-else :initialSelectedOption="createStore.climate_management_id"
+                  :options="ClimateOptions" @updateSort="(value) => handleFieldUpdate('climate_management_id', value)"
+                  placeholder="Нажмите для выбора" />
                <SimpleCheckboxTemplate label="Управление на руле" :checked="createStore.is_wheel_control"
-                  @updateChecked="handleWheelControlUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_wheel_control', value)" />
                <SimpleCheckboxTemplate label="Атермальное остекление" :checked="createStore.is_athermal_glazing"
-                  @updateChecked="handleAthermalGlazingUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_athermal_glazing', value)" />
             </div>
          </div>
          <div class="checkbox-section">
             <div class="checkbox-section__title">Салон</div>
             <div class="checkbox-section__items">
                <SelectSkeleton v-if="loading" />
-               <SelectOptionsTemplate v-else :activeIndexes="createStore.salon" :options="SalonOptions"
-                  @updateSort="handleSalonUpdate" placeholder="Нажмите для выбора" />
+               <SelectOptionsTemplate v-else :activeIndexes="createStore.salon_id" :options="SalonOptions"
+                  @updateSort="(value) => handleFieldUpdate('salon_id', value)" placeholder="Нажмите для выбора" />
                <SimpleCheckboxTemplate label="Кожаный руль" :checked="createStore.is_leather_wheel"
-                  @updateChecked="handleLeatherWheelUpdate" />
-               <SimpleCheckboxTemplate label="Люк" :checked="createStore.is_hatch" @updateChecked="handleHatchUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_leather_wheel', value)" />
+               <SimpleCheckboxTemplate label="Люк" :checked="createStore.is_hatch"
+                  @updateChecked="(value) => handleFieldUpdate('is_hatch', value)" />
             </div>
          </div>
          <div class="checkbox-section">
             <div class="checkbox-section__title">Обогрев</div>
             <div class="checkbox-section__items">
                <SimpleCheckboxTemplate label="Передних сидений" :checked="createStore.is_front_seats"
-                  @updateChecked="handleFrontSeatsUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_front_seats', value)" />
                <SimpleCheckboxTemplate label="Задних сидений" :checked="createStore.is_rear_seats"
-                  @updateChecked="handleRearSeatsUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_rear_seats', value)" />
                <SimpleCheckboxTemplate label="Зеркал" :checked="createStore.is_mirrors"
-                  @updateChecked="handleMirrorsUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_mirrors', value)" />
                <SimpleCheckboxTemplate label="Заднего стекла" :checked="createStore.is_rear_window"
-                  @updateChecked="handleRearWindowUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_rear_window', value)" />
                <SimpleCheckboxTemplate label="Руля" :checked="createStore.is_steering_wheel"
-                  @updateChecked="handleSteeringWheelUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_steering_wheel', value)" />
             </div>
          </div>
          <SelectSkeleton v-if="loading" />
          <SelectOptionsTemplate v-else label="Электростеклоподъемники"
-            :initialSelectedOption="createStore.electric_window" :options="ElectricWindowOptions"
-            @updateSort="handleElectricWindowUpdate" placeholder="Нажмите для выбора" />
+            :initialSelectedOption="createStore.electric_windows_id" :options="ElectricWindowOptions"
+            @updateSort="(value) => handleFieldUpdate('electric_windows_id', value)" placeholder="Нажмите для выбора" />
          <div class="checkbox-section">
             <div class="checkbox-section__title">Электропривод</div>
             <div class="checkbox-section__items">
                <SimpleCheckboxTemplate label="Передних сидений" :checked="createStore.is_front_seats_drives"
-                  @updateChecked="handleFrontSeatsDrivesUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_front_seats_drives', value)" />
                <SimpleCheckboxTemplate label="Задних сидений" :checked="createStore.is_rear_seats_drives"
-                  @updateChecked="handleRearSeatsDrivesUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_rear_seats_drives', value)" />
                <SimpleCheckboxTemplate label="Зеркал" :checked="createStore.is_mirrors_drives"
-                  @updateChecked="handleMirrorsDrivesUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_mirrors_drives', value)" />
                <SimpleCheckboxTemplate label="Рулевой колонки" :checked="createStore.is_steering_column_drives"
-                  @updateChecked="handleSteeringColumnDrivesUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_steering_column_drives', value)" />
                <SimpleCheckboxTemplate label="Складывающихся зеркал" :checked="createStore.is_folding_mirrors_drives"
-                  @updateChecked="handleFoldingMirrorsDrivesUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_folding_mirrors_drives', value)" />
             </div>
          </div>
          <div class="checkbox-section">
             <div class="checkbox-section__title">Память настроек</div>
             <div class="checkbox-section__items">
                <SimpleCheckboxTemplate label="Передних сидений" :checked="createStore.is_front_seats_setting"
-                  @updateChecked="handleFrontSeatsSettingUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_front_seats_setting', value)" />
                <SimpleCheckboxTemplate label="Задних сидений" :checked="createStore.is_rear_seats_setting"
-                  @updateChecked="handleRearSeatsSettingUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_rear_seats_setting', value)" />
                <SimpleCheckboxTemplate label="Зеркал" :checked="createStore.is_mirrors_setting"
-                  @updateChecked="handleMirrorsSettingUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_mirrors_setting', value)" />
                <SimpleCheckboxTemplate label="Рулевой колонки" :checked="createStore.is_steering_column_setting"
-                  @updateChecked="handleSteeringColumnSettingUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_steering_column_setting', value)" />
             </div>
          </div>
       </div>
@@ -80,128 +83,136 @@
             <div class="checkbox-section__title">Помощь при вождении</div>
             <div class="checkbox-section__items">
                <SimpleCheckboxTemplate label="Система контроля слепых зон"
-                  :checked="createStore.is_blind_spot_monitoring" @updateChecked="handleBlindSpotMonitoringUpdate" />
+                  :checked="createStore.is_blind_spot_monitoring"
+                  @updateChecked="(value) => handleFieldUpdate('is_blind_spot_monitoring', value)" />
                <SimpleCheckboxTemplate label="Автоматический парковщик" :checked="createStore.is_automatic_parking"
-                  @updateChecked="handleAutomaticParkingUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_automatic_parking', value)" />
                <SimpleCheckboxTemplate label="Датчик дождя" :checked="createStore.is_rain_sensor"
-                  @updateChecked="handleRainSensorUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_rain_sensor', value)" />
                <SimpleCheckboxTemplate label="Датчик света" :checked="createStore.is_light_sensor"
-                  @updateChecked="handleLightSensorUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_light_sensor', value)" />
                <SimpleCheckboxTemplate label="Задний парктроник" :checked="createStore.is_rear_parking_sensor"
-                  @updateChecked="handleRearParkingSensorUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_rear_parking_sensor', value)" />
                <SimpleCheckboxTemplate label="Передний парктроник" :checked="createStore.is_front_parking_sensor"
-                  @updateChecked="handleFrontParkingSensorUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_front_parking_sensor', value)" />
                <SimpleCheckboxTemplate label="Камера заднего вида" :checked="createStore.is_rear_view_camera"
-                  @updateChecked="handleRearViewCameraUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_rear_view_camera', value)" />
                <SimpleCheckboxTemplate label="Круиз-контроль" :checked="createStore.is_cruise_control"
-                  @updateChecked="handleCruiseControlUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_cruise_control', value)" />
                <SimpleCheckboxTemplate label="Бортовой компьютер" :checked="createStore.is_onboard_computer"
-                  @updateChecked="handleOnboardComputerUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_onboard_computer', value)" />
             </div>
          </div>
          <div class="checkbox-section">
             <div class="checkbox-section__title">Противоугонная система</div>
             <div class="checkbox-section__items">
                <SimpleCheckboxTemplate label="Сигнализация" :checked="createStore.is_alarm_system"
-                  @updateChecked="handleAlarmSystemUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_alarm_system', value)" />
                <SimpleCheckboxTemplate label="Центральный замок" :checked="createStore.is_central_lock"
-                  @updateChecked="handleCentralLockUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_central_lock', value)" />
                <SimpleCheckboxTemplate label="Иммобилайзер" :checked="createStore.is_immobilizer"
-                  @updateChecked="handleImmobilizerUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_immobilizer', value)" />
                <SimpleCheckboxTemplate label="Спутник" :checked="createStore.is_satellite"
-                  @updateChecked="handleSatelliteUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_satellite', value)" />
             </div>
          </div>
          <div class="checkbox-section">
             <div class="checkbox-section__title">Подушки безопасности</div>
             <div class="checkbox-section__items">
                <SimpleCheckboxTemplate label="Фронтальные" :checked="createStore.is_frontal_airbags"
-                  @updateChecked="handleFrontalAirbagsUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_frontal_airbags', value)" />
                <SimpleCheckboxTemplate label="Коленные" :checked="createStore.is_knee_high_airbags"
-                  @updateChecked="handleKneeHighAirbagsUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_knee_high_airbags', value)" />
                <SimpleCheckboxTemplate label="Шторки" :checked="createStore.is_curtains_airbags"
-                  @updateChecked="handleCurtainsAirbagsUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_curtains_airbags', value)" />
                <SimpleCheckboxTemplate label="Боковые (перед)" :checked="createStore.is_side_front_airbags"
-                  @updateChecked="handleSideFrontAirbagsUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_side_front_airbags', value)" />
                <SimpleCheckboxTemplate label="Боковые (зад)" :checked="createStore.is_side_rear_airbags"
-                  @updateChecked="handleSideRearAirbagsUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_side_rear_airbags', value)" />
             </div>
          </div>
          <div class="checkbox-section">
             <div class="checkbox-section__title">Активная безопасность</div>
             <div class="checkbox-section__items">
                <SimpleCheckboxTemplate label="Антиблокировка тормозов" :checked="createStore.is_anti_lock_brakes"
-                  @updateChecked="handleAntiLockBrakesUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_anti_lock_brakes', value)" />
                <SimpleCheckboxTemplate label="Антипробуксовка" :checked="createStore.is_anti_slip"
-                  @updateChecked="handleAntiSlipUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_anti_slip', value)" />
                <SimpleCheckboxTemplate label="Курсовая устойчивость" :checked="createStore.is_exchange_rate_stability"
-                  @updateChecked="handleExchangeRateStabilityUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_exchange_rate_stability', value)" />
                <SimpleCheckboxTemplate label="Распред. тормозных усилий"
-                  :checked="createStore.is_distrib_braking_forces" @updateChecked="handleDistribBrakingForcesUpdate" />
+                  :checked="createStore.is_distrib_braking_forces"
+                  @updateChecked="(value) => handleFieldUpdate('is_distrib_braking_forces', value)" />
                <SimpleCheckboxTemplate label="Экстренное торможение" :checked="createStore.is_emergency_braking"
-                  @updateChecked="handleEmergencyBrakingUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_emergency_braking', value)" />
                <SimpleCheckboxTemplate label="Блок. дифференциала" :checked="createStore.is_differential_block"
-                  @updateChecked="handleDifferentialBlockUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_differential_block', value)" />
                <SimpleCheckboxTemplate label="Обнаружение пешеходов" :checked="createStore.is_pedestrian_detection"
-                  @updateChecked="handlePedestrianDetectionUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_pedestrian_detection', value)" />
             </div>
          </div>
       </div>
       <div class="characteristics__content">
          <div class="checkbox-section">
-            <div class="checkbox-section__title">Мультимедиа и навигация</div>
+            <div class="checkbox-section__title">Шины и диски</div>
             <div class="checkbox-section__items">
-               <SimpleCheckboxTemplate label="CD/DVD/Bluray" :checked="createStore.is_CD_DVD_Bluray"
-                  @updateChecked="handleCDDVDBlurayUpdate" />
-               <SimpleCheckboxTemplate label="AUX" :checked="createStore.is_AUX" @updateChecked="handleAUXUpdate" />
-               <SimpleCheckboxTemplate label="MP3" :checked="createStore.is_MP3" @updateChecked="handleMP3Update" />
-               <SimpleCheckboxTemplate label="Управление на руле" :checked="createStore.is_steering_wheel_control"
-                  @updateChecked="handleSteeringWheelControlUpdate" />
-               <SimpleCheckboxTemplate label="Bluetooth" :checked="createStore.is_Bluetooth"
-                  @updateChecked="handleBluetoothUpdate" />
-               <SimpleCheckboxTemplate label="Радио" :checked="createStore.is_Radio"
-                  @updateChecked="handleRadioUpdate" />
-               <SimpleCheckboxTemplate label="TV" :checked="createStore.is_TV" @updateChecked="handleTVUpdate" />
-               <SimpleCheckboxTemplate label="Видео" :checked="createStore.is_Video"
-                  @updateChecked="handleVideoUpdate" />
-               <SimpleCheckboxTemplate label="USB" :checked="createStore.is_USB" @updateChecked="handleUSBUpdate" />
-               <SimpleCheckboxTemplate label="GPS навигатор" :checked="createStore.is_GPS_navigator"
-                  @updateChecked="handleGPSNavigatorUpdate" />
+               <SelectSkeleton v-if="loading" />
+               <SelectOptionsTemplate v-else :initialSelectedOption="createStore.tires_wheels_id" :isRevers="true"
+                  :options="WheelsOptions" @updateSort="(value) => handleFieldUpdate('tires_wheels_id', value)"
+                  placeholder="Нажмите для выбора" />
+               <SimpleCheckboxTemplate label="Зимний комплект" :checked="createStore.is_winter_included"
+                  @updateChecked="(value) => handleFieldUpdate('is_winter_included', value)" />
             </div>
          </div>
          <div class="checkbox-section">
             <div class="checkbox-section__title">Аудиосистема</div>
             <div class="checkbox-section__items">
                <SelectSkeleton v-if="loading" />
-               <SelectOptionsTemplate v-else :initialSelectedOption="createStore.audio_system"
-                  :options="AudioSystemOptions" @updateSort="handleAudioSystemUpdate"
+               <SelectOptionsTemplate v-else :initialSelectedOption="createStore.audio_systems_id"
+                  :options="AudioSystemOptions" @updateSort="(value) => handleFieldUpdate('audio_systems_id', value)"
                   placeholder="Нажмите для выбора" />
                <SimpleCheckboxTemplate label="Сабвуфер" :checked="createStore.is_subwoofer"
-                  @updateChecked="handleSubwooferUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_subwoofer', value)" />
             </div>
          </div>
          <div class="checkbox-section">
             <div class="checkbox-section__title">Фары</div>
             <div class="checkbox-section__items">
                <SelectSkeleton v-if="loading" />
-               <SelectOptionsTemplate v-else :initialSelectedOption="createStore.headlight" :options="HeadlightOptions"
-                  @updateSort="handleHeadlightUpdate" placeholder="Нажмите для выбора" />
+               <SelectOptionsTemplate v-else :initialSelectedOption="createStore.headlight_id"
+                  :options="HeadlightOptions" @updateSort="(value) => handleFieldUpdate('headlight_id', value)"
+                  placeholder="Нажмите для выбора" />
                <SimpleCheckboxTemplate label="Омыватели фар" :checked="createStore.is_washers"
-                  @updateChecked="handleWashersUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_washers', value)" />
                <SimpleCheckboxTemplate label="Адаптивное освещение" :checked="createStore.is_adaptive_lighting"
-                  @updateChecked="handleAdaptiveLightingUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_adaptive_lighting', value)" />
                <SimpleCheckboxTemplate label="Противотуманные фары" :checked="createStore.is_antifog"
-                  @updateChecked="handleAntifogUpdate" />
+                  @updateChecked="(value) => handleFieldUpdate('is_antifog', value)" />
             </div>
          </div>
          <div class="checkbox-section">
-            <div class="checkbox-section__title">Шины и диски</div>
+            <div class="checkbox-section__title">Мультимедиа и навигация</div>
             <div class="checkbox-section__items">
-               <SelectSkeleton v-if="loading" />
-               <SelectOptionsTemplate v-else :initialSelectedOption="createStore.wheels" :options="WheelsOptions"
-                  @updateSort="handleWheelsUpdate" placeholder="Нажмите для выбора" />
-               <SimpleCheckboxTemplate label="Зимний комплект" :checked="createStore.is_winter_included"
-                  @updateChecked="handleWinterIncludedUpdate" />
+               <SimpleCheckboxTemplate label="CD/DVD/Bluray" :checked="createStore.is_CD_DVD_Bluray"
+                  @updateChecked="(value) => handleFieldUpdate('is_CD_DVD_Bluray', value)" />
+               <SimpleCheckboxTemplate label="AUX" :checked="createStore.is_AUX"
+                  @updateChecked="(value) => handleFieldUpdate('is_AUX', value)" />
+               <SimpleCheckboxTemplate label="MP3" :checked="createStore.is_MP3"
+                  @updateChecked="(value) => handleFieldUpdate('is_MP3', value)" />
+               <SimpleCheckboxTemplate label="Управление на руле" :checked="createStore.is_steering_wheel_control"
+                  @updateChecked="(value) => handleFieldUpdate('is_steering_wheel_control', value)" />
+               <SimpleCheckboxTemplate label="Bluetooth" :checked="createStore.is_Bluetooth"
+                  @updateChecked="(value) => handleFieldUpdate('is_Bluetooth', value)" />
+               <SimpleCheckboxTemplate label="Радио" :checked="createStore.is_Radio"
+                  @updateChecked="(value) => handleFieldUpdate('is_Radio', value)" />
+               <SimpleCheckboxTemplate label="TV" :checked="createStore.is_TV"
+                  @updateChecked="(value) => handleFieldUpdate('is_TV', value)" />
+               <SimpleCheckboxTemplate label="Видео" :checked="createStore.is_Video"
+                  @updateChecked="(value) => handleFieldUpdate('is_Video', value)" />
+               <SimpleCheckboxTemplate label="USB" :checked="createStore.is_USB"
+                  @updateChecked="(value) => handleFieldUpdate('is_USB', value)" />
+               <SimpleCheckboxTemplate label="GPS навигатор" :checked="createStore.is_GPS_navigator"
+                  @updateChecked="(value) => handleFieldUpdate('is_GPS_navigator', value)" />
             </div>
          </div>
       </div>
@@ -209,9 +220,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useCreateStore } from '../store/create';
 import { getCarsPts, getCarsPowerSteering, getCarsSalon, getCarsElectricWindow, getCarsWheels, getCarsAudioSystem, getCarsClimate, getCarsHeadlight } from '../services/apiClient';
+import { fetchDataWithCache } from '../services/createUtils';
 
 const loading = ref(true);
 const createStore = useCreateStore();
@@ -223,7 +235,6 @@ const AudioSystemOptions = ref([]);
 const WheelsOptions = ref([]);
 const HeadlightOptions = ref([]);
 const ClimateOptions = ref([]);
-const isMobile = ref(false);
 
 const fetchOptions = async () => {
    try {
@@ -243,200 +254,44 @@ const fetchOptions = async () => {
    }
 };
 
-const fetchPtsOptions = async () => {
-   try {
-      const cachedPtsOptions = JSON.parse(localStorage.getItem('PtsOptions'));
-      if (cachedPtsOptions) {
-         PtsOptions.value = cachedPtsOptions;
-      } else {
-         PtsOptions.value = await getCarsPts();
-         localStorage.setItem('PtsOptions', JSON.stringify(PtsOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении ПТС:', error);
-   }
+const handleFieldUpdate = (field, value) => {
+   createStore.setField(field, value);
 };
 
-const fetchSalonOptions = async () => {
-   try {
-      const cachedSalonOptions = JSON.parse(localStorage.getItem('SalonOptions'));
-      if (cachedSalonOptions) {
-         SalonOptions.value = cachedSalonOptions;
-      } else {
-         SalonOptions.value = await getCarsSalon();
-         localStorage.setItem('SalonOptions', JSON.stringify(SalonOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении салонов:', error);
-   }
+const fetchPtsOptions = async () => {
+   PtsOptions.value = await fetchDataWithCache('PtsOptions', getCarsPts);
 };
 
 const fetchPowerSteeringOptions = async () => {
-   try {
-      const cachedPowerSteeringOptions = JSON.parse(localStorage.getItem('PowerSteeringOptions'));
-      if (cachedPowerSteeringOptions) {
-         PowerSteeringOptions.value = cachedPowerSteeringOptions;
-      } else {
-         PowerSteeringOptions.value = await getCarsPowerSteering();
-         localStorage.setItem('PowerSteeringOptions', JSON.stringify(PowerSteeringOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении усилителей руля:', error);
-   }
+   PowerSteeringOptions.value = await fetchDataWithCache('PowerSteeringOptions', getCarsPowerSteering);
+};
+
+const fetchSalonOptions = async () => {
+   SalonOptions.value = await fetchDataWithCache('SalonOptions', getCarsSalon);
 };
 
 const fetchElectricWindowOptions = async () => {
-   try {
-      const cachedElectricWindowOptions = JSON.parse(localStorage.getItem('ElectricWindowOptions'));
-      if (cachedElectricWindowOptions) {
-         ElectricWindowOptions.value = cachedElectricWindowOptions;
-      } else {
-         ElectricWindowOptions.value = await getCarsElectricWindow();
-         localStorage.setItem('ElectricWindowOptions', JSON.stringify(ElectricWindowOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении окон с электроприводом:', error);
-   }
+   ElectricWindowOptions.value = await fetchDataWithCache('ElectricWindowOptions', getCarsElectricWindow);
 };
 
 const fetchWheelsOptions = async () => {
-   try {
-      const cachedWheelsOptions = JSON.parse(localStorage.getItem('WheelsOptions'));
-      if (cachedWheelsOptions) {
-         WheelsOptions.value = cachedWheelsOptions;
-      } else {
-         WheelsOptions.value = await getCarsWheels();
-         localStorage.setItem('WheelsOptions', JSON.stringify(WheelsOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении колес:', error);
-   }
+   WheelsOptions.value = await fetchDataWithCache('WheelsOptions', getCarsWheels);
 };
 
 const fetchAudioSystemOptions = async () => {
-   try {
-      const cachedAudioSystemOptions = JSON.parse(localStorage.getItem('AudioSystemOptions'));
-      if (cachedAudioSystemOptions) {
-         AudioSystemOptions.value = cachedAudioSystemOptions;
-      } else {
-         AudioSystemOptions.value = await getCarsAudioSystem();
-         localStorage.setItem('AudioSystemOptions', JSON.stringify(AudioSystemOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении аудиосистем:', error);
-   }
+   AudioSystemOptions.value = await fetchDataWithCache('AudioSystemOptions', getCarsAudioSystem);
 };
 
 const fetchClimateOptions = async () => {
-   try {
-      const cachedClimateOptions = JSON.parse(localStorage.getItem('ClimateOptions'));
-      if (cachedClimateOptions) {
-         ClimateOptions.value = cachedClimateOptions;
-      } else {
-         ClimateOptions.value = await getCarsClimate();
-         localStorage.setItem('ClimateOptions', JSON.stringify(ClimateOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении климат-контроля:', error);
-   }
+   ClimateOptions.value = await fetchDataWithCache('ClimateOptions', getCarsClimate);
 };
 
 const fetchHeadlightOptions = async () => {
-   try {
-      const cachedHeadlightOptions = JSON.parse(localStorage.getItem('HeadlightOptions'));
-      if (cachedHeadlightOptions) {
-         HeadlightOptions.value = cachedHeadlightOptions;
-      } else {
-         HeadlightOptions.value = await getCarsHeadlight();
-         localStorage.setItem('HeadlightOptions', JSON.stringify(HeadlightOptions.value));
-      }
-   } catch (error) {
-      console.error('Ошибка при получении фар:', error);
-   }
+   HeadlightOptions.value = await fetchDataWithCache('HeadlightOptions', getCarsHeadlight);
 };
-
-const handleSalonUpdate = (selectedOptions) => createStore.setSalon(selectedOptions);
-const handleAudioSystemUpdate = (selectedOptions) => createStore.setAudioSystem(selectedOptions);
-const handleClimateUpdate = (selectedOptions) => createStore.setClimate(selectedOptions);
-const handleElectricWindowUpdate = (selectedOptions) => createStore.setElectricWindow(selectedOptions);
-const handleWheelsUpdate = (selectedOptions) => createStore.setWheels(selectedOptions);
-const handlePowerSteeringUpdate = (selectedOptions) => createStore.setPowerSteering(selectedOptions);
-const handleHeadlightUpdate = (selectedOptions) => createStore.setHeadlight(selectedOptions);
-
-const handleFrontSeatsUpdate = (value) => createStore.setIsFrontSeats(value);
-const handleRearSeatsUpdate = (value) => createStore.setIsRearSeats(value);
-const handleMirrorsUpdate = (value) => createStore.setIsMirrors(value);
-const handleRearWindowUpdate = (value) => createStore.setIsRearWindow(value);
-const handleSteeringWheelUpdate = (value) => createStore.setIsSteeringWheel(value);
-const handleFrontSeatsDrivesUpdate = (value) => createStore.setIsFrontSeatsDrives(value);
-const handleRearSeatsDrivesUpdate = (value) => createStore.setIsRearSeatsDrives(value);
-const handleMirrorsDrivesUpdate = (value) => createStore.setIsMirrorsDrives(value);
-const handleSteeringColumnDrivesUpdate = (value) => createStore.setIsSteeringColumnDrives(value);
-const handleFoldingMirrorsDrivesUpdate = (value) => createStore.setIsFoldingMirrorsDrives(value);
-const handleFrontSeatsSettingUpdate = (value) => createStore.setIsFrontSeatsSetting(value);
-const handleRearSeatsSettingUpdate = (value) => createStore.setIsRearSeatsSetting(value);
-const handleMirrorsSettingUpdate = (value) => createStore.setIsMirrorsSetting(value);
-const handleSteeringColumnSettingUpdate = (value) => createStore.setIsSteeringColumnSetting(value);
-const handleBlindSpotMonitoringUpdate = (value) => createStore.setIsBlindSpotMonitoring(value);
-const handleAutomaticParkingUpdate = (value) => createStore.setIsAutomaticParking(value);
-const handleRainSensorUpdate = (value) => createStore.setIsRainSensor(value);
-const handleRearParkingSensorUpdate = (value) => createStore.setIsRearParkingSensor(value);
-const handleFrontParkingSensorUpdate = (value) => createStore.setIsFrontParkingSensor(value);
-const handleRearViewCameraUpdate = (value) => createStore.setIsRearViewCamera(value);
-const handleCruiseControlUpdate = (value) => createStore.setIsCruiseControl(value);
-const handleOnboardComputerUpdate = (value) => createStore.setIsOnboardComputer(value);
-const handleAlarmSystemUpdate = (value) => createStore.setIsAlarmSystem(value);
-const handleCentralLockUpdate = (value) => createStore.setIsCentralLock(value);
-const handleImmobilizerUpdate = (value) => createStore.setIsImmobilizer(value);
-const handleSatelliteUpdate = (value) => createStore.setIsSatellite(value);
-const handleFrontalAirbagsUpdate = (value) => createStore.setIsFrontalAirbags(value);
-const handleKneeHighAirbagsUpdate = (value) => createStore.setIsKneeHighAirbags(value);
-const handleCurtainsAirbagsUpdate = (value) => createStore.setIsCurtainsAirbags(value);
-const handleSideFrontAirbagsUpdate = (value) => createStore.setIsSideFrontAirbags(value);
-const handleSideRearAirbagsUpdate = (value) => createStore.setIsSideRearAirbags(value);
-const handleAntiLockBrakesUpdate = (value) => createStore.setIsAntiLockBrakes(value);
-const handleAntiSlipUpdate = (value) => createStore.setIsAntiSlip(value);
-const handleExchangeRateStabilityUpdate = (value) => createStore.setIsExchangeRateStability(value);
-const handleDistribBrakingForcesUpdate = (value) => createStore.setIsDistribBrakingForces(value);
-const handleEmergencyBrakingUpdate = (value) => createStore.setIsEmergencyBraking(value);
-const handleDifferentialBlockUpdate = (value) => createStore.setIsDifferentialBlock(value);
-const handlePedestrianDetectionUpdate = (value) => createStore.setIsPedestrianDetection(value);
-const handleCDDVDBlurayUpdate = (value) => createStore.setIsCDDVDBluray(value);
-const handleAUXUpdate = (value) => createStore.setIsAUX(value);
-const handleMP3Update = (value) => createStore.setIsMP3(value);
-const handleBluetoothUpdate = (value) => createStore.setIsBluetooth(value);
-const handleRadioUpdate = (value) => createStore.setIsRadio(value);
-const handleTVUpdate = (value) => createStore.setIsTV(value);
-const handleVideoUpdate = (value) => createStore.setIsVideo(value);
-const handleUSBUpdate = (value) => createStore.setIsUSB(value);
-const handleGPSNavigatorUpdate = (value) => createStore.setIsGPSNavigator(value);
-const handleSubwooferUpdate = (value) => createStore.setIsSubwoofer(value);
-const handleAntifogUpdate = (value) => createStore.setIsAntifog(value);
-const handleWashersUpdate = (value) => createStore.setIsWashers(value);
-const handleAdaptiveLightingUpdate = (value) => createStore.setIsAdaptiveLighting(value);
-const handleAthermalGlazingUpdate = (value) => createStore.setIsAthermalGlazing(value);
-const handleLeatherWheelUpdate = (value) => createStore.setIsLeatherWheel(value);
-const handleHatchUpdate = (value) => createStore.setIsHatch(value);
-const handleWinterIncludedUpdate = (value) => createStore.setIsWinterIncluded(value);
-const handleLightSensorUpdate = (value) => createStore.setIsLightSensor(value);
-const handleWheelControlUpdate = (value) => createStore.setIsWheelControl(value);
-const handleSteeringWheelControlUpdate = (value) => createStore.setIsSteeringWheelControl(value);
-
 
 onMounted(() => {
    fetchOptions();
-
-   if (window.innerWidth <= 1250) {
-      isMobile.value = true;
-   }
-
-   window.addEventListener('resize', () => {
-      isMobile.value = window.innerWidth <= 1250;
-   });
-});
-
-onUnmounted(() => {
-   window.removeEventListener('resize', () => { });
 });
 </script>
 
@@ -446,11 +301,11 @@ onUnmounted(() => {
    flex-direction: row;
    gap: 40px;
 
-   @media screen and (max-width: 1200px) {
+   @media (max-width: 1200px) {
       flex-wrap: wrap;
    }
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       flex-direction: column;
       gap: 24px;
    }

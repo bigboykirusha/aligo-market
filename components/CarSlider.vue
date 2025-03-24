@@ -1,20 +1,18 @@
 <template>
-   <PhotoViewer :images="images" :activeIndex="currentIndex" :isVisible="isPhotoViewerVisible" :adsId="adsId"
-      :userId="userId" @close="closePhotoViewer" />
-   <div class="gallery-container" :class="{ 'gallery-container--no-thumbnails': images.length === 1 }">
+   <PhotoViewer v-if="isPhotoViewerVisible" :images="images" :activeIndex="currentIndex" :adsId="adsId" :userId="userId"
+      @close="closePhotoViewer" />
+   <div v-if="images.length" class="gallery-container"
+      :class="{ 'gallery-container--no-thumbnails': images.length === 1 }">
       <div class="main-slide">
          <div class="clickable-area clickable-area--left" @click="slidePrev"></div>
          <Swiper :slides-per-view="1" :navigation="false" @slideChange="updateActiveImage" :space-between="16"
             @swiper="(swiper) => handleSwiper(swiper, true)">
             <SwiperSlide v-for="(image, index) in images" :key="index">
                <div class="main-image-container">
-                  <picture>
-                     <source :srcset="getImageUrl(image.path_webp)" type="image/webp" />
-                     <img :src="getImageUrl(image.path_webp)" alt="Основное изображение" @click="openPhotoViewer"
-                        :class="['gallery-slider__main-image']" />
-                  </picture>
+                  <img :src="getImageUrl(image.arr_title_size.slider)" alt="Основное изображение"
+                     @click="openPhotoViewer" :class="['gallery-slider__main-image']" />
                   <div class="blurred-background" :style="{
-                     backgroundImage: `url(${getImageUrl(image.path_webp)})`,
+                     backgroundImage: `url(${getImageUrl(image.arr_title_size.preview)})`,
                      filter: isCover ? 'none' : 'blur(20px)',
                   }"></div>
                </div>
@@ -27,7 +25,7 @@
       </div>
 
       <!-- Отображаем блок с миниатюрами, если больше одного изображения -->
-      <div v-if="images.length > 1" class="thumbnails">
+      <div v-show="images.length > 1" class="thumbnails">
          <button @click="slidePrev" class="thumbnail__button thumbnail__button--top"
             :class="{ 'thumbnail__button--disabled': isPrevDisabled }" :disabled="isPrevDisabled"
             aria-label="Предыдущее изображение">
@@ -39,10 +37,7 @@
             <SwiperSlide v-for="(image, index) in images" :key="image.path"
                :class="['thumbnail', { 'thumbnail--active': index === currentIndex }]" @click="setActiveImage(index)"
                role="button" tabindex="0">
-               <picture>
-                  <source :srcset="getImageUrl(image.path_webp)" type="image/webp" />
-                  <img :src="getImageUrl(image.path_webp)" alt="Миниатюра" class="thumbnail__image" />
-               </picture>
+               <img :src="getImageUrl(image.arr_title_size.preview)" alt="Миниатюра" class="thumbnail__image" />
             </SwiperSlide>
          </Swiper>
 
@@ -53,10 +48,13 @@
          </button>
       </div>
    </div>
+   <div class="gallery-container gallery-container--no-thumbnails" v-else>
+      <div class="gallery-container__placeholder"></div>
+   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { getImageUrl } from '../services/imageUtils';
 
@@ -85,22 +83,31 @@ const closePhotoViewer = () => {
 };
 
 const slidePrev = () => {
-   swiperMainInstance.value?.slidePrev();
+   if (swiperMainInstance.value) {
+      swiperMainInstance.value.slidePrev();
+   }
 };
 
 const slideNext = () => {
-   swiperMainInstance.value?.slideNext();
+   if (swiperMainInstance.value) {
+      swiperMainInstance.value.slideNext();
+   }
 };
 
 const setActiveImage = (index) => {
-   currentIndex.value = index;
-   swiperMainInstance.value?.slideTo(currentIndex.value);
-   scrollToActiveThumbnail();
+   if (currentIndex.value !== index) {
+      currentIndex.value = index;
+      swiperMainInstance.value?.slideTo(currentIndex.value);
+      scrollToActiveThumbnail();
+   }
 };
 
 const updateActiveImage = (swiper) => {
-   currentIndex.value = swiper.realIndex;
-   scrollToActiveThumbnail();
+   const newIndex = swiper.realIndex;
+   if (currentIndex.value !== newIndex) {
+      currentIndex.value = newIndex;
+      scrollToActiveThumbnail();
+   }
 };
 
 const scrollToActiveThumbnail = () => {
@@ -116,29 +123,37 @@ const handleSwiper = (swiper, isMain = false) => {
 };
 
 watch(isPhotoViewerVisible, (newVal) => {
-   if (newVal) {
-      document.body.style.overflow = 'hidden';
-   } else {
-      document.body.style.overflow = '';
-   }
+   document.body.style.overflow = newVal ? 'hidden' : '';
 });
 </script>
 
 <style lang="scss" scoped>
 .gallery-container {
    display: flex;
-   height: 460px;
-   max-width: 630px;
+   height: 480px;
+   max-width: 748px;
+   padding-right: 106px;
    gap: 16px;
 
    @media (max-width: 1280px) {
-      width: calc(100% - 106px);
-      max-width: 100%;
+      max-width: calc(100vw - 32px);
+      padding-right: 0;
+      margin-top: 16px;
    }
 
-   @media (max-width: 600px) {
+   @media (max-width: 768px) {
       width: 100%;
       height: 240px;
+   }
+
+   &__placeholder {
+      background-color: #D6EFFF;
+      min-width: 748px;
+      border-radius: 6px;
+
+      @media (max-width: 1280px) {
+         min-width: calc(100vw - 32px);
+      }
    }
 
    &.gallery-container--no-thumbnails {
@@ -146,10 +161,10 @@ watch(isPhotoViewerVisible, (newVal) => {
       width: 100%;
 
       @media (max-width: 1280px) {
-         max-width: 100%;
+         
       }
 
-      @media (max-width: 600px) {
+      @media (max-width: 768px) {
          width: 100%;
          height: 240px;
       }
@@ -163,15 +178,10 @@ watch(isPhotoViewerVisible, (newVal) => {
       align-items: center;
       position: relative;
 
+
       .swiper {
          height: 100%;
          overflow: hidden;
-
-         .swiper-slide {
-            border-radius: 6px;
-            border: 1px solid #d6d6d6;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-         }
       }
 
       .main-image-container {
@@ -180,6 +190,7 @@ watch(isPhotoViewerVisible, (newVal) => {
          justify-content: center;
          width: 100%;
          height: 100%;
+         border-radius: 6px;
          cursor: pointer;
          overflow: hidden;
 
@@ -188,7 +199,8 @@ watch(isPhotoViewerVisible, (newVal) => {
             width: 100%;
             margin: 0 auto;
             object-fit: contain;
-            transition: transform 0.2s ease, opacity 0.2s ease;
+            border-radius: 6px;
+            box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
             position: relative;
             z-index: 2;
 
@@ -206,7 +218,7 @@ watch(isPhotoViewerVisible, (newVal) => {
             height: 100%;
             background-size: cover;
             background-position: center;
-            filter: blur(15px);
+            filter: blur(10px);
             z-index: 1;
             opacity: 0.6;
          }
@@ -255,13 +267,15 @@ watch(isPhotoViewerVisible, (newVal) => {
       display: flex;
       flex-direction: column;
       justify-content: center;
-      max-width: 100px;
       align-items: center;
       position: relative;
 
+      @media (max-width: 600px) {
+         display: none;
+      }
+
       .thumbnail-swiper {
          height: 360px;
-         overflow: hidden;
       }
 
       .thumbnail__button {
@@ -300,7 +314,7 @@ watch(isPhotoViewerVisible, (newVal) => {
          height: 68px;
          cursor: pointer;
          opacity: 0.8;
-         transition: opacity 0.3s, transform 0.3s ease;
+         transition: opacity 0.2s ease-in-out;
          border: 1px solid #d6d6d6;
          border-radius: 6px;
 
@@ -316,12 +330,6 @@ watch(isPhotoViewerVisible, (newVal) => {
             border-radius: 4px;
             object-fit: cover;
          }
-      }
-   }
-
-   @media (max-width: 600px) {
-      .thumbnails {
-         display: none;
       }
    }
 }

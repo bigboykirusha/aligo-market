@@ -1,6 +1,5 @@
 <template>
    <div class="color-picker-skeleton">
-      <div class="color-picker-skeleton__title"></div>
       <div class="color-picker-skeleton__options">
          <div v-for="n in 8" :key="n" class="color-picker-skeleton__option"></div>
       </div>
@@ -13,7 +12,7 @@
    flex-direction: row;
    align-items: flex-start;
 
-   @media screen and (max-width: 768px) {
+   @media (max-width: 768px) {
       flex-direction: column;
       gap: 8px;
       align-items: flex-start;

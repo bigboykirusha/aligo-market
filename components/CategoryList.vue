@@ -69,6 +69,7 @@ const categories = ref([
 
    @media (max-width: 768px) {
       margin-top: calc(66px + 24px);
+      margin-bottom: 32px;
    }
 
    &__container {

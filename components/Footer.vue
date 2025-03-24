@@ -40,8 +40,15 @@ import { getSiteDocumentById } from '@/services/apiClient';
 const footerDocuments = ref([]);
 
 const loadFooterDocuments = async () => {
+   const cachedDocuments = localStorage.getItem('footerDocuments');
+   if (cachedDocuments) {
+      footerDocuments.value = JSON.parse(cachedDocuments).slice(0, 3);
+      return;
+   }
+
    try {
       const { data } = await getSiteDocumentById();
+      localStorage.setItem('footerDocuments', JSON.stringify(data));
       footerDocuments.value = data.slice(0, 3);
    } catch (error) {
       console.error('Ошибка при загрузке документов:', error);

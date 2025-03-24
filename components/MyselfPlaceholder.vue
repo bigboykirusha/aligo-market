@@ -6,7 +6,6 @@
 
 <script setup>
 </script>
-
 <style scoped lang="scss">
 .placeholder {
    display: flex;

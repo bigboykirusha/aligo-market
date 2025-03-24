@@ -1,6 +1,6 @@
-import { getCookie } from './auth';
+import { useCookie } from '#app';
 
-const userData = JSON.parse(getCookie('userData'));
+const userData = useCookie('userData').value;
 const userId = userData ? userData.user_id : null;
 
 export const relevantUser = (message) => {

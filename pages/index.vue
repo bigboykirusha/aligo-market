@@ -1,63 +1,81 @@
 <template>
   <CategoryList />
   <div class="cards-wrapper">
-    <CardListWithBanner :showTitle="true" :adsMain="adsMain" :pageSize="pageSize" :isLoading="isLoadingMain">
+    <CardListWithBanner :adsMain="adsMain" :XTotalCount="XTotalCountMain" :pageSize="pageSize"
+      :isLoading="isLoadingMain">
       <template #banner>
         <DubaiBanner />
       </template>
     </CardListWithBanner>
 
-    <Pagination v-if="totalItems > getAdsCount()" :totalItems="totalItems" :pageSize="pageSize"
-      :currentPage="currentPage" @changePage="changePage" />
+    <Pagination v-if="totalItems > pageSize" :totalItems="totalItems" :pageSize="pageSize" :currentPage="currentPage"
+      @changePage="changePage" />
 
-    <CardList :title="title1" :ads="adsSimilar.slice(0, MAX_ADS_COUNT)" :isLoading="isLoadingSimilar" />
+    <CardList v-if="Array.isArray(adsSimilar)" :XTotalCount="XTotalCountSimilar" :title="title1" :ads="adsSimilar"
+      :isLoading="isLoadingSimilar" />
 
-    <BannerTemplate :content="bannerContent" />
+    <BannerTemplate v-if="bannerContent" :content="bannerContent" />
 
-    <CardList v-if="isLoggedIn" :title="title2" :ads="adsHistory.slice(0, MAX_ADS_COUNT)"
-      :isLoading="isLoadingHistory" />
+    <CardList v-if="isLoggedIn && Array.isArray(adsHistory)" :XTotalCount="XTotalCountHistory" :title="title2"
+      :ads="adsHistory" :isLoading="isLoadingHistory" />
+
+    <InfoBanner />
   </div>
 </template>
 
 <script setup>
-import desktopImage from '../assets/images/bg/banner-2.png';
-import mobileImage from '../assets/images/bg/banner-2-m.png';
-import { getCars, getAdsHistory, getAdsSimilar, getModerationAds } from '../services/apiClient';
+import { getAdsSimilar, getAdsHistory } from '../services/apiClient';
+import { getAdsHistoryHeaders, getAdsSimilarHeaders } from '../services/apiHeaders';
 import { useCityStore } from '~/store/city';
 import { useUserStore } from '~/store/user';
-import { ref, onMounted, watch, computed, onUnmounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-const { t } = useI18n();
+import desktopImage from '../assets/images/bg/banner-2.png';
+import mobileImage from '../assets/images/bg/banner-2-m.png';
 
+const { t } = useI18n();
 const cityStore = useCityStore();
 const userStore = useUserStore();
 
 const isLoggedIn = ref(userStore.isLoggedIn);
 
-const title1 = t('titles.title1');
+const title1 = "Объявления в других городах";
 const title2 = t('titles.title2');
 
-const getAdsCount = () => {
+const pageSize = computed(() => {
   if (typeof window !== 'undefined') {
     if (window.innerWidth < 1000) return 12;
     if (window.innerWidth < 1200) return 16;
   }
   return 20;
-};
+});
 
 const adsMain = ref([]);
 const adsHistory = ref([]);
 const adsSimilar = ref([]);
 const currentPage = ref(1);
-const pageSize = ref(getAdsCount());
 const totalItems = ref(0);
 
-const isLoadingMain = ref(false);
-const isLoadingHistory = ref(false);
-const isLoadingSimilar = ref(false);
+const isLoadingMain = ref(true);
+const isLoadingHistory = ref(true);
+const isLoadingSimilar = ref(true);
 
-const MAX_ADS_COUNT = 5;
+const XTotalCountHistory = ref(10);
+const XTotalCountSimilar = ref(10);
+const XTotalCountMain = ref(10);
+
+const loadSavedCounts = () => {
+  XTotalCountMain.value = Number(localStorage.getItem('XTotalCountMain')) || 0;
+  XTotalCountHistory.value = Number(localStorage.getItem('XTotalCountHistory')) || 0;
+  XTotalCountSimilar.value = Number(localStorage.getItem('XTotalCountSimilar')) || 0;
+};
+
+const saveCounts = () => {
+  localStorage.setItem('XTotalCountMain', XTotalCountMain.value);
+  localStorage.setItem('XTotalCountHistory', XTotalCountHistory.value);
+  localStorage.setItem('XTotalCountSimilar', XTotalCountSimilar.value);
+};
 
 const bannerContent = computed(() => ({
   headerText: t('bannerRent.headerText'),
@@ -70,100 +88,128 @@ const bannerContent = computed(() => ({
 
 const handleError = (error, message) => {
   console.error(`${message}: `, error);
+  alert(`${message}. Попробуйте снова.`);
 };
 
 const setLoadingWithDelay = (isLoadingRef) => {
-  const timeoutId = setTimeout(() => {
+  setTimeout(() => {
     isLoadingRef.value = false;
-  }, 1000);
-
-  return timeoutId;
+  }, 500);
 };
 
-onMounted(() => {
-  const timeoutId = setLoadingWithDelay(isLoadingMain);
-  getModerationAds();
-
-  onBeforeUnmount(() => {
-    clearTimeout(timeoutId);
-  });
-});
-
-const fetchMainAds = async () => {
-  isLoadingMain.value = true;
-  pageSize.value = getAdsCount();
+const fetchData = async (apiFunction, params, isLoadingRef) => {
+  isLoadingRef.value = true;
   try {
-    const { data, totalCount } = await getCars({ page: currentPage.value, count: pageSize.value, order_by: 'desc' });
-    adsMain.value = data;
-    totalItems.value = totalCount;
+    const { data, totalCount } = await apiFunction(params);
+    return { data, totalCount };
   } catch (error) {
     handleError(error, 'Ошибка при получении данных');
+    return { data: [], totalCount: 0 };
   } finally {
-    setLoadingWithDelay(isLoadingMain);
+    setLoadingWithDelay(isLoadingRef);
   }
 };
 
-definePageMeta({
-  ssr: true,
-});
+const fetchMainAds = async () => {
+  try {
+    const headers = await getAdsSimilarHeaders({
+      city: cityStore.selectedCity.id,
+      page: currentPage.value,
+      count: pageSize.value,
+      order_by: 'desc',
+    });
+
+    if (headers['x-count-on-page']) {
+      XTotalCountMain.value = Number(headers['x-count-on-page']);
+      saveCounts();
+    }
+
+    const { data } = await fetchData(getAdsSimilar, {
+      city: cityStore.selectedCity.id,
+      page: currentPage.value,
+      count: pageSize.value,
+      order_by: 'desc',
+    }, isLoadingMain);
+
+    adsMain.value = data;
+  } catch (error) {
+    handleError(error, 'Ошибка при загрузке объявлений');
+  }
+};
 
 const fetchAdsHistory = async () => {
   if (!isLoggedIn.value) return;
-
-  isLoadingHistory.value = true;
   try {
-    const newAdsHistory = await getAdsHistory(cityStore.selectedCity.name);
-    adsHistory.value = newAdsHistory.map(item => item.ads_show);
+    const headers = await getAdsHistoryHeaders();
+    if (headers['x-count-on-page']) {
+      XTotalCountHistory.value = Number(headers['x-count-on-page']);
+      saveCounts();
+    }
+
+    const { data } = await fetchData(getAdsHistory, {}, isLoadingHistory);
+    adsHistory.value = data.map(item => item.ads_show);
   } catch (error) {
-    handleError(error, 'Ошибка при получении истории объявлений');
-  } finally {
-    setLoadingWithDelay(isLoadingHistory);
+    handleError(error, 'Ошибка при загрузке истории объявлений');
   }
 };
 
-const fetchAdsSimilar = async (newCity) => {
-  if (!cityStore.selectedCity.name) {
-    isLoadingSimilar.value = false;
-    return;
-  }
-
-  isLoadingSimilar.value = true;
+const fetchAdsSimilar = async () => {
   try {
-    adsSimilar.value = await getAdsSimilar(newCity);
+    const headers = await getAdsSimilarHeaders({
+      not_in_this_city: cityStore.selectedCity.id,
+    });
+
+    if (headers['x-count-on-page']) {
+      XTotalCountSimilar.value = Number(headers['x-count-on-page']);
+      saveCounts();
+    }
+
+    const { data } = await fetchData(getAdsSimilar, {
+      not_in_this_city: cityStore.selectedCity.id,
+    }, isLoadingSimilar);
+
+    adsSimilar.value = data;
   } catch (error) {
-    handleError(error, 'Ошибка при получении похожих объявлений');
-  } finally {
-    setLoadingWithDelay(isLoadingSimilar);
+    handleError(error, 'Ошибка при загрузке похожих объявлений');
   }
 };
+
+const maxPage = computed(() => Math.ceil(totalItems.value / pageSize.value));
 
 const changePage = async (page) => {
-  if (page < 1 || page > Math.ceil(totalItems.value / pageSize.value)) return;
+  if (page < 1 || page > maxPage.value) return;
   currentPage.value = page;
   await fetchMainAds();
 };
 
-const handleResize = () => {
-  pageSize.value = getAdsCount();
-};
+let prevCityId = cityStore.selectedCity.id;
+watch(() => cityStore.selectedCity.id, (newCityId) => {
+  if (newCityId !== prevCityId) {
+    fetchAdsSimilar();
+    fetchMainAds();
+    prevCityId = newCityId;
+  }
+});
 
 onMounted(() => {
+  loadSavedCounts();
   fetchMainAds();
+  fetchAdsSimilar();
   if (isLoggedIn.value) {
     fetchAdsHistory();
   }
-  fetchAdsSimilar(cityStore.selectedCity.name);
-
-  window.addEventListener('resize', handleResize);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize);
 });
 </script>
 
-<style>
+<style lang="scss" scoped>
 .cards-wrapper {
   padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+
+  @media (max-width: 768px) {
+    gap: 32px;
+  }
 }
 </style>

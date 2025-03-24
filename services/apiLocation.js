@@ -27,7 +27,7 @@ export const getCityByIp = async (ip) => {
       return { city: city || 'Неизвестно', country: country || 'Неизвестно' };
    } catch (error) {
       console.error(`Ошибка при получении данных для IP ${ip}:`, error);
-      return { city: 'Неизвестно', country: 'Неизвестно' };  // Возвращаем 'Неизвестно' в случае ошибки
+      return { city: 'Неизвестно', country: 'Неизвестно' }; 
    }
 };
 
@@ -39,13 +39,26 @@ export const fetchCity = async (lat, lon) => {
       const cityData = await cityResponse.json();
 
       const featureMember = cityData?.response?.GeoObjectCollection?.featureMember[0]?.GeoObject?.metaDataProperty?.GeocoderMetaData?.AddressDetails?.Country?.AdministrativeArea;
+      const countryCode = cityData?.response?.GeoObjectCollection?.featureMember[0]?.GeoObject?.metaDataProperty?.GeocoderMetaData?.AddressDetails?.Country?.CountryNameCode;
 
-      const cityName = featureMember?.Locality?.LocalityName || featureMember?.SubAdministrativeArea?.Locality?.LocalityName || 'Ростов-на-Дону';
+      if (countryCode !== 'RU') {
+         return 'Москва';
+      }
 
-      return cityName;
+      const cityName = featureMember?.Locality?.LocalityName || featureMember?.SubAdministrativeArea?.Locality?.LocalityName;
+
+      if (cityName) {
+         return cityName;
+      } else {
+         const adminCenter = featureMember?.AdministrativeCenter?.Locality?.LocalityName;
+         if (adminCenter) {
+            return adminCenter; 
+         }
+         return 'Москва';
+      }
    } catch (error) {
       console.error('Ошибка получения города:', error);
-      return 'Ошибка получения города';
+      return 'Москва';  
    }
 };
 
