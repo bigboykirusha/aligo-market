@@ -829,8 +829,6 @@ watch(
 }
 
 .messages {
-   width: 100%;
-
    ul {
       list-style: none;
       margin: 0;
@@ -968,9 +966,6 @@ watch(
       word-wrap: break-word;
       text-wrap: wrap;
       gap: 16px;
-      overflow-y: auto;
-      margin: -8px;
-      padding: 8px;
 
       @media (max-width: 768px) {
          box-shadow: none;
@@ -1014,19 +1009,19 @@ watch(
 
    &.profile-page {
       box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
-      height: calc(100vh - 134px - 70px - 40px);
-      height: calc(100dvh - 134px - 70px - 40px);
-      min-height: 513px;
+      min-height: 532px;
+      width: 100%;
+      height: calc(100vh - 134px - 40px);
+      height: calc(100dvh - 134px - 40px);
 
       @media (max-width: 768px) {
          position: fixed;
          box-shadow: none;
          border-radius: 0;
          z-index: 20000;
-         bottom: 0;
+         top: 0;
          max-height: none;
          height: 100%;
-         width: 100%;
       }
    }
 
@@ -1177,13 +1172,10 @@ watch(
       align-items: center;
       z-index: 200;
       display: flex;
-      bottom: 0;
       border-radius: 0 0 12px 12px;
-      width: 100%;
       background: #fff;
       box-shadow: 0px -3px 10px rgba(0, 0, 0, 0.05);
       padding: 8px;
-      margin-top: auto;
       gap: 8px;
 
       @media (max-width: 768px) {

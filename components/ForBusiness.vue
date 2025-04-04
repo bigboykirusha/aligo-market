@@ -25,7 +25,6 @@
 
    @media (max-width: 590px) {
       justify-content: flex-start;
-      min-height: 90vh;
    }
 
    &__block {
