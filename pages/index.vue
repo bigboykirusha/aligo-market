@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import { getAdsSimilar, getAdsHistory, getModerationAds } from '../services/apiClient';
+import { getAdsSimilar, getAdsHistory } from '../services/apiClient';
 import { getAdsHistoryHeaders, getAdsSimilarHeaders } from '../services/apiHeaders';
 import { useCityStore } from '~/store/city';
 import { useUserStore } from '~/store/user';
@@ -204,7 +204,6 @@ watch(() => cityStore.selectedCity.id, (newCityId) => {
 onMounted(() => {
   loadSavedCounts();
   fetchMainAds();
-  getModerationAds();
   fetchAdsSimilar();
   if (isLoggedIn.value) {
     fetchAdsHistory();

@@ -250,7 +250,7 @@ const checkbox1 = ref(false);
 const checkbox2 = ref(false);
 
 const formattedPhoneNumber = computed(() => {
-   let raw = phoneNumber.value.replace(/\D/g, '');
+   let raw = phoneNumber.value.replace(/\D/g, ''); 
 
 
    if (raw.startsWith('8')) raw = '7' + raw.slice(1);
@@ -372,7 +372,6 @@ const sendPhoneRequest = async (withCode = false) => {
 
       if (withCode) {
          const response = await loginUserByPhone(requestData);
-         alert(response.code);
          if (response.success) {
             loginModalStore.showCodeField();
             startTimer();
@@ -512,10 +511,6 @@ onMounted(() => {
          padding: 32px 40px;
          margin-right: auto;
 
-         @media (max-width: 768px) {
-            padding: 32px 24px;
-         }
-
          img {
             width: 100%;
             min-height: 32px;
@@ -588,10 +583,6 @@ onMounted(() => {
             margin-bottom: 24px;
             padding: 0 40px;
             font-size: 12px;
-
-            @media (max-width: 768px) {
-               padding: 0 24px;
-            }
 
             label {
                margin-bottom: 5px;
@@ -707,7 +698,6 @@ onMounted(() => {
 
    .modal__header-image {
       padding: 32px 0;
-
    }
 
    .modal__content {
