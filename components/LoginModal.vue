@@ -364,7 +364,7 @@ const sendPhoneRequest = async (withCode = false) => {
 
       if (withCode) {
          const response = await loginUserByPhone(requestData);
-         alert(response);
+         alert(response.code);
          if (response.success) {
             loginModalStore.showCodeField();
             startTimer();
