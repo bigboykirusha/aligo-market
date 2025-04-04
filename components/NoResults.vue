@@ -37,7 +37,8 @@ const isSearchPage = computed(() => route.path.startsWith('/search'));
 const saveFilterValue = async () => {
    const filterData = {
       title: props.query,
-      description: cityStore.selectedCity.name,
+      city_id: cityStore.selectedCity.id,
+      description: 'Автомобили',
       url: `https://aligo.ru/search?query=${props.query}`,
    };
    try {

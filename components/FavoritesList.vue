@@ -29,7 +29,7 @@
             :created_at="ad.created_at" />
 
          <FavoritesSearchCard v-if="type === 'Поиски'" v-for="search in ads" :key="search.id" :id="search.id"
-            :title="search.title" :url="search.url" :description="search.description" :isEmail="search.is_email"
+            :title="search.title" :url="search.url" :city="search.city.title" :isEmail="search.is_email"
             :isTelegram="search.is_telegram" :createdAt="search.created_at" />
       </template>
    </div>

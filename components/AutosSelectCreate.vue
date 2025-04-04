@@ -1,18 +1,19 @@
 <template>
    <div class="dropdown-2" :class="{ 'dropdown-2--active': isActive, 'dropdown-2--disabled': disabled }" ref="dropdown">
       <div class="dropdown-2__label">{{ label }}</div>
-      <div class="dropdown-2__input" @click="activateDropdown" :class="{ 'dropdown-2__input--disabled': disabled }">
+      <div class="dropdown-2__input" :class="{ 'dropdown-2__input--disabled': disabled }">
          <div class="input-text-2 input-text-2--with-clear input-wrapper --check-fill">
             <input class="input-text-2__input" type="text" v-model="searchQuery" placeholder="Нажмите для выбора"
                :disabled="disabled" @input="filterOptions" @focus="activateDropdown" />
          </div>
+         <ul class="dropdown-2__list">
+            <li v-for="option in filteredOptions" :key="option.id" class="dropdown-2__list-item"
+               :class="{ 'dropdown-2__list-item--selected': selectedOption === option.id }"
+               @click="selectOption(option)">
+               {{ option.title }}
+            </li>
+         </ul>
       </div>
-      <ul class="dropdown-2__list" v-if="isActive">
-         <li v-for="option in filteredOptions" :key="option.id" class="dropdown-2__list-item"
-            :class="{ 'dropdown-2__list-item--selected': selectedOption === option.id }" @click="selectOption(option)">
-            {{ option.title }}
-         </li>
-      </ul>
    </div>
 </template>
 
@@ -70,9 +71,9 @@ const filterOptions = () => {
 };
 
 const selectOption = (option) => {
+   isActive.value = false;
    selectedOption.value = option.id;
    searchQuery.value = option.title;
-   isActive.value = false;
    emit('updateSort', selectedOption.value);
 };
 
@@ -115,7 +116,7 @@ watch(
       selectedOption.value = newSelectedOption;
       searchQuery.value = displayedSelectedOptionTitle.value;
    },
-   { immediate: true }  
+   { immediate: true }
 );
 </script>
 
@@ -125,10 +126,10 @@ watch(
    position: relative;
    width: auto;
    align-items: center;
+   gap: 8px;
 
    @media (max-width: 768px) {
       flex-direction: column;
-      gap: 8px;
       align-items: flex-start;
    }
 
@@ -140,8 +141,9 @@ watch(
 
    &__input {
       position: relative;
-      height: 34px;
       width: 310px;
+      height: 34px;
+      cursor: pointer;
 
       @media (max-width: 768px) {
          width: 100%;
@@ -149,6 +151,7 @@ watch(
 
       &:focus {
          outline: none;
+         border-color: #3366FF;
       }
 
       &::before {
@@ -162,13 +165,13 @@ watch(
          height: 11px;
          background: url('/assets/images/svg/arrow.svg') center center / contain no-repeat;
          transform: translate(0, -50%) rotate(90deg);
-         transition: 0.3s;
+         transition: transform 0.2s ease;
       }
 
       input {
-         cursor: pointer;
          width: 100%;
          font-size: 14px;
+         position: relative;
          height: 34px;
          padding: 12px;
          border: 1px solid #d6d6d6;
@@ -176,9 +179,19 @@ watch(
          white-space: nowrap;
          overflow: hidden;
          text-overflow: ellipsis;
+         background-color: white;
+         transition: border-color 0.3s ease;
+         cursor: pointer;
 
          &:focus {
             outline: none;
+            border-color: #3366FF;
+         }
+
+         &:disabled {
+            background-color: #EEEEEE;
+            border-color: #EEEEEE;
+            pointer-events: none;
          }
       }
    }
@@ -187,22 +200,25 @@ watch(
       position: absolute;
       border: 1px solid #3366FF;
       border-top: 1px solid #D6D6D6;
-      left: 270px;
-      top: 33px;
+      right: 0;
       z-index: 8;
       display: flex;
       flex-direction: column;
       list-style: none;
+      width: 100%;
+      max-height: 310px;
       width: 310px;
-      max-height: 187px;
       background: #ffffff;
       border-radius: 6px;
       overflow-y: auto;
 
+      transform-origin: top;
+      transform: scaleY(0);
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      opacity: 0;
+
       @media (max-width: 768px) {
          width: 100%;
-         left: 0;
-         top: 60px;
       }
    }
 
@@ -211,15 +227,18 @@ watch(
       align-items: center;
       padding: 12px;
       font-size: 14px;
-      line-height: 1.29em;
-      gap: 10px;
       color: #787878;
       background: white;
-      transition: 0.3s;
+      transition: background-color 0.3s, color 0.3s;
       cursor: pointer;
 
       &:hover {
-         background: #D6EFFF;
+         background-color: #D6EFFF;
+         color: #3366FF;
+      }
+
+      &--selected {
+         background-color: #D6EFFF;
          color: #3366FF;
       }
    }
@@ -231,6 +250,8 @@ watch(
 
       .dropdown-2__list {
          border-radius: 0 0 6px 6px;
+         transform: scaleY(1);
+         opacity: 1;
       }
 
       .dropdown-2__input input {
@@ -241,24 +262,25 @@ watch(
 
    &--disabled {
       .dropdown-2__input {
-         background: #EEEEEE;
-         border-radius: 6px;
+         background-color: #EEEEEE;
+         border-radius: 4px;
+         border-color: #EEEEEE;
+         cursor: not-allowed;
+
+         &::before {
+            background: url('/assets/icons/arrow-gray.svg') center top / contain no-repeat;
+            transform: rotate(0);
+         }
+
+         input {
+            background-color: #EEEEEE;
+            border-color: #EEEEEE;
+         }
       }
 
-      input {
-         background: #EEEEEE;
-         pointer-events: none;
-         border: 1px solid #EEEEEE;
-         border-radius: 6px;
-      }
-
-      .dropdown-2__input::before {
-         background: url('/assets/icons/arrow-gray.svg') center center / contain no-repeat;
-         transform: translate(0, -50%);
-      }
-
-      &::placeholder {
+      .dropdown-2__list-item {
          color: #787878;
+         cursor: not-allowed;
       }
    }
 }

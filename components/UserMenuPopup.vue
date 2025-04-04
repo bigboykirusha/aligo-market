@@ -135,7 +135,7 @@ const logout = () => {
 
    &--reversed {
       box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.14);
-      top: -238px;
+      top: -239px;
       border: 1px solid #3366FF;
    }
 }

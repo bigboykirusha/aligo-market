@@ -256,14 +256,17 @@ watch(() => props.option, (newValue) => {
    &__field {
       font-size: 14px;
       padding: 8px 12px;
+      height: 34px;
       padding-right: 28px;
       border: 1px solid #d6d6d6;
       border-radius: 6px;
       width: 100%;
       box-sizing: border-box;
+      transition: border 0.2s ease;
 
       &:focus {
          outline: none;
+         border: 1px solid #3366FF;
       }
 
       &:disabled {

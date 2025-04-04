@@ -120,6 +120,7 @@ const itemsMaxWidth = computed(() => {
       border: 1px solid #d6d6d6;
       border-radius: 6px;
       overflow: hidden;
+      height: 36px;
       width: 100%;
       max-width: 310px;
 
@@ -136,6 +137,7 @@ const itemsMaxWidth = computed(() => {
       padding: 9px 0;
       z-index: 3;
       font-size: 14px;
+      line-height: 18px;
       cursor: pointer;
       position: relative;
       transition: color 0.3s;

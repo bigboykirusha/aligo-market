@@ -263,7 +263,6 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
       overflow: hidden;
       text-overflow: ellipsis;
       line-height: 16px;
-
    }
 
    &__price,

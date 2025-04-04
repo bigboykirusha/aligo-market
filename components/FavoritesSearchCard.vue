@@ -3,7 +3,7 @@
       <div class="search-card__content">
          <div class="search-card__header">
             <div class="search-card__title">
-               <a :href="url" target="_blank">{{ `${title} в г. ${description}` }}</a>
+               <a :href="url" target="_blank">{{ `${title} в г. ${city}` }}</a>
             </div>
             <p class="search-card__description">Автомобили</p>
          </div>
@@ -37,7 +37,7 @@ const props = defineProps({
    title: String,
    id: Number,
    url: String,
-   description: String,
+   city: String,
    isEmail: {
       type: Number,
       default: 0,
@@ -87,7 +87,7 @@ const deleteCard = () => {
    }
 
    &__title {
-      font-size: 16px;
+      font-size: 14px;
       font-weight: bold;
       line-height: 16px;
       color: #3366FF;

@@ -1,6 +1,6 @@
 <template>
    <div class="header-row"
-      :class="{ 'header-row--expanded': showDropdown || !isWithMargin, 'header-row--with-margin': isWithMargin }">
+      :class="{ 'header-row--expanded': showDropdown || !isWithMargin, 'header-row--with-margin': isWithMargin, 'header-row--create': isCreatePage }">
       <div class="header-row__container" :class="{ 'header-row__container--create': isCreatePage }">
          <h1 v-if="!isReportPage && (!isCarPage || isDesktop)" class="header-row__logo-section">
             <nuxt-link class="header-row__logo" to="/" @click="scrollToTop">
@@ -254,6 +254,12 @@ const updateIsDesktop = () => {
       height: 62px;
    }
 
+   &--create {
+      @media (max-width: 768px) {
+         height: auto;
+      }
+   }
+
    &--with-margin {
       transform: translateY(44px);
       box-shadow: none;
@@ -443,6 +449,7 @@ const updateIsDesktop = () => {
 
          @media (max-width: 768px) {
             gap: 16px;
+            height: auto;
          }
       }
    }
