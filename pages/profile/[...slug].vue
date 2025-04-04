@@ -58,6 +58,7 @@ const currentComponent = computed(() => componentsMap[currentComponentKey.value]
 .wrapper {
    max-width: 1312px;
    min-height: calc(100vh - 134px);
+   min-height: calc(100dvh - 134px);
    overflow-y: auto;
    display: flex;
    height: 100%;
@@ -71,6 +72,7 @@ const currentComponent = computed(() => componentsMap[currentComponentKey.value]
    @media (max-width: 768px) {
       margin-top: 66px;
       min-height: calc(100vh - 66px);
+      min-height: calc(100dvh - 66px);
       flex-grow: 1;
    }
 }

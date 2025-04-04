@@ -6,16 +6,17 @@
       </div>
 
       <!-- Image Section -->
-      <div
+      <div v-if="images.length"
          :class="['card__image', { 'card__image--dimmed': isArchivePage || isUnderModeration || isEmailNotConfirmed }]">
-         <Swiper v-if="images.length" :modules="[SwiperAutoplay, SwiperPagination]" :slides-per-view="1"
-            :pagination="{ clickable: true }" :loop="true">
+         <Swiper :modules="[SwiperAutoplay, SwiperPagination]" :slides-per-view="1" :pagination="{ clickable: true }"
+            :loop="true">
             <SwiperSlide v-for="(image, index) in images" :key="index">
-               <img class="card__img" :src="getImageUrl(image.arr_title_size.middle)" alt="Slide Image" preload />
+               <img class="card__img" :src="getImageUrl(image.arr_title_size.middle, placeholder)" alt="Slide Image"
+                  preload />
             </SwiperSlide>
          </Swiper>
-         <img v-else :src="placeholder" alt="Placeholder image" class="card__image" />
       </div>
+      <img v-else :src="placeholder" alt="Placeholder image" class="card__image" />
 
       <!-- Card Body -->
       <div class="card__section">
@@ -398,6 +399,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', handleClickOut
    &__image {
       width: 200px;
       max-height: 200px;
+      object-fit: cover;
       cursor: pointer;
 
       &--dimmed {

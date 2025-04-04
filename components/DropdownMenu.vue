@@ -228,9 +228,10 @@ onUnmounted(() => {
 
    @media (max-width: 768px) {
       height: 100vh;
+      height: 100dvh;
       z-index: 100;
       top: -100vh;
-      padding-bottom: env(safe-area-inset-bottom);
+      top: -100dvh;
    }
 
    &--open {
@@ -288,6 +289,7 @@ onUnmounted(() => {
          overflow-y: auto;
          border: none;
          height: calc(100vh - 66px);
+         height: calc(100dvh - 66px);
          border-radius: 0;
       }
    }

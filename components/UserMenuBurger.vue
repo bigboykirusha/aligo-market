@@ -193,6 +193,7 @@ const toggleModal = () => locationModalStore.toggleMenu();
    align-items: center;
    width: 100%;
    height: 100vh;
+   height: 100dvh;
    transform: translateX(100%);
    transition: transform 0.2s ease-in-out;
    overflow-y: auto;

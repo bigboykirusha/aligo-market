@@ -199,6 +199,7 @@ onUnmounted(() => {
    &.fullscreen {
       padding: 0;
       height: 100vh;
+      height: 100dvh;
 
       @media (max-width: 768px) {
          height: 100%;

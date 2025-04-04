@@ -29,11 +29,13 @@ import sendComplite from '@/assets/icons/send-complite.svg';
    background-color: #FFF;
    z-index: 2000;
    height: calc(100vh - 44px);
+   height: calc(100dvh - 44px);
    top: 44px;
 
    @media (max-width: 768px) {
       top: 0;
       height: calc(100vh - 70px);
+      height: calc(100dvh - 70px);
    }
 
    &__block {

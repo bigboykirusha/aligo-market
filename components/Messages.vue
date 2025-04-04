@@ -1015,6 +1015,7 @@ watch(
    &.profile-page {
       box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
       height: calc(100vh - 134px - 70px - 40px);
+      height: calc(100dvh - 134px - 70px - 40px);
       min-height: 513px;
 
       @media (max-width: 768px) {

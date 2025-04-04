@@ -26,6 +26,7 @@
    padding: 30px 40px 70px;
    width: 100%;
    height: 100vh;
+   height: 100dvh;
 
    &__404 {
       display: grid;

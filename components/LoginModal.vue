@@ -440,6 +440,7 @@ onMounted(() => {
    left: 0;
    width: 100%;
    height: 100vh;
+   height: 100dvh;
    display: flex;
    justify-content: center;
    align-items: center;
@@ -685,6 +686,7 @@ onMounted(() => {
 
    @media (max-width: 768px) {
       min-height: calc(100vh - 70px);
+      min-height: calc(100dvh - 70px);
    }
 
    .modal__header-image {

@@ -1156,6 +1156,7 @@ const reportData = ref([
    margin: 0 auto;
    margin-top: 134px;
    min-height: calc(100vh - 134px);
+   min-height: calc(100dvh - 134px);
    width: 100%;
 
    @media (max-width: 768px) {
