@@ -4,7 +4,8 @@
          <Swiper v-if="images.length" :modules="[SwiperAutoplay, SwiperPagination]" :slides-per-view="1"
             :pagination="{ clickable: true }" :navigation="false" :loop="true">
             <SwiperSlide v-for="(image, index) in images" :key="index">
-               <img :src="getImageUrl(image.arr_title_size.preview)" draggable="false" @contextmenu.prevent alt="Slide Image" />
+               <img :src="getImageUrl(image.arr_title_size.preview)" draggable="false" @contextmenu.prevent
+                  alt="Slide Image" />
             </SwiperSlide>
             <div class="swiper-pagination"></div>
          </Swiper>
@@ -234,6 +235,10 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
       flex-grow: 1;
       padding: 16px;
       background: white;
+
+      @media (max-width: 1000px) {
+         padding: 12px 16px;
+      }
    }
 
    &__title {
@@ -241,35 +246,38 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
       font-size: 16px;
       color: #3366ff;
       text-decoration: none;
-      margin-bottom: 8px;
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+      margin-bottom: 4px;
       text-overflow: ellipsis;
 
+      @media (max-width: 768px) {
+         font-size: 14px;
+      }
    }
 
    &__location,
    &__date {
       display: -webkit-box;
+      line-clamp: 1;
       -webkit-line-clamp: 1;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
+      line-height: 16px;
 
    }
 
    &__price,
    &__currency {
+      color: #323232;
       font-weight: 700;
+      line-height: 18px;
       font-size: 14px;
    }
 
    &__block {
       display: flex;
-      column-gap: 5px;
-      margin-bottom: 10px;
+      column-gap: 6px;
+      margin-bottom: 4px;
    }
 
    &__section {
@@ -291,7 +299,7 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
       justify-content: space-between;
       font-size: 12px;
       margin-top: auto;
-      color: #a8a8a8;
+      color: #787878;
    }
 
    &__more {
@@ -307,8 +315,8 @@ const timeAgo = computed(() => calculateTimeAgo(props.created_at));
       }
 
       @media (max-width: 1000px) {
-         padding: 16px 0;
-         padding-right: 16px;
+         padding: 12px 0;
+         padding-right: 12px;
       }
    }
 

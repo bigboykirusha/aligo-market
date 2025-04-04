@@ -280,6 +280,7 @@ const makeCall = () => {
       display: block;
       max-width: 100%;
       font-size: 16px;
+      line-height: 20px;
       color: #3366ff;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -354,7 +355,7 @@ const makeCall = () => {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      padding: 12px;
+      padding: 10px 12px;
       background: white;
       transform: translateY(40px);
       opacity: 0;

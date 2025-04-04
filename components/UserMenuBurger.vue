@@ -186,7 +186,7 @@ const toggleModal = () => locationModalStore.toggleMenu();
 .side-menu {
    position: fixed;
    inset: 0;
-   background-color: #1a1a1a;
+   background: linear-gradient(to bottom, #3366FF 0px, #3366FF 200px, #ffffff 200px, #ffffff 100%);
    z-index: 10000;
    display: flex;
    justify-content: center;
