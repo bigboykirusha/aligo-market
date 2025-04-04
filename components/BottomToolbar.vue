@@ -143,7 +143,7 @@ const toggleLoginModal = () => {
 
 const handleMenuClick = (item) => {
    if (!loggedIn.value && item.icon !== 'catalog') {
-      modalLoginOpen.value = true;
+      loginModalStore.toggleLoginModal();
    } else {
       router.push(item.path);
       closeAllMenus();
@@ -159,7 +159,7 @@ const handleMenuClick = (item) => {
    left: 0;
    width: 100%;
    background-color: #FFFFFF;
-   z-index: 104;
+   z-index: 129;
    justify-content: center;
    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
    transition: transform 0.2s ease-in-out;

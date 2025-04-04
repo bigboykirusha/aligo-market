@@ -8,8 +8,8 @@
          </div>
          <div class="favorites__indicator" :style="indicatorStyle"></div>
       </div>
-      <FavoritesList :ads="favorites" :XTotalCount="totalCount" :isLoading="loading"
-         :pageType="ROUTE_MAP[selectedItem]" />
+      <FavoritesList :ads="favorites" :XTotalCount="totalCount" :isLoading="loading" :pageType="ROUTE_MAP[selectedItem]"
+         :type="selectedItem" />
    </div>
 </template>
 
@@ -32,7 +32,7 @@ const totalCount = ref(2);
 
 const fetchFunctions = {
    'Объявления': () => getFavorites().then((data) => data.map((item) => item.ads_show || [])),
-   'Поиски': () => getUserSavedFilters().then((data) => data.map((item) => item.ads_show || [])),
+   'Поиски': () => getUserSavedFilters().then((data) => data || []),
 };
 
 const fetchHeadersFunctions = {

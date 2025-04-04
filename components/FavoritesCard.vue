@@ -4,11 +4,11 @@
          <Swiper v-if="images.length" :modules="[SwiperAutoplay, SwiperPagination]" :slides-per-view="1"
             :pagination="{ clickable: true }" :navigation="false" :loop="true">
             <SwiperSlide v-for="(image, index) in images" :key="index">
-               <img :src="getImageUrl(image.arr_title_size.preview)" alt="Slide Image" />
+               <img :src="getImageUrl(image.arr_title_size.preview)" draggable="false" @contextmenu.prevent alt="Slide Image" />
             </SwiperSlide>
             <div class="swiper-pagination"></div>
          </Swiper>
-         <img v-else src="../assets/icons/placeholder.png" alt="Placeholder image" class="card__placeholder" />
+         <img v-else :src="placeholder" alt="Placeholder image" class="card__placeholder" />
       </div>
       <div class="card__body">
          <nuxt-link :to="`/car/${url}`" class="card__title">
@@ -53,6 +53,7 @@ import { useUserStore } from '~/store/user';
 import { seeContact, getUser } from '~/services/apiClient';
 import { useRouter } from 'vue-router';
 import { useLoginModalStore } from '~/store/loginModal.js';
+import placeholder from "../assets/icons/placeholder.png";
 
 const loginModalStore = useLoginModalStore();
 const router = useRouter();

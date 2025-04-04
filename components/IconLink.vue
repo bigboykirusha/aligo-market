@@ -1,6 +1,6 @@
 <template>
    <nuxt-link :to="to" class="header__icon-wrapper" :class="{ 'header__icon-wrapper--active': iconCount > 0 }">
-      <img :src="iconSrc" alt="Icon" class="header__icon">
+      <img :src="iconSrc" alt="Icon" class="header__icon" />
       <span v-if="iconCount > 0" class="header__icon-count">{{ iconCount }}</span>
    </nuxt-link>
 </template>

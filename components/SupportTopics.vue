@@ -27,14 +27,14 @@ import { useChatStore } from '~/store/chatStore';
 const emit = defineEmits(['topicSelected']);
 
 const topics = ref([]);
-const selectedTopic = ref(null); 
+const selectedTopic = ref(null);
 const chatStore = useChatStore();
 
 onMounted(async () => {
    try {
-      const response = await getTechSupportThemes(); 
+      const response = await getTechSupportThemes();
       if (response.success) {
-         topics.value = response.data; 
+         topics.value = response.data;
       }
    } catch (error) {
       console.error('Ошибка при получении тем:', error);
@@ -43,7 +43,7 @@ onMounted(async () => {
 
 const selectTopic = (topic) => {
    console.log('Выбрана тема:', topic.title);
-   selectedTopic.value = topic; 
+   selectedTopic.value = topic;
    emit('topicSelected', topic);
 };
 </script>

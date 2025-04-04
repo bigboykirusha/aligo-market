@@ -6,16 +6,14 @@
    </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import NotFound from './components/NotFound.vue';
-
 </script>
 
 <style scoped lang="scss">
 .container {
    display: flex;
    flex-direction: column;
-   min-height: 100vh;
    justify-content: space-between;
 }
 </style>

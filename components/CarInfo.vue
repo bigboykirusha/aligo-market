@@ -1,38 +1,68 @@
 <template>
-   <div>
-      <CarSlider :images="car.photos" :adsId="car.id" :userId="car.id_user_owner_ads" />
-      <div class="car-contact-wrapper">
-         <CarContact :id_user_owner_ads="car.id_user_owner_ads"
-            :brand="car.auto_technical_specifications[0]?.brand?.title"
-            :model="car.auto_technical_specifications[0]?.model?.title"
-            :year="car.auto_technical_specifications[0]?.year_release?.title" :amount="car.ads_parameter.amount"
-            :username="car.ads_parameter?.username || car.ads_parameter?.login || 'Имя не указано'"
-            :place="car.ads_parameter?.place_inspection || 'Не указано'" :id="car.id"
-            :is_in_favorites="car.is_in_favorites" :latitude="car.ads_parameter?.latitude"
-            :longitude="car.ads_parameter?.longitude" :photos="car.photos" />
+   <div class="car-info__wrapper">
+      <div class="car-info__slider">
+         <template v-if="car">
+            <CarSlider :images="car.photos" :adsId="car.id" :carData="car" :userId="car.id_user_owner_ads" />
+         </template>
+         <template v-else>
+            <div class="skeleton skeleton-slider"></div>
+         </template>
       </div>
-      <Spec />
+
+      <div class="car-contact-wrapper">
+         <template v-if="car">
+            <CarContact :id_user_owner_ads="car.id_user_owner_ads"
+               :brand="car.auto_technical_specifications[0]?.brand?.title"
+               :model="car.auto_technical_specifications[0]?.model?.title"
+               :year="car.auto_technical_specifications[0]?.year_release?.title" :amount="car.ads_parameter.amount"
+               :username="car.ads_parameter?.username || car.ads_parameter?.login || 'Имя не указано'"
+               :place="car.ads_parameter?.place_inspection || 'Не указано'" :id="car.id"
+               :is_in_favorites="car.is_in_favorites" :latitude="car.ads_parameter?.latitude"
+               :longitude="car.ads_parameter?.longitude" :photos="car.photos" />
+         </template>
+         <template v-else>
+            <CarContactSkeleton />
+         </template>
+      </div>
+
+      <template v-if="car">
+         <Spec :brand="car.auto_technical_specifications[0]?.brand?.title"
+            :model="car.auto_technical_specifications[0]?.model?.title"
+            :year="car.auto_technical_specifications[0]?.year_release?.title" :shortReport="car.short_report"
+            :id="car.id" />
+      </template>
+      <template v-else>
+         <div class="skeleton skeleton-spec"></div>
+      </template>
+
       <section class="block-section block-section--characteristics">
          <div class="block-section__container">
             <h2 class="block-section__title">Характеристики</h2>
-            <div class="block-section__content block-section__content--columns">
+            <div v-if="car" class="block-section__content block-section__content--columns">
                <p v-for="(value, key) in characteristics" :key="key" class="block-section__text">
                   <span class="block-section__label">{{ key }}: </span>{{ value }}
                </p>
             </div>
+            <div v-else class="skeleton skeleton-characteristics"></div>
          </div>
       </section>
+
       <div class="delimeter"></div>
+
       <section class="block-section block-section--description">
          <div class="block-section__container">
             <h2 class="block-section__desc">Описание</h2>
-            <div class="block-section__content block-section__content--single-column block-section__desc">
-               <pre class="block-section__text">{{ car.ads_parameter?.ads_description }}</pre>
+            <div v-if="car" class="block-section__content block-section__content--single-column block-section__desc">
+               <pre class="block-section__text">{{car.ads_parameter?.ads_description.split('\n').map(line =>
+                  line.trim()).join('\n')}}</pre>
             </div>
+            <div v-else class="skeleton skeleton-description"></div>
          </div>
       </section>
-      <div class="delimeter" v-if="equipment.length"></div>
-      <section v-if="equipment.length" class="block-section block-section--equipment">
+
+      <div class="delimeter" v-if="car && car.ads_parameter.ads_description"></div>
+
+      <section v-if="car && equipment.length" class="block-section block-section--equipment">
          <div class="block-section__container">
             <h2 class="block-section__title">Комплектация</h2>
             <div class="block-section__content block-section__content--single-column">
@@ -43,18 +73,22 @@
                </ul>
             </div>
          </div>
-         <ComplainButton v-if="car.id_user_owner_ads !== userStore.userId" :userId="car.id_user_owner_ads"
-            :adsId="car.id" />
       </section>
+
+      <div class="delimeter" v-if="car && equipment.length"></div>
+
+      <ComplainButton v-if="car && (car.id_user_owner_ads !== userStore.userId)" :userId="car.id_user_owner_ads"
+         :adsId="car.id" />
    </div>
 </template>
 
 <script setup>
 import { computed } from 'vue';
 import { useUserStore } from '~/store/user';
+import CarContactSkeleton from './CarContactSkeleton.vue';
 
 const props = defineProps({
-   car: { type: Object, required: true }
+   car: { type: Object }
 });
 
 const userStore = useUserStore();
@@ -108,6 +142,10 @@ const equipment = computed(() => {
 </script>
 
 <style lang="scss" scoped>
+h2 {
+   margin: 0;
+}
+
 .car-contact-wrapper {
    display: none;
 
@@ -116,28 +154,39 @@ const equipment = computed(() => {
    }
 }
 
+.car-info__wrapper {
+   width: 100%;
+   margin-bottom: 40px;
+   z-index: 2;
+
+   overflow: hidden;
+
+   @media (max-width: 1280px) {
+      max-width: calc(100vw - 32px);
+   }
+}
+
+.car-info__slider {
+   height: 480px;
+
+   @media (max-width: 768px) {
+      height: 360px;
+   }
+}
+
 .block-section {
    padding: 40px 0;
-   max-width: 746px;
-
-   &--characteristics {
-      padding-top: 24px;
-   }
-
-   @media (max-width: 1240px) {
-      max-width: 100%;
-   }
-
-   @media (max-width: 1240px) {
-      padding: 32px 0;
-   }
 
    &__title,
    &__desc {
-      margin: 0 0 16px;
+      margin-bottom: 16px;
       font-size: 20px;
       line-height: 24px;
       color: #323232;
+   }
+
+   &__label {
+      color: #787878;
    }
 
    &__content {
@@ -148,7 +197,7 @@ const equipment = computed(() => {
       &--columns {
          display: grid;
          grid-template-columns: repeat(2, 1fr);
-         gap: 16px 27px;
+         gap: 16px;
 
          @media (max-width: 768px) {
             grid-template-columns: 1fr;
@@ -165,16 +214,8 @@ const equipment = computed(() => {
       gap: 8px;
       font-size: 14px;
       line-height: 18px;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-
-      &:last-child {
-         margin-bottom: 0;
-      }
-   }
-
-   &__label {
-      color: #787878;
+      word-break: break-word;
+      color: #323232;
    }
 
    &__list {
@@ -186,7 +227,7 @@ const equipment = computed(() => {
       border-bottom: 1px solid #D6D6D6;
       padding-bottom: 40px;
 
-      @media (max-width: 600px) {
+      @media (max-width: 768px) {
          grid-template-columns: 1fr;
       }
    }
@@ -212,9 +253,59 @@ const equipment = computed(() => {
 .delimeter {
    background-color: #D6D6D6;
    height: 1px;
-   max-width: 1280px;
    width: 100%;
    margin: 0 auto;
-   padding: 0 16px;
+}
+
+.skeleton {
+   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+   background-size: 200% 100%;
+   animation: shimmer 1.5s infinite linear;
+   border-radius: 6px;
+
+   &-slider {
+      height: 480px;
+
+      @media (max-width: 768px) {
+         height: 360px;
+      }
+   }
+
+   &-contact {
+      width: 100%;
+      height: 120px;
+      display: none;
+      margin-top: 24px;
+
+      @media (max-width: 1280px) {
+         display: block;
+      }
+   }
+
+   &-spec {
+      width: 100%;
+      height: 128px;
+      margin-top: 24px;
+   }
+
+   &-characteristics {
+      width: 100%;
+      height: 188px;
+   }
+
+   &-description {
+      width: 100%;
+      height: 188px;
+   }
+}
+
+@keyframes shimmer {
+   0% {
+      background-position: -200% 0;
+   }
+
+   100% {
+      background-position: 200% 0;
+   }
 }
 </style>

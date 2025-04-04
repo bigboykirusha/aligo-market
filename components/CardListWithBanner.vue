@@ -1,13 +1,12 @@
 <template>
    <div class="cards">
-      <!-- Заголовок и кнопка сохранения поиска -->
-      <div class="cards__nav">
+      <header class="cards__header">
          <h1 v-if="title" class="cards__title">{{ title }}</h1>
          <button v-if="hasAds && isSearchPage" class="cards__save-button" @click="toggleSaved">
             <img :src="saveButtonIcon" alt="Save Icon" />
             <span>{{ saveButtonText }}</span>
          </button>
-         <div v-if="isAutoPage" class="cards__block">
+         <nav v-if="isAutoPage" class="cards__controls">
             <AdsDropdown :options="sortOptions" @updateSort="handleSortUpdate" :defaultValue="'desc'" />
             <div class="switcher">
                <div v-for="(image, index) in images" :key="image.alt" class="switcher__item"
@@ -15,28 +14,28 @@
                   <img :src="activeIndex === index ? image.active : image.inactive" :alt="image.alt" />
                </div>
             </div>
-         </div>
-      </div>
+         </nav>
+      </header>
 
-      <!-- Состояние загрузки -->
-      <div v-if="isLoading" :class="loadingClass">
-         <CardSkeleton v-for="index in XTotalCount" :key="index" :isHorizontal="activeIndex === 1" />
-      </div>
+      <main>
+         <section v-if="isLoading" :class="loadingClass">
+            <CardSkeleton v-for="index in XTotalCount" :key="index" :isHorizontal="activeIndex === 1" />
+         </section>
 
-      <!-- Отображение карточек объявлений -->
-      <div v-else>
-         <NoResults v-if="!hasAds" />
-         <div :class="mainClass">
-            <template v-if="adsMain.length < 10">
-               <Card v-for="ad in adsMain" :key="ad.id" v-bind="mapCardProps(ad)" />
-            </template>
-            <template v-else>
-               <Card v-for="ad in firstHalf" :key="ad.id" v-bind="mapCardProps(ad)" />
-               <slot name="banner" />
-               <Card v-for="ad in secondHalf" :key="ad.id" v-bind="mapCardProps(ad)" />
-            </template>
-         </div>
-      </div>
+         <section v-else>
+            <NoResults v-if="!hasAds" :query="query" />
+            <div :class="mainClass">
+               <template v-if="adsMain.length < 10">
+                  <Card v-for="ad in adsMain" :key="ad.id" v-bind="mapCardProps(ad)" />
+               </template>
+               <template v-else>
+                  <Card v-for="ad in firstHalf" :key="ad.id" v-bind="mapCardProps(ad)" />
+                  <slot name="banner" />
+                  <Card v-for="ad in secondHalf" :key="ad.id" v-bind="mapCardProps(ad)" />
+               </template>
+            </div>
+         </section>
+      </main>
    </div>
 </template>
 
@@ -44,7 +43,10 @@
 import { ref, computed, onMounted } from 'vue';
 import { useFiltersStore } from '~/store/filters';
 import { useLoginModalStore } from '~/store/loginModal';
+import { useCityStore } from '~/store/city'
 import { useUserStore } from '~/store/user';
+import { usePopupErrorStore } from '~/store/popupErrorStore';
+import { saveFilter } from '~/services/apiClient';
 import { useRoute } from 'vue-router';
 import list from '../assets/icons/list.svg';
 import listNone from '../assets/icons/list-none.svg';
@@ -58,7 +60,8 @@ const props = defineProps({
    pageSize: { type: Number, default: 20 },
    title: { type: String, default: 'Свежие объявления' },
    isLoading: { type: Boolean, required: true },
-   XTotalCount: { type: Number, default: 0 }
+   XTotalCount: { type: Number, default: 0 },
+   query: { type: String },
 });
 
 const emit = defineEmits(['updateSort']);
@@ -66,6 +69,8 @@ const activeIndex = ref(0);
 const filtersStore = useFiltersStore();
 const loginModalStore = useLoginModalStore();
 const userStore = useUserStore();
+const cityStore = useCityStore();
+const popupErrorStore = usePopupErrorStore();
 const route = useRoute();
 const isSearchPage = computed(() => route.path.startsWith('/search'));
 const isAutoPage = computed(() => route.path.startsWith('/auto'));
@@ -96,9 +101,26 @@ const mainClass = computed(() => [
 const firstHalf = computed(() => props.adsMain.slice(0, Math.ceil(props.adsMain.length / 2)));
 const secondHalf = computed(() => props.adsMain.slice(Math.ceil(props.adsMain.length / 2)));
 
+const saveFilterValue = async () => {
+   const filterData = {
+      title: props.query,
+      description: cityStore.selectedCity.name,
+      url: `https://aligo.ru/search?query=${props.query}`,
+   };
+   try {
+      await saveFilter(filterData);
+      popupErrorStore.showNotification('Поиск успешно сохранен')
+   } catch (error) {
+      console.error('Ошибка при сохранении фильтра:', error);
+   }
+};
+
 const toggleSaved = () => {
    if (userStore.isLoggedIn) {
-      isSaved.value = !isSaved.value;
+      isSaved.value = true;
+      if (isSaved.value && props.query && props.query.trim()) {
+         saveFilterValue();
+      }
    } else {
       loginModalStore.openLoginModal();
    }
@@ -111,19 +133,19 @@ const handleSortUpdate = (order_by) => {
 
 const mapCardProps = (ad) => ({
    id: ad.id,
-   description: ad.ads_parameter?.ads_description || 'Нет описания',  
-   price: ad.ads_parameter?.amount || 'Цена не указана',  
-   place: ad.ads_parameter?.place_inspection || 'Адрес не указан',  
-   callNumber: ad.ads_parameter?.phone || 'Номер не указан',  
-   year: ad.auto_technical_specifications?.[0]?.year_release?.title || 'Год не указан',  
-   messageEmail: ad.ads_parameter?.email || 'Электронная почта не указана',  
+   description: ad.ads_parameter?.ads_description || 'Нет описания',
+   price: ad.ads_parameter?.amount || 'Цена не указана',
+   place: ad.ads_parameter?.place_inspection || 'Адрес не указан',
+   callNumber: ad.ads_parameter?.phone || 'Номер не указан',
+   year: ad.auto_technical_specifications?.[0]?.year_release?.title || 'Год не указан',
+   messageEmail: ad.ads_parameter?.email || 'Электронная почта не указана',
    horizontal: activeIndex.value === 1,
-   brand: ad.auto_technical_specifications?.[0]?.brand?.title || 'Не указан',  
-   model: ad.auto_technical_specifications?.[0]?.model?.title || 'Не указан', 
-   username: ad.ads_parameter?.username || 'Не указано',  
+   brand: ad.auto_technical_specifications?.[0]?.brand?.title || 'Не указан',
+   model: ad.auto_technical_specifications?.[0]?.model?.title || 'Не указан',
+   username: ad.ads_parameter?.username || 'Не указано',
    is_in_favorites: ad.is_in_favorites,
    images: ad.photos || [],
-   created_at: ad.created_at || 'Дата не указана', 
+   created_at: ad.created_at || 'Дата не указана',
    id_user_owner_ads: ad.id_user_owner_ads
 });
 
@@ -150,7 +172,7 @@ onMounted(() => {
    width: 100%;
    margin: 0 auto;
 
-   &__block {
+   &__controls {
       display: flex;
       gap: 44px;
       justify-content: flex-end;
@@ -161,7 +183,7 @@ onMounted(() => {
       }
    }
 
-   &__nav {
+   &__header {
       display: flex;
       justify-content: space-between;
       gap: 16px;
@@ -176,7 +198,6 @@ onMounted(() => {
       font-weight: bold;
       font-size: 24px;
       color: #323232;
-      margin: 0;
    }
 
    &__main {
@@ -250,7 +271,6 @@ onMounted(() => {
 
 .switcher {
    display: flex;
-   box-sizing: content-box;
    background-color: #EEEEEE;
    border-radius: 6px;
    width: fit-content;
@@ -262,29 +282,24 @@ onMounted(() => {
       justify-content: center;
       cursor: pointer;
       background-color: #EEEEEE;
-      transition: all 0.3s ease;
+      border: 1px solid #D6D6D6;
+      transition: background-color 0.3s ease;
 
       &:hover {
          background-color: #D6EFFF;
       }
 
       &:first-child {
-         border: 1px solid #D6D6D6;
          border-radius: 4px 0 0 4px;
          border-right: none;
       }
 
       &:last-child {
-         border: 1px solid #D6D6D6;
          border-radius: 0 4px 4px 0;
       }
 
       &--active {
          background-color: #fff;
-
-         &:hover {
-            background-color: #ffffff;
-         }
       }
 
       img {

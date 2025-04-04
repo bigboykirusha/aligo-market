@@ -18,15 +18,42 @@
 import { useRoute } from '#app';
 import { useLoginModalStore } from '~/store/loginModal';
 import { useUserStore } from '~/store/user';
+import { useCityStore } from '~/store/city'
+import { usePopupErrorStore } from '~/store/popupErrorStore';
+import { saveFilter } from '~/services/apiClient';
+
+const cityStore = useCityStore();
+const popupErrorStore = usePopupErrorStore();
+
+const props = defineProps({
+   query: { type: String },
+});
 
 const route = useRoute();
 const loginModalStore = useLoginModalStore();
 const userStore = useUserStore();
 const isSearchPage = computed(() => route.path.startsWith('/search'));
 
+const saveFilterValue = async () => {
+   const filterData = {
+      title: props.query,
+      description: cityStore.selectedCity.name,
+      url: `https://aligo.ru/search?query=${props.query}`,
+   };
+   try {
+      await saveFilter(filterData);
+      popupErrorStore.showNotification('Поиск успешно сохранен')
+   } catch (error) {
+      console.error('Ошибка при сохранении фильтра:', error);
+   }
+};
+
+
 const toggleSaved = () => {
    if (!userStore.isLoggedIn) {
       loginModalStore.openLoginModal();
+   } else {
+      saveFilterValue();
    }
 };
 </script>

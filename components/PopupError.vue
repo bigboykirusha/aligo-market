@@ -1,11 +1,10 @@
 <template>
    <TransitionGroup name="popup-list" tag="div" class="popup-container">
-      <div v-for="toast in popupErrorStore.notifications" :key="toast.id"
-         class="popup" :class="toast.type">
+      <div v-for="toast in popupErrorStore.notifications" :key="toast.id" class="popup" :class="toast.type">
          <div class="popup__content">
             <p class="popup__text">{{ toast.message }}</p>
             <img @click.prevent="popupErrorStore.removeNotification(toast.id)" class="popup__close-btn"
-               src="../assets/icons/close-white.svg" alt="Close">
+               src="../assets/icons/close-white.svg" alt="Close"/>
          </div>
       </div>
    </TransitionGroup>
@@ -32,6 +31,7 @@ const popupErrorStore = usePopupErrorStore();
    @media (max-width: 768px) {
       right: 0;
       left: 0;
+      bottom: 86px;
    }
 }
 

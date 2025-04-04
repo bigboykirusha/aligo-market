@@ -15,7 +15,7 @@
                </div>
             </div>
             <nuxt-link to="/" class="footer__logo">
-               <img src="../assets/icons/white-logo.svg" alt="Логотип" />
+               <img :src="logoIcon" alt="Логотип" />
             </nuxt-link>
          </div>
       </div>
@@ -26,6 +26,7 @@
 import { ref, onMounted, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import { getSiteDocumentById } from '@/services/apiClient';
+import logoIcon from "../assets/images/logo-white.svg";
 
 const isCreateAdPage = ref(false);
 const route = useRoute();

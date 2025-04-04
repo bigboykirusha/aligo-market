@@ -2,17 +2,17 @@
    <div class="user-menu" :class="{ 'user-menu--scrolled': isScrolled }" ref="userMenuRef">
       <div class="user-menu__header">
          <div class="user-menu__block">
-            <img :src="avatarUrl" alt="login icon" class="user-menu__icon">
+            <img :src="avatarUrl" alt="login icon" class="user-menu__icon" />
             <input type="file" id="avatarUpload" ref="avatarUpload" @change="handleAvatarChange"
                style="display: none" />
             <img src="../assets/icons/change-ava.svg" alt="change avatar" class="user-menu__icon-change"
-               @click="triggerFileInput">
+               @click="triggerFileInput" />
 
             <a class="user-menu__user-name">{{ displayName }}</a>
 
-            <nuxt-link to="/profile/reviews/mine" class="user-menu__rating">
+            <nuxt-link to="/profile/reviews/aboutme" class="user-menu__rating">
                <div class="user-menu__rating-text">{{ rating === 0 ? '0.0' : rating }}</div>
-               <NuxtRating :rating-value="rating" :rating-count="5" :rating-size="10" :rating-spacing="6"
+               <NuxtRating :rating-value="rating" :rating-count="5" :rating-size="9" :rating-spacing="6"
                   active-color="#3366FF" inactive-color="#FFFFFF" border-color="#3366FF" :border-width="2"
                   rounded-corners read-only />
                <span class="user-menu__rating-count">
@@ -54,6 +54,7 @@ import favIcon from '~/assets/icons/fav.svg';
 import supportIcon from '~/assets/icons/support.svg';
 import mailIcon from '~/assets/icons/mail-menu.svg';
 import reviewsIcon from '~/assets/icons/reviews.svg';
+import specIcon from '~/assets/icons/spec-check-icon.svg';
 
 const userStore = useUserStore();
 const popupErrorStore = usePopupErrorStore();
@@ -64,7 +65,7 @@ const router = useRouter();
 const userMenuRef = ref(null);
 const isScrolled = ref(false);
 const activeItem = computed(() => {
-   return menuItems.value.find(item => route.path.startsWith(item.link))?.id || 'ads';
+   return menuItems.value.find(item => route.path.startsWith(item.link))?.id;
 });
 
 const isActive = (item) => activeItem.value === item;
@@ -78,11 +79,11 @@ const menuItems = computed(() => [
    { id: 'favorites', label: 'Избранное', link: '/profile/favorites/ads', icon: favIcon, count: userStore.countFavorites },
    { id: 'messages', label: 'Сообщения', link: '/profile/messages', icon: supportIcon, count: userStore.count_new_messages },
    { id: 'notifications', label: 'Оповещения', link: '/profile/notifications', icon: mailIcon, count: userStore.countUnreadNotify },
-   { id: 'reviews', label: 'Отзывы', link: '/profile/reviews/mine', icon: reviewsIcon, count: userStore.count_new_reviews_about_myself }
+   { id: 'reviews', label: 'Отзывы', link: '/profile/reviews/mine', icon: reviewsIcon, count: userStore.count_new_reviews_about_myself },
+   { id: 'reports', label: 'Проверка авто', link: '/profile/reports', icon: specIcon, count: 0 }
 ]);
 
 watch(() => route.params.title, (newTitle) => activeItem.value = newTitle);
-watch(() => userStore.$state, () => avatarUrl.value = getImageUrl(userStore.photo?.path, avatarPhoto), { deep: true });
 
 const selectMenuItem = (item) => activeItem.value = item;
 

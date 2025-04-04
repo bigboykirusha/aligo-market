@@ -2,10 +2,9 @@
    <div ref="menuRef" class='menu-2' :class="{ 'menu-2--open': modelValue }">
       <div class="menu-2__header-row">
          <div class="menu-2__block">
-            <img @click="dropdownStore.setDropdownState(false);" class="header__close-icon"
-               src="../assets/icons/close.svg" alt="">
+            <img @click="dropdownStore.setDropdownState(false);" class="header__close-icon" :src="closeIcon" alt="" />
             <button class="header__nav-link" @click="toggleModal">
-               <img :src="defaultLocationIcon" alt="Location icon" class="header__icon">
+               <img :src="defaultLocationIcon" alt="Location icon" class="header__icon" />
                <span class="header__text header__text--hidden">{{ translatedCityName }}</span>
             </button>
          </div>
@@ -40,6 +39,7 @@ import { useRouter } from 'vue-router';
 import carIcon from '../assets/icons/car.svg';
 import diskIcon from '../assets/icons/disc.svg';
 import motoIcon from '../assets/icons/moto.svg';
+import closeIcon from "../assets/icons/close.svg";
 import { useFiltersStore } from '~/store/filters.js';
 import { useDropdownStore } from '~/store/dropdown.js';
 import { useLocationModalStore } from '~/store/locationModalStore';
@@ -284,7 +284,7 @@ onUnmounted(() => {
       transition: max-height 0.2s ease-in-out;
 
       @media (max-width: 768px) {
-         padding: 0 16px 60px;
+         padding: 0 16px 76px;
          overflow-y: auto;
          border: none;
          height: calc(100vh - 66px);
@@ -392,8 +392,8 @@ onUnmounted(() => {
    align-items: center;
    color: #3366FF;
    font-weight: 400;
-   font-size: 12px;
-   line-height: 16px;
+   font-size: 14px;
+   line-height: 18px;
    gap: 6px;
    background: none;
    border: none;
@@ -402,8 +402,8 @@ onUnmounted(() => {
    text-decoration: none;
 
    .header__icon {
-      width: 12px;
-      height: 12px;
+      width: 16px;
+      height: 16px;
    }
 }
 

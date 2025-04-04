@@ -7,11 +7,6 @@
             <a href="/?ref=id1" class="banner__button">{{ $t('bannerRent.buttonText') }}</a>
          </div>
       </div>
-      <div class="banner__bg">
-         <img v-show="false"  class="banner__bg-img" :src="content.desktopImage" :alt="content.altText" :title="content.titleText" />
-         <img v-show="false"  class="banner__bg-img--mobile" :src="content.mobileImage" :alt="content.altText"
-            :title="content.titleText" />
-      </div>
    </div>
 </template>
 

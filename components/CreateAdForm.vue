@@ -101,10 +101,10 @@ const publishAndExit = async () => {
       }
 
       if (!userStore.address && createStore.place_inspection) {
-         await userStore.updateProfile({ address: createStore.address });
+         await userStore.updateProfile({ address: createStore.place_inspection });
       }
 
-      if (userStore.unconfirmed_email) {
+      if (createStore.email) {
          if (!isConfirmed.value) {
             await userStore.updateProfile({ email: createStore.email });
             showCodeModal.value = true;

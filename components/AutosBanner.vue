@@ -20,7 +20,7 @@ import bannerImage from '../assets/images/banner-autos.png';
    overflow: hidden;
    grid-column: 1 / -1;
 
-   @media screen and (max-width: 600px) {
+   @media (max-width: 600px) {
       padding-top: 22px;
    }
 

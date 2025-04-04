@@ -6,7 +6,8 @@
          </button>
          <div class="modal__body">
             <h2 class="modal__title">Удалить чат с пользователем «{{ chatStore.currentChat.for_user.id ===
-                  userStore.userId ? chatStore.currentChat.from_user.username : chatStore.currentChat.for_user.username }}»?</h2>
+               userStore.userId ? chatStore.currentChat.from_user.username : chatStore.currentChat.for_user.username
+            }}»?</h2>
             <p class="modal__description">
                Внимание, переписка и все данные будут утеряны навсегда. Вы уверены?
             </p>

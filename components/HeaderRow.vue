@@ -2,54 +2,77 @@
    <div class="header-row"
       :class="{ 'header-row--expanded': showDropdown || !isWithMargin, 'header-row--with-margin': isWithMargin }">
       <div class="header-row__container" :class="{ 'header-row__container--create': isCreatePage }">
-         <nuxt-link v-show="!isInputFocused || isDesktop" to="/" class="header-row__logo-section">
-            <img :src="logoMain" alt="Logo" class="header-row__logo" />
-         </nuxt-link>
-         <div v-show="(!isProfilePage || (isProfilePage && !isDesktop)) && !isCreatePage" class="header-row__controls">
-            <button class="header-row__btn" @click.stop="toggleCategories">
+         <h1 v-if="!isReportPage && (!isCarPage || isDesktop)" class="header-row__logo-section">
+            <nuxt-link class="header-row__logo" to="/" @click="scrollToTop">
+               <img :src="logoMain" alt="Logo" class="header-row__logo" />
+            </nuxt-link>
+         </h1>
+
+         <div v-show="isReportPage || (isCarPage && !isDesktop)" class="header-row__logo-section" @click="scrollToTop">
+            <div v-if="!isReportPage" class="header-row__back" role="button" aria-label="Назад" @click="goBack">
+               <img src="@/assets/icons/back.svg" alt="Назад" />
+            </div>
+            <img v-if="isReportPage" :src="logoReport" alt="Logo" class="header-row__logo" />
+         </div>
+
+         <div
+            v-show="(!isProfilePage || (isProfilePage && !isDesktop)) && !isCreatePage && !isReportPage && (!isCarPage || isDesktop)"
+            class="header-row__controls">
+            <div class="header-row__btn" role="button" @click.stop="toggleCategories">
                <div
                   :class="showDropdown ? 'header-row__icon header-row__icon--cross' : 'header-row__icon header-row__icon--categories'">
                </div>
                <span class="header-row__controls-text">{{ $t('header.allCategories') }}</span>
-            </button>
+            </div>
+
             <div class="header-row__search-bar" ref="searchBar">
                <div class="header-row__search">
                   <input type="text" v-model="searchQuery" :placeholder="searchPlaceholder"
                      class="header-row__search-input" @keydown.enter="handleSearch" ref="searchInput"
                      @focus="handleInputFocus(true)" @blur="handleInputFocus(false)" />
-                  <img v-if="searchQuery" src="../assets/icons/close-blue.svg" class="clear-icon" alt="Clear Icon"
-                     @click="clearSearch" />
+                  <img v-if="searchQuery" :src="closeIconBlue" class="clear-icon" alt="Очистить" @click="clearSearch" />
                </div>
                <button :class="{ 'header-row__search-btn--focused': isInputFocused }" class="header-row__search-btn"
                   @click="handleSearch">
-                  <img class="header-row__search-btn-icon header-row__search-btn-icon--white"
-                     src="../assets/icons/search.svg" alt="Search">
-                  <img class="header-row__search-btn-icon header-row__search-btn-icon--blue"
-                     src="../assets/icons/search-button-blue.svg" alt="Search">
+                  <img class="header-row__search-btn-icon header-row__search-btn-icon--white" :src="searchIcon"
+                     alt="Поиск" />
+                  <img class="header-row__search-btn-icon header-row__search-btn-icon--blue" :src="searchIconBlue"
+                     alt="Поиск" />
                </button>
             </div>
-            <nuxt-link v-if="isLoggedIn" to="/create" class="header-row__btn header-row__btn--post-ad">
-               <span>{{ $t('header.postAd') }}</span>
-            </nuxt-link>
-            <button v-else class="header-row__btn header-row__btn--post-ad" @click="toggleLoginModal">
-               <span>{{ $t('header.postAd') }}</span>
-            </button>
-            <button v-show="isLoggedIn && !isWithMargin" class="header-row__avatar"
-               :class="{ 'header-row__avatar--active': userMenuStore.isActive }" @click.stop="toggleUserMenu">
-               <img :src="userAvatar" alt="User Avatar" class="header-row__avatar-image" />
-               <div class="header-row__small-text">{{ userStore.username || userStore.phoneNumber || userStore.email }}
-               </div>
-               <nuxt-link v-if="userMenuStore.isActive"
-                  :class="{ 'header-row__edit--active': userMenuStore.isActive, 'header-row__edit--reversed': !userStore.username }"
-                  to="/profile/edit" class="header-row__edit">
-                  <img :src="userStore.username ? editIcon : editIconB" alt="Add icon" class="header-row__icon" />
+
+            <ClientOnly>
+               <nuxt-link v-if="isLoggedIn" to="/create" class="header-row__btn header-row__btn--post-ad">
+                  <span>{{ $t('header.postAd') }}</span>
                </nuxt-link>
-            </button>
-            <button v-show="!isLoggedIn && !isWithMargin" class="header-row__avatar" @click="toggleLoginModal">
-               <img src="../assets/icons/avatar-revers.svg" alt="User Avatar" class="header-row__avatar-image" />
-               <div class="header-row__small-text">Вход</div>
-            </button>
+               <div v-else class="header-row__btn header-row__btn--post-ad" role="button" @click="toggleLoginModal">
+                  <span>{{ $t('header.postAd') }}</span>
+               </div>
+            </ClientOnly>
+
+            <ClientOnly>
+               <div v-show="isLoggedIn && !isWithMargin" class="header-row__avatar"
+                  :class="{ 'header-row__avatar--active': userMenuStore.isActive }" role="button"
+                  @click.stop="toggleUserMenu">
+                  <img :src="userAvatar" alt="Аватар пользователя" class="header-row__avatar-image" />
+                  <div class="header-row__small-text">
+                     {{ userStore.username || userStore.phoneNumber || userStore.email }}
+                  </div>
+                  <nuxt-link v-if="userMenuStore.isActive"
+                     :class="{ 'header-row__edit--active': userMenuStore.isActive, 'header-row__edit--reversed': !userStore.username }"
+                     to="/profile/edit" class="header-row__edit">
+                     <img :src="userStore.username ? editIcon : editIconB" alt="Редактировать"
+                        class="header-row__icon" />
+                  </nuxt-link>
+               </div>
+               <div v-show="!isLoggedIn && !isWithMargin" class="header-row__avatar" role="button"
+                  @click="toggleLoginModal">
+                  <img src="../assets/icons/avatar-revers.svg" alt="Аватар" class="header-row__avatar-image" />
+                  <div class="header-row__small-text">Вход</div>
+               </div>
+            </ClientOnly>
          </div>
+
          <div v-show="isProfilePage && isDesktop && !isCreatePage" class="header-row__controls">
             <div class="header-row__buttons">
                <nuxt-link to="/auto" class="header-row__button">
@@ -66,11 +89,18 @@
                </nuxt-link>
             </div>
          </div>
+
          <div v-show="isCreatePage" class="header-row__title">
             Новое объявление
          </div>
+         <div class="header-row__about" v-show="isReportPage || (isCarPage && !isDesktop)">
+            <WishlistButton v-show="isCarPage && !isDesktop" @toggle-login-modal="toggleLoginModal" :id="Number(id)" />
+            <ShareButton v-show="isReportPage || (isCarPage && !isDesktop)" />
+         </div>
+
          <Tabs v-show="isCreatePage" />
       </div>
+
       <DropdownMenu v-model="showDropdown" />
    </div>
 </template>
@@ -78,20 +108,24 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useUserStore } from '~/store/user';
-import { useDropdownStore } from '../store/dropdown.js';
-import { useCityStore } from '../store/city.js';
+import { useDropdownStore } from '~/store/dropdown.js';
+import { useCityStore } from '@/store/city.js';
 import { useRouter } from 'vue-router';
 import { useRoute } from 'vue-router';
-import logoMain from '../assets/images/logo.svg';
+import logoMain from '@/assets/images/logo.svg';
+import logoReport from '@/assets/icons/logo-report.svg';
 import { getImageUrl } from '~/services/imageUtils.js';
 import { useLoginModalStore } from '~/store/loginModal.js';
 import { useUserMenuStore } from '~/store/userMenuStore';
-import avatarPhoto from '../assets/icons/avatar-revers.svg';
-import carIcon from '../assets/icons/car.svg';
-import discIcon from '../assets/icons/disc.svg';
-import motoIcon from '../assets/icons/moto.svg';
+import avatarPhoto from '@/assets/icons/avatar-revers.svg';
+import carIcon from '@/assets/icons/car.svg';
+import discIcon from '@/assets/icons/disc.svg';
+import motoIcon from '@/assets/icons/moto.svg';
 import editIcon from '@/assets/icons/edit-w.svg';
 import editIconB from '@/assets/icons/edit.svg';
+import searchIcon from '@/assets/icons/search.svg';
+import searchIconBlue from '@/assets/icons/search-button-blue.svg';
+import closeIconBlue from '@/assets/icons/close-blue.svg'
 
 const loginModalStore = useLoginModalStore();
 const userMenuStore = useUserMenuStore();
@@ -108,6 +142,7 @@ const searchQuery = ref("");
 const searchInput = ref(null);
 const isDesktop = ref(false);
 const isInputFocused = ref(false);
+const id = ref(0);
 
 const userStore = useUserStore();
 const cityStore = useCityStore();
@@ -116,6 +151,8 @@ const route = useRoute();
 const isAuthorizationPage = computed(() => route.path.startsWith('/authorization'));
 const isProfilePage = computed(() => route.path.startsWith('/profile'));
 const isCreatePage = computed(() => route.path.startsWith('/create'));
+const isReportPage = computed(() => route.path.startsWith('/report'));
+const isCarPage = computed(() => route.path.startsWith('/car'));
 
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const searchPlaceholder = computed(() => {
@@ -129,6 +166,17 @@ const toggleLoginModal = () => !isAuthorizationPage.value && loginModalStore.tog
 const clearSearch = () => {
    searchQuery.value = "";
    nextTick(() => searchInput.value?.focus());
+};
+
+const scrollToTop = () => {
+   window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+   });
+};
+
+const goBack = () => {
+   window.history.length > 1 ? window.history.back() : router.push('/');
 };
 
 const handleSearch = async () => {
@@ -147,21 +195,41 @@ const handleSearch = async () => {
 };
 
 const handleInputFocus = (focused) => isInputFocused.value = focused;
-const handleScroll = () => isWithMargin.value = document.documentElement.scrollTop === 0;
+
+const handleScroll = () => {
+   if (import.meta.client) {
+      isWithMargin.value = document.documentElement.scrollTop === 0;
+   }
+};
+
+const updateIdAndQuery = () => {
+   id.value = route.path.split('-').pop() || 0;
+   if (route.query.query) {
+      searchQuery.value = route.query.query;
+   }
+};
 
 onMounted(() => {
-   updateIsDesktop();
-   window.addEventListener('resize', updateIsDesktop);
-   window.addEventListener('scroll', handleScroll);
+   updateIdAndQuery();
+
+   if (import.meta.client) {
+      updateIsDesktop();
+      window.addEventListener('resize', updateIsDesktop);
+      window.addEventListener('scroll', handleScroll);
+   }
 });
 
+watch(route, updateIdAndQuery, { deep: true });
+
 onUnmounted(() => {
-   window.removeEventListener('resize', updateIsDesktop);
-   window.removeEventListener('scroll', handleScroll);
+   if (import.meta.client) {
+      window.removeEventListener('resize', updateIsDesktop);
+      window.removeEventListener('scroll', handleScroll);
+   }
 });
 
 const updateIsDesktop = () => {
-   if (typeof window !== 'undefined') {
+   if (import.meta.client) {
       isDesktop.value = window.innerWidth >= 768;
    }
 };
@@ -170,7 +238,7 @@ const updateIsDesktop = () => {
 <style scoped lang="scss">
 .header-row {
    position: fixed;
-   z-index: 11;
+   z-index: 51;
    display: flex;
    align-items: center;
    padding: 0 16px;
@@ -181,6 +249,10 @@ const updateIsDesktop = () => {
    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
    transform: translateY(0);
    transition: transform 0.2s ease-in-out;
+
+   @media (max-width: 768px) {
+      height: 62px;
+   }
 
    &--with-margin {
       transform: translateY(44px);
@@ -205,6 +277,11 @@ const updateIsDesktop = () => {
       }
    }
 
+   &__about {
+      display: flex;
+      gap: 8px;
+   }
+
    &__avatar {
       display: flex;
       height: 34px;
@@ -212,13 +289,13 @@ const updateIsDesktop = () => {
       align-items: center;
       outline: none;
       border: none;
-      min-width: 70px;
+      cursor: pointer;
       background-color: transparent;
       transition: min-width 0.2s ease-in-out;
       gap: 4px;
 
       &--active {
-         min-width: 174px;
+         min-width: 180px;
       }
 
       @media (max-width: 768px) {
@@ -234,7 +311,7 @@ const updateIsDesktop = () => {
       height: 24px;
       border-radius: 50%;
       margin-left: auto;
-      margin-right: 16px;
+      margin-right: 8px;
       background-color: #3366FF;
       transform: translateY(-50px);
       position: absolute;
@@ -280,6 +357,23 @@ const updateIsDesktop = () => {
       border-radius: 50%;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       object-fit: cover;
+   }
+
+   &__back {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      align-items: center;
+      margin-right: 16px;
+
+      @media (max-width: 480px) {
+         display: flex;
+      }
+
+      img {
+         width: 16px;
+      }
    }
 
    &__search-btn-icon {
@@ -338,6 +432,10 @@ const updateIsDesktop = () => {
       margin: 0 auto;
       padding: 16px 0;
 
+      @media (max-width: 768px) {
+         height: 62px;
+      }
+
       &--create {
          flex-wrap: wrap;
          gap: 24px;
@@ -358,17 +456,20 @@ const updateIsDesktop = () => {
 
       @media (max-width: 480px) {
          margin-right: 0;
-         height: 28px;
+         height: 22px;
          margin-right: 12px;
       }
    }
 
    &__logo {
       height: 34px;
+      display: flex;
+      outline: none;
+      cursor: pointer;
 
       @media (max-width: 480px) {
          margin-right: 0;
-         height: 28px;
+         height: 22px;
       }
    }
 

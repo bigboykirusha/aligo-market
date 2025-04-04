@@ -2,8 +2,8 @@
    <div class="business">
       <div class="business__block">
          <div class="business__block-right">
-            <img class="business__block-right--logo" src="../assets/icons/logo-text.svg" alt="">
-            <img src="../assets/icons/send-complite.svg" alt="Картинка" />
+            <img class="business__block-right--logo" :src="logoText" alt="" />
+            <img :src="sendComplite" alt="Картинка" />
          </div>
          <div class="business__block-left">
             <div class="business__block-left--text">Поздравляем! Ваше объявление отправлено на модерацию. <br /><br />
@@ -16,6 +16,11 @@
       </div>
    </div>
 </template>
+
+<script setup>
+import logoText from '@/assets/icons/logo-text.svg';
+import sendComplite from '@/assets/icons/send-complite.svg';
+</script>
 
 <style scoped lang="scss">
 .business {

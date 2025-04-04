@@ -19,8 +19,7 @@
                   </div>
                </li>
                <button @click="logoutEverywhereDevices" class="auth-devices__logout-everywhere">
-                  <img class="leave-icon" src="../assets/icons/stop.svg" alt="Logout Icon" />Выйти со всех
-                  устройств
+                  <img class="leave-icon" src="../assets/icons/stop.svg" alt="Logout Icon" />Завершить все другие сеансы
                </button>
             </div>
          </ul>
@@ -28,7 +27,7 @@
 
       <!-- Блок других устройств -->
       <div v-if="otherDevices.length > 0" class="auth-devices__current-device">
-         <div class="auth-devices__sub-title">Активные устройства</div>
+         <div class="auth-devices__sub-title">Активные сеансы</div>
          <ul class="auth-devices__list">
             <li v-for="device in otherDevices" :key="device.id" class="auth-devices__item">
                <img :src="getDeviceIcon(device)" alt="Device Icon" class="auth-devices__icon" />

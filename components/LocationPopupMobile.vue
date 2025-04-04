@@ -1,15 +1,17 @@
 <template>
    <div v-if="isVisible" class="overlay">
-      <div class="popup">
-         <img @click="chooseCity" src="../assets/icons/close-blue.svg" alt="Закрыть" />
-         <div class="popup__header">
-            <p><span>{{ cityStore.selectedCity.name }}</span> – это ваш город?</p>
+      <Transition name="slide-down">
+         <div class="popup">
+            <img @click="chooseCity" src="../assets/icons/close-blue.svg" alt="Закрыть" />
+            <div class="popup__header">
+               <p><span>{{ cityStore.selectedCity.name }}</span> – это ваш город?</p>
+            </div>
+            <div class="popup__buttons">
+               <button @click="confirmCity">Да</button>
+               <button @click="chooseCity">Выбрать другой</button>
+            </div>
          </div>
-         <div class="popup__buttons">
-            <button @click="confirmCity">Да</button>
-            <button @click="chooseCity">Выбрать другой</button>
-         </div>
-      </div>
+      </Transition>
    </div>
 </template>
 
@@ -34,7 +36,7 @@ const getLocationAndCity = async () => {
 
       let selectedCity;
 
-      if (cities && cities.data && cities.data.length > 0) {
+      if (cities?.data?.length) {
          selectedCity = cities.data.find(city => city.title === cityName) || { name: 'Москва', id: 365 };
       } else {
          selectedCity = { name: 'Москва', id: 365 };
@@ -45,7 +47,9 @@ const getLocationAndCity = async () => {
          id: selectedCity.id,
       });
 
-      isVisible.value = true;
+      setTimeout(() => {
+         isVisible.value = true;
+      }, 400);
    } catch (error) {
       console.error('Ошибка определения города:', error);
    }
@@ -95,18 +99,25 @@ onMounted(() => {
    width: 100%;
    max-width: 100%;
    background: #fff;
-   border-radius: 0 0 6px 6px;
-   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+   border-radius: 0 0 12px 12px;
+   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
    padding: 40px 34px;
    text-align: center;
+   transform: translateY(0);
+   transition: transform 0.3s ease-out;
 
    img {
       position: absolute;
       top: 16px;
       right: 16px;
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
       cursor: pointer;
+      transition: transform 0.2s ease-in-out;
+
+      &:hover {
+         transform: rotate(90deg);
+      }
    }
 
    &__header {
@@ -131,11 +142,11 @@ onMounted(() => {
          flex: 1;
          border: none;
          border-radius: 6px;
-         padding: 8px 12px;
+         padding: 10px 14px;
          font-size: 16px;
          cursor: pointer;
-         font-weight: 400;
-         transition: 0.3s;
+         font-weight: 500;
+         transition: background 0.3s, transform 0.1s;
 
          &:first-child {
             background: #3366ff;
@@ -143,6 +154,7 @@ onMounted(() => {
 
             &:hover {
                background: #0044cc;
+               transform: scale(1.05);
             }
          }
 
@@ -152,9 +164,27 @@ onMounted(() => {
 
             &:hover {
                background: #a4dcff;
+               transform: scale(1.05);
             }
          }
       }
    }
+}
+
+.slide-down-enter-active {
+   transition: transform 0.3s ease-out, opacity 0.3s;
+}
+
+.slide-down-leave-active {
+   transition: transform 0.3s ease-in, opacity 0.3s;
+}
+
+.slide-down-enter-from {
+   transform: translateY(-100%);
+}
+
+.slide-down-leave-to {
+   transform: translateY(-100%);
+
 }
 </style>

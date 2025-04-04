@@ -1,7 +1,7 @@
 <template>
    <div class="banner-1">
       <div class="banner-1__bg">
-         <img src="@/assets/images/bg/banner-1.png" alt="Премиальные авто из Эмиратов" class="banner-1__bg-img" />
+         <img :src="bannerDubai" alt="Премиальные авто из Эмиратов" class="banner-1__bg-img" />
       </div>
       <div class="banner-1__row">
          <div class="banner-1__col">
@@ -17,6 +17,7 @@
 </template>
 
 <script setup>
+import bannerDubai from "@/assets/images/bg/banner-1.png";
 </script>
 
 <style lang="scss" scoped>

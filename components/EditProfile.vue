@@ -29,22 +29,24 @@
                      </div>
                      <div v-if="editMode.username" class="edit-input-actions">
                         <button @click="saveField('username')"
-                           class="edit-input-actions__save-button edit-input-actions__save-button-common"> <img
-                              src="..//assets/icons/check-icon.svg" alt="">Отправить</button>
+                           class="edit-input-actions__save-button edit-input-actions__save-button-common">
+                           <img :src="checkIcon" alt="" />Отправить
+                        </button>
                         <button @click="cancelEdit('username')"
-                           class="edit-input-actions__cancel-button edit-input-actions__cancel-button-common"> <img
-                              src="..//assets/icons/cancel.svg" alt="">Отменить</button>
+                           class="edit-input-actions__cancel-button edit-input-actions__cancel-button-common">
+                           <img :src="cancelIcon" alt="" />Отменить
+                        </button>
                      </div>
                      <div v-if="!profile.username && !editMode.username" class="simple-input__text">
                         <button type="button" class="edit-button" @click="toggleEditMode('username')">
-                           <img src="../assets/icons/plus.svg" alt="wqdqdw">
+                           <img :src="plusIcon" alt="wqdqdw" />
                            Добавить
                         </button>
                      </div>
                   </div>
                   <button v-if="!editMode.username && profile.username" type="button" class="edit-button"
                      @click="toggleEditMode('username')">
-                     <img src="../assets/icons/edit.svg" alt="Edit" class="edit-button__icon" /> Изменить
+                     <img :src="editIcon" alt="Edit" class="edit-button__icon" /> Изменить
                   </button>
                </div>
             </div>
@@ -68,17 +70,19 @@
 
                      <button v-if="!editMode.phone && profile.phone" type="button"
                         class="edit-button edit-button--phone" @click="toggleEditMode('phone')">
-                        <img src="../assets/icons/edit.svg" alt="Edit" class="edit-button__icon" /> Изменить
+                        <img :src="editIcon" alt="Edit" class="edit-button__icon" /> Изменить
                      </button>
                   </div>
                   <div v-if="validationErrors.phone" class="simple-input__error-message">
                      {{ validationErrors.phone }}
                   </div>
                   <div v-if="editMode.phone" class="edit-input-actions">
-                     <button @click="saveField('phone')" class="edit-input-actions__save-button"> <img
-                           src="..//assets/icons/check-icon.svg" alt="">Отправить</button>
-                     <button @click="cancelEdit('phone')" class="edit-input-actions__cancel-button"><img
-                           src="..//assets/icons/cancel.svg" alt="">Отменить</button>
+                     <button @click="saveField('phone')" class="edit-input-actions__save-button">
+                        <img :src="checkIcon" alt="" />Отправить
+                     </button>
+                     <button @click="cancelEdit('phone')" class="edit-input-actions__cancel-button">
+                        <img :src="cancelIcon" alt="" />Отменить
+                     </button>
                   </div>
                   <div v-if="codeInputVisible" class="simple-input__code-block">
                      <OTPInput v-model="code" :maxlength="4" inputmode="tel" autocomplete="one-time-code"
@@ -105,7 +109,7 @@
                </div>
                <div v-if="!profile.phone && !editMode.phone" class="simple-input__text simple-input__text--btn">
                   <button type="button" class="edit-button" @click="toggleEditMode('phone')">
-                     <img src="../assets/icons/plus.svg" alt="wqdqdw">
+                     <img :src="plusIcon" alt="wqdqdw" />
                      Добавить
                   </button>
                </div>
@@ -138,7 +142,7 @@
                      </div>
                      <button v-if="!editMode.email && profile.email" type="button"
                         class="edit-button edit-button--phone" @click="toggleEditMode('email')">
-                        <img src="../assets/icons/edit.svg" alt="Edit" class="edit-button__icon" /> Изменить
+                        <img :src="editIcon" alt="Edit" class="edit-button__icon" /> Изменить
                      </button>
                   </div>
                   <div v-if="validationErrors.email" class="simple-input__error-message">
@@ -146,11 +150,13 @@
                   </div>
                   <div v-if="editMode.email" class="edit-input-actions">
                      <button @click="saveField('email')" class="edit-input-actions__save-button"
-                        :class="{ 'edit-input-actions__save-button--confirm': !isConfirmed }"><img
-                           src="..//assets/icons/check-icon.svg" alt="">Сохранить</button>
+                        :class="{ 'edit-input-actions__save-button--confirm': !isConfirmed }">
+                        <img :src="checkIcon" alt="" />Сохранить
+                     </button>
                      <button @click="cancelEdit('email')" class="edit-input-actions__cancel-button"
-                        :class="{ 'edit-input-actions__cancel-button--confirm': !isConfirmed }"><img
-                           src="..//assets/icons/cancel.svg" alt="">Отменить</button>
+                        :class="{ 'edit-input-actions__cancel-button--confirm': !isConfirmed }">
+                        <img :src="cancelIcon" alt="" />Отменить
+                     </button>
                   </div>
                   <div v-if="emailCodeInputVisible" class="simple-input__code-block">
                      <!-- Используем VueOtpInput для email -->
@@ -178,7 +184,7 @@
                </div>
                <div v-if="!profile.email && !editMode.email" class="simple-input__text simple-input__text--btn">
                   <button type="button" class="edit-button" @click="toggleEditMode('email')">
-                     <img src="../assets/icons/plus.svg" alt="wqdqdw">
+                     <img :src="plusIcon" alt="wqdqdw" />
                      Добавить
                   </button>
                </div>
@@ -196,7 +202,7 @@
                      <div v-else class="simple-input__text">{{ profile.address }}</div>
                      <div v-if="!profile.address && !editMode.address" class="simple-input__text">
                         <button type="button" class="edit-button " @click="toggleEditMode('address')">
-                           <img src="../assets/icons/plus.svg" alt="wqdqdw">
+                           <img :src="plusIcon" alt="wqdqdw" />
                            Добавить
                         </button>
                      </div>
@@ -205,11 +211,13 @@
                      </div>
                      <div v-if="editMode.address" class="edit-input-actions">
                         <button @click="saveField('address')"
-                           class="edit-input-actions__save-button edit-input-actions__save-button-common"> <img
-                              src="..//assets/icons/check-icon.svg" alt="">Отправить</button>
+                           class="edit-input-actions__save-button edit-input-actions__save-button-common">
+                           <img :src="checkIcon" alt="" />Отправить
+                        </button>
                         <button @click="cancelEdit('address')"
-                           class="edit-input-actions__cancel-button edit-input-actions__cancel-button-common"><img
-                              src="..//assets/icons/cancel.svg" alt="">Отменить</button>
+                           class="edit-input-actions__cancel-button edit-input-actions__cancel-button-common">
+                           <img :src="cancelIcon" alt="" />Отменить
+                        </button>
                      </div>
                      <ul v-if="suggestions.length > 0" class="address-suggestions">
                         <li v-for="suggestion in suggestions" :key="suggestion.id"
@@ -220,7 +228,7 @@
                   </div>
                   <button v-if="!editMode.address && profile.address" type="button" class="edit-button"
                      @click="toggleEditMode('address')">
-                     <img src="../assets/icons/edit.svg" alt="Edit" class="edit-button__icon" /> Изменить
+                     <img :src="editIcon" alt="Edit" class="edit-button__icon" /> Изменить
                   </button>
                </div>
             </div>
@@ -248,6 +256,10 @@ import { confirmCode } from '~/services/apiClient';
 import { validateEmail, validatePhoneNumber, validateUsername } from '~/services/validation';
 import { OTPInput } from 'vue-input-otp'
 import { mask as vMask } from 'vue-the-mask'
+import checkIcon from '../assets/icons/check-icon.svg';
+import cancelIcon from '../assets/icons/cancel.svg';
+import editIcon from '../assets/icons/edit.svg';
+import plusIcon from '../assets/icons/plus.svg';
 
 defineOptions({
    directives: {

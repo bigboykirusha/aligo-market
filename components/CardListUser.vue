@@ -23,7 +23,7 @@
             :id_user_owner_ads="ad.id_user_owner_ads" />
       </div>
       <div v-if="!ads.length && !isLoading" class="cards__placeholder">
-         <img src="../assets/icons/ad-sad.svg" alt="Заглушка" />
+         <img :src="adSadIcon" alt="Заглушка" />
          <div class="cards__placeholder--text">Объявлений пока нет.</div>
          <div class="cards__placeholder--description">Здесь будут отображаться все публикации пользователя.</div>
       </div>
@@ -35,6 +35,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { getUserOtherAds } from '../services/apiClient';
 import { getUserOtherAdsHeaders } from '../services/apiHeaders';
+import adSadIcon from "../assets/icons/ad-sad.svg";
 
 const props = defineProps({
    title: {

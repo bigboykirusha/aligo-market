@@ -1,10 +1,10 @@
 <template>
    <nav class="breadcrumbs">
       <span @click="goHome" class="home-icon">
-         <img src="../assets/icons/house-gray.svg" alt="Главная" />
+         <img :src="houseIcon" alt="Главная" />
       </span>
       <template v-for="(segment, index) in breadcrumbs" :key="index">
-         <img src="../assets/icons/ar-gray.svg" alt=">" class="separator" />
+         <img :src="arIcon" alt=">" class="separator" />
          <span @click="goToSegment(segment.path)" class="breadcrumb">
             {{ segment.label }}
          </span>
@@ -16,6 +16,8 @@
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useFiltersStore } from "@/store/filters.js";
+import arIcon from "../assets/icons/ar-gray.svg";
+import houseIcon from "../assets/icons/house-gray.svg";
 
 const route = useRoute();
 const router = useRouter();

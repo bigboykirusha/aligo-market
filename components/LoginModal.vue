@@ -1,6 +1,6 @@
 <template>
    <!-- Основной контейнер модального окна -->
-   <div v-show="isLoginModalOpen" id="main-login-modal" class="modal"
+   <div v-if="isLoginModalOpen" id="main-login-modal" class="modal"
       :class="{ 'authorization-page': isAuthorizationPage }" @click.self="closeModal" @keydown="handleTabKeydown">
       <!-- Анимация для модального контента -->
       <transition name="modal-fade">
@@ -19,29 +19,18 @@
                </div>
                <!-- Разделительная линия -->
                <div class="modal__header-bar"></div>
-               <!-- Переключатель вкладок (SMS или Email) -->
-               <div v-if="false" v-show="isBothSaved && !showCodeInput" class="modal__header-switcher">
-                  <button :class="{ 'active': activeTab === 0 }" @click="switchTab(0)" tabindex="0">
-                     {{ $t('loginModal.smsLogin') }}
-                  </button>
-                  <button :class="{ 'active': activeTab === 1 }" @click="switchTab(1)" tabindex="0">
-                     {{ $t('loginModal.emailLogin') }}
-                  </button>
-                  <!-- Индикатор активной вкладки -->
-                  <div class="switcher" :style="{ transform: `translateX(${activeTab * 100}%)` }"></div>
-               </div>
             </div>
 
             <!-- Форма входа -->
             <form class="modal__form" @submit.prevent="submitForm" @keydown.enter="handleEnter">
                <!-- Секция формы: ввод телефона или email -->
-               <div v-show="(activeTab === 0 || activeTab === 1)" class="modal__form-section">
+               <div class="modal__form-section">
 
                   <!-- Поле ввода телефона или email -->
                   <div v-show="!showCodeInput" class="input-wrapper">
                      <p class="input-wrapper__title">
                         {{ isAuthorizationPage ? `Эту страницу могут просматривать только авторизованные
-                        пользователи` : (isPhoneTab ? 'Введите номер телефона' : 'Введите адрес почты') }}
+                        пользователи` : 'Введите номер телефона' }}
                      </p>
                      <p class="input-wrapper__description">
                         {{ isAuthorizationPage
@@ -50,36 +39,33 @@
                         }}
                      </p>
                      <!-- Ввод телефона -->
-                     <input v-show="isPhoneTab" :class="{ 'input-error': contactInfoError && isPhoneTab }" type="tel"
-                        @keydown.backspace="handleBackspace" v-model="phoneNumber" class="phone-input" ref="phoneInput"
-                        @input="resetError" v-mask="'+7 (###) ###-##-##'" />
-                     <!-- Ввод email -->
-                     <input v-show="!isPhoneTab" type="email" v-model="email" @input="handleInput" class="phone-input"
-                        :class="{ 'input-error': contactInfoError && !isPhoneTab }" ref="emailInput" />
+                     <input :class="{ 'input-error': contactInfoError }" type="tel" autofocus v-model="phoneNumber"
+                        class="phone-input" ref="phoneInput" @input="resetError" v-mask="'+7 (###) ###-##-##'" />
                      <!-- Чекбокс "Вход через Telegram" -->
                      <p v-if="contactInfoError && !showCodeInput" class="error-message">{{ contactInfoError }}</p>
-                     <label v-show="isPhoneTab" class="input-wrapper__telegram-checkbox">
-                        <CheckboxUI v-model="loginWithTelegram" size="16" />
-                        <span>Отправить код в <img src="../assets/icons/tgshka.svg" alt=""><span
-                              class="checkbox-wrapper--tg">Telegram</span></span>
+                     <label class="input-wrapper__telegram-checkbox">
+                        <CheckboxUI v-model="loginWithTelegram" size="16" tabindex="0" />
+                        <div class="input-wrapper__telegram-container">
+                           <span>Отправить код в</span>
+                           <img src="../assets/icons/tgshka.svg" alt="" />
+                           <span class="checkbox-wrapper--tg">Telegram</span>
+                        </div>
                      </label>
                   </div>
 
                   <!-- Поле ввода кода подтверждения -->
-                  <div class="input-wrapper" v-show="showCodeInput">
+                  <div class="input-wrapper" v-if="showCodeInput">
                      <p class="input-wrapper__title">Введите код</p>
                      <p class="input-wrapper__description">
-                        Мы отправили вам код для подтверждения на номер {{ isPhoneTab ? formattedPhoneNumber : email
-                        }}
-                        <span @click.prevent="switchTab(activeTab); startTimer"
-                           class="input-wrapper__description--link">
-                           <br /> Изменить {{ isPhoneTab ? 'номер' : 'почту' }}
+                        Мы отправили вам код для подтверждения на номер {{ formattedPhoneNumber }}
+                        <span @click.prevent="switchTab" class="input-wrapper__description--link">
+                           <br /> Изменить номер
                         </span>
                      </p>
 
                      <!-- Компонент ввода кода (VueOtpInput) -->
-                     <OTPInput v-model="code" :maxlength="4" inputmode="tel" auto-focus autocomplete="one-time-code"
-                        @complete="submitForm" @input="resetSendCodeFlag">
+                     <OTPInput v-model="code" :maxlength="4" inputmode="tel" autocomplete="one-time-code"
+                        @complete="requestCode" @input="resetSendCodeFlag">
                         <template #default="{ slots }">
                            <div class="otp-container">
                               <div v-for="(slot, idx) in slots" :key="idx" v-bind="slot" class="otp-input" :class="{
@@ -100,15 +86,6 @@
                      <button v-else @click.prevent="requestCode" class="modal__button modal__button--revers"
                         tabindex="0">
                         Получить новый код
-                     </button>
-                     <button v-if="false" class="modal__button modal__button--revers modal__button--change"
-                        @click.prevent="loginWithEmail">
-                        Войти через почту
-                     </button>
-                     <!-- Кнопка "Войти по SMS" -->
-                     <button v-if="false" class="modal__button modal__button--revers modal__button--change"
-                        @click.prevent="loginWithSMS">
-                        Войти по SMS
                      </button>
                   </div>
                </div>
@@ -137,11 +114,11 @@
                   <!-- Чекбоксы согласия с правилами -->
                   <div v-if="!showCodeInput && !isAuthorizationPage && !(timeLeft > 0)" class="checkbox-wrapper">
                      <label>
-                        <CheckboxUI v-model="checkbox1" size="16" />
+                        <CheckboxUI v-model="checkbox1" size="16" tabindex="0" />
                         <span>Согласен с <a class="checkbox-wrapper--blue">правилами Aligo</a></span>
                      </label>
                      <label>
-                        <CheckboxUI v-model="checkbox2" size="16" />
+                        <CheckboxUI v-model="checkbox2" size="16" tabindex="0" />
                         <span>Принимаю <a class="checkbox-wrapper--blue">политику обработки персональных
                               данных</a></span>
                      </label>
@@ -181,12 +158,9 @@ const isAuthorizationPage = computed(() => route.path.startsWith('/authorization
 
 const isLoginModalOpen = computed(() => loginModalStore.isOpen);
 
-// Store и базовые рефы
 const userStore = useUserStore();
 const loginWithTelegram = ref(false);
-const activeTab = ref(0);
 const phoneNumber = ref('');
-const email = ref('');
 const code = ref('');
 const showCodeInput = computed(() => loginModalStore.showCodeInput);
 const isLoading = ref(false);
@@ -194,54 +168,54 @@ const hasError = ref(false)
 const canResendCode = ref(true);
 const documents = ref([]);
 
-// Таймер и ошибки
 let timer = null;
 const timeLeft = ref(0);
 
-onMounted(() => {
-   checkAndRestoreTimer();
-   loadAgreementDocuments();
-});
+const validatePhoneNumber = (phone) => /^\+79\d{9}$/.test(removePhoneFormatting(phone));
+const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
 
 const loadAgreementDocuments = async () => {
+   const storageKey = 'siteDocuments';
+   const storedData = localStorage.getItem(storageKey);
+   const lastUpdated = localStorage.getItem(`${storageKey}_timestamp`);
+   const oneDay = 24 * 60 * 60 * 1000;
+
+   if (storedData && lastUpdated && Date.now() - lastUpdated < oneDay) {
+      documents.value = JSON.parse(storedData);
+      return;
+   }
+
    try {
       const { data } = await getSiteDocumentById();
-
       if (data && Array.isArray(data)) {
          documents.value = data;
+         localStorage.setItem(storageKey, JSON.stringify(data));
+         localStorage.setItem(`${storageKey}_timestamp`, Date.now());
       } else {
-         console.warn('Документы не были найдены или данные не в правильном формате');
+         console.warn('Документы не найдены или в неправильном формате');
       }
    } catch (error) {
       console.error('Ошибка при загрузке документов:', error);
    }
 };
 
-
-// Запуск таймера
 const startTimer = () => {
    const firstTimeKey = 'firstTimeTimestamp';
    const firstTimeDuration = 24 * 60 * 60 * 1000;
 
-   // Проверяем, если прошло меньше 24 часов с первого запуска
    const firstTime = localStorage.getItem(firstTimeKey);
    const isFirstTime = !firstTime || Date.now() - firstTime > firstTimeDuration;
 
-   // Если первый запуск, сохраняем метку времени
    if (isFirstTime) {
       localStorage.setItem(firstTimeKey, Date.now());
    }
 
    clearInterval(timer);
 
-   // Устанавливаем время (1 минута при первом запуске, 3 минуты при повторных)
    const duration = isFirstTime ? 60 : 180;
    const endTime = Date.now() + duration * 1000;
 
-   // Сохранение времени окончания в localStorage
    localStorage.setItem('timerEndTime', endTime);
-
-   // Обновление оставшегося времени
    updateRemainingTime(endTime);
 
    timer = setInterval(() => {
@@ -249,20 +223,14 @@ const startTimer = () => {
    }, 1000);
 };
 
-// Восстановление таймера при открытии модального окна или перезагрузке страницы
 const checkAndRestoreTimer = () => {
    const endTime = parseInt(localStorage.getItem('timerEndTime'), 10);
+   if (!endTime || endTime <= Date.now()) return;
 
-   if (endTime && endTime > Date.now()) {
-      updateRemainingTime(endTime);
-
-      timer = setInterval(() => {
-         updateRemainingTime(endTime);
-      }, 1000);
-   }
+   updateRemainingTime(endTime);
+   timer = setInterval(() => updateRemainingTime(endTime), 1000);
 };
 
-// Обновление оставшегося времени
 const updateRemainingTime = (endTime) => {
    const remainingTime = Math.max(Math.floor((endTime - Date.now()) / 1000), 0);
 
@@ -278,16 +246,13 @@ const contactInfoError = ref('');
 const generalError = ref('');
 
 const phoneInput = ref(null);
-const emailInput = ref(null);
 const checkbox1 = ref(false);
 const checkbox2 = ref(false);
 
-// Вспомогательные вычисления
-const isPhoneTab = computed(() => activeTab.value === 0);
-const isBothSaved = computed(() => isPhoneSaved.value && isEmailSaved.value);
-const formattedPhoneNumber = computed(() =>
-   phoneNumber.value.replace(/(\d{3})(\d{3})(\d{2})(\d{2})/, '7 ($1) $2 - $3 - $4')
-);
+const formattedPhoneNumber = computed(() => {
+   const raw = removePhoneFormatting(phoneNumber.value);
+   return raw.length === 11 ? `+${raw[0]} (${raw.slice(1, 4)}) ${raw.slice(4, 7)} - ${raw.slice(7, 9)} - ${raw.slice(9)}` : phoneNumber.value;
+});
 
 function resetErrorOtp() {
    hasError.value = false
@@ -305,9 +270,7 @@ const formattedTime = computed(() => {
 });
 
 const isContactInfoInvalid = computed(() => {
-   const isInvalid = isPhoneTab.value
-      ? !validatePhoneNumber(phoneNumber.value)
-      : !validateEmail(email.value);
+   const isInvalid = !validatePhoneNumber(phoneNumber.value);
    return isInvalid;
 });
 
@@ -315,55 +278,11 @@ const isContactInfoRegInvalid = computed(() => {
    return isContactInfoInvalid.value || (!checkbox1.value || !checkbox2.value);
 });
 
-// Сохранение данных
-const isPhoneSaved = computed(() => {
-   const savedData = useCookie('userData').value || {};
-   if (savedData.phoneNumber) phoneNumber.value = savedData.phoneNumber;
-   return !!savedData.phoneNumber;
-});
-
-const isEmailSaved = computed(() => {
-   const savedData = useCookie('userData').value || {};
-   if (savedData.email) email.value = savedData.email;
-   return !!savedData.email;
-});
-
-// Монтирование компонента
-onMounted(() => {
-   const savedUserData = useCookie('userData').value || {};
-   phoneNumber.value = savedUserData.phoneNumber || '';
-   email.value = savedUserData.email || '';
-   if (savedUserData.phoneNumber && savedUserData.email) {
-      activeTab.value = 0;  // Вкладка телефона
-   } else {
-      activeTab.value = savedUserData.email ? 1 : 0;  // Если есть email, активируем его вкладку
-   }
-   nextTick(() => setFocusOnInput());
-});
-
-// Установка фокуса
 const setFocusOnInput = () => {
-   nextTick(() => {
-      if (showCodeInput.value) {
-         document.querySelector('.otp-input')?.focus();
-      } else {
-         (isPhoneTab.value ? phoneInput.value : emailInput.value)?.focus();
-      }
-   });
-};
-
-const handleInput = () => {
-   resetError();
-   validateEmail(email.value);
-};
-
-const handleBackspace = () => {
-
-   let value = phoneNumber.value;
-   const lengthBefore = value.length;
-
-   if (['-', '('].includes(value[lengthBefore - 2])) {
-      phoneNumber.value = value.slice(0, lengthBefore - 1);
+   if (showCodeInput.value) {
+      document.querySelector('.otp-input')?.focus();
+   } else {
+      phoneInput.value?.focus();
    }
 };
 
@@ -384,6 +303,7 @@ const handleTabKeydown = (event) => {
    );
 
    const visibleElements = focusableElements.filter(el => el.offsetParent !== null);
+   if (visibleElements.length === 0) return;
 
    const firstElement = visibleElements[0];
    const lastElement = visibleElements[visibleElements.length - 1];
@@ -403,20 +323,17 @@ const handleTabKeydown = (event) => {
    }
 };
 
-// Обработка переключения табов
-const switchTab = (index) => {
-   activeTab.value = index;
+const switchTab = () => {
    loginModalStore.hideCodeField();
+   startTimer();
    setFocusOnInput();
 };
 
-// Очистка формы
 const clearFormFields = () => {
    code.value = '';
    generalError.value = '';
 };
 
-// Закрытие модального окна
 const closeModal = () => {
    if (!isAuthorizationPage.value) {
       document.body.style.overflow = '';
@@ -431,125 +348,71 @@ const closeAuthorizationModal = () => {
    loginModalStore.closeLoginModal();
 }
 
-// Проверка и обработка входа
-const submitForm = async () => {
-   if (isLoading.value || isContactInfoInvalid.value || !canResendCode.value) {
-      return;
-   }
+const sendPhoneRequest = async (withCode = false) => {
+   if (isLoading.value || isContactInfoInvalid.value || !canResendCode.value) return;
+
+   isLoading.value = true;
+   contactInfoError.value = '';
 
    try {
       const cleanedPhone = removePhoneFormatting(phoneNumber.value);
-      const requestData = isPhoneTab.value
-         ? { phone: cleanedPhone }
-         : { email: email.value };
+      const requestData = { phone: cleanedPhone };
 
       if (loginWithTelegram.value) {
          requestData.is_send_code_telegram = 1;
       }
 
-      if (!showCodeInput.value) {
+      if (withCode) {
          const response = await loginUserByPhone(requestData);
-         isLoading.value = true;
+         alert(response);
          if (response.success) {
             loginModalStore.showCodeField();
-            isLoading.value = false;
             startTimer();
          } else {
-            isLoading.value = false;
             contactInfoError.value = response.message || 'Ошибка при отправке кода.';
          }
       } else {
          const response = await confirmPhoneCode({ ...requestData, code: code.value });
-         isLoading.value = true;
          if (response.success) {
             handleSuccessfulLogin(response.data, cleanedPhone);
-            isLoading.value = false;
          } else {
-            hasError.value = true
-            isLoading.value = false;
+            hasError.value = true;
             canResendCode.value = false;
             contactInfoError.value = response.data.message || 'Неверный код.';
          }
       }
    } catch (error) {
       contactInfoError.value = error.message;
-      console.error('Ошибка при отправке запроса:', contactInfoError);
-   }
-};
-
-const handleEnter = (event) => {
-   if (
-      (isAuthorizationPage.value ? isContactInfoInvalid.value : isContactInfoRegInvalid.value) ||
-      isLoading.value
-   ) {
-      event.preventDefault();;
-   }
-};
-
-function focusSlot(index) {
-   document.querySelectorAll('.otp-input')[index]?.focus();
-}
-
-const requestCode = async () => {
-
-   if (isContactInfoInvalid.value) {
-      return;
-   }
-
-   isLoading.value = true;
-
-   try {
-      const cleanedPhone = removePhoneFormatting(phoneNumber.value);
-      const requestData = isPhoneTab.value
-         ? { phone: cleanedPhone }
-         : { email: email.value };
-
-      if (loginWithTelegram.value) {
-         requestData.is_send_code_telegram = 1;
-      }
-
-      const response = await loginUserByPhone(requestData);
-      if (response.success) {
-         loginModalStore.showCodeField();
-         startTimer();
-      } else {
-         contactInfoError.value = response.message || 'Ошибка при отправке кода.';
-      }
-
-   } catch (error) {
-      contactInfoError.value = error.message;
-      console.error('Ошибка при отправке запроса:', contactInfoError);
+      console.error('Ошибка при отправке запроса:', contactInfoError.value);
    } finally {
       isLoading.value = false;
    }
-}
-
-const loginWithEmail = () => {
-   activeTab.value = 1;
-   loginModalStore.hideCodeField();
-   setFocusOnInput();
-   console.log('Login with Email');
 };
 
-const loginWithSMS = () => {
-   activeTab.value = 2;
-   loginModalStore.hideCodeField();
-   setFocusOnInput();
-   console.log('Login with SMS');
+const submitForm = () => sendPhoneRequest(true);
+const requestCode = () => sendPhoneRequest(false);
+
+const handleEnter = (event) => {
+   if (isLoading.value || (isAuthorizationPage.value ? isContactInfoInvalid.value : isContactInfoRegInvalid.value)) {
+      event.preventDefault();
+   }
 };
+
+const focusSlot = (index) => document.querySelectorAll('.otp-input')?.[index]?.focus();
 
 const handleSuccessfulLogin = (data, cleanedPhone) => {
    const { token, user_id } = data;
 
-   const userDataCookie = useCookie('userData', { maxAge: 7 * 24 * 60 * 60 });
-
-   userDataCookie.value = JSON.stringify({
-      token,
-      user_id,
-      phoneNumber: isPhoneTab.value ? cleanedPhone : '',
-      email: !isPhoneTab.value ? email.value : '',
+   const userDataCookie = useCookie('userData', {
+      maxAge: 30 * 24 * 60 * 60,
+      default: () => ({})
    });
 
+   userDataCookie.value = {
+      token,
+      user_id,
+      phoneNumber: cleanedPhone,
+   };
    clearFormFields();
    userStore.fetchAndSetUserdata();
 
@@ -561,10 +424,12 @@ const handleSuccessfulLogin = (data, cleanedPhone) => {
    }
 };
 
-// Дополнительные методы
-const validatePhoneNumber = (phone) => /^\+79\d{9}$/.test(removePhoneFormatting(phone));
-const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
+onMounted(() => {
+   checkAndRestoreTimer();
+   loadAgreementDocuments();
+   const savedUserData = useCookie('userData').value || {};
+   phoneNumber.value = savedUserData.phoneNumber || '';
+});
 </script>
 
 <style scoped lang="scss">
@@ -602,15 +467,20 @@ const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background-color 0.1s ease-in-out;
-      width: 16px;
-      height: 16px;
-      top: 8px;
-      right: 8px;
+      transition: background-color 0.1s ease-in-out, scale 0.2s ease-in-out;
+      top: 0px;
+      padding: 8px;
+      right: 0px;
       z-index: 15;
+      border-radius: 0 0 0 8px;
       background: none;
       border: none;
       cursor: pointer;
+
+      &:focus-within {
+         background-color: #D6EFFF;
+         outline: none;
+      }
 
       img {
          width: 16px;
@@ -744,6 +614,15 @@ const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
                font-size: 14px;
                padding: 0 12px;
                box-sizing: border-box;
+
+               &:focus {
+                  outline: 1px solid #3366FF;
+               }
+            }
+
+            &__telegram-container {
+               display: flex;
+               gap: 6px;
             }
 
             &__telegram-checkbox {
@@ -874,6 +753,10 @@ const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
    background-color: #3366ff;
    color: #fff;
 
+   &:focus {
+      outline: 2px solid #D6EFFF;
+   }
+
    &--revers {
       background-color: #fff;
       color: #3366ff;
@@ -902,16 +785,6 @@ const removePhoneFormatting = (phone) => phone.replace(/[^\d+]/g, '');
       align-items: flex-start;
       font-size: 14px;
       line-height: 1;
-
-      input[type="checkbox"] {
-         margin-right: 6px;
-         margin-top: 2px;
-         border-radius: 4px;
-         height: 14px;
-         width: 14px;
-         min-width: 14px;
-         margin-bottom: auto;
-      }
    }
 
    span {

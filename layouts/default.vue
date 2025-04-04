@@ -9,8 +9,11 @@
       <FooterAlternative v-show="!showFooter" />
       <Footer v-show="showFooter" />
       <Chat
-         v-if="userStore.isLoggedIn && !route.path.startsWith('/profile') && !route.path.startsWith('/auto') && !route.path.startsWith('/create')" />
+         v-if="userStore.isLoggedIn && !route.path.startsWith('/profile') && !route.path.startsWith('/auto') && !route.path.startsWith('/create') && !route.path.startsWith('/report')" />
       <PopupError />
+      <SharePopup />
+      <Complaint />
+      <PayPopup />
       <UserMenuBurger />
       <BottomToolbar />
    </div>
@@ -19,7 +22,9 @@
 <script setup>
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+import PayPopup from '~/components/PayPopup.vue';
 import PopupError from '~/components/PopupError.vue';
+import SharePopup from '~/components/SharePopup.vue';
 import { useUserStore } from '~/store/user';
 
 const route = useRoute();

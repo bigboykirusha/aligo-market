@@ -11,8 +11,8 @@
                   'simple-input__field--highlighted': isHighlighted
                }" :placeholder="placeholder" v-model="displayValue" :disabled="isInputDisabled" @blur="handleBlur"
                @focus="handleFocus" @keypress="restrictNonNumericInput" />
-            <img v-if="optionValue && showClearIcon" src="../assets/icons/close-gray.svg" alt="Clear"
-               class="simple-input__clear" @click="clearInput" />
+            <img v-if="optionValue && showClearIcon" :src="closeIcon" alt="Clear" class="simple-input__clear"
+               @click="clearInput" />
          </div>
          <div v-if="hasInput && props.validationType && hasBlurred && isErrorDisplayed"
             :class="{ 'simple-input__error': !isValid, 'simple-input__success': isValid }">
@@ -25,6 +25,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { validateUsername } from '~/services/validation';
+import closeIcon from '@/assets/icons/close-gray.svg';
 
 const props = defineProps({
    option: {

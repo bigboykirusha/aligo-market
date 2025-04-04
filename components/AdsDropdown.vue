@@ -102,6 +102,7 @@ onUnmounted(() => {
    position: relative;
    width: fit-content;
    height: 34px;
+   z-index: 49;
 
    @media (max-width: 480px) {
       width: 100%;
@@ -110,7 +111,7 @@ onUnmounted(() => {
    &__input {
       position: relative;
       height: 34px;
-      z-index: 10;
+      z-index: 2;
 
       &:focus {
          outline: none;

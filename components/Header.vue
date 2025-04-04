@@ -1,55 +1,56 @@
 <template>
   <header :class="{ 'header--hidden': isHeaderHidden }" class="header">
     <div class="header__container">
-      <nav class="header__nav" aria-label="Primary">
+      <nav class="header__nav" aria-label="Основная навигация">
         <ul class="header__nav-list">
           <li class="header__nav-item">
-            <button class="header__nav-link" @click="toggleModal">
-              <img :src="locationIcon" alt="Location icon" class="header__icon" />
+            <button class="header__nav-link" @click="toggleModal" aria-label="Выбрать город">
+              <img :src="locationIcon" alt="" class="header__icon" />
               <span class="header__text header__text--hidden">{{ selectedCityName }}</span>
             </button>
             <LocationPopup @open-modal="toggleModal" />
           </li>
           <li class="header__nav-item">
             <nuxt-link to="/business" class="header__nav-link">
-              <img :src="businessIcon" alt="Business icon" class="header__icon" />
+              <img :src="businessIcon" alt="" class="header__icon" />
               <span class="header__text header__text--hidden">{{ $t('nav.business') }}</span>
             </nuxt-link>
           </li>
         </ul>
       </nav>
 
-      <nuxt-link v-show="isProfilePage" to="/create" class="header__actions">
-        <button class="header__nav-link header__nav-link--add">
-          <img :src="addIcon" alt="Add icon" class="header__icon" />
-          <span class="header__text header__text--add">Разместить объявление</span>
-        </button>
-      </nuxt-link>
+      <div class="header__actions">
+        <nuxt-link v-if="isProfilePage" to="/create" class="header__actions-link">
+          <button class="header__nav-link header__nav-link--add">
+            <img :src="addIcon" alt="" class="header__icon" />
+            <span class="header__text header__text--add">Разместить объявление</span>
+          </button>
+        </nuxt-link>
 
-      <div v-show="!isProfilePage" class="header__actions">
-        <div v-if="isLoggedIn" class="header__user-info">
-          <div class="header__user-block">
-            <IconLink v-for="icon in userIcons" :key="icon.to" :to="icon.to" :icon-src="icon.src"
-              :icon-count="icon.count" />
+        <div v-else>
+          <div v-if="isLoggedIn" class="header__user-info">
+            <div class="header__user-block">
+              <IconLink v-for="icon in userIcons" :key="icon.to" :to="icon.to" :icon-src="icon.src"
+                :icon-count="icon.count" />
+            </div>
+            <div class="header__menu" :class="{ 'header__menu--active': userMenuStore.isActive }"
+              @click.stop="toggleUserMenu">
+              <img v-if="userAvatarProps.src" v-bind="userAvatarProps" class="header__user-avatar" />
+              <span v-else class="header__user-circle">{{ userInitial }}</span>
+              <span class="header__user-name">{{ displayName }}</span>
+              <nuxt-link v-if="userMenuStore.isActive" to="/profile/edit" class="header__edit">
+                <img :src="userStore.username ? editIcon : editIconW" alt="Редактировать профиль"
+                  class="header__icon" />
+              </nuxt-link>
+            </div>
+            <UserMenuPopup :isRevers="!isHeaderHidden" @close-userMenu="toggleUserMenu" />
           </div>
-          <div class="header__menu" :class="{ 'header__menu--active': userMenuStore.isActive }"
-            @click.stop="toggleUserMenu">
-            <img v-if="userAvatar" :src="userAvatar" alt="Avatar" class="header__user-avatar" />
-            <span v-else class="header__user-circle">{{ userInitial }}</span>
-            <span class="header__user-name">{{ displayName }}</span>
-            <nuxt-link v-if="userMenuStore.isActive"
-              :class="{ 'header__edit--active': userMenuStore.isActive, 'header__edit--reversed': !userStore.username }"
-              to="/profile/edit" class="header__edit">
-              <img :src="userStore.username ? editIcon : editIconW" alt="Add icon" :class="{ 'header__icon': true }" />
-            </nuxt-link>
-          </div>
-          <UserMenuPopup :isRevers="!isHeaderHidden" @close-userMenu="toggleUserMenu" />
+
+          <button v-else class="header__nav-link" @click="loginModalStore.toggleLoginModal" aria-label="Войти">
+            <img :src="defaultUserAvatar" alt="" class="header__icon header__icon--large" />
+            <span class="header__text">{{ $t('nav.login') }}</span>
+          </button>
         </div>
-
-        <button v-else class="header__nav-link" @click="loginModalStore.toggleLoginModal">
-          <img :src="defaultUserAvatar" alt="Login icon" class="header__icon header__icon--large" />
-          <span class="header__text">{{ $t('nav.login') }}</span>
-        </button>
       </div>
     </div>
   </header>
@@ -57,7 +58,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router';
 import { getImageUrl } from '../services/imageUtils';
 import { useCityStore } from '~/store/city';
@@ -83,15 +84,18 @@ const loginModalStore = useLoginModalStore();
 const userMenuStore = useUserMenuStore();
 const locationModalStore = useLocationModalStore();
 
-const screenWidth = ref(window.innerWidth);
-
+const screenWidth = ref(0);
 const isHeaderHidden = ref(false);
 
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const isProfilePage = computed(() => route.path.startsWith('/profile'));
-const selectedCityName = computed(() => cityStore.selectedCity.name);
+const selectedCityName = computed(() => cityStore.selectedCity?.name ?? 'Выберите город');
 
-const userAvatar = computed(() => getImageUrl(userStore.photo?.arr_title_size?.preview, defaultUserAvatar));
+const userAvatarProps = computed(() => ({
+  src: import.meta.client ? getImageUrl(userStore.photo?.arr_title_size?.preview ?? '', defaultUserAvatar) : '',
+  alt: 'Avatar'
+}));
+
 const userInitial = computed(() => userStore.username?.charAt(0).toUpperCase() || '');
 const displayName = computed(() => userStore.username || userStore.phoneNumber || userStore.email);
 
@@ -101,23 +105,32 @@ const userIcons = computed(() => [
   { to: '/profile/messages', src: messageIcon, count: userStore.count_new_messages }
 ]);
 
-const toggleModal = () => { locationModalStore.toggleMenu(); };
-const toggleUserMenu = () => { userMenuStore.toggleMenu(); };
+const toggleModal = () => locationModalStore.toggleMenu();
+const toggleUserMenu = () => userMenuStore.toggleMenu();
 
-const handleScroll = () => { isHeaderHidden.value = document.documentElement.scrollTop !== 0; };
+const handleScroll = () => {
+  isHeaderHidden.value = import.meta.client ? document.documentElement.scrollTop !== 0 : false;
+};
 
 const updateWidth = () => {
-  screenWidth.value = window.innerWidth;
+  if (import.meta.client) {
+    screenWidth.value = window.innerWidth;
+  }
 };
 
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
-  window.addEventListener('resize', updateWidth);
+  if (import.meta.client) {
+    screenWidth.value = window.innerWidth;
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', updateWidth);
+  }
 });
 
 onBeforeUnmount(() => {
-  window.removeEventListener('scroll', handleScroll);
-  window.removeEventListener('resize', updateWidth);
+  if (import.meta.client) {
+    window.removeEventListener('scroll', handleScroll);
+    window.removeEventListener('resize', updateWidth);
+  }
 });
 </script>
 
@@ -129,7 +142,7 @@ onBeforeUnmount(() => {
   top: 0;
   width: 100%;
   max-width: 100vw;
-  z-index: 12;
+  z-index: 100;
   padding: 0 16px;
 
   @media (max-width: 768px) {
@@ -227,7 +240,7 @@ onBeforeUnmount(() => {
     transition: min-width 0.2s ease-in-out;
 
     &--active {
-      min-width: 174px;
+      min-width: 180px;
     }
   }
 
@@ -239,9 +252,8 @@ onBeforeUnmount(() => {
     height: 24px;
     border-radius: 50%;
     margin-left: auto;
-    margin-right: 16px;
+    margin-right: 8px;
     background-color: #FFFFFF;
-    transform: translateY(-50px);
     position: absolute;
     right: 0;
     transition: transform 0.2s ease-in-out;

@@ -28,9 +28,9 @@
                <div class="user-info__name">{{ userData.username }}</div>
                <div class="user-info__rating">
                   <div class="user-info__rating-text">{{ !userData.grade ? '0.0' : rating }}</div>
-                  <NuxtRating :rating-value="Number(userData.grade)" :rating-count="5" :rating-size="1"
+                  <NuxtRating :rating-value="Number(userData.grade)" :rating-count="5" :rating-size="9"
                      :rating-spacing="6" active-color="#3366FF" inactive-color="#FFFFFF" border-color="#3366FF"
-                     border-width="2" rounded-corners read-only />
+                     :border-width="2" rounded-corners read-only />
                   <span class="user-info__rating-count">
                      {{ userData.count_reviews_about_myself === 0 ? 'Нет отзывов' : `${pluralizedReviews}` }}
                   </span>
@@ -90,7 +90,6 @@ const rawPhoneNumber = ref('');
 const showPhoneText = ref('Показать номер');
 const isReviewsPopupVisible = ref(false);
 
-const hasReviews = computed(() => Number(props.userData?.count_reviews_about_myself) > 0);
 const formattedUniqueCode = computed(() => props.userData?.unique_code?.replace(/(.{4})(?=.)/g, '$1 ') || '');
 const pluralizedReviews = computed(() => {
    const count = Number(props.userData?.count_reviews_about_myself);
@@ -116,6 +115,9 @@ const showPhoneNumber = async () => {
 
 const handleWriteMessage = () => {
    if (!userStore.isLoggedIn) return loginModalStore.toggleLoginModal();
+   if (window.innerWidth < 768) {
+      router.push('/profile/messages');
+   }
    chatStore.openChat(router);
 };
 

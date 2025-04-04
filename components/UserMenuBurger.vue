@@ -22,7 +22,7 @@
                <a class="user-menu__user-name">{{ displayName }}</a>
 
                <div class="user-menu__profile-button">
-                  <nuxt-link to="/profile/reviews/mine" class="user-menu__rating">
+                  <nuxt-link to="/profile/reviews/aboutme" class="user-menu__rating">
                      <div class="user-menu__rating-text">{{ rating === 0 ? '0.0' : rating }}</div>
                      <NuxtRating :rating-value="rating" :rating-count="5" :rating-size="10" :rating-spacing="6"
                         active-color="#FFFFFF" inactive-color="#3366FF" border-color="#FFFFFF" :border-width="2"
@@ -83,6 +83,7 @@ import reviewsIcon from '../assets/icons/reviews.svg';
 import notifIcon from '../assets/icons/notif-blue.svg';
 import mailMenuIcon from '../assets/icons/message-menu.svg';
 import busIcon from '../assets/icons/briefcase.svg';
+import specIcon from '../assets/icons/spec-check-icon.svg';
 import postIcon from '../assets/icons/add.svg';
 
 const userStore = useUserStore();
@@ -126,6 +127,7 @@ const menuItems = computed(() => [
    { text: 'Сообщения', link: '/profile/messages', icon: icons.message, count: count_new_messages.value },
    { text: 'Оповещения', link: '/profile/notifications', icon: icons.notif, count: countUnreadNotify.value },
    { text: 'Отзывы', link: '/profile/reviews/mine', icon: icons.reviews, count: userStore.count_new_reviews_about_myself },
+   { text: 'Проверка авто', link: '/profile/reports', icon: specIcon, count: 0 },
    { text: 'Для бизнеса', link: '/business', icon: icons.business }
 ]);
 
@@ -193,6 +195,7 @@ const toggleModal = () => locationModalStore.toggleMenu();
    height: 100vh;
    transform: translateX(100%);
    transition: transform 0.2s ease-in-out;
+   overflow-y: auto;
 
    &--open {
       transform: translateX(0);

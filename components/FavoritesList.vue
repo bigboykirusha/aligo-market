@@ -8,34 +8,43 @@
          </svg>
          <p class="favorites__placeholder-text">Сохраненных пока нет</p>
          <p class="favorites__placeholder-description">
-            Используйте <img src="../assets/icons/fav.svg" /> чтобы
+            Используйте
+            <img src="../assets/icons/fav.svg" /> чтобы
             сохранить в избранное
          </p>
       </div>
+
       <FavoritesCardSkeleton v-if="isLoading" v-for="index in XTotalCount" :key="index" />
-      <FavoritesCard v-else v-for="ad in ads" :key="ad.id" :id="ad.id" :id_user_owner_ads="ad.id_user_owner_ads"
-         :description="ad.ads_parameter.ads_description" :price="ad.ads_parameter.amount"
-         :place="ad.ads_parameter.place_inspection || 'Не указано'" :callNumber="ad.ads_parameter.phone"
-         :messageEmail="ad.ads_parameter.email" :brand="ad.auto_technical_specifications[0].brand.title"
-         :model="ad.auto_technical_specifications[0].model.title"
-         :year="ad.auto_technical_specifications[0].year_release.title"
-         :username="ad.ads_parameter?.username || ad.ads_parameter?.login || 'Имя не указано'"
-         :is_in_favorites="ad.is_in_favorites" :images="ad.photos" :is_published="ad.is_published" :created_at="ad.created_at" />
+
+      <template v-if="!isLoading">
+         <FavoritesCard v-if="type === 'Объявления'" v-for="ad in ads" :key="ad.id" :id="ad.id"
+            :id_user_owner_ads="ad.id_user_owner_ads" :description="ad.ads_parameter.ads_description"
+            :price="ad.ads_parameter.amount" :place="ad.ads_parameter.place_inspection || 'Не указано'"
+            :callNumber="ad.ads_parameter.phone" :messageEmail="ad.ads_parameter.email"
+            :brand="ad.auto_technical_specifications[0].brand.title"
+            :model="ad.auto_technical_specifications[0].model.title"
+            :year="ad.auto_technical_specifications[0].year_release.title"
+            :username="ad.ads_parameter?.username || ad.ads_parameter?.login || 'Имя не указано'"
+            :is_in_favorites="ad.is_in_favorites" :images="ad.photos" :is_published="ad.is_published"
+            :created_at="ad.created_at" />
+
+         <FavoritesSearchCard v-if="type === 'Поиски'" v-for="search in ads" :key="search.id" :id="search.id"
+            :title="search.title" :url="search.url" :description="search.description" :isEmail="search.is_email"
+            :isTelegram="search.is_telegram" :createdAt="search.created_at" />
+      </template>
    </div>
 </template>
 
 <script setup>
 const props = defineProps({
-   ads: {
-      type: Array,
-      required: true,
-   },
-   isLoading: {
-      type: Boolean,
-      required: true,
-   },
-   XTotalCount: { type: Number, default: 0 }
+   ads: Array,
+   XTotalCount: Number,
+   isLoading: Boolean,
+   pageType: String,
+   type: String
 });
+
+console.log(props.ads);
 </script>
 
 <style scoped lang="scss">
@@ -77,6 +86,5 @@ const props = defineProps({
       font-size: 14px;
       color: #323232;
    }
-
 }
 </style>

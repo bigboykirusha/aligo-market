@@ -9,7 +9,7 @@
                   <li><nuxt-link to="/moto">Мототехника</nuxt-link></li>
                </ul>
                <nuxt-link to="/" class="footer__logo">
-                  <img src="../assets/images/logo-white.svg" alt="Логотип" />
+                  <img :src="logoIcon" alt="Логотип" />
                </nuxt-link>
             </div>
          </div>
@@ -36,6 +36,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { getSiteDocumentById } from '@/services/apiClient';
+import logoIcon from "../assets/images/logo-white.svg";
 
 const footerDocuments = ref([]);
 

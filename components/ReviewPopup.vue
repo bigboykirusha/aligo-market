@@ -29,7 +29,9 @@
                   <div class="photos__container">
                      <div v-for="(photo, index) in uploadedPhotos" :key="index" class="photo-wrapper">
                         <img :src="photo" class="uploaded-photo" />
-                        <button type="button" class="delete-photo" @click="removePhoto(index)"><img src="../assets/icons/close-white.svg" alt="" /></button>
+                        <button type="button" class="delete-photo" @click="removePhoto(index)">
+                           <img src="../assets/icons/close-white.svg" alt="" />
+                        </button>
                      </div>
                   </div>
                </div>

@@ -1,32 +1,31 @@
 <template>
-   <div class="photo-viewer-overlay">
+   <div v-show="photoViewerStore.isVisible" class="photo-viewer-overlay">
       <div class="wrapper-container" :class="{ 'fullscreen': isFullscreen }" @click.self="closeAndExitFullscreen">
          <div class="gallery-container">
             <div class="main-slide">
-               <div class="clickable-area clickable-area--left" @click="slidePrev" :disabled="isPrevDisabled"><img
-                     src="../assets/icons/white-arrow.svg" alt=""></div>
+               <div class="clickable-area clickable-area--left" @click="slidePrev" :disabled="isPrevDisabled">
+                  <img src="../assets/icons/white-arrow.svg" alt="" />
+               </div>
 
-               <!-- Основной слайдер -->
                <Swiper :slides-per-view="1" :navigation="false" @slideChange="updateActiveImage" :space-between="16"
                   @swiper="(swiper) => handleSwiper(swiper, true)" :allowTouchMove="!isZoomed">
                   <SwiperSlide v-for="(image, index) in images" :key="index">
                      <div class="main-image-container" ref="mainImageContainer" @wheel="onWheelZoom"
                         @dblclick="toggleZoom">
-                        <img :src="getImageUrl(image.arr_title_size.default)" alt="Основное изображение"
-                           class="gallery-slider__main-image"
+                        <img draggable="false" @contextmenu.prevent :src="getImageUrl(image.arr_title_size.default)"
+                           alt="Основное изображение" class="gallery-slider__main-image"
                            :style="{ transform: isZoomed ? `scale(${zoomLevel})` : 'scale(1)' }" />
                         <div class="blurred-background" :style="{
                            backgroundImage: `url(${getImageUrl(image.arr_title_size.preview)})`,
-                           filter: isCover ? 'none' : 'blur(10px)',
                         }"></div>
                      </div>
                   </SwiperSlide>
                </Swiper>
 
-               <div class="clickable-area clickable-area--right" @click="slideNext" :disabled="isNextDisabled"><img
-                     src="../assets/icons/white-arrow.svg" alt=""></div>
+               <div class="clickable-area clickable-area--right" @click="slideNext" :disabled="isNextDisabled">
+                  <img src="../assets/icons/white-arrow.svg" alt="" />
+               </div>
 
-               <!-- Счетчик и кнопки -->
                <div class="slide-counter-actions">
                   <div class="actions">
                      <div class="slide-counter">
@@ -48,27 +47,22 @@
             <div class="thumbnails" v-if="!isFullscreen && images.length > 0">
                <div class="thumbnail-list">
                   <Swiper direction="horizontal" :slidesPerView="4" :breakpoints="{
-                     768: {
-                        slidesPerView: 4,
-                     },
-                     1024: {
-                        slidesPerView: 6,
-                     },
-                     1025: {
-                        slidesPerView: 8,
-                     }
+                     768: { slidesPerView: 4 },
+                     1024: { slidesPerView: 6 },
+                     1025: { slidesPerView: 8 }
                   }" :space-between="16" class="thumbnail-swiper" @swiper="(swiper) => handleSwiper(swiper, false)">
                      <SwiperSlide v-for="(image, index) in images" :key="image.arr_title_size.preview"
                         :class="['thumbnail', { 'thumbnail--active': index === currentIndex }]"
                         @click="setActiveImage(index)" role="button" tabindex="0">
-                        <img :src="getImageUrl(image.arr_title_size.preview)" alt="Миниатюра"
-                           class="thumbnail__image" />
+                        <img draggable="false" @contextmenu.prevent :src="getImageUrl(image.arr_title_size.preview)"
+                           alt="Миниатюра" class="thumbnail__image" />
                      </SwiperSlide>
                   </Swiper>
                </div>
             </div>
          </div>
-         <PhotoInfo v-show="!isFullscreen" :adsId="adsId" :userId="userId" @close-viewer="emit('close')" />
+         <PhotoInfo v-show="!isFullscreen" :adsId="photoViewerStore.adsId" :carData="photoViewerStore.carData"
+            :userId="photoViewerStore.userId" @close-viewer="closeAndExitFullscreen" />
       </div>
    </div>
 </template>
@@ -76,30 +70,30 @@
 <script setup>
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { Swiper, SwiperSlide } from 'swiper/vue';
-import { getImageUrl } from '../services/imageUtils';
-import fullcreenBack from '../assets/icons/fullscreen-back.svg';
-import fullcreen from '../assets/icons/fullscreen.svg';
-import zoomBack from '../assets/icons/zoom-back.svg';
-import zoom from '../assets/icons/zoom.svg';
-import closeWhite from '../assets/icons/close-white.svg';
+import { getImageUrl } from '@/services/imageUtils';
+import { usePhotoViewerStore } from '@/store/photoViewerStore';
+import fullcreenBack from '@/assets/icons/fullscreen-back.svg';
+import fullcreen from '@/assets/icons/fullscreen.svg';
+import zoomBack from '@/assets/icons/zoom-back.svg';
+import zoom from '@/assets/icons/zoom.svg';
+import closeWhite from '@/assets/icons/close-white.svg';
 
-const props = defineProps({
-   images: Array,
-   activeIndex: Number,
-   adsId: Number,
-   userId: Number,
-});
+const photoViewerStore = usePhotoViewerStore();
 
-const emit = defineEmits(['close']);
-const currentIndex = ref(props.activeIndex);
+const currentIndex = computed(() => photoViewerStore.activeIndex);
 const swiperMainInstance = ref(null);
 const swiperThumbnailInstance = ref(null);
 const isZoomed = ref(false);
 const zoomLevel = ref(1);
 const isFullscreen = ref(false);
 
+const images = computed(() => photoViewerStore.images);
+const carData = computed(() => photoViewerStore.carData);
+const adsId = computed(() => photoViewerStore.adsId);
+const userId = computed(() => photoViewerStore.userId);
+
 const isPrevDisabled = computed(() => currentIndex.value === 0);
-const isNextDisabled = computed(() => currentIndex.value === props.images.length - 1);
+const isNextDisabled = computed(() => currentIndex.value === images.value.length - 1);
 
 const slidePrev = () => {
    if (!isPrevDisabled.value) {
@@ -134,23 +128,23 @@ const closeAndExitFullscreen = () => {
    if (isFullscreen.value) {
       isFullscreen.value = false;
    }
-   emit('close');
+   photoViewerStore.close();
 };
 
 const setActiveImage = (index) => {
-   currentIndex.value = index;
-   swiperMainInstance.value?.slideTo(currentIndex.value);
+   photoViewerStore.activeIndex = index;
+   swiperMainInstance.value?.slideTo(index);
 };
 
 const updateActiveImage = (swiper) => {
-   currentIndex.value = swiper.realIndex;
+   photoViewerStore.activeIndex = swiper.realIndex;
 };
 
 const handleSwiper = (swiper, isMain) => {
    if (isMain) {
       swiperMainInstance.value = swiper;
-      if (props.activeIndex !== undefined) {
-         swiperMainInstance.value.slideTo(props.activeIndex, 0);
+      if (photoViewerStore.activeIndex !== undefined) {
+         swiperMainInstance.value.slideTo(photoViewerStore.activeIndex, 0);
       }
    } else {
       swiperThumbnailInstance.value = swiper;
@@ -191,13 +185,7 @@ onUnmounted(() => {
    }
 
    @media (max-width: 768px) {
-      padding: 48px 16px;
-      height: calc(100% - 70px);
-      padding-bottom: 0;
-   }
-
-   @media (max-width: 480px) {
-      padding: 24px 16px;
+      padding: 16px;
       padding-bottom: 0;
    }
 
@@ -213,7 +201,7 @@ onUnmounted(() => {
       height: 100vh;
 
       @media (max-width: 768px) {
-         height: calc(100vh - 70px);
+         height: 100%;
       }
 
       .info-block {
@@ -294,7 +282,7 @@ onUnmounted(() => {
 
    @media (max-width: 768px) {
       width: 100%;
-      height: calc(100% - 230px);
+      height: 100%;
    }
 
    .main-slide {
@@ -467,8 +455,8 @@ onUnmounted(() => {
    left: 0;
    width: 100%;
    height: 100%;
-   background: rgba(0, 0, 0, 0.7);
+   background: rgba(0, 0, 0, 0.6);
    pointer-events: auto;
-   z-index: 100;
+   z-index: 150;
 }
 </style>

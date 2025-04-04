@@ -14,8 +14,6 @@ const appendToFormData = (formData, field, value) => {
 
 export const useCreateStore = defineStore('create', {
    state: () => {
-      const userStore = useUserStore();
-
       return {
          id: null,
          id_user_owner_ads: null,
@@ -488,7 +486,7 @@ export const useCreateStore = defineStore('create', {
             // Объявление
             const adsParams = carData?.ads_parameter || {};
             this.ads_description = adsParams?.ads_description || null;
-            this.place_inspection = adsParams?.place_inspection || null;
+            this.place_inspection = adsParams?.place_inspection ?? null;
             this.amount = adsParams?.amount || null;
             this.city_name = adsParams?.city?.title || null;
             this.city_id = adsParams?.city?.id || null;

@@ -1,6 +1,6 @@
 <template>
    <button class="base-button" :class="{ 'base-button--reversed': reversed }" @click="handleClick">
-      <img v-if="icon" :src="icon" alt="button icon" class="base-button__icon">
+      <img v-if="icon" :src="icon" alt="button icon" class="base-button__icon" />
       <span class="base-button__text">{{ label }}</span>
    </button>
 </template>

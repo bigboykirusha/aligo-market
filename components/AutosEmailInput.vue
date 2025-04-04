@@ -3,7 +3,7 @@
       <label v-if="label" class="simple-input__label">
          {{ label }}
          <span v-if="userStore.unconfirmed_email" class="simple-input__not-confirmed">
-            <img src="../assets/icons/alert-yellow.svg" alt="Warning" class="simple-input__warning-icon" />
+            <img :src="warningIcon" alt="Warning" class="simple-input__warning-icon" />
             Не подтвержден
          </span>
       </label>
@@ -14,8 +14,8 @@
                'simple-input__field--success': shouldShowSuccess
             }" :placeholder="placeholder" v-model="optionValue" :disabled="isInputDisabled" @input="handleInput"
                @blur="handleBlur" @focus="handleFocus" />
-            <img v-if="optionValue && showClearIcon" src="../assets/icons/close-gray.svg" alt="Clear"
-               class="simple-input__clear" @click="clearInput" />
+            <img v-if="optionValue && showClearIcon" :src="closeIcon" alt="Clear" class="simple-input__clear"
+               @click="clearInput" />
          </div>
          <div v-if="isErrorDisplayed" class="simple-input__message" :class="{
             'simple-input__error': !isValid,
@@ -35,6 +35,8 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useUserStore } from '@/store/user';
+import closeIcon from '../assets/icons/close-gray.svg';
+import warningIcon from '../assets/icons/alert-yellow.svg';
 
 const userStore = useUserStore();
 

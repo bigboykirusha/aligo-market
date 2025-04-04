@@ -9,8 +9,7 @@
                   'number-input__field--success': shouldShowSuccess
                }" :placeholder="placeholder" v-model="optionValue" :disabled="disabled" @input="handleInput"
                @blur="handleBlur" @focus="handleFocus" />
-            <img v-if="hasInput" src="../assets/icons/close-gray.svg" alt="Clear" class="number-input__clear"
-               @click="clearInput" />
+            <img v-if="hasInput" :src="closeIcon" alt="Clear" class="number-input__clear" @click="clearInput" />
          </div>
          <div v-if="hasInput && hasBlurred && isErrorDisplayed"
             :class="{ 'number-input__error': !isValid, 'number-input__success': isValid }">
@@ -23,6 +22,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { mask as vMask } from 'vue-the-mask'
+import closeIcon from '@/assets/icons/close-gray.svg';
 
 defineOptions({
    directives: {

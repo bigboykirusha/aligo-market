@@ -1,12 +1,14 @@
 <template>
    <nuxt-link :to="link" class="cardhead" :style="{ backgroundColor: backgroundColor }">
-      <img class="cardhead__icon" src="../assets/icons/search-head.svg">
+      <img class="cardhead__icon" :src="searchIcon" />
       <div class="cardhead__title">{{ title }}</div>
       <img :src="imageUrl" class="cardhead__bg-img" />
    </nuxt-link>
 </template>
 
 <script setup>
+import searchIcon from "../assets/icons/search-head.svg";
+
 const props = defineProps({
    title: String,
    imageUrl: String,

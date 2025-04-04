@@ -1,5 +1,6 @@
 <template>
-   <div class="custom-checkbox" @click="toggleCheckbox" :class="{ 'custom-checkbox--checked': checked }">
+   <div class="custom-checkbox" @click="toggleCheckbox" @keydown.enter="toggleCheckbox"
+      :class="{ 'custom-checkbox--checked': checked }">
       <div :class="['custom-checkbox__box', boxSizeClass]">
          <div v-if="checked" class="custom-checkbox__checkmark">
             <svg width="17" height="12" viewBox="0 0 17 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -13,7 +14,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 
 const props = defineProps({
    modelValue: {
@@ -60,6 +61,12 @@ watch(
    align-items: center;
    cursor: pointer;
    gap: 16px;
+   outline: none;
+
+   &:focus {
+      outline: 2px solid #3366FF;
+      border-radius: 4px;
+   }
 
    &__box {
       width: 16px;
@@ -92,12 +99,16 @@ watch(
          background-color: #3366FF;
          border-color: #3366FF;
       }
+
+      &:focus {
+         outline: 2px solid #D6EFFF;
+         border-radius: 4px;
+      }
    }
 
    &__box--small {
       width: 14px;
       height: 14px;
    }
-
 }
 </style>

@@ -8,7 +8,7 @@
             <div class="modal__header">
                <h2 class="modal__title">Блокировать пользователя «{{ chatStore.currentChat.for_user.id ===
                   userStore.userId ? chatStore.currentChat.from_user.username : chatStore.currentChat.for_user.username
-                  }}»</h2>
+               }}»</h2>
                <p class="modal__description">
                   Пользователь не сможет отправлять вам сообщения и оставлять комментарии. Укажите причину блокировки:
                </p>

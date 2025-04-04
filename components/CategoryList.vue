@@ -2,16 +2,13 @@
    <div class="layout-2">
       <div class="layout-2__container site-container">
          <ul class="layout-2__list">
-            <CategoryCard v-for="(category, index) in categories" :key="index" :category="category" />
+            <CategoryCard v-for="category in categories" :key="category.href" :category="category" />
          </ul>
       </div>
    </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import CategoryCard from './CategoryCard.vue';
-
 import carImage from '../assets/images/svg/car.svg';
 import discImage from '../assets/icons/disc_car.svg';
 import motoImage from '../assets/icons/moto_car.svg';
@@ -28,8 +25,8 @@ const categories = ref([
       title: 'Автомобили',
       icon: carIcon,
       subcategories: [
-         { href: '/auto', title: 'Подержанные авто' },
-         { href: '/auto', title: 'Новые авто' }
+         { href: '/auto/used', title: 'Подержанные авто' },
+         { href: '/auto/new', title: 'Новые авто' }
       ]
    },
    {
@@ -82,11 +79,14 @@ const categories = ref([
       grid-template-columns: repeat(3, 1fr);
       gap: 24px;
 
-
-      @media (max-width: 600px) {
+      @media (max-width: 768px) {
          display: flex;
          flex-direction: column;
-         gap: 16px
+         gap: 16px;
+      }
+
+      @media (max-width: 600px) {
+         gap: 12px;
       }
    }
 }

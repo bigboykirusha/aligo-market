@@ -1,34 +1,46 @@
 <template>
   <CategoryList />
-  <div class="cards-wrapper">
-    <CardListWithBanner :adsMain="adsMain" :XTotalCount="XTotalCountMain" :pageSize="pageSize"
-      :isLoading="isLoadingMain">
-      <template #banner>
-        <DubaiBanner />
-      </template>
-    </CardListWithBanner>
+  <main class="cards-wrapper">
+    <section>
+      <CardListWithBanner :adsMain="adsMain" :XTotalCount="XTotalCountMain" :pageSize="pageSize"
+        :isLoading="isLoadingMain">
+        <template #banner>
+          <DubaiBanner />
+        </template>
+      </CardListWithBanner>
+    </section>
 
-    <Pagination v-if="totalItems > pageSize" :totalItems="totalItems" :pageSize="pageSize" :currentPage="currentPage"
-      @changePage="changePage" />
+    <nav v-if="totalItems > pageSize">
+      <Pagination :totalItems="totalItems" :pageSize="pageSize" :currentPage="currentPage" @changePage="changePage" />
+    </nav>
 
-    <CardList v-if="Array.isArray(adsSimilar)" :XTotalCount="XTotalCountSimilar" :title="title1" :ads="adsSimilar"
-      :isLoading="isLoadingSimilar" />
+    <section v-if="Array.isArray(adsSimilar)">
+      <CardList :XTotalCount="XTotalCountSimilar" title="Объявления в других городах" :ads="adsSimilar"
+        :isLoading="isLoadingSimilar" />
+    </section>
 
-    <BannerTemplate v-if="bannerContent" :content="bannerContent" />
+    <aside v-if="bannerContent">
+      <BannerTemplate :content="bannerContent" />
+    </aside>
 
-    <CardList v-if="isLoggedIn && Array.isArray(adsHistory)" :XTotalCount="XTotalCountHistory" :title="title2"
-      :ads="adsHistory" :isLoading="isLoadingHistory" />
+    <section v-if="isLoggedIn && Array.isArray(adsHistory)">
+      <CardList :XTotalCount="XTotalCountHistory" title="Недавно просмотренные" :ads="adsHistory"
+        :isLoading="isLoadingHistory" />
+    </section>
 
-    <InfoBanner />
-  </div>
+    <aside>
+      <InfoBanner />
+    </aside>
+  </main>
 </template>
 
 <script setup>
-import { getAdsSimilar, getAdsHistory } from '../services/apiClient';
+import { getAdsSimilar, getAdsHistory, getModerationAds } from '../services/apiClient';
 import { getAdsHistoryHeaders, getAdsSimilarHeaders } from '../services/apiHeaders';
 import { useCityStore } from '~/store/city';
 import { useUserStore } from '~/store/user';
 import { ref, onMounted, computed, watch } from 'vue';
+import { usePopupErrorStore } from '~/store/popupErrorStore';
 import { useI18n } from 'vue-i18n';
 
 import desktopImage from '../assets/images/bg/banner-2.png';
@@ -37,11 +49,9 @@ import mobileImage from '../assets/images/bg/banner-2-m.png';
 const { t } = useI18n();
 const cityStore = useCityStore();
 const userStore = useUserStore();
+const popupErrorStore = usePopupErrorStore();
 
 const isLoggedIn = ref(userStore.isLoggedIn);
-
-const title1 = "Объявления в других городах";
-const title2 = t('titles.title2');
 
 const pageSize = computed(() => {
   if (typeof window !== 'undefined') {
@@ -88,13 +98,13 @@ const bannerContent = computed(() => ({
 
 const handleError = (error, message) => {
   console.error(`${message}: `, error);
-  alert(`${message}. Попробуйте снова.`);
+  popupErrorStore.showError(`${message}`);
 };
 
 const setLoadingWithDelay = (isLoadingRef) => {
   setTimeout(() => {
     isLoadingRef.value = false;
-  }, 500);
+  }, 100);
 };
 
 const fetchData = async (apiFunction, params, isLoadingRef) => {
@@ -194,6 +204,7 @@ watch(() => cityStore.selectedCity.id, (newCityId) => {
 onMounted(() => {
   loadSavedCounts();
   fetchMainAds();
+  getModerationAds();
   fetchAdsSimilar();
   if (isLoggedIn.value) {
     fetchAdsHistory();

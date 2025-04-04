@@ -7,17 +7,18 @@
          <div v-if="chatStore.currentChat" class="chat-header__info chat-header__info--active">
             <button v-if="chatStore.currentChat && !chatStore.isCollapsed" class="chat-header__close-button"
                @click="closeChat">
-               <img src="../assets/icons/arrow-back.svg" alt="Toggle" />
+               <img :src="arrowBackIcon" alt="Toggle" />
             </button>
             <div v-if="!chatStore.currentChat.is_support" :to="`/user/${relevantUser(chatStore.currentChat).id}`"
                class="user-info__avatar">
-               <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.arr_title_size.preview, avatar)" alt="Avatar"
-                  class="chat-header__avatar" />
+               <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.arr_title_size.preview, avatar)"
+                  alt="Avatar" class="chat-header__avatar" />
             </div>
             <img v-if="chatStore.currentChat.is_support" :src="chatStore.currentChat.sup_photo.path" alt="Ad Image"
                class="chat-header__supp-image" />
-            <img v-if="!chatStore.currentChat.is_support" :src="getImageUrl(chatStore.currentChat.ads_photo[0]?.arr_title_size.preview)"
-               alt="Ad Image" class="chat-header__ad-image" />
+            <img v-if="!chatStore.currentChat.is_support"
+               :src="getImageUrl(chatStore.currentChat.ads_photo[0]?.arr_title_size.preview)" alt="Ad Image"
+               class="chat-header__ad-image" />
             <div class="chat-header__details">
                <div :to="`/user/${relevantUser(chatStore.currentChat).id}`" class="chat-header__username">
                   {{ relevantUserInfo(chatStore.currentChat) }}
@@ -42,18 +43,18 @@
 
          <!-- Кнопки в заголовке -->
          <nuxt-link to="/profile/messages" class="chat-header__close-button" @click="toggleChat">
-            <img src="../assets/icons/out.svg" alt="Toggle" />
+            <img :src="outIcon" alt="Toggle" />
          </nuxt-link>
          <button class="chat-header__close-button" @click="toggleChat">
-            <img class="chat-header__toggle-icon" src="../assets/icons/down.svg" alt="Toggle" />
+            <img class="chat-header__toggle-icon" :src="downIcon" alt="Toggle" />
          </button>
          <button v-if="chatStore.isCollapsed" class="chat-header__close-button chat-header__close-button--remove"
             @click="chatStore.hideChat">
-            <img src="../assets/icons/close.svg" alt="Close" />
+            <img :src="closeIcon" alt="Close" />
          </button>
       </div>
       <div id="drag-drop-zone" class="drag-drop-zone" :class="{ 'dragging-over': isDragging && chatStore.currentChat }">
-         <img src="../assets/icons/photo-drop.svg" alt="">
+         <img :src="photoDropIcon" alt="" />
          <span>Перетащите сюда <br /> изображения до 10 мб</span>
       </div>
       <!-- Содержимое чата -->
@@ -66,7 +67,7 @@
          <!-- Блок, если сообщений нет -->
          <div v-else-if="!hasMessages && !chatStore.currentChat.is_support" class="chat-wrapper__no-messages">
             <div class="no-messages-container">
-               <img src="../assets/icons/mail-smile.svg" alt="No messages" class="no-messages-image" />
+               <img :src="mailSmileIcon" alt="No messages" class="no-messages-image" />
                <p class="no-messages-text">Задайте пользователю свой вопрос</p>
             </div>
          </div>
@@ -106,8 +107,9 @@
                   <template v-else>
                      <div :class="['chat-wrapper__message-item', { 'chat-wrapper__message-item--self': item.isSelf }]">
                         <template v-if="!item.isSelf">
-                           <img :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.arr_title_size.preview, avatar)" alt="Avatar"
-                              class="chat-wrapper__message-avatar" />
+                           <img
+                              :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.arr_title_size.preview, avatar)"
+                              alt="Avatar" class="chat-wrapper__message-avatar" />
                            <div class="chat-wrapper__message-bubble">
                               <MessagePhotos :photos="item.photos" />
                               <div class="chat-wrapper__message-content">{{ item.message }}</div>
@@ -118,7 +120,7 @@
                         </template>
                         <template v-else>
                            <div class="chat-wrapper__message-info">
-                              <img src="../assets/icons/checked.svg" class="chat-wrapper__message-icon" />
+                              <img :src="checkedIcon" class="chat-wrapper__message-icon" />
                               <span class="chat-wrapper__message-time">{{ formatTime(item.created_at) }}</span>
                            </div>
                            <div class="chat-wrapper__message-bubble chat-wrapper__message-bubble--self">
@@ -145,24 +147,23 @@
                </template>
                <template v-else>
                   <div class="file-preview__icon">
-                     <img src="../assets/icons/file-icon.svg" alt="file icon" />
+                     <img :src="fileIcon" alt="file icon" />
                   </div>
                </template>
                <button @click="removeFile(index)" class="file-preview__remove">
-                  <img src="../assets/icons/close-white.svg" alt="Remove" />
+                  <img :src="closeWhiteIcon" alt="Remove" />
                </button>
             </div>
          </div>
       </div>
 
       <!-- Поле ввода сообщения -->
-
       <div v-if="chatStore.currentChat && !chatStore.isCollapsed && userStore.username"
          class="chat-wrapper__message-input-container">
          <div class="chat-wrapper__message-icons-left">
             <input type="file" @change="handleFileChange" multiple class="chat-wrapper__file-input" />
             <button class="chat-wrapper__message-icon-left" @click="triggerFileInput">
-               <img src="../assets/icons/photo.svg" alt="Upload Photo" />
+               <img :src="photoIcon" alt="Upload Photo" />
             </button>
          </div>
          <input v-model="newMessage" @keyup.enter="handleSendMessage" ref="mesInput" placeholder="Напишите сообщение"
@@ -172,7 +173,7 @@
                <div class="spinner"></div>
             </template>
             <template v-else>
-               <img src="../assets/icons/send.svg" alt="Send" />
+               <img :src="sendIcon" alt="Send" />
             </template>
          </button>
       </div>
@@ -193,6 +194,17 @@ import { relevantUser, relevantUserInfo } from '../services/userUtils.js'
 import { getImageUrl } from '../services/imageUtils';
 import { fetchMessages, sendMessage, sendSupport, getTechSupport } from '~/services/apiClient';
 import avatar from '../assets/icons/avatar-revers.svg';
+import arrowBackIcon from '../assets/icons/arrow-back.svg'
+import outIcon from '../assets/icons/out.svg'
+import downIcon from '../assets/icons/down.svg'
+import closeIcon from '../assets/icons/close.svg'
+import photoDropIcon from '../assets/icons/photo-drop.svg'
+import mailSmileIcon from '../assets/icons/mail-smile.svg'
+import checkedIcon from '../assets/icons/checked.svg'
+import fileIcon from '../assets/icons/file-icon.svg'
+import closeWhiteIcon from '../assets/icons/close-white.svg'
+import photoIcon from '../assets/icons/photo.svg'
+import sendIcon from '../assets/icons/send.svg'
 
 const userStore = useUserStore();
 const chatStore = useChatStore();
@@ -602,7 +614,7 @@ watch(
    touch-action: none;
    bottom: 24px;
    right: 24px;
-   z-index: 40;
+   z-index: 20;
    width: 420px;
    height: 600px;
    display: flex;
@@ -877,7 +889,7 @@ watch(
    color: #3366FF;
    background-color: #fff;
    position: fixed;
-   z-index: 200;
+   z-index: 20;
 
    @media (max-width: 768px) {
       width: 100%;

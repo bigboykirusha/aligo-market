@@ -1,16 +1,15 @@
 <template>
-   <button class="complain-button" @click="showComplaintPopup = true">
-      <img class="complain-button__icon" src="../assets/icons/alert.svg" alt="Иконка" />
+   <button class="complain-button" @click="openComplaintPopup">
+      <img class="complain-button__icon" :src="alertIcon" alt="Иконка" />
       <span class="complain-button__text">Пожаловаться на объявление</span>
    </button>
-   <Complaint :isVisible="showComplaintPopup" :adsId="adsId" :mainCategoryId="1"
-      @close="showComplaintPopup = false" :user_id="userId" />
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { useComplaintPopupStore } from '@/store/complaintPopupStore';
+import alertIcon from "../assets/icons/alert.svg";
 
-defineProps({
+const props = defineProps({
    userId: {
       type: [String, Number],
       required: true,
@@ -21,7 +20,11 @@ defineProps({
    },
 });
 
-const showComplaintPopup = ref(false);
+const complaintPopupStore = useComplaintPopupStore();
+
+const openComplaintPopup = () => {
+   complaintPopupStore.open(props.adsId, 1, props.userId);
+};
 </script>
 
 <style scoped lang="scss">
@@ -36,6 +39,11 @@ const showComplaintPopup = ref(false);
    gap: 8px;
    border: none;
    cursor: pointer;
+   transition: background-color 0.2s ease;
+
+   &:hover {
+      background-color: #A4DCFF;
+   }
 
    &__icon {
       width: 16px;

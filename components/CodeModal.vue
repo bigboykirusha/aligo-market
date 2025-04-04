@@ -13,7 +13,7 @@
             <div class="modal__header">
                <!-- Логотип и иконка в заголовке -->
                <div class="modal__header-image">
-                  <img src="../assets/icons/a-id.svg" alt="header image" />
+                  <img :src="aligoIdIcon" alt="header image" />
                </div>
                <!-- Разделительная линия -->
                <div class="modal__header-bar"></div>
@@ -72,6 +72,7 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue';
 import closeIcon from '~/assets/icons/close.svg';
+import aligoIdIcon from "../assets/icons/a-id.svg";
 import { useUserStore } from '~/store/user';
 import { useCreateStore } from '~/store/create';
 import { confirmCode } from '~/services/apiClient';

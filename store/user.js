@@ -19,7 +19,10 @@ function formatUniqueCode(code) {
 }
 
 function updateUserCookie(userData) {
-   const userDataCookie = useCookie('userData');
+   const userDataCookie = useCookie('userData', {
+      default: () => ({}),
+      maxAge: 30 * 24 * 60 * 60
+   });
    userDataCookie.value = { ...userDataCookie.value, ...userData };
 }
 
@@ -120,7 +123,6 @@ export const useUserStore = defineStore('user', {
                   grade: data.grade || 0.0,
                   isLoggedIn: true,
                };
-
                this.setUserData(userData);
                await this.fetchUserCounts();
                useFavoritesStore().fetchFavorites();
@@ -155,7 +157,7 @@ export const useUserStore = defineStore('user', {
 
       async fetchUserCounts() {
          try {
-            const [userCountData] = await Promise.all([getUserCount(), getMyAdsCount()]);
+            const [userCountData] = await Promise.all([getUserCount()]);
             this.setCounts(userCountData);
          } catch (error) {
             console.error('Ошибка при получении счетчиков пользователя:', error);

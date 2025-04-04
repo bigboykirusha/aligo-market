@@ -1,14 +1,12 @@
 <template>
-   <div id="complaint-popup" class="modal" v-if="isVisible" @click.self="closePopup">
+   <div id="complaint-popup" class="modal" v-if="complaintPopupStore.isVisible" @click.self="complaintPopupStore.close">
       <div class="modal__content">
-         <button class="modal__close-button" @click="closePopup">
+         <button class="modal__close-button" @click="complaintPopupStore.close">
             <img :src="closeIcon" alt="close icon" />
          </button>
          <form class="modal__form" @submit.prevent="submitComplaintHandler">
             <div class="modal__header">
-               <h2 class="modal__title">Жалоба на пользователя «{{ chatStore.currentChat.for_user.id ===
-                  userStore.userId ? chatStore.currentChat.from_user.username : chatStore.currentChat.for_user.username
-                  }}»</h2>
+               <h2 class="modal__title">Жалоба на объявление «#{{ complaintPopupStore.adsId }}»</h2>
                <p class="modal__description">
                   Коротко опишите, в чем суть претензии, прикрепите изображения и документы при необходимости.
                </p>
@@ -18,7 +16,7 @@
                   rows="6"></textarea>
                <div class="modal__attachments">
                   <button type="button" class="modal__extra-button" @click="triggerFileInput">
-                     <img src="../assets/icons/paperclip.svg" alt="attachment icon" class="modal__extra-icon" />
+                     <img :src="paperclipIcon" alt="attachment icon" class="modal__extra-icon" />
                      Прикрепить
                   </button>
                   <input type="file" ref="fileInput" multiple @change="handleFileChange" style="display: none;" />
@@ -31,12 +29,12 @@
                      </template>
                      <template v-else>
                         <div class="file-preview__icon">
-                           <img src="../assets/icons/file-icon.svg" alt="file icon" />
+                           <img :src="fileIcon" alt="file icon" />
                            <span>{{ file.name }}</span>
                         </div>
                      </template>
                      <button @click="removeFile(index)" class="file-preview__remove">
-                        <img src="../assets/icons/close-white.svg" alt="" />
+                        <img :src="closeWhiteIcon" alt="remove icon" />
                      </button>
                   </div>
                </div>
@@ -50,7 +48,7 @@
                <button type="submit" class="modal__button" :disabled="!complaintText.trim()">
                   Отправить
                </button>
-               <button type="button" class="modal__button modal__button--cancel" @click="closePopup">
+               <button type="button" class="modal__button modal__button--cancel" @click="complaintPopupStore.close">
                   Отмена
                </button>
             </div>
@@ -61,32 +59,18 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useComplaintPopupStore } from '@/store/complaintPopupStore';
 import closeIcon from '@/assets/icons/close.svg';
-import { useChatStore } from '~/store/chatStore';
+import paperclipIcon from '@/assets/icons/paperclip.svg';
+import fileIcon from '@/assets/icons/file-icon.svg';
+import closeWhiteIcon from '@/assets/icons/close-white.svg';
 import { submitComplaint } from '../services/apiClient.js';
-import { useUserStore } from '~/store/user.js';
 
-const props = defineProps({
-   isVisible: Boolean,
-   adsId: Number,
-   mainCategoryId: Number,
-   user_id: Number
-});
-
-const emit = defineEmits(['close']);
+const complaintPopupStore = useComplaintPopupStore();
 
 const complaintText = ref('');
 const blockUser = ref(false);
 const selectedFiles = ref([]);
-const chatStore = useChatStore();
-const userStore = useUserStore();
-
-const closePopup = () => {
-   complaintText.value = '';
-   blockUser.value = false;
-   selectedFiles.value = [];
-   emit('close');
-};
 
 const triggerFileInput = () => {
    const fileInput = document.querySelector('#complaint-popup input[type="file"]');
@@ -116,18 +100,21 @@ const submitComplaintHandler = async () => {
    if (complaintText.value.trim()) {
       try {
          const formData = new FormData();
-         formData.append('claim_user_id', props.user_id);
+         formData.append('claim_user_id', complaintPopupStore.userId);
          formData.append('comment', complaintText.value);
          formData.append('is_blocked', blockUser.value ? 1 : 0);
 
-         if (selectedFiles.length > 0) {
-            selectedFiles.forEach((photo, index) => {
+         if (selectedFiles.value.length > 0) {
+            selectedFiles.value.forEach((photo, index) => {
                formData.append(`photos[${index}]`, photo);
             });
          }
 
          await submitComplaint(formData);
-         closePopup();
+         complaintPopupStore.close();
+         complaintText.value = '';
+         blockUser.value = false;
+         selectedFiles.value = [];
       } catch (error) {
          console.error('Ошибка при отправке жалобы:', error);
       }
@@ -138,7 +125,7 @@ const submitComplaintHandler = async () => {
 <style scoped lang="scss">
 .modal {
    position: fixed;
-   z-index: 140000;
+   z-index: 1400;
    top: 0;
    left: 0;
    width: 100%;

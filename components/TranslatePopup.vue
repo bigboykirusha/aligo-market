@@ -64,7 +64,7 @@ const selectLanguage = (languageCode) => {
 const confirmLanguage = () => {
    if (selectedLanguage.value) {
       languageStore.setLanguage(selectedLanguage.value);
-      emit('language-selected', selectedLanguage.value); 
+      emit('language-selected', selectedLanguage.value);
       closePopup();
    }
 };

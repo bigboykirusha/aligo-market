@@ -15,13 +15,14 @@ import { useRoute } from 'vue-router'
 
 import Reviews from '~/components/Reviews.vue';
 import Favorites from '~/components/Favorites.vue';
-import MyAds from '~/components/MyAds.vue';
+import MyPublications from '~/components/MyPublications.vue';
 import Notifications from '~/components/Notifications.vue';
 import EditProfile from '~/components/EditProfile.vue';
 import Messages from '~/components/Messages.vue';
+import Reports from '~/components/Reports.vue';
 
 const componentsMap = {
-   'ads': MyAds,
+   'ads': MyPublications,
    'favorites': Favorites,
    'favorites/ads': Favorites,
    'favorites/searches': Favorites,
@@ -31,10 +32,11 @@ const componentsMap = {
    'notifications': Notifications,
    'edit': EditProfile,
    'messages': Messages,
-   'ads/drafts': MyAds,
-   'ads/cancelled': MyAds,
-   'ads/all': MyAds,
-   'ads/archive': MyAds,
+   'ads/drafts': MyPublications,
+   'ads/cancelled': MyPublications,
+   'ads/all': MyPublications,
+   'ads/archive': MyPublications,
+   'reports': Reports
 };
 
 const route = useRoute();

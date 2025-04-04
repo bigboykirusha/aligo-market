@@ -4,10 +4,10 @@
          <Swiper v-if="images.length" :modules="[SwiperAutoplay, SwiperPagination]" :slides-per-view="1"
             :pagination="{ clickable: true }" :navigation="false" :loop="true">
             <SwiperSlide v-for="(image, index) in images" :key="index">
-               <img class="card__img" :src="getImageUrl(image.arr_title_size.middle)" alt="Slide Image" />
+               <img class="card__img" :src="getImageUrl(image.arr_title_size.middle)" alt="Slide Image" draggable="false" @contextmenu.prevent preload />
             </SwiperSlide>
          </Swiper>
-         <img v-else src="../assets/icons/placeholder.png" alt="Placeholder image" class="card__placeholder" />
+         <img v-else :src="placeholder" alt="Placeholder image" class="card__placeholder" />
       </nuxt-link>
       <div class="card__section">
          <nuxt-link class="card__title" :to="`/car/${url}`">
@@ -60,6 +60,7 @@ import { seeContact, getUser } from '~/services/apiClient';
 import { useChatStore } from '~/store/chatStore';
 import { useLoginModalStore } from '~/store/loginModal.js';
 import { useRouter } from 'vue-router';
+import placeholder from "../assets/icons/placeholder.png";
 
 const router = useRouter();
 const loginModalStore = useLoginModalStore();
@@ -180,7 +181,7 @@ const handleCallClick = async () => {
       makeCall();
    } else {
       await fetchPhoneNumber();
-      if (props.horizontal) {
+      if (!props.horizontal) {
          makeCall();
       }
    }
@@ -200,7 +201,7 @@ const makeCall = () => {
    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
    border-radius: 6px;
    overflow: hidden;
-   min-width: 220px;
+   min-width: 224px;
    transition: transform 0.3s, box-shadow 0.3s;
 
    &__placeholder {
@@ -256,7 +257,7 @@ const makeCall = () => {
 
    &__wishlist-button {
       position: absolute;
-      z-index: 5;
+      z-index: 1;
       top: -12px;
       right: 16px;
    }
@@ -352,8 +353,8 @@ const makeCall = () => {
       width: 100%;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      padding: 10px;
+      gap: 12px;
+      padding: 12px;
       background: white;
       transform: translateY(40px);
       opacity: 0;

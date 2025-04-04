@@ -18,17 +18,14 @@
 <style scoped lang="scss">
 .error {
    max-width: 630px;
-   margin: 100px auto 0;
+   margin: auto;
    display: flex;
    flex-direction: column;
    align-items: center;
+   justify-content: center;
    padding: 30px 40px 70px;
    width: 100%;
-
-   @media screen and (max-width: 480px) {
-      justify-content: flex-start;
-      min-height: 90vh;
-   }
+   height: 100vh;
 
    &__404 {
       display: grid;
@@ -36,7 +33,7 @@
       gap: 20px;
       text-align: center;
 
-      @media screen and (max-width: 480px) {
+      @media (max-width: 480px) {
          display: flex;
          flex-direction: column;
          width: 100%;
@@ -50,15 +47,15 @@
       text-align: left;
       margin-top: 72px;
 
-      @media screen and (max-width: 991px) {
+      @media (max-width: 991px) {
          margin-top: 49px;
       }
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          margin-top: 22px;
       }
 
-      @media screen and (max-width: 480px) {
+      @media (max-width: 480px) {
          margin-top: 0;
       }
 
@@ -92,6 +89,11 @@
          text-decoration: none;
          width: 132px;
          text-align: center;
+         transition: $transition-1;
+
+         &:hover {
+            background-color: #144DF8;
+         }
       }
    }
 
@@ -101,15 +103,15 @@
       align-items: center;
       width: 320px;
 
-      @media screen and (max-width: 991px) {
+      @media (max-width: 991px) {
          width: 270px;
       }
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          width: 230px;
       }
 
-      @media screen and (max-width: 480px) {
+      @media (max-width: 480px) {
          margin: 0 auto;
       }
 

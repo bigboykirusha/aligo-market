@@ -32,16 +32,15 @@
                <div class="user-info__group">
                   <nuxt-link :to="`/user/${props.id_user_owner_ads}`" class="user-info__name">{{ formattedUsername
                      }}</nuxt-link>
-                  <div v-if="rating === null" class="car-details__rating-text">
-                     О пользователе нет отзывов
-                  </div>
-                  <div v-else class="car-details__rating">
-                     <div class="car-details__rating-text">{{ rating }}</div>
-                     <NuxtRating :rating-value="Number(rating)" :rating-count="5" :rating-size="10" :rating-spacing="6"
-                        :active-color="'#3366FF'" :inactive-color="'#FFFFFF'" :border-color="'#3366FF'"
-                        :border-width="2" :rounded-corners="true" :read-only="true" />
-                     <div @click="toggleReviewsModal" class="car-details__reviews">{{ count_reviews_about_myself }}{{
-                        pluralizeReview(Number(count_reviews_about_myself)) }}</div>
+                  <div class="user-info__rating">
+                     <div class="user-info__rating-text">{{ !rating ? '0.0' : rating }}</div>
+                     <NuxtRating :rating-value="rating" :rating-count="5" :rating-size="10" :rating-spacing="6"
+                        active-color="#3366FF" inactive-color="#FFFFFF" border-color="#3366FF" :border-width="2"
+                        rounded-corners read-only />
+                     <span class="user-info__rating-count">
+                        {{ userStore.countReviews === 0 ? 'Нет отзывов' : `${userStore.countReviews}
+                        ${pluralizeReview(userStore.countReviews)}` }}
+                     </span>
                   </div>
                   <span class="user-info__status">Частное лицо</span>
                </div>
@@ -64,8 +63,8 @@
          </div>
          <p v-else>Пользователь не отметил свое местоположение</p>
          <button v-if="latitude && longitude" class="car-details__map-toggle" @click="toggleMap">
-            <img v-if="!isMapVisible" src="../assets/icons/loc.svg" />
-            <img v-else src="../assets/icons/down.svg" class="button-icon" />
+            <img v-if="!isMapVisible" :src="locationIcon" />
+            <img v-else :src="downIcon" class="button-icon" />
             <div> {{ isMapVisible ? 'Скрыть карту' : 'Показать на карте' }}</div>
          </button>
       </div>
@@ -83,6 +82,8 @@ import { getImageUrl } from '../services/imageUtils'
 import { useChatStore } from '~/store/chatStore';
 import { useLoginModalStore } from '~/store/loginModal.js';
 import { useRouter } from '#vue-router';
+import downIcon from "../assets/icons/down.svg";
+import locationIcon from "../assets/icons/loc.svg";
 
 const loginModalStore = useLoginModalStore();
 
@@ -118,7 +119,7 @@ const router = useRouter();
 
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 
-const rating = ref(null);
+const rating = ref(0);
 const count_reviews_about_myself = ref(0);
 
 const isReviewsPopupVisible = ref(false);
@@ -240,20 +241,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
-.slider-mobile {
-   display: none;
-
-   @media (max-width: 768px) {
-      display: block;
-      margin-bottom: 32px;
-      height: 320px;
-      border-radius: 6px;
-      height: auto;
-   }
-}
-
 .car-details {
-   max-width: 416px;
    width: 100%;
 
    @media (max-width: 1280px) {
@@ -294,13 +282,13 @@ onBeforeUnmount(() => {
       display: flex;
       gap: 24px;
 
-      @media (max-width: 1240px) {
+      @media (max-width: 1280px) {
          display: none;
       }
    }
 
    &__content {
-      @media (max-width: 1240px) {
+      @media (max-width: 1280px) {
          width: 50%;
          margin-top: 24px;
       }
@@ -333,27 +321,6 @@ onBeforeUnmount(() => {
       }
    }
 
-   &__rating {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-   }
-
-   .car-details__rating-text {
-      font-size: 14px;
-      color: #3366FF;
-   }
-
-   .car-details__reviews {
-      font-size: 14px;
-      color: #3366FF;
-      cursor: pointer;
-
-      &:hover {
-         text-decoration: underline;
-      }
-   }
-
    .user-info__status {
       font-size: 14px;
       color: #323232;
@@ -377,7 +344,7 @@ onBeforeUnmount(() => {
       transition: $transition-1;
       cursor: pointer;
 
-      @media (max-width: 1240px) {
+      @media (max-width: 1280px) {
          height: 40px;
          font-size: 14px;
       }
@@ -395,12 +362,19 @@ onBeforeUnmount(() => {
 
    &__title {
       font-size: 32px;
+      line-height: 36px;
       color: #003BCE;
       margin-bottom: 16px;
       font-weight: 700;
 
-      @media (max-width: 1240px) {
+      @media (max-width: 1280px) {
          font-size: 24px;
+         line-height: 30px;
+      }
+
+      @media (max-width: 768px) {
+         font-size: 20px;
+         line-height: 24px;
       }
    }
 
@@ -422,7 +396,7 @@ onBeforeUnmount(() => {
       margin-top: 16px;
       gap: 24px;
 
-      @media (max-width: 1240px) {
+      @media (max-width: 1280px) {
          margin-bottom: 0;
       }
 
@@ -451,7 +425,7 @@ onBeforeUnmount(() => {
          transition: $transition-1;
          cursor: pointer;
 
-         @media (max-width: 1240px) {
+         @media (max-width: 1280px) {
             height: 40px;
          }
 
@@ -570,9 +544,36 @@ onBeforeUnmount(() => {
       color: #323232;
       font-weight: 700;
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          margin-bottom: 0;
       }
+   }
+
+   &__rating {
+      display: flex;
+      align-items: center;
+      outline: none;
+      gap: 8px;
+      font-size: 14px;
+      color: #3366FF;
+      transition: color 0.2s ease;
+   }
+
+   &__rating-text {
+      font-size: 14px;
+      line-height: 18px;
+      color: #3366FF;
+
+      &--empty {
+         font-size: 14px;
+         color: #323232;
+      }
+   }
+
+   &__rating-count {
+      margin-left: 8px;
+      font-size: 14px;
+      line-height: 18px;
    }
 
    &__avatar {

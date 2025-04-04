@@ -1,26 +1,31 @@
 <template>
-   <div class="car-page">
-      <CarToolbar v-if="isOwner" v-bind="toolbarProps" />
-      <div class="car-page__info">
-         <CarInfoSkeleton v-if="isLoading" />
-         <CarInfo v-else :car="car" />
-         <div class="car-page__contact">
-            <CarContactSkeleton v-if="isLoading" />
-            <CarContact v-else :id_user_owner_ads="car.id_user_owner_ads"
-               :brand="car.auto_technical_specifications[0].brand.title"
-               :model="car.auto_technical_specifications[0].model.title"
-               :year="car.auto_technical_specifications[0].year_release.title" :amount="car.ads_parameter.amount"
-               :username="car.ads_parameter?.username || car.ads_parameter?.login || 'Имя не указано'"
-               :place="car.ads_parameter.place_inspection || 'Не указано'" :id="car.id"
-               :is_in_favorites="car.is_in_favorites" :latitude="car.ads_parameter.latitude"
-               :longitude="car.ads_parameter.longitude" :photos="car.photos" />
+   <template v-if="fetchError">
+      <NotFound />
+   </template>
+   <template v-else>
+      <div class="car-page">
+         <CarToolbar v-if="isOwner" v-bind="toolbarProps" />
+         <div class="car-page__info">
+            <CarInfo :car="car" />
+            <div class="car-page__contact">
+               <CarContactSkeleton v-if="isLoading" />
+               <CarContact v-else :id_user_owner_ads="car.id_user_owner_ads"
+                  :brand="car.auto_technical_specifications[0].brand.title"
+                  :model="car.auto_technical_specifications[0].model.title"
+                  :year="car.auto_technical_specifications[0].year_release.title" :amount="car.ads_parameter.amount"
+                  :username="car.ads_parameter?.username || car.ads_parameter?.login || 'Имя не указано'"
+                  :place="car.ads_parameter.place_inspection || 'Не указано'" :id="car.id"
+                  :is_in_favorites="car.is_in_favorites" :latitude="car.ads_parameter.latitude"
+                  :longitude="car.ads_parameter.longitude" :photos="car.photos" />
+            </div>
+         </div>
+         <div class="car-page__ads">
+            <CardList :title="title3" :ads="adsSimilar" :XTotalCount="5" :isLoading="isLoadingSimilar" />
+            <BannerTemplate :content="bannerContent" />
          </div>
       </div>
-      <div class="car-page__ads">
-         <CardList :title="title3" :ads="adsSimilar" :XTotalCount="10" :isLoading="isLoadingSimilar" />
-         <BannerTemplate :content="bannerContent" />
-      </div>
-   </div>
+   </template>
+   <PhotoViewer />
 </template>
 
 <script setup>
@@ -70,7 +75,7 @@ const setLoadingWithDelay = (isLoadingRef) => new Promise(resolve => {
    setTimeout(() => {
       isLoadingRef.value = false;
       resolve();
-   }, 1000);
+   }, 100);
 });
 
 const getHeadMeta = (car) => ({
@@ -94,19 +99,29 @@ const fetchData = async (apiFunction, params) => {
    }
 };
 
+const fetchError = ref(false);
+
 const fetchCarDetails = async (id) => {
    isLoading.value = true;
-   const carData = await fetchData(getCarById, id);
-   if (!carData) return setLoadingWithDelay(isLoading);
+   fetchError.value = false;
 
-   car.value = carData;
-   useHead(getHeadMeta(carData));
+   try {
+      const carData = await getCarById(id);
+      if (!carData) throw new Error('Данные не получены');
 
-   if (carData?.ads_parameter?.city?.id) {
-      await fetchAdsSimilar(carData.ads_parameter.city.id);
+      car.value = carData;
+      useHead(getHeadMeta(carData));
+
+      if (carData?.ads_parameter?.city?.id) {
+         await fetchAdsSimilar(carData.ads_parameter.city.id);
+      }
+
+   } catch (error) {
+      console.error('Ошибка при получении данных:', error);
+      fetchError.value = true;
+   } finally {
+      isLoading.value = false;
    }
-
-   await setLoadingWithDelay(isLoading);
 };
 
 const fetchAdsSimilar = async (cityId) => {
@@ -147,37 +162,44 @@ onBeforeRouteLeave(() => {
 
 <style lang="scss" scoped>
 .car-page {
-   margin-top: 134px;
+   max-width: 1312px;
+   width: 100%;
+   margin: 134px auto 0;
+   display: flex;
+   flex-direction: column;
 
    @media (max-width: 768px) {
-      margin-top: 67px;
+      margin: 67px auto 0;
    }
 
    &__info {
       display: flex;
       width: 100%;
-      max-width: 1312px;
-      margin: 0 auto;
       padding: 0 16px;
-      column-gap: 106px;
+      column-gap: 70px;
       justify-content: space-between;
+
+      @media (max-width: 1280px) {
+         flex-direction: column;
+         column-gap: 0;
+      }
    }
 
    &__contact {
       width: 100%;
+      max-width: 420px;
 
-      @media (max-width: 1240px) {
+      @media (max-width: 1280px) {
          display: none;
       }
    }
 
    &__ads {
       width: 100%;
+      max-width: 1312px;
       display: flex;
       flex-direction: column;
       gap: 40px;
-      max-width: 1312px;
-      margin: 0 auto;
       padding: 0 16px;
 
       @media (max-width: 768px) {

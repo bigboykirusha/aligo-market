@@ -23,7 +23,8 @@ defineProps({
    flex-direction: column;
    background: #f0f0f0;
    border-radius: 6px;
-   min-width: 220px;
+   min-width: 224px;
+   width: 100%;
    overflow: hidden;
    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
 
@@ -34,7 +35,7 @@ defineProps({
       background: linear-gradient(90deg, #e0e0e0 25%, #d6d6d6 50%, #e0e0e0 75%);
       background-size: 200% 200%;
       border-radius: 6px;
-      animation: pulse 2s infinite linear;
+      animation: pulse 1.5s infinite linear;
    }
 
    &__image {

@@ -58,7 +58,7 @@
          margin: 0 0 32px 0;
          text-align: left;
 
-         @media screen and (max-width: 991px) {
+         @media (max-width: 991px) {
             font-size: 20px;
             margin: 0 0 24px 0;
          }
@@ -88,11 +88,11 @@
       align-items: center;
       width: 350px;
 
-      @media screen and (max-width: 991px) {
+      @media (max-width: 991px) {
          width: 280px;
       }
 
-      @media screen and (max-width: 590px) {
+      @media (max-width: 590px) {
          width: 80%;
          margin: 0 auto;
       }
@@ -110,11 +110,11 @@
       background-color: #d6efff;
       width: 100%;
 
-      @media screen and (max-width: 991px) {
+      @media (max-width: 991px) {
          width: calc(100% + 100px);
       }
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
          width: 100%;
       }
    }

@@ -12,7 +12,7 @@ export const useFavoritesStore = defineStore('favorites', {
          const userStore = useUserStore();
          if (!userStore.isLoggedIn) {
             console.warn('Пользователь не авторизован. Запрос избранных не выполнен.');
-            return; 
+            return;
          }
          try {
             const response = await getFavorites();
@@ -23,24 +23,27 @@ export const useFavoritesStore = defineStore('favorites', {
          }
       },
       async toggleFavorite(itemId) {
-         const userStore = useUserStore();
-         if (!userStore.isLoggedIn) {
-            console.warn('Пользователь не авторизован. Запрос на изменение избранного не выполнен.');
-            return; 
-         }
          try {
             const isFavorite = this.items.includes(itemId);
+            let response;
+
             if (isFavorite) {
-               await addFavorites({ ads_id: itemId, main_category_id: 1 });
-               this.items = this.items.filter(id => id !== itemId);
+               response = await addFavorites({ ads_id: itemId, main_category_id: 1 });
+               if (response.success) {
+                  this.items = this.items.filter(id => id !== itemId);
+               }
             } else {
-               await addFavorites({ ads_id: itemId, main_category_id: 1 });
-               this.items.push(itemId);
+               response = await addFavorites({ ads_id: itemId, main_category_id: 1 });
+               if (response.success) {
+                  this.items.push(itemId);
+               }
             }
+
+            this.countFavorites = this.items.length;
+            return response;
          } catch (error) {
             console.error('Ошибка при изменении избранного: ', error);
-         } finally {
-            this.countFavorites = this.items.length;
+            throw error;
          }
       },
    },

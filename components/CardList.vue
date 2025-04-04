@@ -1,9 +1,9 @@
 <template>
    <div class="cards">
-      <h2 v-show="isLoading || ads.length > 0" class="cards__title">{{ title }}</h2>
+      <h1 v-if="isLoading || ads.length > 0" class="cards__title">{{ title }}</h1>
       <div class="cards__main" :class="{ 'cards__main--four': isFour }">
          <CardSkeleton v-if="isLoading" v-for="index in XTotalCount" :key="index" />
-         <Card v-else v-for="ad in uniqueAds" :key="ad.id" :id="ad.id" :description="ad.ads_parameter?.ads_description"
+         <Card v-else v-for="ad in ads" :key="ad.id" :id="ad.id" :description="ad.ads_parameter?.ads_description"
             :price="ad.ads_parameter?.amount" :place="ad.ads_parameter?.place_inspection || 'Адрес не указан'"
             :callNumber="ad.ads_parameter?.phone" :messageEmail="ad.ads_parameter?.email"
             :brand="ad.auto_technical_specifications?.[0]?.brand?.title"
@@ -17,7 +17,6 @@
 </template>
 
 <script setup>
-
 const props = defineProps({
    title: {
       type: String,
@@ -35,13 +34,7 @@ const props = defineProps({
       type: Boolean,
       default: false,
    },
-   XTotalCount: {type: Number, default: 0}
-});
-
-const uniqueAds = computed(() => {
-   return props.ads.filter(
-      (ad, index, self) => self.findIndex(item => item.id === ad.id) === index
-   );
+   XTotalCount: { type: Number, default: 0 }
 });
 </script>
 
@@ -55,7 +48,7 @@ const uniqueAds = computed(() => {
       font-size: 24px;
       font-weight: bold;
       color: #323232;
-      margin-top: 0;
+      margin-bottom: 24px;
    }
 
    &__main {

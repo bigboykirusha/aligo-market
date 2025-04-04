@@ -5,8 +5,7 @@
          <input type="text" class="address-input__field" :class="{ 'address-input__field--error': shouldShowError }"
             :placeholder="placeholder" v-model="inputValue" @input="handleInput" @keydown.enter.prevent="handleEnterKey"
             @focus="handleFocus" @blur="handleBlur" />
-         <img v-if="inputValue" src="../assets/icons/close-gray.svg" alt="Clear" class="address-input__clear"
-            @click="clearInput" />
+         <img v-if="inputValue" :src="closeIcon" alt="Clear" class="address-input__clear" @click="clearInput" />
          <ul v-if="suggestions.length" class="address-input__suggestions">
             <li v-for="(suggestion, index) in suggestions" :key="index" class="address-input__suggestion"
                @click="selectSuggestion(suggestion)">
@@ -23,6 +22,7 @@ import { useCreateStore } from '~/store/create';
 import { useCityStore } from '~/store/city';
 import { debounce } from 'lodash-es';
 import { fetchSuggestions } from '~/services/apiLocation';
+import closeIcon from '@/assets/icons/close-gray.svg';
 
 const props = defineProps({
    label: String,

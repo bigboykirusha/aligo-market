@@ -107,7 +107,7 @@
                               <template v-if="!item.isSelf">
                                  <img
                                     :src="getImageUrl(relevantUser(chatStore.currentChat).photo?.arr_title_size.preview, avatar)"
-                                    alt="Avatar" class="chat-wrapper__message-avatar">
+                                    alt="Avatar" class="chat-wrapper__message-avatar" />
                                  <div class="chat-wrapper__message-bubble">
                                     <MessagePhotos :photos="item.photos" />
                                     <div v-if="item.message" class="chat-wrapper__message-content">{{ item.message }}
@@ -144,7 +144,7 @@
                                     </div>
                                  </div>
                                  <img :src="getImageUrl(userStore.photo?.arr_title_size.preview, avatar)" alt="Avatar"
-                                    class="chat-wrapper__message-avatar chat-wrapper__message-avatar--self">
+                                    class="chat-wrapper__message-avatar chat-wrapper__message-avatar--self" />
                               </template>
                            </div>
                         </template>
@@ -158,7 +158,7 @@
             </div>
             <div id="drag-drop-zone" class="drag-drop-zone"
                :class="{ 'dragging-over': isDragging && chatStore.currentChat }">
-               <img src="../assets/icons/photo-drop.svg" alt="">
+               <img src="../assets/icons/photo-drop.svg" alt="" />
                <span>Перетащите сюда <br /> изображения до 10 мб</span>
             </div>
             <div class="file-preview" v-if="file.length > 0 && chatStore.currentChat && !isDragging">
@@ -199,10 +199,6 @@
    </div>
    <ReviewPopup :isVisible="showReviewPopup" :adsId="chatStore.currentChat?.ads_id"
       :mainCategoryId="chatStore.currentChat?.main_category_id" @close="showReviewPopup = false" />
-   <Complaint :isVisible="showComplaintPopup" :adsId="chatStore.currentChat?.ads_id"
-      :mainCategoryId="chatStore.currentChat?.main_category_id" @close="showComplaintPopup = false" :user_id="chatStore.currentChat?.for_user.id === userStore.userId
-         ? chatStore.currentChat?.from_user.id
-         : chatStore.currentChat?.for_user.id" />
    <BlockPopup :isVisible="showBlockPopup" :adsId="chatStore.currentChat?.ads_id" :user_id="chatStore.currentChat?.for_user.id === userStore.userId
       ? chatStore.currentChat?.from_user.id
       : chatStore.currentChat?.for_user.id" :mainCategoryId="chatStore.currentChat?.main_category_id"
@@ -242,7 +238,6 @@ const loading = ref(false);
 const isMobile = ref(false);
 const showPopup = ref(false);
 const showReviewPopup = ref(false);
-const showComplaintPopup = ref(false);
 const showBlockPopup = ref(false);
 const showDeletePopup = ref(false);
 const showTranslatePopup = ref(false);
@@ -454,11 +449,6 @@ const handleClickOutside = (event) => {
 const openReviewPopup = () => {
    togglePopup();
    showReviewPopup.value = true;
-};
-
-const openComplaintPopup = () => {
-   togglePopup();
-   showComplaintPopup.value = true;
 };
 
 const openBlockPopup = () => {

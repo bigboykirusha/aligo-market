@@ -36,8 +36,6 @@ export default defineNuxtConfig({
     },
   },
 
-  devtools: { enabled: true },
-
   modules: [
     '@nuxtjs/i18n',
     'nuxt-swiper',
@@ -51,7 +49,6 @@ export default defineNuxtConfig({
     rules: [
       { UserAgent: '*' },
       { Disallow: '/*' },
-      { Allow: '/$' },
     ]
   },
 
@@ -80,7 +77,7 @@ export default defineNuxtConfig({
   },
 
   devServer: {
-    port: 4000
+    port: 4000,
   },
 
   nitro: {

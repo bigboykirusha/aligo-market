@@ -1,9 +1,8 @@
 <template>
    <div class="cards-wrapper">
-      <Breadcrumbs />
       <template v-if="query">
-         <CardListWithBanner :title="`«${query}»: объявления в г. ${savedCity.name}`"
-            :adsMain="adsMain" :pageSize="pageSize" :XTotalCount="5" :isLoading="isLoading">
+         <CardListWithBanner :title="`«${query}»: объявления в г. ${savedCity.name}`" :query="query" :adsMain="adsMain"
+            :pageSize="pageSize" :XTotalCount="5" :isLoading="isLoading">
             <template #banner>
                <DubaiBanner />
             </template>

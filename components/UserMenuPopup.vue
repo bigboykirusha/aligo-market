@@ -60,44 +60,21 @@ const logout = () => {
 <style scoped lang="scss">
 .user-menu {
    position: absolute;
-   z-index: -1;
-   background: #FFFFFF;
+   z-index: 200;
+   border: none;
    border-top: none;
-   border-radius: 0 0 12px 12px;
+   background: #FFFFFF;
+   border-radius: 0 0 8px 8px;
    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-   top: -158px;
+   top: -170px;
    right: 0;
    width: 190px;
-   transition: background-color 0.1s ease, transform 0.2s ease-in-out, top 0.1s ease;
+   transition: background-color 0.15s ease, transform 0.2s ease-in-out, top 0.15s ease;
    transform-origin: top;
    transform: translate(0, 100%) scaleY(0);
 
    &.active {
       transform: translate(0, 100%) scaleY(1);
-   }
-
-   &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -16px;
-      width: 16px;
-      height: 16px;
-      background-image: url('data:image/svg+xml;charset=UTF-8,<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M 0,16 A 16,16 0 0 1 16,0 L 16,16 Z" fill="transparent"/><path d="M 0,0 A 16,16 0 0 1 16,16 L 16,0 Z" fill="white"/></svg>');
-      background-repeat: no-repeat;
-      z-index: 5;
-   }
-
-   &::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      right: -16px;
-      width: 16px;
-      height: 16px;
-      background-image: url('data:image/svg+xml;charset=UTF-8,<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(-90, 8, 8)"><path d="M 0,16 A 16,16 0 0 1 16,0 L 16,16 Z" fill="transparent"/><path d="M 0,0 A 16,16 0 0 1 16,16 L 16,0 Z" fill="white"/></g></svg>');
-      background-repeat: no-repeat;
-      z-index: 5;
    }
 
    @media (max-width: 1420px) {
@@ -106,7 +83,6 @@ const logout = () => {
 
    &__list {
       width: 100%;
-      padding: 8px 0;
    }
 
    &__item {
@@ -115,10 +91,9 @@ const logout = () => {
       font-size: 12px;
       color: #323232;
       align-items: center;
-      height: 36px;
-      margin: 0 8px;
-      padding: 6px 8px;
-      border-radius: 18px;
+      margin: 0;
+      padding: 8px;
+      height: 40px;
       cursor: pointer;
       transition: background-color 0.2s ease, color 0.2s ease;
 
@@ -159,43 +134,9 @@ const logout = () => {
    }
 
    &--reversed {
-      background-color: #3366FF;
-      color: #FFFFFF;
       box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.14);
-      top: -224px;
-
-      &::before {
-         background-image: url('data:image/svg+xml;charset=UTF-8,<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M 0,16 A 16,16 0 0 1 16,0 L 16,16 Z" fill="transparent"/><path d="M 0,0 A 16,16 0 0 1 16,16 L 16,0 Z" fill="%233366FF"/></svg>');
-      }
-
-      &::after {
-         background-image: url('data:image/svg+xml;charset=UTF-8,<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(-90, 8, 8)"><path d="M 0,16 A 16,16 0 0 1 16,0 L 16,16 Z" fill="transparent"/><path d="M 0,0 A 16,16 0 0 1 16,16 L 16,0 Z" fill="%233366FF"/></g></svg>');
-      }
-
-      .user-menu__item {
-         color: #FFFFFF;
-
-         &:hover {
-            background-color: #5580FF;
-         }
-
-         a {
-            color: inherit;
-         }
-
-         &--logout {
-            border-top: none;
-
-            &:hover {
-               background-color: #5580FF;
-            }
-         }
-      }
-
-      .user-menu__count {
-         background: #FFFFFF;
-         color: #3366FF;
-      }
+      top: -238px;
+      border: 1px solid #3366FF;
    }
 }
 </style>

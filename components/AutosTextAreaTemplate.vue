@@ -15,14 +15,15 @@
          <div class="simple-textarea__subtext">
             Не указывайте в сообщении телефон и другие персональные данные — для этого есть отдельные поля.
          </div>
-         <img v-if="optionValue && optionValue.length > 0" src="../assets/icons/close-gray.svg" alt="Clear"
-            class="simple-textarea__clear" @click="clearInput" />
+         <img v-if="optionValue && optionValue.length > 0" :src="closeIcon" alt="Clear" class="simple-textarea__clear"
+            @click="clearInput" />
       </div>
    </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
+import closeIcon from '@/assets/icons/close-gray.svg';
 
 const props = defineProps({
    option: {
@@ -57,7 +58,7 @@ const clearInput = () => {
 };
 
 const handleBlur = () => {
-   emit('update:option', optionValue.value);  
+   emit('update:option', optionValue.value);
 };
 </script>
 

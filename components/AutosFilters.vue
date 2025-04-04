@@ -14,11 +14,11 @@
          </div>
          <div v-if="showFilters" class="filters__settings--large">Настройки поиска</div>
          <div @click="resetFilters" v-if="showFilters" class="filters__settings">
-            <img src="../assets/icons/clear.svg" />
+            <img :src="clearicon" />
             <span>Очистить</span>
          </div>
          <div @click="toggleFiltersVisibility" class="filters__settings">
-            <img src="../assets/icons/settings.svg" />
+            <img :src="settingIcon" />
             <span v-if="!showFilters">Настройки поиска</span>
             <span v-else>Скрыть</span>
          </div>
@@ -109,7 +109,10 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useFiltersStore } from '../store/filters';
 import { useRoute } from 'vue-router';
 import { getCarBrands, getCarModels, getCarTransmission, getCarBodyType, getCarEngineType, getCarDrive, getCarState, getColors, getCarCondition } from '../services/apiClient';
-import { fetchDataWithCache } from '../services/createUtils'
+import { fetchDataWithCache } from '../services/createUtils';
+import settingIcon from '../assets/icons/settings.svg';
+import clearicon from '../assets/icons/clear.svg';
+
 
 const searchCars = () => {
    emit('updateSort');
@@ -177,7 +180,7 @@ if (route.path.includes('autos/new')) {
    handleFilterUpdate('selectedCondition', 1);
 } else if (route.path.includes('autos/used')) {
    handleFilterUpdate('selectedCondition', 2);
-} 
+}
 
 const fetchOptions = async () => {
    try {
@@ -525,12 +528,12 @@ onUnmounted(() => {
       .filters__toggle {
          display: flex;
          position: sticky;
-         top: 66px;
+         top: 62px;
          align-items: center;
          justify-content: space-between;
          gap: 24px;
          width: 100%;
-         z-index: 4;
+         z-index: 50;
          cursor: pointer;
          font-size: 16px;
          background-color: #EEF9FF;

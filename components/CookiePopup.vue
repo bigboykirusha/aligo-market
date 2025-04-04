@@ -1,22 +1,23 @@
 <template>
-   <div v-if="showPopup" class="cookie-popup">
-      <div class="cookie-popup__content">
-         <button class="cookie-popup__close-button" @click="acceptCookies">
-            <img :src="closeIcon" alt="close icon" />
-         </button>
-         <p class="cookie-popup__message">
-            Мы используем <span class="cookie-popup__message--underline" @click="downloadCookiePolicy">файлы
-               cookie</span>, чтобы сайт был удобней и
-            лучше для Вас.
-         </p>
-         <button class="cookie-popup__button" @click="acceptCookies">Ок, понятно</button>
+   <Transition name="fade-slide">
+      <div v-if="showPopup" class="cookie-popup">
+         <div class="cookie-popup__content">
+            <button class="cookie-popup__close-button" @click="acceptCookies">
+               <img :src="closeIcon" alt="Закрыть" />
+            </button>
+            <p class="cookie-popup__message">
+               Мы используем <span class="cookie-popup__message--underline" @click="downloadCookiePolicy">файлы
+                  cookie</span>, чтобы сайт был удобнее и лучше для Вас.
+            </p>
+            <button class="cookie-popup__button" @click="acceptCookies">Ок, понятно</button>
+         </div>
       </div>
-   </div>
+   </Transition>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import closeIcon from '../assets/icons/close-white.svg';
+import closeIcon from '@/assets/icons/close-white.svg';
 import { getSiteDocumentById } from '@/services/apiClient';
 
 const showPopup = ref(false);
@@ -29,7 +30,6 @@ const acceptCookies = () => {
 const downloadCookiePolicy = async () => {
    try {
       const { success, data } = await getSiteDocumentById(4);
-
       if (success && data.is_file) {
          const link = document.createElement('a');
          link.href = `https://api.aligo.ru/${data.path}`;
@@ -45,7 +45,9 @@ const downloadCookiePolicy = async () => {
 
 onMounted(() => {
    if (!localStorage.getItem('cookiesAccepted')) {
-      showPopup.value = true;
+      setTimeout(() => {
+         showPopup.value = true;
+      }, 500);
    }
 });
 </script>
@@ -53,27 +55,31 @@ onMounted(() => {
 <style scoped lang="scss">
 .cookie-popup {
    position: fixed;
-   bottom: 24px;
+   bottom: 40px;
    right: 24px;
    background-color: #3366FF;
    color: #fff;
-   width: 324px;
-   border-radius: 6px;
-   padding: 24px;
+   width: 420px;
+   border-radius: 10px;
+   padding: 20px;
    padding-right: 36px;
    font-size: 14px;
-   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-   z-index: 100000;
+   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+   z-index: 1000;
+   opacity: 1;
+   transform: translateY(20px);
+   transition: all 0.3s ease-out;
 
    @media (max-width: 768px) {
       width: calc(100% - 32px);
-      bottom: 86px;
-      right: 0;
+      bottom: 106px;
+      right: 16px;
       left: 16px;
    }
 
    &__content {
       display: flex;
+      width: 90%;
       flex-direction: column;
       align-items: flex-start;
    }
@@ -81,6 +87,7 @@ onMounted(() => {
    &__message {
       font-weight: 700;
       margin-bottom: 16px;
+      line-height: 1.4;
 
       &--underline {
          text-decoration: underline;
@@ -93,37 +100,38 @@ onMounted(() => {
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background-color 0.1s ease-in-out;
-      width: 12px;
-      height: 12px;
-      top: 8px;
-      right: 8px;
+      width: 20px;
+      height: 20px;
+      top: 12px;
+      right: 12px;
       background: none;
       border: none;
       cursor: pointer;
+      transition: transform 0.2s;
 
       img {
-         width: 12px;
-         height: 12px;
+         width: 14px;
+         height: 14px;
       }
    }
 
    &__button {
       background-color: #fff;
       color: #3366FF;
+      border: none;
+      width: 150px;
+      height: 36px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background-color 0.3s ease, transform 0.1s ease-in-out;
       display: flex;
       justify-content: center;
       align-items: center;
-      border: none;
-      width: 142px;
-      height: 34px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background-color 0.2s ease;
 
-      &:hover {
-         background-color: #EEF9FF;
+      &:active {
+         transform: scale(0.95);
       }
 
       @media (max-width: 768px) {
@@ -138,5 +146,20 @@ onMounted(() => {
          }
       }
    }
+}
+
+/* Анимация появления */
+.fade-slide-enter-active {
+   transition: opacity 0.3s ease, transform 0.3s ease-out;
+}
+
+.fade-slide-leave-active {
+   transition: opacity 0.3s ease, transform 0.3s ease-in;
+}
+
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+   opacity: 0;
+   transform: translateY(20px);
 }
 </style>

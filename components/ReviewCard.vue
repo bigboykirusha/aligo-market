@@ -54,8 +54,8 @@
             </div>
          </div>
          <div v-if="review.photos.length > 0" class="review-card__images">
-            <img v-for="photo in review.photos" :key="photo.id" :src="getImageUrl(photo.arr_title_size.preview)" :alt="photo.title"
-               class="review-card__image" />
+            <img v-for="photo in review.photos" :key="photo.id" :src="getImageUrl(photo.arr_title_size.preview)"
+               :alt="photo.title" class="review-card__image" />
          </div>
       </div>
       <div v-if="review.answer_owner_ad" class="review-card__owner-reply">

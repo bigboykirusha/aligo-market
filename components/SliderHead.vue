@@ -104,7 +104,6 @@ const onSwiperUpdate = () => {
       background: #EEF9FF;
       font-weight: 400;
       font-size: 14px;
-      line-height: 1.12em;
       color: #3366FF;
    }
 }

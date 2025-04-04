@@ -79,7 +79,7 @@ onMounted(() => {
    gap: 40px;
 
    @media (max-width: 768px) {
-      padding-bottom: 40px;
+      padding-bottom: 70px;
    }
 
    &__content {

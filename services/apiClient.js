@@ -1642,7 +1642,7 @@ export const addFavorites = async ({ ads_id, main_category_id }) => {
 
       const response = await apiClient.post('/favorites', { ads_id, main_category_id });
       clearTimeout(timeoutId);
-      return response.data.data;
+      return response.data;
    } catch (error) {
       clearTimeout(timeoutId);
 
@@ -1675,6 +1675,108 @@ export const seeContact = async ({ ads_id, main_category_id = 1 }) => {
          popupErrorStore.showError(errorMessage);
       }
       console.error('Ошибка при получении контактных данных:', error);
+      return { success: false, message: errorMessage, ...error.response?.data };
+   }
+};
+
+export const saveFilter = async (filter) => {
+   const popupErrorStore = usePopupErrorStore();
+   let timeoutId;
+
+   try {
+      timeoutId = setTimeout(() => {
+         popupErrorStore.showWarning('Пожалуйста, подождите, сервер отвечает дольше обычного...');
+      }, 5000);
+
+      const response = await apiClient.post('/user_save_filters/add_filter', filter);
+      clearTimeout(timeoutId);
+      return response.data;
+   } catch (error) {
+      clearTimeout(timeoutId);
+
+      const errorMessage = "сервер временно недоступен, повторите попытку через 1 мин" || 'Ошибка при сохранении фильтра.';
+      if (error.response?.status >= 500) {
+         popupErrorStore.showError(errorMessage);
+      }
+      console.error('Ошибка при сохранении фильтра:', error);
+      return { success: false, message: errorMessage, ...error.response?.data };
+   }
+};
+
+export const fetchSavedFilters = async () => {
+   const popupErrorStore = usePopupErrorStore();
+   let timeoutId;
+
+   try {
+      timeoutId = setTimeout(() => {
+         popupErrorStore.showWarning('Пожалуйста, подождите, сервер отвечает дольше обычного...');
+      }, 5000);
+
+      const response = await apiClient.get('{{baseUrl}}/user_save_filters');
+      clearTimeout(timeoutId);
+      return response.data;
+   } catch (error) {
+      clearTimeout(timeoutId);
+
+      const errorMessage = "сервер временно недоступен, повторите попытку через 1 мин" || 'Ошибка при загрузке сохранённых фильтров.';
+      if (error.response?.status >= 500) {
+         popupErrorStore.showError(errorMessage);
+      }
+      console.error('Ошибка при загрузке сохранённых фильтров:', error);
+      return { success: false, message: errorMessage, ...error.response?.data };
+   }
+};
+
+export const updateNotifyFilters = async (filters) => {
+   const popupErrorStore = usePopupErrorStore();
+   let timeoutId;
+
+   try {
+      timeoutId = setTimeout(() => {
+         popupErrorStore.showWarning('Пожалуйста, подождите, сервер отвечает дольше обычного...');
+      }, 5000);
+
+      const response = await apiClient.post('{{baseUrl}}/user_save_filters/update_notify_filters', {
+         ids: filters
+      });
+
+      clearTimeout(timeoutId);
+      return response.data;
+   } catch (error) {
+      clearTimeout(timeoutId);
+
+      const errorMessage = "сервер временно недоступен, повторите попытку через 1 мин" || 'Ошибка при обновлении уведомлений.';
+      if (error.response?.status >= 500) {
+         popupErrorStore.showError(errorMessage);
+      }
+      console.error('Ошибка при обновлении уведомлений:', error);
+      return { success: false, message: errorMessage, ...error.response?.data };
+   }
+};
+
+export const deleteFilters = async (filters) => {
+   const popupErrorStore = usePopupErrorStore();
+   let timeoutId;
+
+   try {
+      timeoutId = setTimeout(() => {
+         popupErrorStore.showWarning('Пожалуйста, подождите, сервер отвечает дольше обычного...');
+      }, 5000);
+
+      const response = await apiClient.post('/user_save_filters/destroy_filters', {
+         ids: filters
+      });
+
+      clearTimeout(timeoutId);
+      return response.data;
+   } catch (error) {
+      clearTimeout(timeoutId);
+
+      const errorMessage = "сервер временно недоступен, повторите попытку через 1 мин" || 'Ошибка при удалении фильтров.';
+      if (error.response?.status >= 500) {
+         popupErrorStore.showError(errorMessage);
+      }
+      console.error('Ошибка при удалении фильтров:', error);
       return { success: false, message: errorMessage, ...error.response?.data };
    }
 };

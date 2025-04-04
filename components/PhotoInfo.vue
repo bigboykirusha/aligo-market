@@ -2,11 +2,12 @@
    <div class="photo-info">
       <div class="car-info">
          <div class="car-info__description">
-            <div class="car-info__title"> {{ brand }} {{ model }}, {{ year }}</div>
+            <div class="car-info__title"> {{ brand }} {{ model }}, {{ year }}
+               <WishlistButton v-if="!(userId === userStore.userId)" @toggle-login-modal="toggleLoginModal" :id="adsId"
+                  size="small" />
+            </div>
             <div class="car-info__block">
                <div class="car-info__amount">{{ formatNumberWithSpaces(amount) }} ₽</div>
-               <WishlistButton v-if="!(userId === userStore.userId)" @toggle-login-modal="toggleLoginModal" :id="adsId"
-                  size="big" />
             </div>
          </div>
          <div class="car-info__content">
@@ -20,27 +21,19 @@
             <div class="user-info__block">
                <div class="user-info__name">{{ userData.username }}</div>
                <div class="user-info__rating">
-                  <div class="user-info__rating-text">
-                     <template v-if="userData.count_reviews_about_myself > 0">
-                        {{ userData.grade }}
-                        <NuxtRating :rating-value="Number(userData.grade)" :rating-count="5" :rating-size="9"
-                           :rating-spacing="6" :active-color="'#3366FF'" :inactive-color="'#FFFFFF'"
-                           :border-color="'#3366FF'" :border-width="2" :rounded-corners="true" :read-only="true" />
-                        <div class="user-info__reviews">
-                           {{ userData.count_reviews_about_myself }} {{
-                              pluralizeReview(Number(userData.count_reviews_about_myself))
-                           }}
-                        </div>
-                     </template>
-                     <template v-else>
-                        У пользователя нет отзывов
-                     </template>
-                  </div>
+                  <div class="user-info__rating-text">{{ !userData.grade ? '0.0' : rating }}</div>
+                  <NuxtRating :rating-value="userData.grade" :rating-count="5" :rating-size="9" :rating-spacing="6"
+                     active-color="#3366FF" inactive-color="#FFFFFF" border-color="#3366FF" :border-width="2"
+                     rounded-corners read-only />
+                  <span class="user-info__rating-count">
+                     {{ !userData.count_reviews_about_me ? 'Нет отзывов' : `${userData.count_reviews_about_me}
+                     ${pluralizeReview(userData.count_reviews_about_me)}` }}
+                  </span>
                </div>
             </div>
-            <div class="user-info__avatar">
+            <nuxt-link :to='`/user/${userId}`' class="user-info__avatar">
                <img :src="userAvatarUrl" alt="Аватар пользователя" />
-            </div>
+            </nuxt-link>
          </div>
          <div class="user-info__actions">
             <button v-if="!phoneNumber" class="user-info__actions-button--show-phone" @click="showPhoneNumber">
@@ -58,17 +51,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { getUserOtherInfo, getUserPhoneEmail, getCarById } from '~/services/apiClient.js';
+import { ref, computed } from 'vue';
+import { getUserOtherInfo, getUserPhoneEmail } from '~/services/apiClient.js';
 import { getImageUrl } from '~/services/imageUtils';
 import { useUserStore } from '~/store/user';
 import avatar from '../assets/icons/avatar-revers.svg';
 import { useChatStore } from '~/store/chatStore';
 import { formatNumberWithSpaces } from '~/services/amountUtils';
-import { useRouter } from '#vue-router';
 import { useLoginModalStore } from '~/store/loginModal.js';
+import { useRouter } from '#app';
 
 const loginModalStore = useLoginModalStore();
+const router = useRouter();
 
 const toggleLoginModal = () => {
    loginModalStore.toggleLoginModal();
@@ -77,31 +71,34 @@ const toggleLoginModal = () => {
 const props = defineProps({
    userId: {
       type: Number,
-      required: true
    },
    adsId: {
       type: Number,
-      required: true
-   }
+   },
+   carData: {
+      type: Object,
+   },
 });
 
 const emit = defineEmits(['close-viewer']);
 
 const userStore = useUserStore();
 const userData = ref({});
-const userAvatarUrl = ref('');
+const userAvatarUrl = computed(() => getImageUrl(userData.value.photo?.arr_title_size?.preview, avatar));
 const phoneNumber = ref('');
 const rawPhoneNumber = ref('');
-const carData = ref(null);
-const amount = ref(null);
-const brand = ref('');
-const model = ref('');
-const year = ref('');
+
+const amount = computed(() => props.carData?.ads_parameter?.amount || 'Не указано');
+const brand = computed(() => props.carData?.auto_technical_specifications?.[0]?.brand?.title || 'Не указано');
+const model = computed(() => props.carData?.auto_technical_specifications?.[0]?.model?.title || 'Не указано');
+const year = computed(() => props.carData?.auto_technical_specifications?.[0]?.year_release?.title || 'Не указано');
+
 const inFavorite = ref(false);
 const showPhoneText = ref('Показать номер');
-const router = useRouter();
 
 const fetchUserData = async () => {
+   if (!props.userId) return;
+
    try {
       const data = await getUserOtherInfo(props.userId);
       userData.value = data;
@@ -112,34 +109,17 @@ const fetchUserData = async () => {
    }
 };
 
-const fetchCarData = async () => {
-   try {
-      const data = await getCarById(props.adsId);
-      carData.value = data;
-      amount.value = data?.ads_parameter?.amount || 'Не указано';
-      brand.value = data?.auto_technical_specifications?.[0]?.brand?.title || 'Не указано';
-      model.value = data?.auto_technical_specifications?.[0]?.model?.title || 'Не указано';
-      year.value = data?.auto_technical_specifications?.[0]?.year_release?.title || 'Не указано';
-   } catch (error) {
-      console.error('Ошибка при получении данных автомобиля: ', error);
-   }
-};
-
 const characteristics = computed(() => {
-   if (!carData.value) return {};
-
-   const mileage = carData.value?.auto_history_conditions?.[0]?.mileage;
-   const mileageText = mileage ? `${mileage} км` : 'Не указано';
-
+   if (!props.carData) return {};
    return {
-      'Пробег': mileageText,
-      'Владельцев по ПТС': carData.value?.auto_history_conditions?.[0]?.count_owners?.title || 'Не указано',
-      'Состояние': carData.value?.auto_history_conditions?.[0]?.state?.title || 'Не указано',
-      'Тип двигателя': carData.value?.auto_technical_specifications?.[0]?.engine_type?.title || 'Не указано',
-      'Привод': carData.value?.auto_technical_specifications?.[0]?.drive?.title || 'Не указано',
-      'Тип кузова': carData.value?.auto_technical_specifications?.[0]?.car_body_type?.title || 'Не указано',
-      'Цвет': carData.value?.auto_appearances?.[0]?.color?.title || 'Не указано',
-      'Руль': carData.value?.auto_technical_specifications?.[0]?.handlebar?.title || 'Не указано',
+      'Пробег': props.carData.auto_history_conditions?.[0]?.mileage ? `${props.carData.auto_history_conditions?.[0]?.mileage} км` : 'Не указано',
+      'Владельцев по ПТС': props.carData.auto_history_conditions?.[0]?.count_owners?.title || 'Не указано',
+      'Состояние': props.carData.auto_history_conditions?.[0]?.state?.title || 'Не указано',
+      'Тип двигателя': props.carData.auto_technical_specifications?.[0]?.engine_type?.title || 'Не указано',
+      'Привод': props.carData.auto_technical_specifications?.[0]?.drive?.title || 'Не указано',
+      'Тип кузова': props.carData.auto_technical_specifications?.[0]?.car_body_type?.title || 'Не указано',
+      'Цвет': props.carData.auto_appearances?.[0]?.color?.title || 'Не указано',
+      'Руль': props.carData.auto_technical_specifications?.[0]?.handlebar?.title || 'Не указано',
    };
 });
 
@@ -179,7 +159,10 @@ const handleWriteMessage = () => {
 };
 
 const writeMessage = () => {
-   chatStore.openChat(router);
+   if (window.innerWidth < 768) {
+      router.push('/profile/messages');
+   }
+   chatStore.openChat();
 };
 
 const showPhoneNumber = async () => {
@@ -195,30 +178,32 @@ const showPhoneNumber = async () => {
    }
 };
 
-onMounted(() => {
-   fetchUserData();
-   fetchCarData();
-});
+watch(
+   () => props.userId,
+   (newUserId) => {
+      if (newUserId) {
+         fetchUserData();
+      }
+   },
+   { immediate: true }
+);
 </script>
 
 <style lang="scss" scoped>
 .photo-info {
-   min-width: 320px;
    padding: 32px 24px;
    padding-top: 24px;
    display: flex;
-   height: 100%;
+   min-width: 320px;
    flex-direction: column;
    border-radius: 8px;
    background-color: #fff;
 
    @media (max-width: 1024px) {
-      max-height: 306px;
       padding: 24px;
    }
 
    @media (max-width: 767px) {
-      max-height: 230px;
       margin: 0 -16px;
       border-radius: 8px 8px 0 0;
    }
@@ -230,7 +215,9 @@ onMounted(() => {
    color: #323232;
 
    &__title {
-      color: #003BCE;
+      color: #3366FF;
+      display: flex;
+      justify-content: space-between;
       font-size: 16px;
       line-height: 20px;
       margin-bottom: 8px;
@@ -242,11 +229,7 @@ onMounted(() => {
    }
 
    &__description {
-      margin-bottom: 24px;
-
-      @media (max-width: 1024px) {
-         margin-bottom: 16px;
-      }
+      margin-bottom: 16px;
    }
 
    &__block {
@@ -260,7 +243,6 @@ onMounted(() => {
       font-size: 16px;
       font-weight: 700;
       line-height: 20px;
-      padding: 6px 0;
    }
 
    .car-info__content {
@@ -332,12 +314,12 @@ onMounted(() => {
 
    &__avatar {
       margin-left: auto;
-      width: 47px;
-      height: 47px;
+      width: 40px;
+      height: 40px;
 
       img {
-         width: 47px;
-         height: 47px;
+         width: 40px;
+         height: 40px;
          border-radius: 50%;
          object-fit: cover;
       }
@@ -346,7 +328,7 @@ onMounted(() => {
    &__name {
       font-size: 16px;
       font-weight: bold;
-      line-height: 20px;
+      line-height: 1;
       text-align: left;
       color: #323232;
    }
@@ -354,19 +336,28 @@ onMounted(() => {
    &__rating {
       display: flex;
       align-items: center;
-      gap: 16px;
+      outline: none;
+      gap: 8px;
+      font-size: 14px;
+      color: #3366FF;
+      transition: color 0.2s ease;
+   }
 
-      &-text {
+   &__rating-text {
+      font-size: 14px;
+      line-height: 18px;
+      color: #3366FF;
+
+      &--empty {
          font-size: 14px;
-         display: flex;
-         gap: 8px;
-         align-items: center;
-         color: #3366FF;
-
-         &--empty {
-            color: #323232;
-         }
+         color: #323232;
       }
+   }
+
+   &__rating-count {
+      margin-left: 8px;
+      font-size: 14px;
+      line-height: 18px;
    }
 
    &__reviews {
@@ -406,9 +397,10 @@ onMounted(() => {
       .user-info__actions-button--write {
          background-color: #5F2EEA;
          color: white;
+         max-width: 40%;
 
          @media (max-width: 1024px) {
-            max-width: 50%;
+            max-width: 40%;
          }
 
          &:hover {
