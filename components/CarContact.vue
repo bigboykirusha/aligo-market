@@ -11,7 +11,7 @@
             <ShareButton />
          </div>
          <div class="car-details__contact">
-            <div v-if="isLoggedIn" class="car-details__contact-buttons">
+            <div v-if="isLoggedIn && !(id_user_owner_ads === userStore.userId)" class="car-details__contact-buttons">
                <a v-if="showPhone && !(id_user_owner_ads === userStore.userId)" :href="'tel:' + phone"
                   class="car-details__contact-button" @click.prevent="makeCall">
                   <span class="car-details__contact-button-text">{{ formattedPhone }}</span>
@@ -35,7 +35,7 @@
                   <div class="user-info__rating">
                      <div class="user-info__rating-text">{{ !rating ? '0.0' : rating }}</div>
                      <NuxtRating :rating-value="rating" :rating-count="5" :rating-size="10" :rating-spacing="6"
-                        active-color="#3366FF" inactive-color="#FFFFFF" border-color="#3366FF" :border-width="2"
+                        active-color="#3366FF" inactive-color="#EEF9FF" border-color="#3366FF" :border-width="2"
                         rounded-corners read-only />
                      <span class="user-info__rating-count">
                         {{ userStore.countReviews === 0 ? 'Нет отзывов' : `${userStore.countReviews}

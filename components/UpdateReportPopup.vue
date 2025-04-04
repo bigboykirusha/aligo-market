@@ -78,11 +78,11 @@ const openReport = (item) => {
       position: relative;
       padding: 32px;
       box-sizing: border-box;
-      animation: slide-up 0.3s ease-out;
+      animation: slide-up 0.2s ease-out;
 
       @media (max-width: 768px) {
          border-radius: 8px 8px 0 0;
-         padding: 24px 40px;
+         padding: 24px 16px;
       }
    }
 

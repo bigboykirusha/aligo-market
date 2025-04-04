@@ -9,7 +9,6 @@
             <img src="../assets/images/bg/for-business.png" alt="Картинка" />
          </div>
       </div>
-      <div class="business__blue-bar"></div>
    </div>
 </template>
 
@@ -25,6 +24,7 @@
 
    @media (max-width: 590px) {
       justify-content: flex-start;
+      min-height: 90vh;
    }
 
    &__block {
@@ -34,6 +34,7 @@
       grid-template-columns: 1fr 1fr;
       gap: 20px;
       text-align: center;
+      height: 80vh;
 
       @media (max-width: 590px) {
          display: flex;

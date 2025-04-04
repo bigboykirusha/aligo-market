@@ -65,7 +65,8 @@ const closeSharePopup = () => {
    left: 0;
    width: 100%;
    height: 100%;
-   background-color: rgba(0, 0, 0, 0.5);
+   background: rgba(0, 0, 0, 0.5);
+   backdrop-filter: blur(3px);
    display: flex;
    justify-content: center;
    align-items: center;
@@ -74,19 +75,19 @@ const closeSharePopup = () => {
 
 .share-popup {
    background: white;
+   top: 0;
    padding: 24px 40px;
    border-radius: 8px;
    width: 380px;
    text-align: center;
    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
    position: relative;
-   animation: slide-in 0.15s ease;
-   transform: translateY(-10px);
+   animation: slide-in 0.2s ease-out;
    transition: opacity 0.3s ease, transform 0.3s ease;
 
    @media (max-width: 768px) {
       position: fixed;
-      top: 8px;
+      padding: 24px 16px;
       width: 100%;
       border-radius: 0 0 8px 8px;
    }

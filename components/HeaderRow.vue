@@ -1,20 +1,18 @@
 <template>
    <div class="header-row"
-      :class="{ 'header-row--expanded': showDropdown || !isWithMargin, 'header-row--with-margin': isWithMargin, 'header-row--create': isCreatePage }">
+      :class="{ 'header-row--expanded': showDropdown || !isWithMargin, 'header-row--with-margin': isWithMargin, 'header-row--create': isCreatePage, 'header-row--burger': burgerStore.isOpen }">
       <div class="header-row__container" :class="{ 'header-row__container--create': isCreatePage }">
          <h1 v-if="!isReportPage && (!isCarPage || isDesktop)" class="header-row__logo-section">
             <nuxt-link class="header-row__logo" to="/" @click="scrollToTop">
                <img :src="logoMain" alt="Logo" class="header-row__logo" />
             </nuxt-link>
          </h1>
-
          <div v-show="isReportPage || (isCarPage && !isDesktop)" class="header-row__logo-section" @click="scrollToTop">
             <div v-if="!isReportPage" class="header-row__back" role="button" aria-label="Назад" @click="goBack">
                <img src="@/assets/icons/back.svg" alt="Назад" />
             </div>
             <img v-if="isReportPage" :src="logoReport" alt="Logo" class="header-row__logo" />
          </div>
-
          <div
             v-show="(!isProfilePage || (isProfilePage && !isDesktop)) && !isCreatePage && !isReportPage && (!isCarPage || isDesktop)"
             class="header-row__controls">
@@ -110,6 +108,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useUserStore } from '~/store/user';
 import { useDropdownStore } from '~/store/dropdown.js';
 import { useCityStore } from '@/store/city.js';
+import { useBurgerStore } from '~/store/burger';
 import { useRouter } from 'vue-router';
 import { useRoute } from 'vue-router';
 import logoMain from '@/assets/images/logo.svg';
@@ -130,6 +129,7 @@ import closeIconBlue from '@/assets/icons/close-blue.svg'
 const loginModalStore = useLoginModalStore();
 const userMenuStore = useUserMenuStore();
 const dropdownStore = useDropdownStore();
+const burgerStore = useBurgerStore();
 const showDropdown = computed({
    get: () => dropdownStore.showDropdown,
    set: (value) => dropdownStore.showDropdown = value
@@ -248,7 +248,7 @@ const updateIsDesktop = () => {
    margin: 0 auto;
    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.14);
    transform: translateY(0);
-   transition: transform 0.2s ease-in-out;
+   transition: transform 0.2s ease-in-out, background-color 0.5s ease-in-out;
 
    @media (max-width: 768px) {
       height: 62px;

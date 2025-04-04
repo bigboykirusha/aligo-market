@@ -153,7 +153,7 @@ const submitComplaintHandler = async () => {
       position: relative;
       padding: 32px;
       box-sizing: border-box;
-      animation: slide-up 0.3s ease-out;
+      animation: slide-up 0.2s ease-out;
 
       @media (max-width: 768px) {
          border-radius: 0 0 8px 8px;
@@ -382,7 +382,7 @@ const submitComplaintHandler = async () => {
 
 @keyframes slide-up {
    from {
-      transform: translateY(100%);
+      transform: translateY(-100%);
    }
 
    to {

@@ -250,8 +250,16 @@ const checkbox1 = ref(false);
 const checkbox2 = ref(false);
 
 const formattedPhoneNumber = computed(() => {
-   const raw = removePhoneFormatting(phoneNumber.value);
-   return raw.length === 11 ? `+${raw[0]} (${raw.slice(1, 4)}) ${raw.slice(4, 7)} - ${raw.slice(7, 9)} - ${raw.slice(9)}` : phoneNumber.value;
+   let raw = phoneNumber.value.replace(/\D/g, '');
+
+
+   if (raw.startsWith('8')) raw = '7' + raw.slice(1);
+   if (!raw.startsWith('7')) raw = '7' + raw;
+   if (raw.length < 11) return phoneNumber.value;
+
+   const last4 = raw.slice(7, 11);
+
+   return `+7 (***) ***-${last4.slice(0, 2)}-${last4.slice(2)}`;
 });
 
 function resetErrorOtp() {
@@ -504,6 +512,10 @@ onMounted(() => {
          padding: 32px 40px;
          margin-right: auto;
 
+         @media (max-width: 768px) {
+            padding: 32px 24px;
+         }
+
          img {
             width: 100%;
             min-height: 32px;
@@ -576,6 +588,10 @@ onMounted(() => {
             margin-bottom: 24px;
             padding: 0 40px;
             font-size: 12px;
+
+            @media (max-width: 768px) {
+               padding: 0 24px;
+            }
 
             label {
                margin-bottom: 5px;
@@ -691,6 +707,7 @@ onMounted(() => {
 
    .modal__header-image {
       padding: 32px 0;
+
    }
 
    .modal__content {

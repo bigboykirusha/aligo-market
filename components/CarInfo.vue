@@ -224,8 +224,6 @@ h2 {
       grid-template-columns: repeat(2, 1fr);
       gap: 16px;
       width: 100%;
-      border-bottom: 1px solid #D6D6D6;
-      padding-bottom: 40px;
 
       @media (max-width: 768px) {
          grid-template-columns: 1fr;

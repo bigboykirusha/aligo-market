@@ -38,14 +38,9 @@
                      <div class="input-section">
                         <span class="input-label">Срок действия</span>
                         <div class="expiry-date-wrapper">
-                           <input v-model="expiryMonth" type="text" class="card-expiry-month" placeholder="MM"
-                              maxlength="2" autocomplete="cc-exp" inputmode="numeric"
-                              :class="{ 'error': !isExpiryValid }" @input="formatExpiryMonth" />
-                           <span class="expiry-separator">/</span>
-                           <input v-model="expiryYear" type="text" class="card-expiry-year" placeholder="YY"
-                              maxlength="2" autocomplete="cc-exp" inputmode="numeric"
-                              :class="{ 'error': !isExpiryValid }" @input="formatExpiryYear"
-                              @blur="validateExpiryDate" />
+                           <input v-model="expiryCombined" class="card-expiry-month" placeholder="MM / YY" maxlength="7"
+                              autocomplete="cc-exp" inputmode="numeric" :class="{ 'error': !isExpiryValid }"
+                              @input="formatExpiryCombined" @blur="validateExpiryCombined" />
                         </div>
                      </div>
                      <div class="cvv-block mobile">
@@ -106,14 +101,37 @@ const validateCardNumber = () => {
    isCardValid.value = validation.isValid;
 };
 
-const formatExpiryMonth = () => {
-   expiryMonth.value = expiryMonth.value.replace(/\D/g, "").slice(0, 2);
+const expiryCombined = ref("");
+
+const formatExpiryCombined = () => {
+   let raw = expiryCombined.value.replace(/\D/g, "").slice(0, 4);
+
+   if (raw.length >= 3) {
+      expiryCombined.value = raw.slice(0, 2) + ' / ' + raw.slice(2);
+   } else if (raw.length >= 1) {
+      expiryCombined.value = raw;
+   }
+
    isExpiryValid.value = true;
 };
 
-const formatExpiryYear = () => {
-   expiryYear.value = expiryYear.value.replace(/\D/g, "").slice(0, 2);
-   isExpiryValid.value = true;
+const validateExpiryCombined = () => {
+   const raw = expiryCombined.value.replace(/\D/g, "");
+   const month = parseInt(raw.slice(0, 2), 10);
+   const year = parseInt(`20${raw.slice(2, 4)}`, 10);
+   const currentDate = new Date();
+   const currentYear = currentDate.getFullYear();
+   const currentMonth = currentDate.getMonth() + 1;
+
+   isExpiryValid.value =
+      raw.length === 4 &&
+      month >= 1 && month <= 12 &&
+      (year > currentYear || (year === currentYear && month >= currentMonth));
+
+   if (isExpiryValid.value) {
+      expiryMonth.value = raw.slice(0, 2);
+      expiryYear.value = raw.slice(2, 4);
+   }
 };
 
 const validateExpiryDate = () => {
@@ -166,6 +184,7 @@ const closePopup = () => {
    z-index: 350;
    inset: 0;
    background: rgba(0, 0, 0, 0.5);
+   backdrop-filter: blur(3px);
    display: flex;
    align-items: center;
    justify-content: center;
@@ -191,7 +210,7 @@ const closePopup = () => {
    padding: 32px 40px;
    border-radius: 8px;
    width: 640px;
-   animation: fade-in 0.3s ease-out;
+   animation: fade-in 0.2s ease-out;
 
    @media (max-width: 768px) {
       width: 100%;
@@ -220,6 +239,7 @@ const closePopup = () => {
 .price-block {
    display: flex;
    background-color: #EEF9FF;
+   color: #323232;
    border-radius: 8px;
    padding: 16px 24px;
    justify-content: space-between;
@@ -343,6 +363,8 @@ const closePopup = () => {
 
    @media (max-width: 768px) {
       transform: translateY(-24px) translateX(-90px);
+      background: #EEF9FF;
+      box-shadow: none;
    }
 
    @media (max-width: 480px) {
@@ -387,7 +409,7 @@ const closePopup = () => {
 
 .card-expiry-month,
 .card-expiry-year {
-   width: 48px;
+   width: 96px;
    padding: 6px 8px;
    font-size: 14px;
    border: none;
@@ -398,6 +420,11 @@ const closePopup = () => {
    text-align: center;
    letter-spacing: 1px;
    outline: none;
+
+   @media (max-width: 480px) {
+      width: 100%;
+      max-width: 100%;
+   }
 }
 
 .expiry-separator {
