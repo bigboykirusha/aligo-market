@@ -108,6 +108,8 @@ const publishAndExit = async () => {
          if (!isConfirmed.value) {
             await userStore.updateProfile({ email: createStore.email });
             showCodeModal.value = true;
+         } else {
+            emit('sendAd');
          }
       } else {
          emit('sendAd');
