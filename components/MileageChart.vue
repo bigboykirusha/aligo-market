@@ -2,7 +2,9 @@
    <div class="chart-container">
       <div class="chart-info">
          <div class="label-left">Пробег, тыс. км</div>
-         <div class="label-right">Пробег на 19 мая 2023: 78 000 км</div>
+         <div class="label-right">
+            Пробег на {{ latestDate }}: {{ latestMileage.toLocaleString() }} км
+         </div>
       </div>
       <canvas ref="chartRef"></canvas>
 
@@ -13,7 +15,7 @@
             borderTopLeftRadius: index === '0',
             borderTopRightRadius: index === '0'
          }">
-            <span class="owners-text">{{ segment.name }}</span>
+            <span class="owners-text"></span>
          </div>
       </div>
       <div class="owners-label">Владельцы</div>
@@ -26,16 +28,38 @@ import { useNuxtApp } from '#app';
 import { format, differenceInDays, parse } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
-const owners = [
-   { name: '1', date: '2025-01-01' },
-   { name: '2', date: '2025-01-19' },
-   { name: '3', date: '2025-02-04' },
-];
+const latestPoint = computed(() => {
+   const sorted = [...props.dataPoints].sort((a, b) => new Date(b.date) - new Date(a.date));
+   return sorted[0];
+});
 
-const ownerColors = ['#A4DCFF', '#AFF1CA', '#D6C7FF', '#FDCDFF', '#D6D6D6'];
+const latestDate = computed(() =>
+   format(new Date(latestPoint.value.date), 'd MMMM yyyy', { locale: ru })
+);
+
+const latestMileage = computed(() => latestPoint.value.mileage);
+
+const ownerColors = [
+   '#A4DCFF', // Голубой
+   '#AFF1CA', // Светло-зеленый
+   '#D6C7FF', // Лаванда
+   '#FDCDFF', // Розовый
+   '#D6D6D6', // Серый
+   '#FFC1C1', // Светло-красный
+   '#FFEB99', // Желтый
+   '#B3FFB3', // Светло-зеленый
+   '#FFCC99', // Оранжевый
+   '#C4E1FF', // Голубой
+   '#F2B5D4', // Розово-фиолетовый
+   '#FFB3E6', // Лавандовый розовый
+   '#FF9A8B', // Персиковый
+   '#D1F1FF', // Бледно-голубой
+   '#FFE1A1'  // Желтоватый
+];
 
 const calculateOwnerSegments = (owners) => {
    const segments = [];
+   console.log(owners)
    let totalDays = 0;
 
    const ownerDates = owners.map(owner => parse(owner.date, 'yyyy-MM-dd', new Date()));
@@ -74,9 +98,13 @@ const props = defineProps({
       type: Array,
       required: true,
    },
+   owners: {
+      type: Array,
+      required: true,
+   },
 });
 
-const { segments, totalDays } = calculateOwnerSegments(owners);
+const { segments, totalDays } = calculateOwnerSegments(props.owners);
 
 const createChart = () => {
    if (!chartRef.value) return;
@@ -112,16 +140,29 @@ const createChart = () => {
             x: {
                grid: { display: false },
                ticks: {
-                  display: true,
-               },
+                  callback: function (val, index, ticks) {
+                     const date = new Date(props.dataPoints[index].date);
+                     const currentYear = date.getFullYear();
+
+                     const prevDate = index > 0 ? new Date(props.dataPoints[index - 1].date) : null;
+                     const prevYear = prevDate ? prevDate.getFullYear() : null;
+
+                     const formatted = format(date, 'd MMM', { locale: ru });
+                     return currentYear !== prevYear ? `${formatted} ${currentYear}` : formatted;
+                  }
+               }
             },
             y: {
                grid: { display: true },
                ticks: {
                   display: true,
+                  callback: function (value, index, ticks) {
+                     if (index === 0) return '';
+                     return value;
+                  },
                },
-            },
-         },
+            }
+         }
       },
    });
 };

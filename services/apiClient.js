@@ -2059,6 +2059,86 @@ export const publishFromMainTab = async (ads_id) => {
    }
 };
 
+export const requireReport = async (ads_id) => {
+   const popupErrorStore = usePopupErrorStore();
+   let timeoutId;
+
+   try {
+      timeoutId = setTimeout(() => {
+         popupErrorStore.showWarning('Пожалуйста, подождите, сервер отвечает дольше обычного...');
+      }, 5000);
+
+      const response = await apiClient.post('/reports/require_report', {
+         ids: [
+            {
+               ads_id,
+               main_category_id: 1,
+            }
+         ]
+      });
+
+      clearTimeout(timeoutId);
+      return response;
+   } catch (error) {
+      clearTimeout(timeoutId);
+
+      const errorMessage = "сервер временно недоступен, повторите попытку через 1 мин" || 'Произошла ошибка при запросе отчёта.';
+      if (error.response?.status >= 500) {
+         popupErrorStore.showError(errorMessage);
+      }
+      console.error('Ошибка при запросе require_report: ', error);
+      return { success: false, message: errorMessage, ...error.response?.data };
+   }
+};
+
+export const getReportById = async (report_id) => {
+   const popupErrorStore = usePopupErrorStore();
+   let timeoutId;
+
+   try {
+      timeoutId = setTimeout(() => {
+         popupErrorStore.showWarning('Пожалуйста, подождите, сервер отвечает дольше обычного...');
+      }, 5000);
+
+      const response = await apiClient.get(`/reports/get_report/30`);
+      clearTimeout(timeoutId);
+      return response.data;
+   } catch (error) {
+      clearTimeout(timeoutId);
+
+      const errorMessage = "Сервер временно недоступен, повторите попытку позже.";
+      if (error.response?.status >= 500) {
+         popupErrorStore.showError(errorMessage);
+      }
+      console.error('Ошибка при получении отчета:', error);
+      return { success: false, message: errorMessage, ...error.response?.data };
+   }
+};
+
+export const fetchUserReports = async () => {
+   const popupErrorStore = usePopupErrorStore();
+   let timeoutId;
+
+   try {
+      timeoutId = setTimeout(() => {
+         popupErrorStore.showWarning('Пожалуйста, подождите, сервер отвечает дольше обычного...');
+      }, 5000);
+
+      const response = await apiClient.get('/reports/get_all_reports_buy_user');
+      clearTimeout(timeoutId);
+      return response.data;
+   } catch (error) {
+      clearTimeout(timeoutId);
+
+      const errorMessage = "сервер временно недоступен, повторите попытку через 1 мин" || 'Ошибка при загрузке отчётов.';
+      if (error.response?.status >= 500) {
+         popupErrorStore.showError(errorMessage);
+      }
+      console.error('Ошибка при загрузке отчётов пользователя:', error);
+      return { success: false, message: errorMessage, ...error.response?.data };
+   }
+};
+
 export const replyToReview = async (reviewId, comment) => {
    const popupErrorStore = usePopupErrorStore();
    let timeoutId;

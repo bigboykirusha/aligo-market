@@ -1,5 +1,5 @@
 <template>
-   <div v-for="(update, index) in data.updates" :key="index" class="update-section">
+   <div v-if="data.updates.lenght" v-for="(update, index) in data.updates" :key="index" class="update-section">
       <div v-for="(detail, detailIndex) in update.details" :key="detailIndex" class="detail-section">
          <div class="price-range-container">
             <img src="../assets/icons/orders-icon.svg" class="price-range-icon" />

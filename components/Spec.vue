@@ -1,5 +1,5 @@
 <template>
-   <div class="card">
+   <div v-if="hasShortReportData" class="card">
       <div class="card__section">
          <div class="card__info">
             <div class="card__row">
@@ -15,7 +15,7 @@
                </span>
             </div>
          </div>
-         <NuxtLink :to="`/report/${id}`" class="card__example" target="_blank" rel="noopener noreferrer">
+         <NuxtLink :to="`/report`" class="card__example" target="_blank" rel="noopener noreferrer">
             Пример отчёта
          </NuxtLink>
       </div>
@@ -28,7 +28,7 @@
             <span class="card__button-text">Купить полный отчет</span>
          </button>
       </div>
-      <NuxtLink :to="`/report/${id}`" class="card__example--mobile" target="_blank" rel="noopener noreferrer">
+      <NuxtLink :to="`/report`" class="card__example--mobile" target="_blank" rel="noopener noreferrer">
          Пример отчёта
       </NuxtLink>
    </div>
@@ -37,6 +37,7 @@
 <script setup>
 import { usePayPopupStore } from '@/store/payPopupStore';
 import { useLoginModalStore } from '~/store/loginModal';
+import { requireReport } from '~/services/apiClient';
 import { useUserStore } from '~/store/user';
 import doneIcon from '../assets/icons/done-icon.svg';
 import alertIcon from '../assets/icons/alert-icon.svg';
@@ -54,9 +55,21 @@ const payPopupStore = usePayPopupStore();
 const userStore = useUserStore();
 const loginModalStore = useLoginModalStore();
 
+const hasShortReportData = computed(() => {
+   if (!props.shortReport) return false;
+
+   const { info_count_owners, info_accident } = props.shortReport;
+   return (
+      info_count_owners?.title ||
+      info_count_owners?.description ||
+      info_accident?.title
+   );
+});
+
 const openPopupHandler = () => {
    if (userStore.isLoggedIn) {
       const newLabel = `${props.brand} ${props.model}, ${props.year}`;
+      requireReport(props.id);
       payPopupStore.openPopup(newLabel);
    } else {
       loginModalStore.openLoginModal();

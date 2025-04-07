@@ -2,7 +2,8 @@
    <div v-for="(accident, index) in data.accidents" :key="index" class="accident-section">
       <div v-for="(detail, detailIndex) in accident.details" :key="detailIndex" class="detail-section">
          <!-- Заголовок ДТП -->
-         <div v-if="!isTimeline" class="title">Столкновение, 3 участника</div>
+         <div v-if="!isTimeline" class="title">{{ detail.accidentType }}, {{ detail.otherParticipants.length + 1 }}
+            участника</div>
          <div v-if="!isTimeline" class="accident-header">
             <p class="accident-date">{{ detail.date }},</p>
             <p class="accident-location">{{ detail.location }}</p>
@@ -32,10 +33,6 @@
                <img v-if="!isTimeline" src="../assets/icons/car-damage.svg" alt="Image for participants"
                   class="accident-image" />
             </div>
-         </div>
-         <!-- Если нет других участников -->
-         <div v-if="!detail.otherParticipants || !detail.otherParticipants.length">
-            <p class="no-data">Второй участник: нет данных</p>
          </div>
       </div>
    </div>

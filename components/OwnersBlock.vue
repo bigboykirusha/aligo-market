@@ -12,7 +12,7 @@
             <div class="owner-container__date">{{ owner.date }}</div>
          </div>
 
-         <div class="owner-container__events-table">
+         <div class="owner-container__events-table" v-if="owner.events && owner.events.length">
             <div class="owner-container__table-header">
                <div class="owner-container__header-item">Дата</div>
                <div class="owner-container__header-item">Событие</div>
