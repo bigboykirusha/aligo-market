@@ -126,7 +126,7 @@ watch(
    position: relative;
    width: auto;
    align-items: center;
-   gap: 8px;
+   row-gap: 8px;
 
    @media (max-width: 768px) {
       flex-direction: column;
