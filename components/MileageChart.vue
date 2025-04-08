@@ -1,29 +1,31 @@
 <template>
    <div class="chart-container">
-      <div class="chart-info">
+      <div v-if="latestDate && latestMileage" class="chart-info">
          <div class="label-left">Пробег, тыс. км</div>
          <div class="label-right">
             Пробег на {{ latestDate }}: {{ latestMileage.toLocaleString() }} км
          </div>
       </div>
-      <canvas ref="chartRef"></canvas>
 
-      <div class="owners-bar">
+      <canvas v-if="props.dataPoints.length > 0" ref="chartRef"></canvas>
+
+      <div v-if="segments.length > 0" class="owners-bar">
          <div v-for="(segment, index) in segments" :key="index" class="owner-segment" :style="{
             width: `${(segment.days / totalDays) * 100}%`,
             backgroundColor: segment.color,
-            borderTopLeftRadius: index === '0',
-            borderTopRightRadius: index === '0'
+            borderTopLeftRadius: index === 0,
+            borderTopRightRadius: index === segments.length - 1
          }">
             <span class="owners-text"></span>
          </div>
       </div>
-      <div class="owners-label">Владельцы</div>
+
+      <div v-if="segments.length > 0" class="owners-label">Владельцы</div>
    </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import { useNuxtApp } from '#app';
 import { format, differenceInDays, parse } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -33,61 +35,53 @@ const latestPoint = computed(() => {
    return sorted[0];
 });
 
-const latestDate = computed(() =>
-   format(new Date(latestPoint.value.date), 'd MMMM yyyy', { locale: ru })
-);
-
+const latestDate = computed(() => {
+   if (!latestPoint.value || !latestPoint.value.date) {
+      return null;
+   }
+   return format(new Date(latestPoint.value.date), 'd MMMM yyyy', { locale: ru });
+});
 const latestMileage = computed(() => latestPoint.value.mileage);
 
 const ownerColors = [
-   '#A4DCFF', // Голубой
-   '#AFF1CA', // Светло-зеленый
-   '#D6C7FF', // Лаванда
-   '#FDCDFF', // Розовый
-   '#D6D6D6', // Серый
-   '#FFC1C1', // Светло-красный
-   '#FFEB99', // Желтый
-   '#B3FFB3', // Светло-зеленый
-   '#FFCC99', // Оранжевый
-   '#C4E1FF', // Голубой
-   '#F2B5D4', // Розово-фиолетовый
-   '#FFB3E6', // Лавандовый розовый
-   '#FF9A8B', // Персиковый
-   '#D1F1FF', // Бледно-голубой
-   '#FFE1A1'  // Желтоватый
+   '#A4DCFF', '#AFF1CA', '#D6C7FF', '#FDCDFF', '#D6D6D6', '#FFC1C1',
+   '#FFEB99', '#B3FFB3', '#FFCC99', '#C4E1FF', '#F2B5D4', '#FFB3E6',
+   '#FF9A8B', '#D1F1FF', '#FFE1A1'
 ];
 
 const calculateOwnerSegments = (owners) => {
    const segments = [];
-   console.log(owners)
    let totalDays = 0;
+
+   if (owners.length === 0) {
+      return { segments, totalDays };
+   }
 
    const ownerDates = owners.map(owner => parse(owner.date, 'yyyy-MM-dd', new Date()));
 
-   totalDays = differenceInDays(new Date(), ownerDates[ownerDates.length - 1]);
-
+   if (owners.length === 1) {
+      totalDays = differenceInDays(new Date(), ownerDates[0]);
+   } else {
+      totalDays = differenceInDays(new Date(), ownerDates[ownerDates.length - 1]);
+   }
 
    for (let i = 0; i < ownerDates.length; i++) {
       let days = 0;
 
-      if (i === 0) {
+      if (i === 0 && ownerDates.length > 1) {
          days = differenceInDays(ownerDates[1], ownerDates[0]);
-      }
-      else if (i === 1) {
-         days = differenceInDays(ownerDates[2], ownerDates[1]);
-      }
-      else {
-         days = differenceInDays(new Date(), ownerDates[2]);
+      } else if (i === ownerDates.length - 1) {
+         days = differenceInDays(new Date(), ownerDates[i]);
+      } else {
+         days = differenceInDays(ownerDates[i + 1], ownerDates[i]);
       }
 
-      console.log(`Owner ${owners[i].name} has ${days} days`);
-
-      segments.push({ name: owners[i].name, days, color: ownerColors[i] });
+      const colorIndex = i % ownerColors.length;
+      segments.push({ name: owners[i].name, days, color: ownerColors[colorIndex] });
    }
 
    return { segments, totalDays };
 };
-
 
 const { $chart } = useNuxtApp();
 const chartRef = ref(null);
@@ -107,7 +101,7 @@ const props = defineProps({
 const { segments, totalDays } = calculateOwnerSegments(props.owners);
 
 const createChart = () => {
-   if (!chartRef.value) return;
+   if (!chartRef.value || props.dataPoints.length === 0) return;
 
    if (chartInstance) {
       chartInstance.destroy();
@@ -132,25 +126,30 @@ const createChart = () => {
          responsive: true,
          maintainAspectRatio: false,
          plugins: {
-            legend: {
-               display: false,
-            },
+            legend: { display: false },
          },
          scales: {
             x: {
                grid: { display: false },
+               offset: false,
+               bounds: 'data',
+               clip: true,
                ticks: {
-                  callback: function (val, index, ticks) {
-                     const date = new Date(props.dataPoints[index].date);
-                     const currentYear = date.getFullYear();
-
-                     const prevDate = index > 0 ? new Date(props.dataPoints[index - 1].date) : null;
-                     const prevYear = prevDate ? prevDate.getFullYear() : null;
-
-                     const formatted = format(date, 'd MMM', { locale: ru });
-                     return currentYear !== prevYear ? `${formatted} ${currentYear}` : formatted;
+                  align: 'inner',
+                  padding: 0,
+                  maxRotation: 0,
+                  minRotation: 0,
+                  callback: function (val, index) {
+                     const point = props.dataPoints[index]
+                     if (!point) return ''
+                     const date = new Date(point.date)
+                     const currentYear = date.getFullYear()
+                     const prevDate = index > 0 ? new Date(props.dataPoints[index - 1].date) : null
+                     const prevYear = prevDate ? prevDate.getFullYear() : null
+                     const formatted = format(date, 'd MMM', { locale: ru })
+                     return currentYear !== prevYear ? `${formatted} ${currentYear}` : formatted
                   }
-               }
+               },
             },
             y: {
                grid: { display: true },
@@ -204,6 +203,7 @@ canvas {
 
 .owners-bar {
    margin-top: 20px;
+   margin-left: 50px;
    height: 14px;
    display: flex;
    gap: 2px;
@@ -236,5 +236,6 @@ canvas {
    line-height: 16px;
    color: #A8A8A8;
    margin-top: 8px;
+   margin-left: 50px;
 }
 </style>

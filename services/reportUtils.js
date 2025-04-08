@@ -28,7 +28,22 @@ function getStatusFromColor(color) {
 }
 
 export function transformAccidentsData(infoAccident) {
-   if (!infoAccident || !infoAccident.value) return null;
+   if (!infoAccident.value) {
+      return {
+         id: 'accidents',
+         title: infoAccident.title || 'Участие в ДТП',
+         description: infoAccident.description || 'Данные об авариях хранятся и предоставляются ГИБДД',
+         date: format(new Date(infoAccident.checkDateTime), 'd MMMM yyyy', { locale: ru }),
+         accidents: [],
+         params: [
+            {
+               title: infoAccident.info || 'Нет данных',
+               description: infoAccident.info_description || null,
+               status: getStatusFromColor(infoAccident.color_baige),
+            },
+         ]
+      };
+   }
 
    const accidents = infoAccident.value.map(acc => {
       const dateFull = format(new Date(acc.crashDate), 'd MMMM yyyy', { locale: ru });
@@ -54,12 +69,18 @@ export function transformAccidentsData(infoAccident) {
    return {
       id: 'accidents',
       title: infoAccident.title || 'Участие в ДТП',
-      description: infoAccident.info_description || '',
+      description: infoAccident.description || 'Данные об авариях хранятся и предоставляются ГИБДД',
       date: format(new Date(infoAccident.checkDateTime), 'd MMMM yyyy', { locale: ru }),
-      accidents
+      accidents,
+      params: [
+         {
+            title: infoAccident.info || 'Нет данных',
+            description: infoAccident.info_description || null,
+            status: getStatusFromColor(infoAccident.color_baige),
+         },
+      ]
    };
 }
-
 
 export function transformAuctionData(infoAuction) {
    if (!infoAuction) return null;
@@ -72,12 +93,12 @@ export function transformAuctionData(infoAuction) {
       params: [
          {
             title: infoAuction.info || 'Нет данных',
-            description: infoAuction.info_description || '',
-            status: infoAuction.color_baige === 'green' ? 1 : infoAuction.color_baige === 'gray' ? 2 : 3
+            description: infoAuction.info_description || null,
+            status: getStatusFromColor(infoAuction.color_baige),
          },
          {
             title: infoAuction.info_2 || 'Нет данных',
-            description: infoAuction.info_description_2 || '',
+            description: infoAuction.info_description_2 || null,
             status: getStatusFromColor(infoAuction.color_baige)
          }
       ]
@@ -87,7 +108,9 @@ export function transformAuctionData(infoAuction) {
 export function transformOwnersData(infoOwners) {
    if (!infoOwners || !Array.isArray(infoOwners.value)) return null;
 
-   const owners = infoOwners.value.map((ownerData, index) => {
+   const ownersArray = [].concat(...infoOwners.value);
+
+   const owners = ownersArray.map((ownerData, index) => {
       const start = ownerData.startDate ? format(new Date(ownerData.startDate), 'd MMMM yyyy', { locale: ru }) : '';
       const end = ownerData.endDate ? format(new Date(ownerData.endDate), 'd MMMM yyyy', { locale: ru }) : 'н.в.';
       const period = ownerData.period_ownership || '';
@@ -99,13 +122,13 @@ export function transformOwnersData(infoOwners) {
       };
    });
 
-   const hasLegalEntity = infoOwners.value.some(owner => owner.is_natural_person === 0);
+   const hasLegalEntity = ownersArray.some(owner => owner.is_natural_person === 0);
    const count = infoOwners.count_owners || owners.length;
 
    return {
       id: 'pts-owners',
       title: infoOwners.title || 'Владельцев из ПТС',
-      description: infoOwners.description || null,
+      description: infoOwners.description || "Сведения о периодах владения предоставляются ГИБДД и актуальны только на момент покупки отчета.",
       date: format(new Date(infoOwners.checkDateTime), 'd MMMM yyyy', { locale: ru }),
       params: [
          {
@@ -127,7 +150,7 @@ export function transformWantedData(infoHijacked) {
       params: [
          {
             title: infoHijacked.info || 'Нет данных',
-            description: infoHijacked.info_description || '',
+            description: infoHijacked.info_description || null,
             status: getStatusFromColor(infoHijacked.color_baige),
          },
       ],
@@ -138,75 +161,100 @@ export function transformLeasingData(infoLeasing) {
    return {
       id: "leasing-contracts",
       title: infoLeasing.title || "Договоры лизинга",
-      description: infoLeasing.info_description || null,
+      description: "Лизинг — долгосрочная аренда. Автомобиль мог подвергаться сильному износу, стоит обратить внимание на его состояние",
       date: format(new Date(infoLeasing.checkDateTime), 'd MMMM yyyy', { locale: ru }),
       params: [
          {
             title: infoLeasing.info || 'Нет данных',
-            description: "По данным Единого федерального реестра сведений о фактах деятельности юридических лиц.",
+            description: infoLeasing.info_description || null,
             status: getStatusFromColor(infoLeasing.color_baige),
          },
       ],
    };
 }
 
-function detectRollback(mileageArray) {
-   for (let i = 1; i < mileageArray.length; i++) {
-      if (mileageArray[i].mileage < mileageArray[i - 1].mileage) {
-         return true;
-      }
+export function transformMileageData(info) {
+   const data = info?.value;
+   console.log(data, 'wefwfwefwef')
+   if (!Array.isArray(data)) {
+      console.warn('transformMileageData: ожидается массив info.value, но пришло:', data);
+      return {
+         id: "mileage-history",
+         title: info.title,
+         description: null,
+         date: format(new Date(info.checkDateTime), 'd MMMM yyyy', { locale: ru }),
+         params: [
+            {
+               title: info.info,
+               description: info.info_description || null,
+               status: getStatusFromColor(info.color_baige),
+            }
+         ],
+         mileageData: [],
+         ownersData: [],
+      };
    }
-   return false;
-}
 
-function detectMismatch(mileageArray) {
-   for (let i = 1; i < mileageArray.length; i++) {
-      const diff = mileageArray[i].mileage - mileageArray[i - 1].mileage;
-      const dateDiff = new Date(mileageArray[i].date) - new Date(mileageArray[i - 1].date);
-      const months = dateDiff / (1000 * 60 * 60 * 24 * 30);
+   const mileageDataMap = new Map();
+   const ownersMap = new Map();
 
-      if (months > 0 && diff / months > 10000) {
-         return true;
+   data.forEach((item, index) => {
+      const date = item.mileage.date.split(' ')[0];
+      mileageDataMap.set(date, item.mileage.mileage);
+
+      const startDate = item.owner?.startDate?.split(' ')[0];
+      const key = `${startDate}`;
+      if (startDate && !ownersMap.has(key)) {
+         ownersMap.set(key, {
+            name: `${index}`,
+            date: startDate,
+         });
       }
-   }
-   return false;
-}
 
-export function transformMileageData(infoMileage, ownersInfo) {
-   const rawData = infoMileage.value || [];
+      console.log(`Processing owner ${index}:`, { startDate, key: `${startDate}` });
+   });
 
-   const sortedMileage = rawData
-      .slice()
+   console.log(ownersMap)
+
+   const mileageData = [...mileageDataMap.entries()]
+      .map(([date, mileage]) => ({ date, mileage }))
       .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-   const rollbackDetected = detectRollback(sortedMileage);
-   const mismatchDetected = detectMismatch(sortedMileage);
+   const ownersData = [...ownersMap.values()]
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-   const ownersData = ownersInfo.map((owner, index) => ({
-      name: (index + 1).toString(),
-      date: format(new Date(owner.startDate), 'yyyy-MM-dd'),
-   }));
+   const params = [];
+
+   if (mileageData.length >= 2) {
+      for (let i = 1; i < mileageData.length; i++) {
+         if (mileageData[i].mileage < mileageData[i - 1].mileage) {
+            params.push({
+               title: "Скручивание пробега",
+               description: "Обнаружены возможные манипуляции с пробегом",
+               status: 3,
+            });
+            break;
+         }
+      }
+   }
+
+   if (mileageData.length > 0) {
+      params.push({
+         title: info.info,
+         description: info.info_description || null,
+         status: getStatusFromColor(info.color_baige),
+      });
+   }
 
    return {
       id: "mileage-history",
-      title: infoMileage.title || "История пробегов",
-      description: null,
-      date: format(new Date(infoMileage.checkDateTime), 'd MMMM yyyy', { locale: ru }),
-      params: [
-         {
-            title: rollbackDetected
-               ? "Скручивание пробега"
-               : "Манипуляции с пробегом не обнаружены",
-            description: rollbackDetected
-               ? "Обнаружены возможные манипуляции с пробегом"
-               : "Скручивание пробега не зафиксировано на основе данных ТО",
-            status: rollbackDetected ? 3 : 1
-         },
-      ],
-      mileageData: sortedMileage.map(item => ({
-         date: format(new Date(item.date), 'yyyy-MM-dd'),
-         mileage: item.mileage
-      })),
+      title: info.title || "История пробегов",
+      description: info.info || null,
+      date: info.checkDateTime?.split(' ')[0] || null,
+      color: info.color_baige || null,
+      status: info.status || null,
+      params,
+      mileageData,
       ownersData,
    };
 }
@@ -215,7 +263,7 @@ export function transformOsagoData(infoOsago) {
    return {
       id: "insurance-policies",
       title: infoOsago.title,
-      description: infoOsago.description,
+      description: infoOsago.description || null,
       date: new Date(infoOsago.checkDateTime).toLocaleDateString("ru-RU", { year: 'numeric', month: 'long', day: 'numeric' }),
       icon: docIcon,
       price_history: infoOsago.value.map(policy => ({
@@ -270,7 +318,7 @@ export function transformPledgeData(infoPledge) {
    return {
       id: "pledge-data",
       title: infoPledge.title,
-      description: infoPledge.info_description || null,
+      description: null,
       date: new Date(infoPledge.checkDateTime).toLocaleDateString("ru-RU", { year: 'numeric', month: 'long', day: 'numeric' }),
       params: [
          {
@@ -286,7 +334,7 @@ export function transformPtsData(infoPts) {
    return {
       id: "pts-data",
       title: infoPts.title || "Данные из ПТС",
-      description: infoPts.description || "Информация из ПТС транспортного средства",
+      description: "Проверьте  эти данные при заключении сделки, они указаны в паспорте транспортного средства. Сведения предоставляются ГИБДД.",
       date: new Date(infoPts.checkDateTime).toLocaleDateString("ru-RU", { year: 'numeric', month: 'long', day: 'numeric' }),
       stats: [
          {
@@ -338,13 +386,13 @@ export function transformRecallCampaignsData(infoRecalledCompanies) {
    return {
       id: "recall-campaigns",
       title: infoRecalledCompanies.title || "Отзывные кампании",
-      description: infoRecalledCompanies.info_description
+      description: infoRecalledCompanies.description
          || "Иногда производители отзывают свои автомобили из-за некачественной сборки или деталей и заменяют их покупателям независимо от гарантии. Данные о таких кампаниях на территории РФ предоставляются Росстандартом",
       date: new Date(infoRecalledCompanies.checkDateTime).toLocaleDateString("ru-RU", { year: 'numeric', month: 'long', day: 'numeric' }),
       params: [
          {
             title: infoRecalledCompanies.info || "Отзывных кампаний не зарегистрировано",
-            description: infoRecalledCompanies.info_description || "Иногда производители отзывают свои автомобили из-за некачественной сборки или деталей и заменяют их покупателям независимо от гарантии. Данные о таких кампаниях на территории РФ предоставляются Росстандартом",
+            description: infoRecalledCompanies.info_description || null,
             status: getStatusFromColor(infoRecalledCompanies.color_baige),
          },
       ]
@@ -356,8 +404,15 @@ export function transformRepairData(infoRepair) {
    return {
       id: "repair-cost",
       title: infoRepair.title || "Расчёт стоимости ремонта",
-      description: infoRepair.info_description || "Стоимость ремонта оценивают страховые компании при наступлении страхового случая. Разные компании могут рассчитывать стоимость ремонта, а наличие расчёта не означает, что автомобиль ремонтировали. Данные предоставляются Audatex.",
+      description: infoRepair.description || "Стоимость ремонта оценивают страховые компании при наступлении страхового случая. Разные компании могут рассчитывать стоимость ремонта, а наличие расчёта не означает, что автомобиль ремонтировали. Данные предоставляются Audatex.",
       date: new Date(infoRepair.checkDateTime).toLocaleDateString("ru-RU", { year: 'numeric', month: 'long', day: 'numeric' }),
+      params: [
+         {
+            title: infoRepair.info,
+            description: infoRepair.info_description,
+            status: getStatusFromColor(infoRepair.color_baige),
+         },
+      ],
       updates: [
          {
             date: infoRepair.checkDateTime || "Не указана дата",
@@ -414,4 +469,40 @@ function mapKeyToId(key) {
    }
 
    return map[key] || key
+}
+
+export function transformRestrictionData(data) {
+   return {
+      id: "restrictions",
+      title: data.title || "Наличие ограничений",
+      description: null,
+      date: new Date(data.checkDateTime).toLocaleDateString("ru-RU", { year: 'numeric', month: 'long', day: 'numeric' }),
+      params: [
+         {
+            title: data.info || null,
+            description: data.info_description || null,
+            status: getStatusFromColor(data.color_baige),
+         },
+      ],
+   };
+}
+
+export function transformTaxiData(data) {
+   return {
+      id: "taxi",
+      title: data.title || "Работа в такси",
+      description: null,
+      date: new Date(data.checkDateTime).toLocaleDateString("ru-RU", {
+         year: "numeric",
+         month: "long",
+         day: "numeric",
+      }),
+      params: [
+         {
+            title: data.info || null,
+            description: data.info_description || null,
+            status: getStatusFromColor(data.color_baige),
+         },
+      ],
+   };
 }

@@ -62,13 +62,13 @@
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { ref, computed, onMounted } from 'vue';
-import { getReportById, getCarById } from '~/services/apiClient';
+import { getReportById, getCarById, fetchUserReports, getUsers } from '~/services/apiClient';
 import historyIcon from '@/assets/icons/icon-history.svg'
 import updateIcon from '@/assets/icons/update-icon.svg'
 import docIcon from '@/assets/icons/doc-icon.svg'
 import fineIcon from '@/assets/icons/fine-icon.svg'
 import testicon from '@/assets/icons/test-icon.svg'
-import { transformAccidentsData, transformAuctionData, transformOwnersData, transformWantedData, transformLeasingData, transformMileageData, transformOsagoData, transformPledgeData, transformPtsData, transformRecallCampaignsData, transformRepairData, transformShortReportToList } from '@/services/reportUtils';
+import { transformAccidentsData, transformAuctionData, transformOwnersData, transformWantedData, transformLeasingData, transformMileageData, transformOsagoData, transformPledgeData, transformPtsData, transformRecallCampaignsData, transformRepairData, transformShortReportToList, transformRestrictionData, transformTaxiData } from '@/services/reportUtils';
 import { useRoute } from 'vue-router';
 import { usePayPopupStore } from '@/store/payPopupStore';
 
@@ -97,6 +97,7 @@ const toggleReportPopup = () => {
 const route = useRoute();
 const report = ref(null);
 const reportFromApi = ref(null);
+const reportDataInfo = ref(null);
 const isLoading = ref(true);
 const accidentsReport = ref(null);
 const auctionsReport = ref(null);
@@ -109,14 +110,14 @@ const pledgeReport = ref(null);
 const ptsReport = ref(null);
 const recalledReport = ref(null);
 const repairReport = ref(null);
-const reportDataInfo = ref(null);
+const restrictionReport = ref(null);
+const taxiReport = ref(null);
 
 const fetchReportDetails = async (id) => {
    isLoading.value = true;
    try {
       report.value = await getCarById(id);
       reportFromApi.value = await getReportById(id);
-      console.log(reportFromApi.value);
       if (reportFromApi.value?.data.info_accident) {
          accidentsReport.value = transformAccidentsData(reportFromApi.value.data.info_accident);
       }
@@ -137,9 +138,8 @@ const fetchReportDetails = async (id) => {
          leasingReport.value = transformLeasingData(reportFromApi.value.data.info_leasing);
       }
 
-      if (reportFromApi.value?.data.info_mileage && reportFromApi.value?.data.info_count_owners) {
-         console.log(reportFromApi.value.data.info_count_owners.value)
-         mileageReport.value = transformMileageData(reportFromApi.value.data.info_mileage, reportFromApi.value.data.info_count_owners.value);
+      if (reportFromApi.value?.data.info_mileage) {
+         mileageReport.value = transformMileageData(reportFromApi.value.data.info_mileage);
       }
 
       if (reportFromApi.value?.data.info_osago) {
@@ -166,6 +166,14 @@ const fetchReportDetails = async (id) => {
          reportDataInfo.value = transformShortReportToList(reportFromApi.value.data.total_short_report);
       }
 
+      if (reportFromApi.value?.data.info_restriction) {
+         restrictionReport.value = transformRestrictionData(reportFromApi.value.data.info_restriction);
+      }
+
+      if (reportFromApi.value?.data.info_taxi) {
+         taxiReport.value = transformTaxiData(reportFromApi.value.data.info_taxi);
+      }
+
    } catch (error) {
       console.error("Ошибка при получении данных:", error);
    } finally {
@@ -176,6 +184,8 @@ const fetchReportDetails = async (id) => {
 onMounted(() => {
    const reportId = Number(route.path.split('/').pop());
    fetchReportDetails(reportId);
+   fetchUserReports();
+   getUsers();
 });
 
 const reportData = computed(() => [
@@ -212,6 +222,12 @@ const reportData = computed(() => [
    {
       ...repairReport.value,
    },
+   {
+      ...restrictionReport.value,
+   },
+   {
+      ...taxiReport.value,
+   }
 ]);
 </script>
 

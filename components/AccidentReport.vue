@@ -2,7 +2,8 @@
    <div v-for="(accident, index) in data.accidents" :key="index" class="accident-section">
       <div v-for="(detail, detailIndex) in accident.details" :key="detailIndex" class="detail-section">
          <!-- Заголовок ДТП -->
-         <div v-if="!isTimeline" class="title">{{ detail.accidentType }}, {{ detail.otherParticipants.length + 1 }}
+         <div v-if="!isTimeline" class="title"> <img class="accident__icon" :src="crashIcon" />{{ detail.accidentType }}, {{
+            detail.otherParticipants.length + 1 }}
             участника</div>
          <div v-if="!isTimeline" class="accident-header">
             <p class="accident-date">{{ detail.date }},</p>
@@ -40,6 +41,7 @@
 
 <script setup>
 import { defineProps } from 'vue';
+import crashIcon from '../assets/icons/crash-icon.svg';
 
 defineProps({
    data: {
@@ -89,6 +91,9 @@ defineProps({
 
 .title {
    margin-bottom: 8px;
+   display: flex;
+   align-items: center;
+   gap: 8px;
    font-size: 14px;
    margin-top: 24px;
    font-weight: 700;

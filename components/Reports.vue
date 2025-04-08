@@ -17,7 +17,6 @@
             <button class="actions-button"><img :src="specIcon" alt="">Проверить</button>
          </div>
       </div>
-
       <!-- Плейсхолдер для пустого списка -->
       <div class="notifications__placeholder">
          <svg height="64" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -39,6 +38,21 @@
 <script setup>
 import searchIcon from '../assets/icons/search-blue.svg';
 import specIcon from '../assets/icons/spec-check-icon-w.svg';
+import { fetchUserReports } from '@/services/apiClient';
+
+const reports = ref([]);
+const loading = ref(true);
+
+onMounted(async () => {
+   try {
+      const data = await fetchUserReports();
+      reports.value = data;
+   } catch (err) {
+      console.error('Ошибка при загрузке отчетов', err);
+   } finally {
+      loading.value = false;
+   }
+});
 </script>
 
 <style scoped lang="scss">

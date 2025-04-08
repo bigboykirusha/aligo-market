@@ -28,9 +28,6 @@
                   {{ option.text }}
                </li>
             </ul>
-            <button class="popup__close-button" @click="togglePopup">
-               <img :src="closeIcon" alt="Close icon" />
-            </button>
          </div>
 
          <!-- Card Details -->
@@ -103,7 +100,7 @@
                   <span class="button-2__text">{{ buttonText }}</span>
                </div>
                <div v-if="!delete_after_days" class="button-2" @click="handleButtonClick">
-                  <img :src="actionIcon" alt="Action icon" class="button-2__icon" />
+                  <img :src="showPopup ? closeIcon : actionIcon" alt="Action icon" class="button-2__icon" />
                </div>
             </div>
          </div>
@@ -355,6 +352,8 @@ const togglePopup = () => {
 };
 
 const handleClickOutside = (event) => {
+   if (window.innerWidth < 768) return;
+
    const isOutside = popupRef.value && !popupRef.value.contains(event.target);
    if (isOutside) showPopup.value = false;
 };
@@ -525,6 +524,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', handleClickOut
    &__more-column {
       display: flex;
       flex-direction: column;
+      min-width: 170px;
       gap: 16px;
 
       @media (max-width: 1024px) {
@@ -653,6 +653,10 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', handleClickOut
       width: fit-content;
       height: 34px;
 
+      @media (max-width: 768px) {
+         z-index: 15;
+      }
+
       &__icon {
          height: 16px;
       }
@@ -684,6 +688,10 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', handleClickOut
 
       &:hover {
          background: #9ed2f1;
+
+         @media (max-width: 768px) {
+            background: #D6EFFF;
+         }
       }
    }
 }
@@ -763,7 +771,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', handleClickOut
       transform: scale(0);
       border-radius: 0 8px 8px 0;
       border: none;
-      width: calc(100% - 145px);
+      width: calc(100% - 125px);
       padding: 12px;
    }
 
